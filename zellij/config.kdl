@@ -1,0 +1,231 @@
+// If you'd like to override the default keybindings completely, be sure to change "keybinds" to "keybinds clear-defaults=true"
+keybinds {
+    locked clear-defaults=true {
+    }
+
+    normal clear-defaults=true {
+        //bind "Esc" { SwitchToMode "Normal"; }
+        bind "Alt 1" { SwitchToMode "Tab"; }
+        bind "Alt 2" { SwitchToMode "Pane"; }
+        bind "Alt 3" { SwitchToMode "Resize"; }
+        bind "Alt 4" { SwitchToMode "Move"; }
+        bind "Alt 8" { SwitchToMode "Scroll"; }
+        bind "Alt 9" { SwitchToMode "Entersearch"; }
+
+        bind "Alt 0" {
+            LaunchOrFocusPlugin "zellij:session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
+    }
+
+    tab clear-defaults=true {
+        bind "Esc" { SwitchToMode "Normal"; }
+        //bind "Alt 1" { SwitchToMode "Tab"; }
+        bind "Alt 2" { SwitchToMode "Pane"; }
+        bind "Alt 3" { SwitchToMode "Resize"; }
+        bind "Alt 4" { SwitchToMode "Move"; }
+        bind "Alt 8" { SwitchToMode "Scroll"; }
+        bind "Alt 9" { SwitchToMode "Entersearch"; }
+
+        bind "Alt 0" {
+            LaunchOrFocusPlugin "zellij:session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
+
+        bind "r" { SwitchToMode "RenameTab"; TabNameInput 0; }
+        bind "j" { GoToPreviousTab; }
+        bind ";" "Right" "Down" "j" { GoToNextTab; }
+        bind "n" { NewTab; SwitchToMode "Normal"; }
+        bind "x" { CloseTab; SwitchToMode "Normal"; }
+        bind "Tab" { ToggleTab; }
+        bind "1" { GoToTab 1; SwitchToMode "Normal"; }
+        bind "2" { GoToTab 2; SwitchToMode "Normal"; }
+        bind "3" { GoToTab 3; SwitchToMode "Normal"; }
+        bind "4" { GoToTab 4; SwitchToMode "Normal"; }
+        bind "5" { GoToTab 5; SwitchToMode "Normal"; }
+        bind "6" { GoToTab 6; SwitchToMode "Normal"; }
+        bind "7" { GoToTab 7; SwitchToMode "Normal"; }
+        bind "8" { GoToTab 8; SwitchToMode "Normal"; }
+        bind "9" { GoToTab 9; SwitchToMode "Normal"; }
+    }
+
+    pane clear-defaults=true {
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Alt 1" { SwitchToMode "Tab"; }
+        //bind "Alt 2" { SwitchToMode "Pane"; }
+        bind "Alt 3" { SwitchToMode "Resize"; }
+        bind "Alt 4" { SwitchToMode "Move"; }
+        bind "Alt 8" { SwitchToMode "Scroll"; }
+        bind "Alt 9" { SwitchToMode "Entersearch"; }
+
+        bind "Alt 0" {
+            LaunchOrFocusPlugin "zellij:session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
+
+        bind "j" { MoveFocus "Left"; }
+        bind ";" { MoveFocus "Right"; }
+        bind "k" { MoveFocus "Down"; }
+        bind "l" { MoveFocus "Up"; }
+        bind "n" { NewPane; SwitchToMode "Pane"; }
+        bind "x" { CloseFocus; SwitchToMode "Pane"; }
+        bind "f" { ToggleFocusFullscreen; SwitchToMode "Pane"; }
+        bind "c" { SwitchToMode "RenamePane"; PaneNameInput 0;}
+    }
+
+    resize clear-defaults=true {
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Alt 1" { SwitchToMode "Tab"; }
+        bind "Alt 2" { SwitchToMode "Pane"; }
+        //bind "Alt 3" { SwitchToMode "Resize"; }
+        bind "Alt 4" { SwitchToMode "Move"; }
+        bind "Alt 8" { SwitchToMode "Scroll"; }
+        bind "Alt 9" { SwitchToMode "Entersearch"; }
+
+        bind "Alt 0" {
+            LaunchOrFocusPlugin "zellij:session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
+
+        bind "j" { Resize "Increase Left"; }
+        bind "k" { Resize "Increase Down"; }
+        bind "l" { Resize "Increase Up"; }
+        bind ";" { Resize "Increase Right"; }
+    }
+
+    move clear-defaults=true {
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Alt 1" { SwitchToMode "Tab"; }
+        bind "Alt 2" { SwitchToMode "Pane"; }
+        bind "Alt 3" { SwitchToMode "Resize"; }
+        //bind "Alt 4" { SwitchToMode "Move"; }
+        bind "Alt 8" { SwitchToMode "Scroll"; }
+        bind "Alt 9" { SwitchToMode "Entersearch"; }
+
+        bind "Alt 0" {
+            LaunchOrFocusPlugin "zellij:session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
+
+        bind "j" { MovePane "Left"; }
+        bind "k" { MovePane "Down"; }
+        bind "l" { MovePane "Up"; }
+        bind ";" { MovePane "Right"; }
+    }
+
+    scroll clear-defaults=true {
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Alt 1" { SwitchToMode "Tab"; }
+        bind "Alt 2" { SwitchToMode "Pane"; }
+        bind "Alt 3" { SwitchToMode "Resize"; }
+        bind "Alt 4" { SwitchToMode "Move"; }
+        //bind "Alt 8" { SwitchToMode "Scroll"; }
+        bind "Alt 9" { SwitchToMode "Entersearch"; }
+
+        bind "Alt 0" {
+            LaunchOrFocusPlugin "zellij:session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
+        
+        bind "G" { ScrollToBottom; SwitchToMode "Scroll"; }
+        bind "g" { ScrollToTop; SwitchToMode "Scroll"; }
+        bind "k" { ScrollDown; }
+        bind "l" { ScrollUp; }
+    }
+
+    search clear-defaults=true {
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Alt 1" { SwitchToMode "Tab"; }
+        bind "Alt 2" { SwitchToMode "Pane"; }
+        bind "Alt 3" { SwitchToMode "Resize"; }
+        bind "Alt 4" { SwitchToMode "Move"; }
+        bind "Alt 8" { SwitchToMode "Scroll"; }
+        bind "Alt 9" { SwitchToMode "Entersearch"; }
+
+        bind "Alt 0" {
+            LaunchOrFocusPlugin "zellij:session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
+
+        bind "n" { Search "down"; }
+        bind "N" { Search "up"; }
+        bind "c" { SearchToggleOption "CaseSensitivity"; }
+    }
+
+    entersearch clear-defaults=true {
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Alt 1" { SwitchToMode "Tab"; }
+        bind "Alt 2" { SwitchToMode "Pane"; }
+        bind "Alt 3" { SwitchToMode "Resize"; }
+        bind "Alt 4" { SwitchToMode "Move"; }
+        bind "Alt 8" { SwitchToMode "Scroll"; }
+        //bind "Alt 9" { SwitchToMode "Entersearch"; }
+
+        bind "Alt 0" {
+            LaunchOrFocusPlugin "zellij:session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
+
+        bind "Enter" { SwitchToMode "Search"; }
+    }
+
+    renametab clear-defaults=true {
+        bind "Esc" { UndoRenameTab; SwitchToMode "Tab"; }
+        bind "Alt 1" { SwitchToMode "Tab"; }
+        bind "Alt 2" { SwitchToMode "Pane"; }
+        bind "Alt 3" { SwitchToMode "Resize"; }
+        bind "Alt 4" { SwitchToMode "Move"; }
+        bind "Alt 8" { SwitchToMode "Scroll"; }
+        bind "Alt 9" { SwitchToMode "Entersearch"; }
+
+        bind "Alt 0" {
+            LaunchOrFocusPlugin "zellij:session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
+
+        bind "Enter" { SwitchToMode "Tab"; }
+    }
+}
+
+plugins {
+    tab-bar { path "tab-bar"; }
+    //status-bar { path "status-bar"; }
+    strider { path "strider"; }
+    //compact-bar { path "compact-bar"; }
+    session-manager { path "session-manager"; }
+}
+
+pane_frames false
+
+default_mode "normal"
+
+simplified_ui true
+
+default_shell "zsh"

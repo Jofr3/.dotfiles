@@ -1,0 +1,31 @@
+{
+    "log": {
+        "prefix": [
+            "log"
+        ],
+        "body": [
+            "console.log(${1:foo})"
+        ]
+    },
+    "fun": {
+        "prefix": [
+            "fun"
+        ],
+        "body": [
+            "function ${1:foo}() {",
+            "}"
+        ]
+    },
+    "load": {
+        "prefix": [
+            "load"
+        ],
+        "body": [
+            "export function load() {",
+            "    return {",
+            "        ${1:foo}: \"${2:bar}\"",
+            "    };",
+            "}"
+        ]
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "req": {
+        "prefix": [
+            "req"
+        ],
+        "body": [
+            "require(\"conf.${1:foo}\")"
+        ]
+    }
+}

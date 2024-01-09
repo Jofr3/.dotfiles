@@ -1,0 +1,75 @@
+set -g default-terminal "tmux-256color" 
+
+set -s escape-time 0
+
+set-window-option -g mode-keys vi
+
+set -g mouse on
+
+bind-key C command-prompt -p "Name of new window: " "new-window -n '%%'"
+
+unbind C-b
+set -g prefix C-a
+bind C-M send-prefix
+
+set -g base-index 1
+set -g pane-base-index 1
+
+unbind r
+bind r \
+ source-file ~/.tmux.conf \;\
+     display 'Reloaded tmux config.'
+
+unbind o
+unbind C-o
+bind -n M-o split-window -h
+
+unbind p
+unbind C-p
+bind -n M-p split-window
+
+unbind n
+unbind C-n
+bind -n M-n new-window
+
+bind -n M-b command-prompt -p "Name of new window: " "new-window -n '%%'"
+
+unbind c
+unbind C-c
+bind -n M-c kill-pane
+
+unbind q
+unbind C-q
+bind -n M-q kill-session
+
+unbind h
+unbind j
+unbind k
+unbind l
+bind -n M-h select-pane -L
+bind -n M-l select-pane -R
+bind -n M-j select-pane -D
+bind -n M-k select-pane -U
+
+unbind m
+unbind C-m
+bind -n M-m new-session
+
+set-option -g allow-rename off
+
+unbind Left
+unbind Right
+bind -n M-Left previous-window
+bind -n M-Right next-window
+
+set-option -g status on
+set-option -g status-position bottom
+set-option -g status-style fg=colour162,bg=colour233
+set-option -g status-keys vi
+set-option -g status-justify centre
+
+setw -g window-status-format ' #W:#I '
+setw -g window-status-current-format ' #W:#I '
+setw -g window-status-current-style fg=black,bold,bg=colour162
+setw -g window-status-style fg=colour162,bg=black,bold
+setw -g window-status-bell-style bold,fg=colour162,bg=colour162

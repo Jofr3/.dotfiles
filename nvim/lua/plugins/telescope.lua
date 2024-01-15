@@ -20,7 +20,7 @@ return {
 		})
 	end,
 	keys = {
-		{ "<A-y>", "<cmd>Telescope find_files<cr>", desc = "Find files" },
+		{ "<A-f>", "<cmd>Telescope find_files<cr>", desc = "Find files" },
 		{ "<A-w>", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace symbols" },
 		-- { "<A-h>", "<cmd>Telescope current_buffer_fuzzy_find<cr>",                   desc = "file grep" },
 	},

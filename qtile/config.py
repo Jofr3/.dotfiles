@@ -7,8 +7,7 @@ mod = "mod4"
 terminal = "kitty"
 
 keys = [
-    # at https://docs.qtile.org/en/latest/manual/config/lazy.html
-
+    # Toggle bar
     Key([mod], "i", lazy.hide_show_bar(), desc="Toggles the bar"),
 
     # Cycle tru windows
@@ -41,7 +40,7 @@ keys = [
 ]
 
 
-groups = [Group(i) for i in "sdfghjkl"]
+groups = [Group(i) for i in "12345678"]
 
 for i in groups:
     keys.extend(

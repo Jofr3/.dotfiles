@@ -32,8 +32,8 @@ keys = [
     Key([mod], "n", lazy.spawn("nautilus"), desc="Launch nautilus"),
     
     # Backlight
-    # Key([mod], "u", lazy.spawn("brightnessctl set +5%"), desc="Inc brightness"),
-    # Key([mod], "y", lazy.spawn("brightnessctl set 5%-"), desc="Dec brightness"),
+    Key([mod], "g", lazy.spawn("brightnessctl set 5%-"), desc="Dec brightness"),
+    Key([mod], "h", lazy.spawn("brightnessctl set +5%"), desc="Inc brightness"),
 
     # Color picker
     Key([mod], "y", lazy.spawn("gpick -p -s -o | xsel -b", shell=True), desc="Color picker"),
@@ -92,7 +92,7 @@ extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        wallpaper='~/dotfiles/wallpapers/12.jpg',
+        wallpaper='~/.dotfiles/wallpapers/12.jpg',
         wallpaper_mode='fill',
         top=bar.Bar(
             [

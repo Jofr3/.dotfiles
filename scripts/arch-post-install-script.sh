@@ -6,6 +6,7 @@ mkdir ~/Projects ~/Personal ~/Desktop ~/Downloads ~/.ssh ~/.ssh/keys
 # Install packages
 sudo pacman -S --noconfirm npm chromium docker docker-compose git kitty neofetch fzf ripgrep ttf-jetbrains-mono tree zsh nautilus xf86-input-synaptics neovim alsa-utils sof-firmware brightnessctl ntfs-3g unzip bluez bluez-utils lsof tmux xclip gpick zoxide exa bat lazygit man-db man-pages picom
 
+
 # Install Aura
 git clone https://aur.archlinux.org/aura-bin.git
 cd aura-bin

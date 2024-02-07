@@ -28,22 +28,25 @@ rm ~/.zshrc
 rm .bash*
 
 # Cloning dotfiles
-git clone git@github.com:Jofr3/.dotfiles.git
+git clone git@github.com:Jofr3/.dotfiles.git ~/Desktop/.dotfiles
 
 # Linking dotfiles
-ln -s ~/.dotfiles/qtile ~/.config/qtile
-ln -s ~/.dotfiles/nvim ~/.config/nvim
-ln -s ~/.dotfiles/kitty ~/.config/kitty
-ln -s ~/.dotfiles/zshrc/.zshrc ~/.zshrc
-ln -s ~/.dotfiles/zshrc/.zshenv ~/.zshenv    
-ln -s ~/.dotfiles/tmux/.tmux.conf ~/.tmux.conf
-ln -s ~/.dotfiles/picom ~/.config/picom
+ln -s ~/Desktop/.dotfiles/qtile ~/.config/qtile
+ln -s ~/Desktop/.dotfiles/nvim ~/.config/nvim
+ln -s ~/Desktop/.dotfiles/kitty ~/.config/kitty
+ln -s ~/Desktop/.dotfiles/tmux/.tmux.conf ~/.tmux.conf
+ln -s ~/Desktop/.dotfiles/picom ~/.config/picom
+ln -s ~/Desktop/.dotfiles/zshrc/.zshrc ~/.zshrc
+ln -s ~/Desktop/.dotfiles/zshrc/.zshenv ~/.zshenv    
+ls -s ~/Desktop/.dotfiles/xorg/.xinitrc ~/.xinitrc
+
+sudo chmod +x ~/.xinitrc
 
 # Fix audio bug
-ln -s ~/.dotfiles/other/default.pa /etc/pulse/default.pa
+ln -s ~/Desktop/.dotfiles/other/default.pa /etc/pulse/default.pa
 
 # Fix trackpad light touch
-sudo ln -s ~/.dotfiles/xorg/70-synaptics.conf /etc/X11/xorg.conf.d/70-synaptics.conf
+sudo ln -s ~/Desktop/.dotfiles/xorg/70-synaptics.conf /etc/X11/xorg.conf.d/70-synaptics.conf
 
 # Install nerd font icons
 mkdir icons
@@ -58,6 +61,7 @@ cd ..
 rm -r icons
 
 # Give execute permissions to scripts
-sudo chmod 755 ~/.dotfiles/scripts/utils/*
+sudo chmod +x ~/Desktop/.dotfiles/scripts/utils/*
+sudo chmod +x ~/Desktop/.dotfiles/scripts/tools/*
 
 sudo systemctl enable bluetooth.service

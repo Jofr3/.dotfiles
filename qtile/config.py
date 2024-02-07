@@ -92,7 +92,7 @@ extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        wallpaper='~/.dotfiles/wallpapers/12.jpg',
+        wallpaper='~/Desktop/.dotfiles/wallpapers/12.jpg',
         wallpaper_mode='fill',
         top=bar.Bar(
             [
@@ -161,14 +161,3 @@ wl_input_rules = None
 # We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
 # java that happens to be on java's whitelist.
 wmname = "LG3D"
-
-# autostart
-import os
-import subprocess
-
-from libqtile import hook
-
-@hook.subscribe.startup_once
-def autostart():
-    home = os.path.expanduser('~/dotfiles/qtile/autostart.sh')
-    subprocess.Popen([home])

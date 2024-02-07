@@ -900,5 +900,23 @@
         "body": [
             "margin: ${1:foo};"
         ]
+    },
+    "slot": {
+        "prefix": [
+            "slot"
+        ],
+        "body": [
+            "<slot>",
+            "</slot>"
+        ]
+    },
+    "template": {
+        "prefix": [
+            "template"
+        ],
+        "body": [
+            "<template>",
+            "</template>"
+        ]
     }
 }

@@ -3,9 +3,9 @@ return {
     enabled = true,
     config = function()
         require("nvim-treesitter.configs").setup({
+            ensure_installed = { "lua", "vim", "vimdoc","python", "html", "css", "javascript", "markdown", "markdown_inline", "json", "yaml" },
             highlight = {
                 enable = true,
-                -- disable = { "html" }
             },
             incremental_selection = {
                 enable = true

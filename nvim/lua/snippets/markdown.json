@@ -1,0 +1,10 @@
+{
+    "link": {
+        "prefix": [
+            "link"
+        ],
+        "body": [
+            "[${1:link title}](${2:./link/body})"
+        ]
+    }
+}

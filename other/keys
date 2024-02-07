@@ -1,0 +1,79 @@
+Tmux - C-Space C-b     Send the prefix key
+Tmux - C-Space C-o     Rotate through the panes
+Tmux - C-Space C-z     Suspend the current client
+Tmux - C-Space Space   Select next layout
+Tmux - C-Space !       Break pane to a new window
+Tmux - C-Space "       Split window vertically
+Tmux - C-Space #       List all paste buffers
+Tmux - C-Space $       Rename current session
+Tmux - C-Space %       Split window horizontally
+Tmux - C-Space &       Kill current window
+Tmux - C-Space '       Prompt for window index to select
+Tmux - C-Space (       Switch to previous client
+Tmux - C-Space )       Switch to next client
+Tmux - C-Space ,       Rename current window
+Tmux - C-Space -       Delete the most recent paste buffer
+Tmux - C-Space .       Move the current window
+Tmux - C-Space /       Describe key binding
+Tmux - C-Space 0       Select window 0
+Tmux - C-Space 1       Select window 1
+Tmux - C-Space 2       Select window 2
+Tmux - C-Space 3       Select window 3
+Tmux - C-Space 4       Select window 4
+Tmux - C-Space 5       Select window 5
+Tmux - C-Space 6       Select window 6
+Tmux - C-Space 7       Select window 7
+Tmux - C-Space 8       Select window 8
+Tmux - C-Space 9       Select window 9
+Tmux - C-Space :       Prompt for a command
+Tmux - C-Space ;       Move to the previously active pane
+Tmux - C-Space =       Choose a paste buffer from a list
+Tmux - C-Space ?       List key bindings
+Tmux - C-Space C       Customize options
+Tmux - C-Space D       Choose a client from a list
+Tmux - C-Space E       Spread panes out evenly
+Tmux - C-Space M       Clear the marked pane
+Tmux - C-Space [       Enter copy mode
+Tmux - C-Space ]       Paste the most recent paste buffer
+Tmux - C-Space c       Create a new window
+Tmux - C-Space d       Detach the current client
+Tmux - C-Space f       Search for a pane
+Tmux - C-Space i       Display window information
+Tmux - C-Space m       Toggle the marked pane
+Tmux - C-Space n       Select the next window
+Tmux - C-Space o       Select the next pane
+Tmux - C-Space p       Select the previous window
+Tmux - C-Space q       Display pane numbers
+Tmux - C-Space s       Choose a session from a list
+Tmux - C-Space w       Choose a window from a list
+Tmux - C-Space x       Kill the active pane
+Tmux - C-Space z       Zoom the active pane
+Tmux - C-Space {       Swap the active pane with the pane above
+Tmux - C-Space }       Swap the active pane with the pane below
+Tmux - C-Space ~       Show messages
+Tmux - C-Space DC      Reset so the visible part of the window follows the cursor
+Tmux - C-Space PPage   Enter copy mode and scroll up
+Tmux - C-Space Up      Select the pane above the active pane
+Tmux - C-Space Down    Select the pane below the active pane
+Tmux - C-Space Left    Select the pane to the left of the active pane
+Tmux - C-Space Right   Select the pane to the right of the active pane
+Tmux - C-Space M-1     Set the even-horizontal layout
+Tmux - C-Space M-2     Set the even-vertical layout
+Tmux - C-Space M-3     Set the main-horizontal layout
+Tmux - C-Space M-4     Set the main-vertical layout
+Tmux - C-Space M-5     Select the tiled layout
+Tmux - C-Space M-n     Select the next window with an alert
+Tmux - C-Space M-o     Rotate through the panes in reverse
+Tmux - C-Space M-p     Select the previous window with an alert
+Tmux - C-Space M-Up    Resize the pane up by 5
+Tmux - C-Space M-Down  Resize the pane down by 5
+Tmux - C-Space M-Left  Resize the pane left by 5
+Tmux - C-Space M-Right Resize the pane right by 5
+Tmux - C-Space C-Up    Resize the pane up
+Tmux - C-Space C-Down  Resize the pane down
+Tmux - C-Space C-Left  Resize the pane left
+Tmux - C-Space C-Right Resize the pane right
+Tmux - C-Space S-Up    Move the visible part of the window up
+Tmux - C-Space S-Down  Move the visible part of the window down
+Tmux - C-Space S-Left  Move the visible part of the window left
+Tmux - C-Space S-Right Move the visible part of the window right

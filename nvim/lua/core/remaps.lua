@@ -1,10 +1,5 @@
 -- Better paste
---
---
--- vim.keymap.set("n", "<A-p>", '"0p')
--- vim.keymap.set("x", "<A-p>", "\"_dP")
-
-vim.keymap.set("n", "<A-n>", ":Ex<cr>")
+vim.keymap.set("n", "<A-p>", '"0p')
 
 -- Moving selected text up and down
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { silent = true })
@@ -38,6 +33,5 @@ vim.keymap.set("n", "<Esc>", ":noh<CR>", { silent = true })
 
 vim.keymap.set("n", "<Esc>", ":noh<CR>", { silent = true })
 
--- strftime("%Y%m%d_%H%M")
-
-vim.keymap.set("n", "<leader>wn", ':exec  \'e \' . strftime("%Y%m%d%H%M") . ".md"<CR>', { silent = true })
+-- Create new note
+vim.keymap.set("n", "<leader>nn", ':exec  \'e \' . strftime("%Y%m%d%H%M") . ".md"<CR>', { silent = true })

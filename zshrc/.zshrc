@@ -1,4 +1,5 @@
 # Path to your oh-my-zsh installation.
+# syndaemon -i 0.5 -t -K -d &
 export ZSH="$HOME/.oh-my-zsh"
 
 # ZSH_THEME="random"
@@ -44,25 +45,34 @@ ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
 ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[blue]%}) %{$fg[yellow]%}%1{✗%}"
 ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
 
+export JAVA_HOME='/usr/lib/jvm/java-21-openjdk/bin'
+export ANDROID_HOME='/opt/android-sdk'
+export ANDROID_SDK_ROOT='/opt/android-sdk/'
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export CAPACITOR_ANDROID_STUDIO_PATH='/sbin/android-studio'
+
 alias c="clear"
 alias e="exit"
 
 # cli utils
 alias ls="exa --icons"
-alias cat="bat -S --theme gruvbox-dark"
-alias k="~/dotfiles/scripts/utils/keybinds.sh"
+alias k="cat ~/Desktop/.dotfiles/other/keys | fzf"
 
 # programs
 alias n="nvim"
 alias t="tmux"
 alias b="bluetuith"
+alias tr="tree"
 
 # dev uitls
 alias ports="sudo lsof -i -P -n | grep LISTEN"
-alias lzd='sudo docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -v /home/jofre/lazydocker/:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
+# alias lzd='sudo docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -v /home/jofre/lazydocker/:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
 alias cht="cht.sh"
 alias tldr="tldr -t ocean"
 
 eval "$(zoxide init zsh)"
 fpath=(~/.zsh.d/ $fpath)
 
+
+# Created by `pipx` on 2024-01-18 09:43:39
+export PATH="$PATH:/home/jofre/.local/bin"

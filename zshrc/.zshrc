@@ -9,8 +9,8 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 
 plugins=( 
     git-prompt
-    zsh-autosuggestions 
-    zsh-syntax-highlighting
+    # zsh-autosuggestions 
+    # zsh-syntax-highlighting
     tmux
 )
 

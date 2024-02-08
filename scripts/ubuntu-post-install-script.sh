@@ -8,7 +8,7 @@ sudo apt-get update
 sudo apt-get upgrade
 
 # Install packages
-sudo apt install git npm python3-pip docker zsh kitty neofetch fzf ripgrep fonts-jetbrains-mono tree nautilus unzip lsof tmux xclip gpick zocide exa network-manager
+sudo apt install git npm python3-pip zsh kitty neofetch fzf ripgrep fonts-jetbrains-mono tree nautilus unzip lsof tmux xclip gpick zoxide exa network-manager xinit -y
 
 # Install snap packages
 sudo snap install nvim chromium docker --classic
@@ -55,7 +55,6 @@ sudo apt install build-essential libpam0g-dev libxcb-xkb-dev
 git clone --recurse-submodules https://github.com/fairyglade/ly
 cd ly
 make
-make run
 make install installsystemd
 sudo systemctl enable ly
 cd ..

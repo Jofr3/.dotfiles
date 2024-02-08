@@ -62,4 +62,5 @@ cd ..
 sudo rm -r ly
 
 # Install qtile
+sudo apt install python3-xcffib python3-cairocffi -y
 pip install qtile --break-system-packages

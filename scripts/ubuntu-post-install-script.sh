@@ -1,17 +1,18 @@
 #!/bin/bash
 
 # Creating main directories
-mkdir ~/Projects ~/Personal ~/Desktop ~/Downloads ~/.ssh ~/.ssh/keys ~/.config
+mkdir ~/Projects ~/Personal ~/Desktop ~/Downloads ~/.config
 
 # update
-sudo apt-get update
-sudo apt-get upgrade
+# sudo apt-get update -y
+# sudo apt-get upgrade -y
 
 # Install packages
-sudo apt install git npm python3-pip zsh kitty neofetch fzf ripgrep fonts-jetbrains-mono tree nautilus unzip lsof tmux xclip gpick zoxide exa network-manager xinit -y
+sudo apt install git npm python3-pip zsh kitty neofetch fzf ripgrep fonts-jetbrains-mono tree unzip lsof tmux xclip zoxide exa network-manager xinit -y
+# gpick nautilus
 
 # Install snap packages
-sudo snap install nvim chromium docker --classic
+# sudo snap install nvim chromium docker --classic
 
 # Connect to wifi
 nmcli device wifi connect Vera_C326AB password cab6533559
@@ -39,8 +40,8 @@ git clone https://github.com/Jofr3/.dotfiles ~/Desktop/.dotfiles
 ln -s ~/Desktop/.dotfiles/qtile ~/.config/qtile
 ln -s ~/Desktop/.dotfiles/nvim ~/.config/nvim
 ln -s ~/Desktop/.dotfiles/kitty ~/.config/kitty
-ln -s ~/Desktop/.dotfiles/tmux/.tmux.conf ~/.tmux.conf
 ln -s ~/Desktop/.dotfiles/picom ~/.config/picom
+ln -s ~/Desktop/.dotfiles/tmux/.tmux.conf ~/.tmux.conf
 ln -s ~/Desktop/.dotfiles/zshrc/.zshrc ~/.zshrc
 ln -s ~/Desktop/.dotfiles/zshrc/.zshenv ~/.zshenv    
 ls -s ~/Desktop/.dotfiles/xorg/.xinitrc ~/.xinitrc
@@ -55,13 +56,10 @@ sudo apt install build-essential libpam0g-dev libxcb-xkb-dev
 git clone --recurse-submodules https://github.com/fairyglade/ly
 cd ly
 make
-make install installsystemd
+sudo make install installsystemd
 sudo systemctl enable ly
 cd ..
 sudo rm -r ly
 
 # Install qtile
 pip install qtile --break-system-packages
-
-# Restart system
-sudo reboot now

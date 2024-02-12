@@ -9,8 +9,8 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 
 plugins=( 
     git-prompt
-    # zsh-autosuggestions 
-    # zsh-syntax-highlighting
+    zsh-autosuggestions 
+    zsh-syntax-highlighting
     tmux
 )
 
@@ -45,11 +45,9 @@ ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
 ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[blue]%}) %{$fg[yellow]%}%1{✗%}"
 ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
 
-export JAVA_HOME='/usr/lib/jvm/java-21-openjdk/bin'
-export ANDROID_HOME='/opt/android-sdk'
-export ANDROID_SDK_ROOT='/opt/android-sdk/'
-export PATH=$PATH:$ANDROID_HOME/tools/bin
-export CAPACITOR_ANDROID_STUDIO_PATH='/sbin/android-studio'
+export JAVA_HOME='/usr/lib/jvm/java-17-openjdk-amd64'
+export ANDROID_SDK_ROOT='/home/jofre/Android/Sdk'
+export CAPACITOR_ANDROID_STUDIO_PATH='/snap/bin/android-studio'
 
 alias c="clear"
 alias e="exit"
@@ -69,6 +67,10 @@ alias ports="sudo lsof -i -P -n | grep LISTEN"
 # alias lzd='sudo docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -v /home/jofre/lazydocker/:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
 alias cht="cht.sh"
 alias tldr="tldr -t ocean"
+
+# system
+alias bup="sudo brightnessctl set +5%"
+alias bdown="sudo brightnessctl set 5%-"
 
 eval "$(zoxide init zsh)"
 fpath=(~/.zsh.d/ $fpath)

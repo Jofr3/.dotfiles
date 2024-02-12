@@ -4,15 +4,15 @@
 mkdir ~/Projects ~/Personal ~/Desktop ~/Downloads ~/.config
 
 # update
-# sudo apt-get update -y
-# sudo apt-get upgrade -y
+sudo apt-get update -y
+sudo apt-get upgrade -y
 
 # Install packages
-sudo apt install git npm python3-pip zsh kitty neofetch fzf ripgrep fonts-jetbrains-mono tree unzip lsof tmux xclip zoxide exa network-manager xinit -y
-# gpick nautilus
+sudo apt install git npm python3-pip zsh kitty neofetch fzf ripgrep fonts-jetbrains-mono tree unzip lsof tmux xclip zoxide exa network-manager xinit pipewire pipewire-audio default-jdk gradle -y
 
 # Install snap packages
-# sudo snap install nvim chromium docker --classic
+sudo snap install nvim --classic
+sudo snap install chromium
 
 # Connect to wifi
 nmcli device wifi connect Vera_C326AB password cab6533559
@@ -32,6 +32,14 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:
 
 rm ~/.zshrc
 rm .bash*
+
+# Install nerd-font
+git clone --filter=blob:none --sparse https://github.com/ryanoasis/nerd-fonts.git
+cd nerd-fonts
+git sparse-checkout add patched-fonts/UbuntuMono
+cd ..
+sudo mv nerd-fonts/patched-fonts/UbuntuMono/*/*.ttf /usr/share/fonts/
+sudo fc-cache -f
 
 # Clone dotfiles
 git clone https://github.com/Jofr3/.dotfiles ~/Desktop/.dotfiles
@@ -60,7 +68,3 @@ sudo make install installsystemd
 sudo systemctl enable ly
 cd ..
 sudo rm -r ly
-
-# Install qtile
-sudo apt install python3-xcffib python3-cairocffi -y
-pip install qtile --break-system-packages

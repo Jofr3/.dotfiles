@@ -47,6 +47,8 @@ $env.NU_PLUGIN_DIRS = [
 # $env.PATH = ($env.PATH | split row (char esep) | prepend '/some/path')
 $env.PATH = ($env.PATH | split row (char esep) | prepend '/home/jofre/.local/bin/')
 
+$env.CAPACITOR_ANDROID_STUDIO_PATH='/sbin/android-studio'
+$env.ANDROID_SDK_ROOT='/home/jofre/Android/Sdk'
 
 mkdir ~/.cache/starship
 starship init nu | save -f ~/.cache/starship/init.nu

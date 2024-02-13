@@ -1,0 +1,256 @@
+clear
+ls
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+ls
+source ~/Desktop/.dotfiles/nushell/config.nu
+ls
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+ls
+source ~/Desktop/.dotfiles/nushell/config.nu
+ls
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+ls
+clar
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+ls
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+ls
+clear
+ls
+source ~/Desktop/.dotfiles/nushell/config.nu
+ls
+clear
+clear Desktop/
+cear
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+echo $nu.keybinding-path
+source ~/Desktop/.dotfiles/nushell/config.nu
+echo $nu.keybinding-path
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+nvim
+clear
+gstat
+clear
+cd Desktop/
+clear
+curl -sS https://starship.rs/install.sh | sh
+clear
+cd Desktop/.dotfiles/
+clear
+ls
+clear
+starship 
+clear
+n
+exit
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+exit
+clear
+exit
+clear
+ls
+cd Desktop/.dotfiles/
+clear
+ls
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+ls
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+ls
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+:w
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+exit
+clear
+ls
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+ls ~/.config/nushell/
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+ex
+clear
+exit
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+cd Desktop/.dotfiles/
+source ~/Desktop/.dotfiles/nushell/config.nu
+clear
+cd Desktop/.dotfiles/
+clear
+n
+clar
+clear
+:w
+clear
+clea
+clear
+bash <(curl -L zellij.dev/launch)
+bash <(curl -L zellij.dev/launch)cargo install --locked zellij
+cargo install --locked zellij
+clear
+sudo apt install cargo
+clear
+;s
+ls
+clear
+cargo install --locked zellij
+clear
+source ~/Desktop/.dotfiles/nushell/config.nu
+exit
+zellij
+clear
+z
+clear
+zellij
+clear
+zellij
+clear
+sudo snap install zellij
+sudo snap install zellij --classic
+clear
+ls
+exit
+zellij 
+ls
+clear
+ln -s ~/Desktop/.dotfiles/zellij ~/.config/zellij
+clear
+cd Desktop/.dotfiles/
+ls
+clear
+zellij 
+clear
+zellij 
+clear
+zellij 
+c
+clear
+zellij 
+clear
+zellij 
+clear
+nushell -v
+clear
+$env.NU_VERSION
+exit
+clear
+exit
+chsh -h
+chsh 
+clear
+exit
+z lol
+clear
+zoxide
+zoxide doc
+zoxide dot
+cd ~/Desktop/.dotfiles/
+clear
+zoxide 
+zoxide dot
+zz
+z
+z dot
+clear
+cd ~/Desktop/.dotfiles/
+exit
+clear
+z
+cd /etc/shells
+cat /etc/shells
+clear
+exit
+clear
+shutdown now
+clear
+z dot
+celar
+clear
+cd ~/Desktop/.dotfiles/
+clear
+shutdown now
+clear
+sudo apt install zoxide
+sudo apt remove zoxide 
+zoxide -v
+sudo apt remove zoxide 
+clear
+curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+config env 
+cd ~/Desktop/.dotfiles/
+clear
+exit
+clear
+cd ~
+ls
+ls -a
+rm -r .zoxide.nu
+clear
+exit
+z
+cat .zoxide.nu
+exit
+clear
+z 
+clear
+ls
+'0' | regex '[0-9]'
+clear
+history 
+clear
+g
+clear
+which nu
+clear
+ls
+z dot
+cd ~/Desktop/.dotfiles/
+clear
+z dot
+clear

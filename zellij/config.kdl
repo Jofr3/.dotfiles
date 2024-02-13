@@ -1,9 +1,13 @@
 // If you'd like to override the default keybindings completely, be sure to change "keybinds" to "keybinds clear-defaults=true"
 keybinds {
+
     locked clear-defaults=true {
     }
 
     normal clear-defaults=true {
+
+        bind "Alt Left" "n" { NewPane; SwitchToMode "Pane"; }
+
         //bind "Esc" { SwitchToMode "Normal"; }
         bind "Alt 1" { SwitchToMode "Tab"; }
         bind "Alt 2" { SwitchToMode "Pane"; }
@@ -228,4 +232,4 @@ default_mode "normal"
 
 simplified_ui true
 
-default_shell "zsh"
+default_shell "bash"

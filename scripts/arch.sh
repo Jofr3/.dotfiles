@@ -34,6 +34,10 @@ ln -s ~/Desktop/.dotfiles/picom ~/.config/picom
 ln -s ~/Desktop/.dotfiles/tmux/.tmux.conf ~/.tmux.conf
 ls -s ~/Desktop/.dotfiles/xorg/.xinitrc ~/.xinitrc
 
+# Clone other stuff
+git clone git@github.com:Jofr3/wiki.git ~/Personal/wiki
+git clone git@github.com:Jofr3/notes.git ~/Personal/notes
+
 # Fix trackpad light touch
 sudo ln -s ~/Desktop/.dotfiles/xorg/70-synaptics.conf /etc/X11/xorg.conf.d/70-synaptics.conf
 

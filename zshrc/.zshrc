@@ -48,6 +48,7 @@ ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
 export JAVA_HOME='/usr/lib/jvm/java-17-openjdk-amd64'
 export ANDROID_SDK_ROOT='/home/jofre/Android/Sdk'
 export CAPACITOR_ANDROID_STUDIO_PATH='/snap/bin/android-studio'
+export CARGO_TARGET_DIR='/tmp/cargo-installdAIfHZ'
 
 alias c="clear"
 alias e="exit"

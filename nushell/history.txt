@@ -254,3 +254,5 @@ cd ~/Desktop/.dotfiles/
 clear
 z dot
 clear
+sudo pacman -S exa
+clear

@@ -1,112 +1,3 @@
-setfont /usr/share/fonts/BigBlueTermPlusNerdFontMono-Regular.ttf 
-ls /usr/share/fonts/TTF/
-mv /usr/share/fonts/*.ttf /usr/share/fonts/TTF/
-clear
-ls
-ls /usr/share/fonts
-rm /usr/share/fonts/*.ttf
-sudo rm /usr/share/fonts/*.ttf
-clear
-:qcla
-cacasdasd
-clear
-fc-list 
-fc-list | grep ubuntu
-clec
-a
-clear
-clear
-clear
-cleaexit
-exit
-fc-list | grep ubuntu
-fc-list | grep Ubuntu
-clear
-neofetch 
-clear
-z notes
-clear
-clear
-clear
-claer
-clear
-z kitty
-clear
-n
-clear
-sudo pacman -R ttf-jetbrains-mono
-clear
-ls
-clear
-c
-sudo pacman -R ttf-jetbrains-nerd-mono
-sudo pacman -R ttf-jetbrains-mono-nerd
-clear
-clear
-clear
-ls
-neofetch 
-sudo pacman -R ttf-ubuntu-mono-nerd
-clear
-neofetch 
-clear
-cear
-clear
-sudo pacman -S ttf-ubuntu-mono-nerd
-fc-list 
-fc-list | grep Ubuntu
-neofetch 
-neofetch 
-sudo pacman -S 	ttf-fira-code
-clear
-neofetch 
-clear
-neofetch 
-clear
-neofetch 
-sudo pacman -R ttf-fira-code
-clear
-sudo pacman -S ttf-ubuntu-font-family
-neofetch 
-c;ear
-clear
-ls
-cd Downloads/
-ls
-rm BigBlue_Terminal_v1.0.zip 
-ls
-unzip BigBlueTerminal.zip 
-clear
-ls
-sudo mv ./*.ttf /usr/share/fonts/TTF/
-clear
-ls
-clear
-neofetch 
-sudo fc-cache -f -v
-fc-list | grep Big
-clear
-fc-list | grep Big
-sudo pacman -R ttf-bigblueterminal-nerd
-clear
-fc-list | grep Big
-ls
-rm LICENSE.TXT README.md 
-clear
-ls
-unzip 
-clear
-cd /usr/share/fonts/TTF/
-ls
-c;ear
-s
-ls
-ls
-rm UbuntuMonoNerdFont*
-sudo rm UbuntuMonoNerdFont*
-clear
-ls
-cd ..
 ls
 cd ubuntu/
 ls
@@ -498,3 +389,112 @@ man tmux
 exit
 exit
 clear
+clear
+git add .
+git commit -m "bash profile & tmux config"
+git pusg
+git push
+clear
+exit
+z dot
+tmux
+tmux kill-server
+clear
+tmux
+tmux kill-server
+clear
+tmux
+tmux
+tmux kill-server
+tmux
+tmux kill-server
+cler
+clear
+tmux
+tmux
+tmux
+clear
+tmux a
+tmux kill-server
+clear
+tmux
+clear
+neofetch 
+clear
+clear
+exit
+clear
+clear
+clear
+exit
+exit
+z
+clear
+nvom
+z dot
+clear
+clear
+clear
+clear
+ls
+ls -a
+ls
+cd ~/.config/
+sl
+ls
+ls starship/
+cat starship/starship.toml 
+celar
+clear
+exit
+exit
+starship
+clear
+exit
+exit
+starship -h
+starship config
+clear
+clear
+clear
+exit
+killall tmux
+tmux kill-server
+clear
+z dot
+ls
+clear
+clear
+clear
+clear
+z
+clear
+clear
+source ~/.bashrc
+source ~/.bashrc
+source ~/.bashrc
+clear
+clear
+source ~/.bashrc
+clear
+source ~/.bashrc
+clear
+source ~/.bashrc
+clear
+source ~/.bashrc
+clear
+celar
+clear
+clear
+neofetch 
+clear
+source ~/.bashrc
+clear
+z dot
+clear
+source ~/.bashrc
+clear
+clear
+clear
+clear
+exit

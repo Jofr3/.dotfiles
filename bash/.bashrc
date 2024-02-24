@@ -1,11 +1,11 @@
 # bashrc
 
-# ssh
+# Load ssh keys
 eval $(ssh-agent -s) >/dev/null 2>&1
 ssh-add ~/.ssh/keys/* >/dev/null 2>&1
 
 # Prompt
-PS1='\[\e[94m\]\w\[\e[0m\]  \n\[\e[92m\]~\[\e[96m\] \[\e[0m\]'
+PS1=' \[\e[92m\]\w\[\e[0m\] \[\e[32m\]*\[\e[96m\] \[\e[0m\]'
                         
 # General
 alias c="clear"
@@ -36,6 +36,7 @@ bind -s 'set completion-ignore-case on'
 # Other
 eval "$(zoxide init bash)"
 
-# if [[ -z "$ZELLIJ" ]]; then
-#     zellij attach --create main
-# fi
+# Launch tmux
+if [[ -z "$TMUX" ]]; then
+    tmux new-session -A -s main
+fi

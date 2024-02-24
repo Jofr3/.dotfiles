@@ -32,7 +32,7 @@ white = "#a89984"
 save_to_clipboard = true
 
 [cursor]
-style = { shape = "Beam", blinking = "Never" }
+style = { shape = "Block", blinking = "Never" }
 vi_mode_style = { shape = "Block", blinking = "Never" }
 
 [mouse]

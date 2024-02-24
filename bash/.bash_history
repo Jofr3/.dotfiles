@@ -1,230 +1,500 @@
 clear
-sudo rm ~/.bash*
-ln -s ~/Desktop/.dotfiles/bash/* ~/
-ls
-ls -a
-ln -s ~/Desktop/.dotfiles/bash/.bash* ~/
-rm *
-rm -r *
-sudo rm -r *
-ls
-ls -a
 clear
-git clone git@github.com:Jofr3/.dotfiles.git
-git clone https://github.com/Jofr3/.dotfiles.git
+clear
+clear
+clear
+clar
+clear
+clear
+clear
+clear
+clar
+clear
+nvim
+nvim
+z notes
+clar
+c;ear
+clear
+clear
+clar
+c
+n
+clar
+c
+n
+clear
+n
+z nvim
+clear
+clear
+z awesome
+cd ~/Desktop/.dotfiles/awesome/
+clear
+z awe
+cear
 clear
 ls
-ls -a
-mkdir Desktop
-mv .dotfiles/ Desktop/
+n
+clear
+j
+clear
+n
+n
+clear
+clear
+z ki
+clear
+n
+c;ear
+clear
+clear
+fc-list 
+fc-list | grep Big
+fc-list
+fc-list | grep Big
+claer
 ls
 clear
-cd Desktop/.dotfiles/
+ls /usr/share/fonts
+cp /usr/share/fonts/*.ttf /usr/local/share/fonts
+sudo cp /usr/share/fonts/*.ttf /usr/local/share/fonts
+mkdir /usr/local/share/fonts
+sudo mkdir /usr/local/share/fonts
+sudo cp /usr/share/fonts/*.ttf /usr/local/share/fonts
+clear
+sudo fc-cache -fv
+clear
+fc-list 
+clear
+sudo pacman -S ttf-bigblueterminal-nerd
+clear
+fc-cache
+clear
+sudo reboot now
+z aw
+clear
+n
+fc-list
+fc-list | grep ubuntu
+sudo pacman -S ttf-ubuntu-mono-nerd
+clear
+fc-list 
+fc-list | ubuntu
+fc-list | grep ubuntu
+fc-cache 
+fc-list | grep ubuntu
+fc-list
+fc-list | grep BigBlue
+fc-list | grep --color=auto BigBlue
+fc-list | grep --color=auto BigBlueTerm
+fc-list | grep --color=auto BigBlueTermPLus
+fc-list | grep --color=auto BigBlueTermPlus
+cear
+clear
+showconsolefont 
+showconsolefont kitty.conf
+showconsolefont -h
+setfont BigBlueTermPlus
+setfont JetBrains Mono
+setfont JetBrains
+setfont /usr/share/fonts/BigBlueTermPlusNerdFontMono-Regular.ttf 
+ls /usr/share/fonts/TTF/
+mv /usr/share/fonts/*.ttf /usr/share/fonts/TTF/
+clear
+ls
+ls /usr/share/fonts
+rm /usr/share/fonts/*.ttf
+sudo rm /usr/share/fonts/*.ttf
+clear
+:qcla
+cacasdasd
+clear
+fc-list 
+fc-list | grep ubuntu
+clec
+a
+clear
+clear
+clear
+cleaexit
+exit
+fc-list | grep ubuntu
+fc-list | grep Ubuntu
+clear
+neofetch 
+clear
+z notes
+clear
+clear
+clear
+claer
+clear
+z kitty
+clear
+n
+clear
+sudo pacman -R ttf-jetbrains-mono
+clear
+ls
+clear
+c
+sudo pacman -R ttf-jetbrains-nerd-mono
+sudo pacman -R ttf-jetbrains-mono-nerd
+clear
+clear
+clear
+ls
+neofetch 
+sudo pacman -R ttf-ubuntu-mono-nerd
+clear
+neofetch 
+clear
+cear
+clear
+sudo pacman -S ttf-ubuntu-mono-nerd
+fc-list 
+fc-list | grep Ubuntu
+neofetch 
+neofetch 
+sudo pacman -S 	ttf-fira-code
+clear
+neofetch 
+clear
+neofetch 
+clear
+neofetch 
+sudo pacman -R ttf-fira-code
+clear
+sudo pacman -S ttf-ubuntu-font-family
+neofetch 
+c;ear
+clear
+ls
+cd Downloads/
+ls
+rm BigBlue_Terminal_v1.0.zip 
+ls
+unzip BigBlueTerminal.zip 
+clear
+ls
+sudo mv ./*.ttf /usr/share/fonts/TTF/
+clear
+ls
+clear
+neofetch 
+sudo fc-cache -f -v
+fc-list | grep Big
+clear
+fc-list | grep Big
+sudo pacman -R ttf-bigblueterminal-nerd
+clear
+fc-list | grep Big
+ls
+rm LICENSE.TXT README.md 
+clear
+ls
+unzip 
+clear
+cd /usr/share/fonts/TTF/
+ls
+c;ear
 s
 ls
-n
-nvim
-clear
-cd ~
 ls
-ls -a
-nvim
-n
-ln -sf ~/Desktop/.dotfiles/bash/.bashrc ~/.bashrc
-ln -sf ~/Desktop/.dotfiles/bash/.bash_profile ~/.bash_profile 
-ln -sf ~/Desktop/.dotfiles/bash/.bash_logout ~/.bash_logout 
+rm UbuntuMonoNerdFont*
+sudo rm UbuntuMonoNerdFont*
 clear
 ls
+cd ..
+ls
+cd ubuntu/
+ls
+cd ..
+clear
+ls
+ls
+z dow
+clear
+ls
+rm BigBlueTerminal.zip 
+clear
+ls
+unzip BigBlue_Terminal_v1.0.zip 
+ls
+mv BigBlue_TerminalPlus.TTF /usr/share/fonts/TTF/
+sudo mv BigBlue_TerminalPlus.TTF /usr/share/fonts/TTF/
+clear
+z dow
+z dot
+clear
+!
+clear
+clear
+sudo fc-cache -f -v
+clear
+fc-list | grep Big
+clear
+neofetch 
+clear
+neofetch 
+clear
+clear
+noef
+neofetch 
+clear
+neofetch 
+celar
+clear
+neofetch 
+clear
+l
+z dot
+clear
+ls
+c
+clear
 n
+neofetch 
+nefo
+neofetch 
+clear
+clear
+sudo pacman -S alacrity
+sudo pacman -S alacritty
+clear
+clear
+neofetch 
+clear
+ls
+neofetch 
+neofetch 
+neofetch 
+neofetch 
+clear
+neofetch 
+ls
+ls ~/.config/
+s
+clear
+ln -sf ~/Desktop/.dotfiles/alacritty ~/.config/alacritty
 :w
+clear
+neofetch 
+clear
+neofetch 
+clear
+nvim
+neofetch 
+clear
+sudo pacman -S shotgun
+clear
+mkdir ~/Files
+mkdir ~/Files/Screenshots
+clear
+q
+e
+shotgun 
+shotgun -g
+shotgun -help
+clear
+shotgun -help
+man shotgun
+shotgun -g
+shotgun -s
+shotgun -h
+shotgun -v
+clear
+ls
+1708
+clear
+feh
+clear
+sudo pacman -S maim
+clear
+maim
+maim --help
+maim -s
+maim -sku .
+ls
+maim -sku -f png .
+ls
+maim -sku -f png ./
+
+maim -sku -f png ~/Downloads
+maim -sku -f png ~/Downloads/pic.png
+ls
+rm 1708789*
+ls
+clear
+ls
+clear
+cd Files/Screenshots/
+ls
 ls
 ls -a
-cat .bashrc 
 clear
-cat /etc/skel/.bash_profile 
-cat /etc/skel/.bashrc 
-clear
-n
-alias ls="exa --icons"
+cd ..
 ls
+cd ..
+ls
+cd Files/
+cd Screenshots/
 clear
+ls
 ls
 ls -a
-chmod +x .bash*
-l
-s
-lsl
-ls -l
-ls -la
+clear
+ls
+rm .png 
+clear
+ls
+ls
+ls -a
+date
+time
+clear
+date
+lol=$(date)
+echo $lol
+clear
+clear
+ls
+clear
+clear
+ls
+ls
+ls -a
+claer
+c
+touch $(date).lol
+ls
+rm *
+clear
+ls
+touch $(date %Y-%m-%d-%H:%M:%S).lol
+ls
+touch $(date %Y-%m-%d %H:%M:%S).lol
+touch $(date '%Y-%m-%d %H:%M:%S').lol
+touch $(date '+%Y-%m-%d %H:%M:%S').lol
+
+touch $(date '+%Y-%m-%d|%H:%M:%S').lol
+ls
+clear
+ls
+rm *
+clea
+clear
+ls
+ls
+ls
+ls -a
+rm *
+rm *.png
+rm .png .lol 
+clear
+maim -sku -f png ~/Files/Screenshots/$(date '+%Y-%m-%d|%H:%M:%S').png
+ls
+rm 2024-02-24\|17\:07\:50.png 
+clar
+clear
+ls
+clear
+ls
+ls
+ls -a
+claer
+clear
+maim -h
+ls
+rm .
+rm .png 
+claer
 celar
 clear
 ls
-n
+ls -a
+ls -a
+cd sc
+z sc
+ls
+ls -a
+ls
 clear
-cat .bash_profile 
+ls
+;s
+;s
 ls
 ls -a
 clear
-sudo -i
-n
-exit
-n
-clear
-shell
-bash
-exit
-source ~/.bash_profile 
-n
-n
-source ~/.bash_profile 
-source ~/.bash_profile 
-source ~/.bash_profile 
-clear
-source ~/.bash_profile 
-source ~/.bashrc
-clear
-neofetch 
-clear
-neofetch 
-neofetch 
-neofetch 
+ls
+ls
+ls
+ls
+ls
+ls
+sls
+slslslslsllsls
+ls
 celar
 clear
+ls
+z sc
+claer
+clear
+ls
+ls
+ls
+ls
+rm *
 clear
 clear
+ls
+rm 1708793949.png 
 clear
+ls
+rm 1708*
+ls
 clear
+neofetch 
 clear
-lol
+sudo pacman -S ttf-firacode
+sudo pacman -S ttf-firacode-mono
+sudo pacman -S ttf-firacode-nerd
 clear
+neofetch 
 clear
+ls
+neofetch 
+clear
+neofetch 
+clear
+ls
+neofetch 
+neofetch 
+neof
+neofetch 
 clear
 clear
 neofetch 
-ls
-ls a
-ls -a
- sdasda
+neofetch 
 clear
-ls
-ls -a
-exa
-exa
-exa l
-exa 0
-exa -a
-clear
-ls
-ls
-ls
-nvim
-clear
-cd .config/
-ls
-nvim ~/.bashrc 
-clear
-ls
-cd ~/Desktop/.dotfiles/
-ls
-mkdir bash
-clear
-cp ~/.bash* ~/Desktop/.dotfiles/bash
-ls
-cd bash/
-ls
-ls -a
-nvim
-nvim
-ls
-ls -a
-clear
-cd ~
-ls
-cd Desktop/.dotfiles/
-ls
-nvi
-nvim
-clear
-cd ~/Desktop/.dotfiles/
-s
-cd ~/Desktop/.dotfiles/
-cd ~/Desktop/.dotfiles/
-clear
-cd ~/Desktop/.dotfiles/
-ls
-clear
-cd ~/Desktop/.dotfiles/
-ls
-cd ~/Desktop/.dotfiles/
-cd ~/Desktop/.dotfiles/
-clear
-cd ~/Desktop/.dotfiles/
-cd ~/Desktop/.dotfiles/
-l
-clear
-clear
-ls
-cd Desktop/
-ls
-cd .dotfiles/
-ls
-clear
-asdas
+clea
 clear
 neofetch 
 clear
 clear
-clear
-clear
-ls
-ls
-ls
-ls
-clear
-ls
-clear
-clear
-cd Desktop/
-cear
-n
-clear
-ls
-z 
-clear
-nvim 
-clear
-ls
-cd Desktop/.dotfiles/
-s
-ckear
-clear
-ls
-n
+neofetch 
+celar
 nvim
 clear
-clear 
-git 
+nvim
 clear
-cear
 clear
-ls
+sdasd
 clear
 neofetch 
-yay -S ttf-jetbrains-mono-nerd
-clear
-ls
-ls -a
-clear
-z
-n 
-n ~/Desktop/.dotfiles/bash/.bashrc 
-clear
-z 
-z Desktop/
-sudo pacman -S zoxide
+z dot
 clear
 clear
-cd ~/Desktop/.dotfiles/
-z
-cd ~
-z
+neofetch 

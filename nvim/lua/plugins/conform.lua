@@ -12,6 +12,6 @@ return {
 		})
 	end,
 	keys = {
-		{ "<A-a>", "<cmd>:lua require('conform').format({async=true, lsp_fallback=true})<cr>", desc = "Format buffer" },
+		{ "<Leader>c", "<cmd>:lua require('conform').format({async=true, lsp_fallback=true})<cr>", desc = "Format buffer" },
 	},
 }

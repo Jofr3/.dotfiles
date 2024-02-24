@@ -31,7 +31,5 @@ vim.keymap.set("n", "<Esc>", ":noh<CR>", { silent = true })
 -- vim.keymap.set('n', '<A-r>', '<Esc> :%s/\\<<C-r><C-w>\\>//g<left><left>')
 -- vim.cmd [[vnoremap <A-r> "hy:%s/<C-r>h//g<left><left>]]
 
-vim.keymap.set("n", "<Esc>", ":noh<CR>", { silent = true })
-
 -- Create new note
 vim.keymap.set("n", "<leader>nn", ':exec  \'e \' . strftime("%Y%m%d%H%M") . ".md"<CR>', { silent = true })

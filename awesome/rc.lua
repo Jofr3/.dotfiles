@@ -16,7 +16,7 @@ local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup")
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
-require("awful.hotkeys_popup.keys")
+-- require("awful.hotkeys_popup.keys")
 
 -- Load Debian menu entries
 -- local debian = require("debian.menu")
@@ -57,7 +57,7 @@ beautiful.init("~/Desktop/.dotfiles/awesome/theme.lua")
 
 beautiful.font = "Ubuntu Mono 12"
 
-terminal = "kitty"
+terminal = "alacritty"
 editor = "nvim"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -205,11 +205,7 @@ awful.screen.connect_for_each_screen(function(s)
     s.mytaglist = awful.widget.taglist {
         screen  = s,
         filter  = awful.widget.taglist.filter.all,
-        buttons = taglist_buttons,
-        style   = {
-            bg_focus = "#ffffff",
-            fg_focus = "#000000",
-        },
+        buttons = taglist_buttons
     }
 
     -- Create a tasklist widget
@@ -220,7 +216,7 @@ awful.screen.connect_for_each_screen(function(s)
     }
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s, bg = "#000000", fg = "#ffffff" })
+    s.mywibox = awful.wibar({ position = "top", screen = s })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
@@ -256,8 +252,8 @@ root.buttons(gears.table.join(
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
-    awful.key({ modkey, }, "s", hotkeys_popup.show_help,
-        { description = "show help", group = "awesome" }),
+    awful.key({ modkey, }, "k", hotkeys_popup.show_help,
+        { description = "Keybinds popup", group = "Awesome (applications)" }),
     -- awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
     --           {description = "view previous", group = "tag"}),
     -- awful.key({ modkey,           }, "Right",  awful.tag.viewnext,
@@ -269,13 +265,13 @@ globalkeys = gears.table.join(
         function()
             awful.client.focus.byidx(1)
         end,
-        { description = "focus next by index", group = "client" }
+        { description = "Focus next window", group = "Awesome (windows)" }
     ),
     awful.key({ modkey, }, "k",
         function()
             awful.client.focus.byidx(-1)
         end,
-        { description = "focus previous by index", group = "client" }
+        { description = "Focus previous windows", group = "Awesome (windows)" }
     ),
 
     -- Layout manipulation
@@ -296,13 +292,13 @@ globalkeys = gears.table.join(
                 client.focus:raise()
             end
         end,
-        { description = "go back", group = "client" }),
+        { description = "Tab tru windows", group = "Awesome (windows)" }),
 
     -- Standard program
     awful.key({ modkey, }, "Return", function() awful.spawn(terminal) end,
-        { description = "open a terminal", group = "launcher" }),
+        { description = "open a terminal", group = "Awesome (applications)" }),
     awful.key({ modkey, }, "r", awesome.restart,
-        { description = "reload awesome", group = "awesome" }),
+        { description = "reload awesome", group = "Awesome" }),
 
     -- awful.key({ modkey, "Shift"   }, "h",     function () awful.tag.incnmaster( 1, nil, true) end,
     --           {description = "increase the number of master clients", group = "layout"}),
@@ -327,11 +323,11 @@ globalkeys = gears.table.join(
                 )
             end
         end,
-        { description = "restore minimized", group = "client" }),
+        { description = "restore minimized", group = "Awesome (windows)" }),
 
     -- Prompt
     awful.key({ modkey }, "p", function() awful.screen.focused().mypromptbox:run() end,
-        { description = "run prompt", group = "launcher" }),
+        { description = "Launch system prompt", group = "Awesome (applications)" }),
 
     -- awful.key({ modkey }, "x",
     --           function ()
@@ -345,15 +341,28 @@ globalkeys = gears.table.join(
     --           {description = "lua execute prompt", group = "awesome"}),
     -- Menubar
     awful.key({ modkey }, "space", function() menubar.show() end,
-        { description = "show the menubar", group = "launcher" }),
+        { description = "Application launcher", group = "Awesome (applications)" }),
     awful.key({ modkey, }, "g", function() awful.spawn.with_shell("brightnessctl set 5%-") end,
-        { description = "Decrease brightness", group = "other" }),
+        { description = "Decrease brightness", group = "Awesome" }),
     awful.key({ modkey, }, "h", function() awful.spawn.with_shell("brightnessctl set +5%") end,
-        { description = "Increase brightness", group = "other" }),
+        { description = "Increase brightness", group = "Awesome" }),
+    awful.key({ modkey, }, "s",
+        function() awful.spawn.with_shell("maim -s -k -u -f png ~/Files/Screenshots/" .. os.time() .. ".png") end,
+        { description = "Take screenshot", group = "Awesome (applications)" }),
 
-    -- Commands cheat sheet
+    -- Commands
     awful.key({}, "fc-list", function() awful.spawn() end,
-        { description = "List of installed fonts", group = "commands" })
+        { description = "List of installed fonts", group = "Bash" }),
+    awful.key({}, "Alt + i", function() awful.spawn() end,
+        { description = "Attach or create a zellij session", group = "Bash (keybinds)" }),
+    awful.key({}, "Alt + n", function() awful.spawn() end,
+        { description = "Open current directory with neovim", group = "Bash (keybinds)" }),
+    awful.key({}, "Alt + f", function() awful.spawn() end,
+        { description = "Open current directory with telescope", group = "Bash (keybinds)" }),
+
+    -- Neovim
+    awful.key({}, "Ctrl + q", function() awful.spawn() end,
+        { description = "Send list to quickfix list", group = "Neovim (telescope)" })
 )
 
 clientkeys = gears.table.join(
@@ -362,11 +371,11 @@ clientkeys = gears.table.join(
             c.fullscreen = not c.fullscreen
             c:raise()
         end,
-        { description = "toggle fullscreen", group = "client" }),
+        { description = "Fullscreen window", group = "Awesome (windows)" }),
     awful.key({ modkey, }, "c", function(c) c:kill() end,
-        { description = "close", group = "client" }),
+        { description = "Close window", group = "Awesome (windows)" }),
     awful.key({ modkey, }, "t", awful.client.floating.toggle,
-        { description = "toggle floating", group = "client" })
+        { description = "Toggle floating window", group = "Awesome (windows)" })
 -- awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end,
 --           {description = "move to master", group = "client"}),
 -- awful.key({ modkey,           }, "o",      function (c) c:move_to_screen()               end,
@@ -414,7 +423,7 @@ for i = 1, 9 do
                     tag:view_only()
                 end
             end,
-            { description = "view tag #" .. i, group = "tag" }),
+            { description = "Go to workspace " .. i, group = "Awesome (workspace)" }),
         -- Toggle tag display.
         -- awful.key({ modkey, "Control" }, "#" .. i + 9,
         --           function ()
@@ -435,7 +444,7 @@ for i = 1, 9 do
                     end
                 end
             end,
-            { description = "move focused client to tag #" .. i, group = "tag" })
+            { description = "Move window to workspace " .. i, group = "Awesome (workspace)" })
     -- Toggle tag on focused client.
     -- awful.key({ modkey, "Control", "Shift" }, "#" .. i + 9,
     --           function ()

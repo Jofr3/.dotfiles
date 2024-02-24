@@ -11,6 +11,6 @@ return {
         })
     end,
     keys = {
-        { "<A-n>", "<CMD>Oil<CR>", desc = "File exporer" },
+        { "<C-n>", "<CMD>Oil<CR>", desc = "File exporer" },
     }
 }

@@ -1,103 +1,3 @@
-clear
-clear
-clear
-clear
-clear
-clar
-clear
-clear
-clear
-clear
-clar
-clear
-nvim
-nvim
-z notes
-clar
-c;ear
-clear
-clear
-clar
-c
-n
-clar
-c
-n
-clear
-n
-z nvim
-clear
-clear
-z awesome
-cd ~/Desktop/.dotfiles/awesome/
-clear
-z awe
-cear
-clear
-ls
-n
-clear
-j
-clear
-n
-n
-clear
-clear
-z ki
-clear
-n
-c;ear
-clear
-clear
-fc-list 
-fc-list | grep Big
-fc-list
-fc-list | grep Big
-claer
-ls
-clear
-ls /usr/share/fonts
-cp /usr/share/fonts/*.ttf /usr/local/share/fonts
-sudo cp /usr/share/fonts/*.ttf /usr/local/share/fonts
-mkdir /usr/local/share/fonts
-sudo mkdir /usr/local/share/fonts
-sudo cp /usr/share/fonts/*.ttf /usr/local/share/fonts
-clear
-sudo fc-cache -fv
-clear
-fc-list 
-clear
-sudo pacman -S ttf-bigblueterminal-nerd
-clear
-fc-cache
-clear
-sudo reboot now
-z aw
-clear
-n
-fc-list
-fc-list | grep ubuntu
-sudo pacman -S ttf-ubuntu-mono-nerd
-clear
-fc-list 
-fc-list | ubuntu
-fc-list | grep ubuntu
-fc-cache 
-fc-list | grep ubuntu
-fc-list
-fc-list | grep BigBlue
-fc-list | grep --color=auto BigBlue
-fc-list | grep --color=auto BigBlueTerm
-fc-list | grep --color=auto BigBlueTermPLus
-fc-list | grep --color=auto BigBlueTermPlus
-cear
-clear
-showconsolefont 
-showconsolefont kitty.conf
-showconsolefont -h
-setfont BigBlueTermPlus
-setfont JetBrains Mono
-setfont JetBrains
 setfont /usr/share/fonts/BigBlueTermPlusNerdFontMono-Regular.ttf 
 ls /usr/share/fonts/TTF/
 mv /usr/share/fonts/*.ttf /usr/share/fonts/TTF/
@@ -498,3 +398,103 @@ z dot
 clear
 clear
 neofetch 
+clear
+clear
+clear
+clear
+clear
+exit
+exit
+z tmux
+z dot
+clear
+clear
+exit
+tmux
+clear
+bash
+exit
+alacritty 
+clear
+neofetch 
+clear
+clear
+ls
+z dot
+ls
+git add .
+git commit -m "swap to alacritty"
+git push
+clear
+ls
+lcear
+clear
+z sc
+ls
+rm *
+clear
+z nvim
+z dot
+clear
+ls
+z
+ls
+ls -a
+ls -l
+ls -la
+rm .zoxide.nu 
+ls -la
+cd Downloads/
+ls
+rm *
+ls
+ls -a
+clear
+z
+claer
+clear
+rmux
+tmux
+clear
+t
+clear
+tmux
+clear
+tmux
+tmux
+:q
+exit
+tmux
+clear
+exit
+/bin/bash
+ext
+exit
+tmux
+ clear
+clear
+cat ~/.tmux.conf 
+clear
+exit
+tmux
+clear
+tmux
+exit
+claer
+c
+clear
+clear
+clear
+clear
+killall tmux
+exit
+clear
+clear
+clear
+e
+exit
+exit
+man tmux
+exit
+exit
+clear

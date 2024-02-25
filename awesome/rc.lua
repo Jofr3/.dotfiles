@@ -55,7 +55,7 @@ end
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init("~/Desktop/.dotfiles/awesome/theme.lua")
 
-beautiful.font = "Ubuntu Mono 12"
+beautiful.font = "FiraCode 12"
 
 terminal = "alacritty"
 editor = "nvim"

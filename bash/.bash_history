@@ -1,59 +1,3 @@
-ls
-cd ubuntu/
-ls
-cd ..
-clear
-ls
-ls
-z dow
-clear
-ls
-rm BigBlueTerminal.zip 
-clear
-ls
-unzip BigBlue_Terminal_v1.0.zip 
-ls
-mv BigBlue_TerminalPlus.TTF /usr/share/fonts/TTF/
-sudo mv BigBlue_TerminalPlus.TTF /usr/share/fonts/TTF/
-clear
-z dow
-z dot
-clear
-!
-clear
-clear
-sudo fc-cache -f -v
-clear
-fc-list | grep Big
-clear
-neofetch 
-clear
-neofetch 
-clear
-clear
-noef
-neofetch 
-clear
-neofetch 
-celar
-clear
-neofetch 
-clear
-l
-z dot
-clear
-ls
-c
-clear
-n
-neofetch 
-nefo
-neofetch 
-clear
-clear
-sudo pacman -S alacrity
-sudo pacman -S alacritty
-clear
 clear
 neofetch 
 clear
@@ -498,3 +442,59 @@ clear
 clear
 clear
 exit
+clear
+neofetch 
+clear
+celar
+clear
+clear
+clear
+!
+claer
+celar
+clear
+git status
+clear
+z dot
+git add .
+ls
+rm -r starship/
+ls
+clear
+git add .
+git commit -m "bash prompt & rm starship"
+clear
+git push
+clear
+exit
+clear
+shutdonw now
+shutdown now
+z dot
+clear
+claer
+clear
+clear
+l
+ls
+mkdir test/lol
+mkdir -r test/lol
+mkdir -h
+mkdir --help
+tldr
+mkdir -p test/lol
+ls
+ls test
+rm -r test
+clear
+ls
+sudo pacman -Q 
+sudo pacman -Q | ttf
+sudo pacman -Q | grep ttf
+clear
+claer
+c
+e
+clear
+clear
+e

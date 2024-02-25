@@ -4,9 +4,9 @@ return {
     version = "*",
     config = function()
         require("toggleterm").setup {
-            open_mapping = [[<Leader>t]],
+            open_mapping = [[<C-t>]],
             autochdir = true,
-            insert_mappings = false,
+            -- insert_mappings = false,
             highlights = {
                 Normal = {
                     guibg = "#0d0d0d"

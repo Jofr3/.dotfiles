@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Create basic folders
-mkdir ~/Projects ~/Personal ~/Desktop ~/Downloads ~/.ssh ~/.config
+mkdir -p ~/Projects ~/Personal ~/Desktop ~/Files/Screenshots ~/Downloads ~/.ssh ~/.config 
 
 # Update system
 sudo pacman -Syu --noconfirm
 
 # Install packages
-sudo pacman -S --noconfirm npm chromium docker docker-compose git kitty neofetch ripgrep ttf-jetbrains-mono-nerd tree neovim pipewire pipewire-alsa pipewire-audio alsa-utils sof-firmware brightnessctl ntfs-3g unzip bluez bluez-utils lsof tmux xclip gpick zoxide man-db man-pages picom bluez ly networkmanager
+sudo pacman -S --noconfirm npm chromium docker docker-compose git alacritty neofetch ripgrep ttf-firacode-nerd tree neovim pipewire pipewire-alsa pipewire-audio alsa-utils sof-firmware brightnessctl ntfs-3g unzip bluez bluez-utils lsof tmux xclip gpick zoxide man-db man-pages picom bluez ly networkmanager meim
 
 # Install yay
 sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si
@@ -32,9 +32,9 @@ git clone git@github.com:Jofr3/.dotfiles.git ~/Desktop/.dotfiles
 # Linking dotfiles
 ln -s ~/Desktop/.dotfiles/awesome ~/.config/awesome
 ln -s ~/Desktop/.dotfiles/nvim ~/.config/nvim
-ln -s ~/Desktop/.dotfiles/kitty ~/.config/kitty
+ln -s ~/Desktop/.dotfiles/alacritty ~/.config/alacritty
 ln -s ~/Desktop/.dotfiles/picom ~/.config/picom
-# ln -s ~/Desktop/.dotfiles/tmux/.tmux.conf ~/.tmux.conf
+ln -s ~/Desktop/.dotfiles/tmux/.tmux.conf ~/.tmux.conf
 ln -s ~/Desktop/.dotfiles/bash/.bashrc ~/.bashrc
 ln -s ~/Desktop/.dotfiles/bash/.bash_profile ~/.bash_profile
 ln -s ~/Desktop/.dotfiles/bash/.bash_logout ~/.bash_logout

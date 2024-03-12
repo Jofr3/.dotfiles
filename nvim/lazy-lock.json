@@ -8,6 +8,7 @@
   "cmp-vsnip": { "branch": "main", "commit": "989a8a73c44e926199bfd05fa7a516d51f2d2752" },
   "conceal.nvim": { "branch": "master", "commit": "1aff9fc5d1157aef1c7c88b6df6d6db21268d00a" },
   "conform.nvim": { "branch": "master", "commit": "192a6d2ddace343f1840a8f72efe2315bd392243" },
+  "firenvim": { "branch": "master", "commit": "f2dd6d3bcf3309a7dd30c79b3b3c03ab55cea6e2" },
   "gruvbox": { "branch": "master", "commit": "143a3b8babcfd2bce6c99d6ba496942647c3e30b" },
   "harpoon": { "branch": "master", "commit": "ccae1b9bec717ae284906b0bf83d720e59d12b91" },
   "hawtkeys.nvim": { "branch": "main", "commit": "a6ca6e4a4d07386a7ab327646c1dbf5155f09c44" },

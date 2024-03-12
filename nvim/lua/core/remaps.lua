@@ -18,8 +18,8 @@ vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
 -- Disable q and Q
-vim.keymap.set("n", "q", "<nop>")
-vim.keymap.set("n", "Q", "<nop>")
+-- vim.keymap.set("n", "q", "<nop>")
+-- vim.keymap.set("n", "Q", "<nop>")
 
 -- Remove search highlight
 vim.keymap.set("n", "<Esc>", ":noh<CR>", { silent = true })
@@ -33,3 +33,10 @@ vim.keymap.set("n", "<Esc>", ":noh<CR>", { silent = true })
 
 -- Create new note
 vim.keymap.set("n", "<leader>nn", ':exec  \'e \' . strftime("%Y%m%d%H%M") . ".md"<CR>', { silent = true })
+
+-- Quickfix navigation
+vim.keymap.set("n", "<Leader>cc", ":ccl<CR>", { silent = true })
+vim.keymap.set("n", "<Leader>cn", ":cn<CR>", { silent = true })
+vim.keymap.set("n", "<Leader>cp", ":cp<CR>", { silent = true })
+vim.keymap.set("n", "<Leader>cf", ":cfirst<CR>", { silent = true })
+vim.keymap.set("n", "<Leader>cl", ":clast<CR>", { silent = true })

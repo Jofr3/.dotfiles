@@ -55,3 +55,5 @@ lspconfig.docker_compose_language_service.setup {}
 lspconfig.prismals.setup {}
 
 lspconfig.bashls.setup {}
+
+lspconfig.tailwindcss.setup {}

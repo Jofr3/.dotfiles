@@ -1,25 +1,27 @@
 # bashrc
 
 # Prompt
-PS1=' \[\e[92m\]\w\[\e[0m\] \[\e[32m\]*\[\e[96m\] \[\e[0m\]'
+PS1=' \[\e[92m\]\w\[\e[0m\] \[\e[32m\]*\[\e[0m\] '
                         
 # General
 alias c="clear"
 alias e="exit"
 alias !="sudo !!"
-
-# Cli utils
+#
+# # Cli utils
 alias ls="exa --icons"
-
-# Programs
+alias grep="grep --color='auto'"
+alias nf="fastfetch"
+#
+# # Programs
 alias n="nvim"
 alias b="bluetuith"
+alias t="tmux"
 alias tr="tree"
-
-# Dev utils
+#
+# # Dev utils
 alias ports="sudo lsof -i -P -n | grep LISTEN"
 alias cht="cht.sh"
-alias tldr="tldr -t ocean"
 
 # Keybinds
 bind -x '"\ea": tmux new-session -A -s main '
@@ -32,6 +34,10 @@ bind -s 'set completion-ignore-case on'
 # Load ssh keys
 eval $(ssh-agent -s) >/dev/null 2>&1
 ssh-add ~/.ssh/keys/* >/dev/null 2>&1
+
+# Exports
+export EDITOR='nvim'
+export ANDROID_SDK_ROOT="/home/jofre/Android/Sdk"
 
 # Other
 eval "$(zoxide init bash)"

@@ -7,7 +7,7 @@ mkdir -p ~/Projects ~/Personal ~/Desktop ~/Files/Screenshots ~/Downloads ~/.ssh 
 sudo pacman -Syu --noconfirm
 
 # Install packages
-sudo pacman -S --noconfirm npm chromium docker docker-compose git alacritty neofetch ripgrep ttf-firacode-nerd tree neovim pipewire pipewire-alsa pipewire-audio alsa-utils sof-firmware brightnessctl ntfs-3g unzip bluez bluez-utils lsof tmux xclip gpick zoxide man-db man-pages picom bluez ly networkmanager meim
+sudo pacman -S --noconfirm npm chromium docker docker-compose git alacritty fastfetch ripgrep ttf-firacode-nerd tree neovim pipewire pipewire-alsa pipewire-audio alsa-utils sof-firmware brightnessctl ntfs-3g unzip bluez bluez-utils lsof tmux xclip gpick zoxide man-db man-pages picom bluez ly networkmanager meim
 
 # Install yay
 sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si

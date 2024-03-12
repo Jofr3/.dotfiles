@@ -1,500 +1,500 @@
-clear
-neofetch 
-clear
-ls
-neofetch 
-neofetch 
-neofetch 
-neofetch 
-clear
-neofetch 
-ls
-ls ~/.config/
-s
-clear
-ln -sf ~/Desktop/.dotfiles/alacritty ~/.config/alacritty
-:w
-clear
-neofetch 
-clear
-neofetch 
-clear
-nvim
-neofetch 
-clear
-sudo pacman -S shotgun
-clear
-mkdir ~/Files
-mkdir ~/Files/Screenshots
-clear
-q
+exit
+tmux kill-server
+exit
+exit
 e
-shotgun 
-shotgun -g
-shotgun -help
-clear
-shotgun -help
-man shotgun
-shotgun -g
-shotgun -s
-shotgun -h
-shotgun -v
-clear
-ls
-1708
-clear
-feh
-clear
-sudo pacman -S maim
-clear
-maim
-maim --help
-maim -s
-maim -sku .
-ls
-maim -sku -f png .
-ls
-maim -sku -f png ./
-
-maim -sku -f png ~/Downloads
-maim -sku -f png ~/Downloads/pic.png
-ls
-rm 1708789*
-ls
-clear
-ls
-clear
-cd Files/Screenshots/
-ls
-ls
-ls -a
-clear
-cd ..
-ls
-cd ..
-ls
-cd Files/
-cd Screenshots/
-clear
-ls
-ls
-ls -a
-clear
-ls
-rm .png 
-clear
-ls
-ls
-ls -a
-date
-time
-clear
-date
-lol=$(date)
-echo $lol
-clear
-clear
-ls
-clear
-clear
-ls
-ls
-ls -a
-claer
-c
-touch $(date).lol
-ls
-rm *
-clear
-ls
-touch $(date %Y-%m-%d-%H:%M:%S).lol
-ls
-touch $(date %Y-%m-%d %H:%M:%S).lol
-touch $(date '%Y-%m-%d %H:%M:%S').lol
-touch $(date '+%Y-%m-%d %H:%M:%S').lol
-
-touch $(date '+%Y-%m-%d|%H:%M:%S').lol
-ls
-clear
-ls
-rm *
-clea
-clear
-ls
-ls
-ls
-ls -a
-rm *
-rm *.png
-rm .png .lol 
-clear
-maim -sku -f png ~/Files/Screenshots/$(date '+%Y-%m-%d|%H:%M:%S').png
-ls
-rm 2024-02-24\|17\:07\:50.png 
-clar
-clear
-ls
-clear
-ls
-ls
-ls -a
-claer
-clear
-maim -h
-ls
-rm .
-rm .png 
-claer
-celar
-clear
-ls
-ls -a
-ls -a
-cd sc
-z sc
-ls
-ls -a
-ls
-clear
-ls
-;s
-;s
-ls
-ls -a
-clear
-ls
-ls
-ls
-ls
-ls
-ls
-sls
-slslslslsllsls
-ls
-celar
-clear
-ls
-z sc
-claer
-clear
-ls
-ls
-ls
-ls
-rm *
-clear
-clear
-ls
-rm 1708793949.png 
-clear
-ls
-rm 1708*
-ls
-clear
-neofetch 
-clear
-sudo pacman -S ttf-firacode
-sudo pacman -S ttf-firacode-mono
-sudo pacman -S ttf-firacode-nerd
-clear
-neofetch 
-clear
-ls
-neofetch 
-clear
-neofetch 
-clear
-ls
-neofetch 
-neofetch 
-neof
-neofetch 
-clear
-clear
-neofetch 
-neofetch 
-clear
-clea
-clear
-neofetch 
-clear
-clear
-neofetch 
-celar
-nvim
-clear
-nvim
-clear
-clear
-sdasd
-clear
-neofetch 
-z dot
-clear
-clear
-neofetch 
-clear
-clear
-clear
-clear
-clear
 exit
 exit
-z tmux
+tmux kill-server
+clear
+w
+w
+clear
+tmux kill-session
+ w
+clear
+t kill-server
+clear
+man tmux | nvim
+e
+clear
+clear
 z dot
 clear
-clear
-exit
-tmux
-clear
-bash
-exit
-alacritty 
-clear
-neofetch 
-clear
-clear
-ls
-z dot
-ls
-git add .
-git commit -m "swap to alacritty"
-git push
-clear
-ls
-lcear
-clear
-z sc
-ls
-rm *
-clear
-z nvim
-z dot
-clear
-ls
-z
-ls
-ls -a
-ls -l
-ls -la
-rm .zoxide.nu 
-ls -la
-cd Downloads/
-ls
-rm *
-ls
-ls -a
-clear
-z
-claer
-clear
-rmux
-tmux
 clear
 t
 clear
-tmux
+n
 clear
-tmux
-tmux
-:q
-exit
-tmux
+n
+n
+n
 clear
-exit
-/bin/bash
-ext
-exit
-tmux
- clear
+n
 clear
-cat ~/.tmux.conf 
+n
 clear
-exit
-tmux
+npm run dev
 clear
-tmux
-exit
-claer
+npm i express
+clear
+npm i cors
+clear
+npm run dev
+clear
+npm i prisma
+clear
+npx prisma init
+npx prisma generate
+celar
+npx prisma generate
+clear
+sudo systemctl start docker
+clear
+sudo docker-compose up -d
+clear
+npx prisma studio
+npx prisma studio
+clear
+npx prisma migrate dev --name init
+celar
 c
+npm run dev
+npm run dev
+npm run dev
 clear
 clear
+npm run dev
+npm run dev
+npm run dev
+npm run dev
 clear
+npx prisma clinet
 clear
-killall tmux
-exit
-clear
-clear
-clear
-e
-exit
-exit
-man tmux
-exit
-exit
-clear
-clear
+npx prisma client
+npx prisma studio
+claer
 git add .
-git commit -m "bash profile & tmux config"
-git pusg
+git commit -m "init"
+clear
 git push
 clear
-exit
-z dot
-tmux
-tmux kill-server
 clear
-tmux
-tmux kill-server
-clear
-tmux
-tmux
-tmux kill-server
-tmux
-tmux kill-server
-cler
-clear
-tmux
-tmux
-tmux
-clear
-tmux a
-tmux kill-server
-clear
-tmux
-clear
-neofetch 
-clear
-clear
-exit
-clear
-clear
-clear
-exit
-exit
-z
-clear
-nvom
-z dot
-clear
-clear
-clear
+z Learn/
+ls
+sudo rm -r *
 clear
 ls
 ls -a
+celar
+c
+z pro
+cd ..
 ls
-cd ~/.config/
-sl
+mkdir Projects
+clear
+z Projects/
 ls
-ls starship/
-cat starship/starship.toml 
+git clone git@github.com:Jofr3/xixodata-express.git
+clear
+ls
+mv xixodata-express/ xixodata-express1
+npm i
+npm init
 celar
 clear
-exit
-exit
-starship
-clear
-exit
-exit
-starship -h
-starship config
-clear
-clear
-clear
-exit
-killall tmux
-tmux kill-server
-clear
-z dot
 ls
+mv pac* xixodata-express1/
+ls
+mv xixodata-express1/ xixodata-express
 clear
+ls
+cd xixodata-express/
 clear
+ls
+touch index.js
+w
 clear
+ls
 clear
 z
 clear
+z Projects/
 clear
-source ~/.bashrc
-source ~/.bashrc
-source ~/.bashrc
-clear
-clear
-source ~/.bashrc
-clear
-source ~/.bashrc
-clear
-source ~/.bashrc
-clear
-source ~/.bashrc
-clear
-celar
-clear
-clear
-neofetch 
-clear
-source ~/.bashrc
-clear
-z dot
-clear
-source ~/.bashrc
-clear
-clear
-clear
-clear
-exit
-clear
-neofetch 
-clear
-celar
-clear
-clear
-clear
-!
-claer
-celar
-clear
-git status
-clear
-z dot
-git add .
 ls
-rm -r starship/
-ls
+npx create-expo-app AwesomeProject
+npx create-expo-app xixodata-react-native
 clear
-git add .
-git commit -m "bash prompt & rm starship"
 clear
-git push
-clear
+z xixodata-react-native/
+z
+:q
 exit
+eclear
+e
+q
+ex
+exit
+npm run web
+npx expo install react-native-web react-dom @expo/metro-runtime
 clear
-shutdonw now
-shutdown now
+npm run web
+npm run android
+clear
+npm run web
+clar
+c
+npm install nativewind
+clear
+npm run web
+clear
+npm run ios
+clear
+npm run web
+npm run ios
+clear
+npm start
+clar
+npm run web
+npm start
+clear
+npm start
+npm start
+npm i postcss
+clear
+npm run web
+clear
+npm i autoprefixer
+clear
+npm i autoprefixer
+npm start
+npm run web
+clear
+npm run web
+clear
+npm ci
+sclear
+clear
+clear
+clear
+npm i tailwindcss
+npx tailwindcss init
+clear
+clear
+clear
+sudo pacman -Syu
+clear
+e
+sudo pacman -Q | grep web
+clear
+sudo pacman -S qutebrowser
+ clear
+c
+clear
+clear
+sudo pacman -Ss vimn
+sudo pacman -Ss vimb
+clear
+sudo pacman -S vimb
+clear
+sudo pacman -S vieb
+yay -S vieb
+clear
+yay -S vieb-bin
+clear
 z dot
 clear
-claer
+ls
 clear
+cd .
+z .conf
+clear
+ls
+cd vimb/
+ls
+ls
+ls -a
+clear
+touch config
+nvim config 
+clear
+..
+cd ..
+clear
+ls
+cd qutebrowser/
+ls
+touch config.py
+nvim config.py 
+nvim config.py 
+nvim config.py 
+clear
+z
+clear
+nvim
+ls
+cd Downloads/
+s
+ls
+mv Jofre\ Scaricaciottoli\ Sirvent.pdf Jofre_Scaricaciottoli_Sirvent_
+clea
+rls
+c
+ls
+mv Jofre_Scaricaciottoli_Sirvent_SMX.pdf
+mv Jofre_Scaricaciottoli_Sirvent_ Jofre_Scaricaciottoli_Sirvent_SMX.pdf
+mv Scaricaciottoli.pdf Jofre_Scaricaciottoli_Sirvent_DAW.pdf
+clear
+ls
+clear
+z conf
+ls
+cd Vieb/
+ls
+z dow
+ls
+find -n chromium.conf
+find  chromium.conf
+find -h
+find --help
+find / -name chromium.conf
+sudo find / -name chromium.conf
+sudo find / -name chromium.
+sudo find / -name chromium.vie
+clear
+z conf
+cd Vieb/
+ls
+touch chromium.viebrc
+nvim chromium.viebrc 
+cd dow
+ls
+z do
+ls
+z dow
+ls
+clear
+z conf
+vieb -v
+vieb --version
+java -c
+java -v
+java -version
 clear
 l
 ls
-mkdir test/lol
-mkdir -r test/lol
-mkdir -h
-mkdir --help
-tldr
-mkdir -p test/lol
+cd Downloads/
 ls
-ls test
-rm -r test
+mv Test.zip ~/Projects/
 clear
 ls
-sudo pacman -Q 
-sudo pacman -Q | ttf
-sudo pacman -Q | grep ttf
+rm -r *
 clear
-claer
+clear
+cd Pro
+z pro
+ls
+ls -a
+unzip Test.zip 
+clear
+ls
+clear
+yay -S fleet
+clear
+fleet 
+cargo install sccache
+rustup default st
+rustup default stable
+cargo install sccache
+clear
+fleet 
+fleet --help
+yay -R fleet
+clear
+yay -S jetbrains-toolbox
+clear
+jerry
+jerry
+clear
+jerry
+clear
+jerry
+clear
+jerry
+clear
+jerry
+clear
+jerry
+jerry
+clear
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+clear
+npm i -D react-aria-components
+npm i react-aria-components
+clear
+yay -R jetbrains-toolbox 
+cler
+clear
+sudo pacman -Syu
+clear
+ls
+rm 'chromium*
+rm chromium*
+ls
+clear
+rm fleet.toml 
+clear
+ls
+cd Learn/
+ls
+z pro
+ls
+rm fleet.toml 
+cd Test*
+ls
+rm -r Test*
+clear
+ls
+rm xixodata-react-native*
+rm -r xixodata-react-native*
+sudo rm -r xixodata-react-native*
+clear
+clear
+git clone 3BKgPHbeRrf#FK8#
 c
-e
+git clone git@github.com:Jofr3/xixodata-vue.git
+clear
+cd xixodata-vue/
+clear
+npm create vue@latest
+clear
+ls
+cd ..
+ls
+clear
+ls
+cd xixodata-vue/
+ls
+mv xixodata-vue/* .
+ls
+rm xixodata-vue/
+rm -r xixodata-vue/
+clear
+ls
+n
+claer
+clear
+npm run dev
+ls
+cat package.json 
+npm i
+clear
+npm run dev
+clear
+git add .
+git commit -m "init"
 clear
 clear
+git push
+clear
+clear
+n
+clear
+n
+n
+n
+clear
+n
+clear
+n
+npm run dev
+npm run dev
+npm run dev
+npm install primevue
+clear
+npm run dev
+clear
 e
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+e
+npm install primeicons
+clear
+clear
+x
+e
+npm run dev
+npm run dev
+npm run dev
+clear
+npm i
+clear
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+npm run dev
+clear
+e
+clear
+git status
+ls
+nvim .gitignore
+clear
+ls
+git add .
+git commit -m "refactor: craeted basic project structure"
+clear
+git checkout -b develop
+ls
+clear
+git status
+clear
+ls
+clear
+clear
+ls
+clear
+clar
+clear
+ls
+git status
+git add .
+git commit -m "feat: basic button and sidebar components"
+git push
+git push --set-upstream origin develop
+clear
+e
+jerry 
+clear
+clear
+jerry 
+jerry 
+clear
+jerry 
+clear
+jerry 
+clear
+jerry 
+clear
+nmcli device wifi list 
+nmcli device wifi connect SSID password PASSWORD
+clear
+ckear
+clear
+sudo pacman -R vimb
+clear
+ls
+ls
+sudo pacman -R vieb-bin
+clear
+sudo pacman -S virtualbox
+n
+b
+clear
+clear

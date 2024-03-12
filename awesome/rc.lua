@@ -353,6 +353,10 @@ globalkeys = gears.table.join(
     -- Commands
     awful.key({}, "fc-list", function() awful.spawn() end,
         { description = "List of installed fonts", group = "Bash" }),
+    awful.key({}, "sudo pacman -Q", function() awful.spawn() end,
+        { description = "List of installed packages", group = "Bash" }),
+    awful.key({}, "sudo pacman -Ss", function() awful.spawn() end,
+        { description = "Search for package in database", group = "Bash" }),
     awful.key({}, "Alt + i", function() awful.spawn() end,
         { description = "Attach or create a zellij session", group = "Bash (keybinds)" }),
     awful.key({}, "Alt + n", function() awful.spawn() end,

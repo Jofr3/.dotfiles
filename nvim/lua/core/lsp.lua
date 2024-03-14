@@ -57,3 +57,5 @@ lspconfig.prismals.setup {}
 lspconfig.bashls.setup {}
 
 lspconfig.tailwindcss.setup {}
+
+lspconfig.intelephense.setup {}

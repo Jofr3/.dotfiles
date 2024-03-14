@@ -1,143 +1,3 @@
-exit
-tmux kill-server
-exit
-exit
-e
-exit
-exit
-tmux kill-server
-clear
-w
-w
-clear
-tmux kill-session
- w
-clear
-t kill-server
-clear
-man tmux | nvim
-e
-clear
-clear
-z dot
-clear
-clear
-t
-clear
-n
-clear
-n
-n
-n
-clear
-n
-clear
-n
-clear
-npm run dev
-clear
-npm i express
-clear
-npm i cors
-clear
-npm run dev
-clear
-npm i prisma
-clear
-npx prisma init
-npx prisma generate
-celar
-npx prisma generate
-clear
-sudo systemctl start docker
-clear
-sudo docker-compose up -d
-clear
-npx prisma studio
-npx prisma studio
-clear
-npx prisma migrate dev --name init
-celar
-c
-npm run dev
-npm run dev
-npm run dev
-clear
-clear
-npm run dev
-npm run dev
-npm run dev
-npm run dev
-clear
-npx prisma clinet
-clear
-npx prisma client
-npx prisma studio
-claer
-git add .
-git commit -m "init"
-clear
-git push
-clear
-clear
-z Learn/
-ls
-sudo rm -r *
-clear
-ls
-ls -a
-celar
-c
-z pro
-cd ..
-ls
-mkdir Projects
-clear
-z Projects/
-ls
-git clone git@github.com:Jofr3/xixodata-express.git
-clear
-ls
-mv xixodata-express/ xixodata-express1
-npm i
-npm init
-celar
-clear
-ls
-mv pac* xixodata-express1/
-ls
-mv xixodata-express1/ xixodata-express
-clear
-ls
-cd xixodata-express/
-clear
-ls
-touch index.js
-w
-clear
-ls
-clear
-z
-clear
-z Projects/
-clear
-ls
-npx create-expo-app AwesomeProject
-npx create-expo-app xixodata-react-native
-clear
-clear
-z xixodata-react-native/
-z
-:q
-exit
-eclear
-e
-q
-ex
-exit
-npm run web
-npx expo install react-native-web react-dom @expo/metro-runtime
-clear
 npm run web
 npm run android
 clear
@@ -498,3 +358,143 @@ n
 b
 clear
 clear
+clear
+ls
+git status
+git add .
+git commit -m "bashrc + nvim + tmux"
+git push
+clear
+clear
+ls
+clear
+awesome
+clear
+ls
+ls
+z
+ls
+z dot
+clear
+clear
+clear
+z Downloads/
+z dot
+clear
+cd other/
+ls
+clear
+ls
+cd ..
+ls
+clear
+z
+sudo pacman -S nix
+clear
+sudo pacman -Syu
+clear
+sudo pacman -S nix
+clear
+clear
+sudo pacman -S virtualbox-host-modules-arch
+clear
+/sbin/virtualbox
+modprobe vboxdrv
+modprobe vboxdrv
+modprobe vboxdrv
+clear
+sudo reboot now
+awesome
+awesome --replace
+exit
+nix-shell 
+clear 
+nix-shell -h
+nix-shell --help
+clear
+nix-shell --comand
+nix-shell -p cowsay lolcat
+sudo nix-shell -p cowsay lolcat
+c
+ls
+cd Learn/
+ls
+mkdir nix
+cd nix/
+ls
+clear
+touch shell.nix
+nix-shell 
+sudo nix-shell 
+clear
+sudo nix-shell 
+nix-shell 
+!
+sudo !
+sudo nix-shell 
+clear
+ex
+exit
+clear
+nix-shell 
+z Learn/
+ls
+cd nix/
+nix-shell
+sudo nix-shell
+nix -v
+nix --version
+clear
+sudo pacman -R nix
+curl -L https://nixos.org/nix/install | sh -s -- --daemon
+sudo pacman -Rsn
+sudo pacman -Rsn nix
+sudo pacman -Rsn nix-busybox 
+clear
+curl -L https://nixos.org/nix/install | sh -s -- --daemon
+sudo reboot now
+nix
+curl -L https://nixos.org/nix/install | sh -s -- --daemon
+sudo pacman -S nix
+clear
+nix-shell 
+sudo nix-shell 
+clear
+ls
+cd Learn/nix/
+ls
+sudo nix-shell 
+nix-channel --add https://nixos.org/channels/nixpkgs-unstable
+nix-channel --update
+sudo nix-channel --add https://nixos.org/channels/nixpkgs-unstable
+sudo nix-channel --update
+clear
+sudo nix-shell 
+clear
+z
+cd Downloads/
+ls
+z dotfiles
+ls
+clear
+ping google.com
+clear
+e
+clear
+nmcli 
+ping google.com
+clear
+killall tmux
+e
+tmux kill-server
+clear
+n
+clear
+e
+clear
+e
+clear
+n
+clear
+t
+n

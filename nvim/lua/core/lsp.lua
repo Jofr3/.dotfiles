@@ -33,29 +33,21 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end,
 })
 
+vim.g.lsp_servers = {
+    'bashls',
+    'html',
+    'cssls',
+    'tailwindcss',
+    'tsserver',
+    'jsonls',
+    'volar',
+    'prismals',
+    'lua_ls',
+    'dockerls',
+    'intelephense',
+    'docker_compose_language_service',
+}
 
-lspconfig.lua_ls.setup {}
-
-lspconfig.volar.setup {}
-
-lspconfig.tsserver.setup {}
-
-lspconfig.html.setup {}
-
-lspconfig.cssls.setup {}
-
-lspconfig.marksman.setup {}
-
-lspconfig.jsonls.setup {}
-
-lspconfig.svelte.setup {}
-
-lspconfig.docker_compose_language_service.setup {}
-
-lspconfig.prismals.setup {}
-
-lspconfig.bashls.setup {}
-
-lspconfig.tailwindcss.setup {}
-
-lspconfig.intelephense.setup {}
+for _, lsp in ipairs(vim.g.lsp_servers) do
+    lspconfig[lsp].setup {}
+end

@@ -1,128 +1,3 @@
-npm run web
-npm run android
-clear
-npm run web
-clar
-c
-npm install nativewind
-clear
-npm run web
-clear
-npm run ios
-clear
-npm run web
-npm run ios
-clear
-npm start
-clar
-npm run web
-npm start
-clear
-npm start
-npm start
-npm i postcss
-clear
-npm run web
-clear
-npm i autoprefixer
-clear
-npm i autoprefixer
-npm start
-npm run web
-clear
-npm run web
-clear
-npm ci
-sclear
-clear
-clear
-clear
-npm i tailwindcss
-npx tailwindcss init
-clear
-clear
-clear
-sudo pacman -Syu
-clear
-e
-sudo pacman -Q | grep web
-clear
-sudo pacman -S qutebrowser
- clear
-c
-clear
-clear
-sudo pacman -Ss vimn
-sudo pacman -Ss vimb
-clear
-sudo pacman -S vimb
-clear
-sudo pacman -S vieb
-yay -S vieb
-clear
-yay -S vieb-bin
-clear
-z dot
-clear
-ls
-clear
-cd .
-z .conf
-clear
-ls
-cd vimb/
-ls
-ls
-ls -a
-clear
-touch config
-nvim config 
-clear
-..
-cd ..
-clear
-ls
-cd qutebrowser/
-ls
-touch config.py
-nvim config.py 
-nvim config.py 
-nvim config.py 
-clear
-z
-clear
-nvim
-ls
-cd Downloads/
-s
-ls
-mv Jofre\ Scaricaciottoli\ Sirvent.pdf Jofre_Scaricaciottoli_Sirvent_
-clea
-rls
-c
-ls
-mv Jofre_Scaricaciottoli_Sirvent_SMX.pdf
-mv Jofre_Scaricaciottoli_Sirvent_ Jofre_Scaricaciottoli_Sirvent_SMX.pdf
-mv Scaricaciottoli.pdf Jofre_Scaricaciottoli_Sirvent_DAW.pdf
-clear
-ls
-clear
-z conf
-ls
-cd Vieb/
-ls
-z dow
-ls
-find -n chromium.conf
-find  chromium.conf
-find -h
-find --help
-find / -name chromium.conf
-sudo find / -name chromium.conf
-sudo find / -name chromium.
-sudo find / -name chromium.vie
-clear
-z conf
 cd Vieb/
 ls
 touch chromium.viebrc
@@ -497,4 +372,129 @@ clear
 n
 clear
 t
+n
+clear
+clear
+n
+clear
+ls
+rm lol.blade.php 
+n test.blade.php 
+n test.blade.php 
+n test.blade.php 
+n test.blade.php 
+clear
+n test.blade.php 
+n test.blade.php 
+clear
+n test.blade.php 
+n test.blade.php 
+clear
+clear
+clear
+clear
+z
+z dot
+clear
+git add .
+git commit -m "nvim"
+clear
+git push
+clear
+clear
+3www4333333g
+clear
+clear
+clear
+clear
+ls
+n test.blade.php 
+n lol.js
+n lol.js
+n lol.js
+clear
+ls
+n lol.js 
+n test.blade.php 
+clear
+n lol.js 
+:q
+clear
+n lol.js 
+n lol.js 
+clear
+tmux kill-server
+node lol.js 
+clea
+clear
+n lol.js 
+n lol.js 
+n lol.js 
+n lol.js 
+n lol.js 
+n lol.js 
+clear
+ls
+clear
+ls
+n test.php
+n test.php
+rm lol.js test.blade.php test.php 
+clear
+ls
+clear
+cd Learn/
+ls
+git clone https://gitlab.com/lasevaweb_group/lsw/myclientum-new.git
+git clone https://gitlab.com/lasevaweb_group/lsw/myclientum-new.git
+git clone https://gitlab.com/lasevaweb_group/lsw/myclientum-new.git
+clear
+ls
+cd myclientum-new/
+clear
+clear
+clear
+cler
+c
+sudo pacman -S php
+clear
+e
+sudo pacman -S composer
+clear
+n
+n
+n
+n
+clear
+n
+n
+n
+n
+n
+clear
+source ~/.basrc
+source ~/.bashrc
+clear
+source ~/.bashrc
+source ~/.bashrc
+source ~/.bashrc
+source ~/.bashrc
+source ~/.bashrc
+source ~/.bashrc
+clear
+source ~/.bashrc
+clear
+l
+clear
+clear
+clear
+clear
+clear
+clear
+clear
+clear
+clear
+clear
+c
+clear
 n

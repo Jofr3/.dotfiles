@@ -25,10 +25,13 @@ return {
                 ["<CR>"] = cmp.mapping.confirm({ select = true }),
             }),
             sources = cmp.config.sources({
-                { name = "vsnip" },
-                { name = "nvim_lsp" },
-                { name = "buffer" },
+                -- { name = "vsnip" },
+                -- { name = "nvim_lsp" },
+                { name = "buffer" }
             }),
+            experimental = {
+                ghost_text = true,
+            },
         })
 
         cmp.setup.cmdline({ "/", "?" }, {

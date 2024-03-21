@@ -26,6 +26,7 @@ alias cht="cht.sh"
 # Keybinds
 bind -x '"\ea": tmux new-session -A -s main '
 bind -x '"\C-f": nvim -c ":Telescope find_files"'
+bind -x '"\C-g": nvim -c ":Telescope live_grep"'
 bind -x '"\C-n": nvim -c ":lua require(\"oil\").open()"'
 
 # Options

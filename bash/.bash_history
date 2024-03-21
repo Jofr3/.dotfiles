@@ -1,152 +1,3 @@
-cd Vieb/
-ls
-touch chromium.viebrc
-nvim chromium.viebrc 
-cd dow
-ls
-z do
-ls
-z dow
-ls
-clear
-z conf
-vieb -v
-vieb --version
-java -c
-java -v
-java -version
-clear
-l
-ls
-cd Downloads/
-ls
-mv Test.zip ~/Projects/
-clear
-ls
-rm -r *
-clear
-clear
-cd Pro
-z pro
-ls
-ls -a
-unzip Test.zip 
-clear
-ls
-clear
-yay -S fleet
-clear
-fleet 
-cargo install sccache
-rustup default st
-rustup default stable
-cargo install sccache
-clear
-fleet 
-fleet --help
-yay -R fleet
-clear
-yay -S jetbrains-toolbox
-clear
-jerry
-jerry
-clear
-jerry
-clear
-jerry
-clear
-jerry
-clear
-jerry
-clear
-jerry
-jerry
-clear
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-clear
-npm i -D react-aria-components
-npm i react-aria-components
-clear
-yay -R jetbrains-toolbox 
-cler
-clear
-sudo pacman -Syu
-clear
-ls
-rm 'chromium*
-rm chromium*
-ls
-clear
-rm fleet.toml 
-clear
-ls
-cd Learn/
-ls
-z pro
-ls
-rm fleet.toml 
-cd Test*
-ls
-rm -r Test*
-clear
-ls
-rm xixodata-react-native*
-rm -r xixodata-react-native*
-sudo rm -r xixodata-react-native*
-clear
-clear
-git clone 3BKgPHbeRrf#FK8#
-c
-git clone git@github.com:Jofr3/xixodata-vue.git
-clear
-cd xixodata-vue/
-clear
-npm create vue@latest
-clear
-ls
-cd ..
-ls
-clear
-ls
-cd xixodata-vue/
-ls
-mv xixodata-vue/* .
-ls
-rm xixodata-vue/
-rm -r xixodata-vue/
-clear
-ls
-n
-claer
-clear
-npm run dev
-ls
-cat package.json 
-npm i
-clear
-npm run dev
-clear
-git add .
-git commit -m "init"
-clear
-clear
-git push
-clear
-clear
-n
-clear
-n
-n
-n
-clear
-n
-clear
-n
-npm run dev
-npm run dev
-npm run dev
-npm install primevue
 clear
 npm run dev
 clear
@@ -498,3 +349,152 @@ clear
 c
 clear
 n
+clear
+clear
+tmux kill-server
+z .config/
+ls
+cd qutebrowser/
+ls
+cd bookmarks/
+ls
+cat urls 
+cd ..
+cat autoconfig.yml 
+clear
+ls
+cat config.py 
+clear
+ls
+cd qsettings/
+ls
+cat QtProject.conf 
+clear
+cd .
+cd ..
+ls
+cat q
+cat quickmarks 
+clear
+nix-build -A shell
+sudo nix-build -A shell
+sudo nix-build -A hello
+clear
+sudo nix-build -A hello
+ls
+cd result
+;s
+;s
+ls
+cd bin/
+ls
+./hello 
+cat .
+cat hello 
+exit
+ls
+cat result/bin/hello 
+nvim result/bin/hello 
+clear
+nvim -v
+clear
+clear
+nix-shell 
+sudo nix-shell 
+ls
+cd distrobox/
+clar
+clear
+nix-shell 
+sudo nix-shell 
+clear
+sudo nix-shell --command bash
+clear
+sudo nix-shell --command bash
+clear
+ls
+clear
+ls
+n shell.nix 
+clear
+sudo nix-shell
+nix-shell
+sudo chown -R $(whoami) /nix
+[200~ls -ld /nix/store
+~
+ls -ld /nix/store
+$ rm -rf /nix
+rm -rf /nix
+sudo rm -rf /nix
+sudo systemctl stop nix-daemon.service
+sudo systemctl disable nix-daemon.socket nix-daemon.service
+sudo systemctl daemon-reload
+sudo rm -rf /etc/nix /etc/profile.d/nix.sh /etc/tmpfiles.d/nix-daemon.conf /nix ~root/.nix-channels ~root/.nix-defexpr ~root/.nix-profile
+for i in $(seq 1 32); do   sudo userdel nixbld$i; done
+sudo groupdel nixbld
+e
+ls
+cd distrobox/
+clear
+nix-s
+nix-shell 
+clear
+$ curl -L https://nixos.org/nix/install | sh -s -- --daemon
+curl -L https://nixos.org/nix/install | sh -s -- --daemon
+ls
+sudo groupdel nixbld 
+sudo userdel nixbld01 
+sudo groupdel nixbld 
+sudo userdel nixbld02
+sudo userdel nixbld0*
+sudo userdel nixbld03
+sudo userdel nixbld04
+sudo userdel nixbld05
+sudo userdel nixbld06
+sudo userdel nixbld07
+sudo userdel nixbld08
+sudo userdel nixbld0
+sudo groupdel nixbld 
+clear
+curl -L https://nixos.org/nix/install | sh -s -- --daemon
+clear
+e
+b
+clear
+tmux kill-server
+clear
+ls
+cd distrobox/
+ls
+nix-shell
+sudo su
+clear
+ls
+n shell.nix 
+n shell.nix 
+nix-shell
+sudo nix-shell
+clear
+sudo pacman -S distrobox
+exit
+ls
+distrobox
+distrobox create 
+distrobox create -n nix
+distrobox
+distrobox assemble
+distrobox-create -n nixos
+clear
+exit
+nix-shell
+cd distrobox/
+nix-shell
+clear
+nix-shell
+exit
+clear
+e
+b
+clear
+b
+clear

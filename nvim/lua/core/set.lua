@@ -45,3 +45,7 @@ vim.g.loaded_netrwPlugin = 1
 vim.g.loaded_netrw = 1
 
 vim.opt.statusline = " %{expand('%:~:.')} %m"
+
+vim.o.foldtext = [[substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').' ... '.trim(getline(v:foldend))]]
+vim.opt.fillchars = { fold = " " }
+vim.opt.foldenable = true

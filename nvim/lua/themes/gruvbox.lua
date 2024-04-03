@@ -29,3 +29,5 @@ vim.cmd("hi Pmenu guibg=#121212 guifg=#ebdbb2")
 vim.cmd("hi PmenuSel guibg=#ffffff guifg=#0d0d0d")
 
 vim.cmd("hi MarkdownLinkText guifg=#83a598")
+
+vim.cmd("hi Folded guibg=#000000 guifg=#928374")

@@ -7,3 +7,11 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.formatoptions:remove({ 'c', 'r', 'o' })
   end,
 })
+
+vim.cmd[[
+    augroup remember_folds
+      autocmd!
+      au BufWinLeave ?* mkview 1
+      au BufWinEnter ?* silent! loadview 1 | setlocal foldlevel=0
+    augroup END
+]]

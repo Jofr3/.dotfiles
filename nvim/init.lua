@@ -1,6 +1,5 @@
 require("core.set")
 require("core.lazy")
-require("core.lsp")
 require("core.remaps")
 require("core.other")
 require("themes.gruvbox")

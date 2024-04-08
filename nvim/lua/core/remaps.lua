@@ -1,13 +1,13 @@
 -- Better paste
-vim.keymap.set("n", "<A-p>", '"0p')
+-- vim.keymap.set("n", "<A-p>", '"0p')
 
 -- Moving selected text up and down
-vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { silent = true })
-vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { silent = true })
+vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { silent = true })
+vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { silent = true })
 
 -- Moving selected text left and right
-vim.keymap.set("v", "H", "<gv", { silent = true })
-vim.keymap.set("v", "L", ">gv", { silent = true })
+vim.keymap.set("v", "<A-h>", "<gv", { silent = true })
+vim.keymap.set("v", "<A-l>", ">gv", { silent = true })
 
 -- Scrolls up or down and centers screen
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
@@ -32,7 +32,7 @@ vim.keymap.set("n", "<Esc>", ":noh<CR>", { silent = true })
 -- vim.cmd [[vnoremap <A-r> "hy:%s/<C-r>h//g<left><left>]]
 
 -- Create new note
-vim.keymap.set("n", "<leader>nn", ':exec  \'e \' . strftime("%Y%m%d%H%M") . ".md"<CR>', { silent = true })
+vim.keymap.set("n", "<leader>mn", ':exec  \'e \' . strftime("%Y%m%d%H%M") . ".md"<CR>', { silent = true })
 
 -- Quickfix navigation
 vim.keymap.set("n", "<Leader>cc", ":ccl<CR>", { silent = true })

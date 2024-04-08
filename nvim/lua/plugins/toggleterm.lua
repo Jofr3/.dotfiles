@@ -4,7 +4,7 @@ return {
     version = "*",
     config = function()
         require("toggleterm").setup {
-            open_mapping = [[<C-t>]],
+            open_mapping = [[<Leader>t]],
             autochdir = true,
             -- insert_mappings = false,
             highlights = {

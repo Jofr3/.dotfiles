@@ -43,5 +43,9 @@ return {
 		for _, lsp in ipairs(vim.g.lsp_servers) do
 			lspconfig[lsp].setup({})
 		end
+
+        vim.diagnostic.config({
+            signs = false
+        })
 	end,
 }

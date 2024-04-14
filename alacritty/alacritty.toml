@@ -1,8 +1,5 @@
-[shell]
-program = "/bin/bash"
-
 [font]
-size = 10.0
+size = 14.0
 normal = { family = "FiraCode", style = "Regular" }
 bold = { family = "FiraCode", style = "Bold" }
 italic = { family = "FiraCode", style = "Italic" }
@@ -12,6 +9,7 @@ glyph_offset = { x = 0, y = 6 }
 
 [window]
 dynamic_padding = true
+decorations = "None"
 
 [colors]
 [colors.primary]

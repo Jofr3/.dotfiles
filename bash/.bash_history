@@ -1,500 +1,500 @@
+git status
+clear
+rm -r node_modules/
+git status
+git add .
+git commit -m "removed node moudles & added .gitignore"
+git push
 clear
 npm run dev
-clear
-e
-npm run dev
-npm run dev
-npm run dev
-npm run dev
-e
-npm install primeicons
-clear
-clear
-x
-e
-npm run dev
-npm run dev
-npm run dev
-clear
 npm i
 clear
-npm run dev
-npm run dev
-npm run dev
-npm run dev
-npm run dev
-npm run dev
-npm run dev
 clear
 e
+nix-shell
 clear
-git status
-ls
-nvim .gitignore
+n shell.nix 
 clear
-ls
-git add .
-git commit -m "refactor: craeted basic project structure"
+n shell.nix 
+nix-shell
 clear
-git checkout -b develop
-ls
-clear
-git status
-clear
-ls
+nix-shell
 clear
 clear
-ls
-clear
-clar
-clear
-ls
-git status
-git add .
-git commit -m "feat: basic button and sidebar components"
-git push
-git push --set-upstream origin develop
-clear
-e
-jerry 
-clear
-clear
-jerry 
-jerry 
-clear
-jerry 
-clear
-jerry 
-clear
-jerry 
-clear
-nmcli device wifi list 
-nmcli device wifi connect SSID password PASSWORD
-clear
-ckear
-clear
-sudo pacman -R vimb
-clear
-ls
-ls
-sudo pacman -R vieb-bin
-clear
-sudo pacman -S virtualbox
-n
-b
-clear
-clear
-clear
-ls
-git status
-git add .
-git commit -m "bashrc + nvim + tmux"
-git push
-clear
-clear
-ls
-clear
-awesome
-clear
-ls
-ls
-z
-ls
-z dot
-clear
-clear
-clear
-z Downloads/
-z dot
-clear
-cd other/
-ls
-clear
-ls
-cd ..
-ls
-clear
-z
-sudo pacman -S nix
-clear
-sudo pacman -Syu
-clear
-sudo pacman -S nix
-clear
-clear
-sudo pacman -S virtualbox-host-modules-arch
-clear
-/sbin/virtualbox
-modprobe vboxdrv
-modprobe vboxdrv
-modprobe vboxdrv
-clear
-sudo reboot now
-awesome
-awesome --replace
-exit
 nix-shell 
-clear 
-nix-shell -h
-nix-shell --help
+e
+npm run dev
+e
 clear
-nix-shell --comand
-nix-shell -p cowsay lolcat
-sudo nix-shell -p cowsay lolcat
-c
+nix-shell
+e
+alsamixer 
+clear
+clear
+lear
+clear
+z scrip
 ls
-cd Learn/
+cd tools/
+;s
 ls
-mkdir nix
-cd nix/
+clear
+z
+clear
 ls
+mkdir Projects
+cd Projects/
+ls
+git clone https://github.com/Jofr3/xixodata-vue
+clear
+git clone git@github.com:Jofr3/xixodata-vue.git
+clear
+ls
+cd xixodata-vue/
+ls
+sudo rm -r node_modules
+clear
+ls
+git status
+clear
+ls
+l
+ls -
+ls -a
+touch .gitignore
+touch .env
+clear
+ls
+n .gitignore 
+clear
+npm -v
+clear
+nodejs -v
+node -v
 clear
 touch shell.nix
-nix-shell 
-sudo nix-shell 
-clear
-sudo nix-shell 
-nix-shell 
-!
-sudo !
-sudo nix-shell 
-clear
-ex
-exit
-clear
-nix-shell 
-z Learn/
-ls
-cd nix/
 nix-shell
-sudo nix-shell
-nix -v
-nix --version
 clear
-sudo pacman -R nix
-curl -L https://nixos.org/nix/install | sh -s -- --daemon
-sudo pacman -Rsn
-sudo pacman -Rsn nix
-sudo pacman -Rsn nix-busybox 
+z
 clear
-curl -L https://nixos.org/nix/install | sh -s -- --daemon
+sudoedit /etc/nixos/configuration.nix 
+sudo nixos-rebuild switch 
+clear
+clear
+clear
+clear
+shutdown now
+n
+n
+n
+n
+n
+clear
+e
+e
+n
 sudo reboot now
-nix
-curl -L https://nixos.org/nix/install | sh -s -- --daemon
-sudo pacman -S nix
-clear
-nix-shell 
-sudo nix-shell 
-clear
-ls
-cd Learn/nix/
-ls
-sudo nix-shell 
-nix-channel --add https://nixos.org/channels/nixpkgs-unstable
-nix-channel --update
-sudo nix-channel --add https://nixos.org/channels/nixpkgs-unstable
-sudo nix-channel --update
-clear
-sudo nix-shell 
-clear
-z
-cd Downloads/
-ls
-z dotfiles
-ls
-clear
-ping google.com
-clear
-e
-clear
-nmcli 
-ping google.com
-clear
-killall tmux
-e
-tmux kill-server
-clear
 n
+shutdown now
+calcultor
+calc
+cal
+gnome-calculator 
 clear
-e
-clear
-e
-clear
-n
-clear
-t
-n
-clear
-clear
-n
-clear
-ls
-rm lol.blade.php 
-n test.blade.php 
-n test.blade.php 
-n test.blade.php 
-n test.blade.php 
-clear
-n test.blade.php 
-n test.blade.php 
-clear
-n test.blade.php 
-n test.blade.php 
-clear
-clear
-clear
-clear
-z
-z dot
-clear
-git add .
-git commit -m "nvim"
-clear
-git push
-clear
-clear
-3www4333333g
-clear
-clear
-clear
-clear
-ls
-n test.blade.php 
-n lol.js
-n lol.js
-n lol.js
-clear
-ls
-n lol.js 
-n test.blade.php 
-clear
-n lol.js 
-:q
-clear
-n lol.js 
-n lol.js 
-clear
-tmux kill-server
-node lol.js 
 clea
 clear
-n lol.js 
-n lol.js 
-n lol.js 
-n lol.js 
-n lol.js 
-n lol.js 
-clear
-ls
-clear
-ls
-n test.php
-n test.php
-rm lol.js test.blade.php test.php 
-clear
-ls
-clear
-cd Learn/
-ls
-git clone https://gitlab.com/lasevaweb_group/lsw/myclientum-new.git
-git clone https://gitlab.com/lasevaweb_group/lsw/myclientum-new.git
-git clone https://gitlab.com/lasevaweb_group/lsw/myclientum-new.git
-clear
-ls
-cd myclientum-new/
-clear
-clear
-clear
-cler
+z /etc/nixos/
+clea
 c
-sudo pacman -S php
+ls
+sudoedir configuration.nix 
+sudoedit configuration.nix 
+sudo nixos-rebuild switch 
+clear
+sudoedit configuration.nix 
+sudo nixos-rebuild switch 
+clear
+clear
+sudoedit configuration.nix 
+sudo nixos-rebuild switch 
+clear
+n
+clesr
+clear
+hypridle 
+clear
+ls
+z hypr
+clear
+touch hypridle.confh
+mv hypridle.confh hypridle.conf
+clear
+n hypridle.conf 
+hypridle 
+clear
+hypridle 
+clear
+n
+ls
+nvim hypridle.conf 
+hypridle 
+nvim hypridle.conf 
+clear
+dmenu
+dmenu-wl
+dmenu-wl_run
+clear
+clear
+ls
+cd .
+cd ..
+z
+clear
+exit
+n
+clear
+cd ..
+ls
+ls ~/.config/
+mkdir hypr
+cp ~/.config/hypr/* ~/Desktop/.dotfiles/hypr/
+ls
+cd hypr/
+ls
+rm ~/.config/hypr/
+sudo rm ~/.config/hypr/
+sudo rm -r ~/.config/hypr/
+clear
+ln -s ~/Desktop/.dotfiles/hypr/ ~/.config/hypr
 clear
 e
-sudo pacman -S composer
+e
+clear
+sudoedit /etc/nixos/configuration.nix 
+clear
+e
+n
+clear
+git add .
+git commit -m "folding stuff"
+git push
+clear
+e
+clear
+clear
+clear
+lear
+clear
+c
+sudoedit /etc/nixos/configuration.nix 
+sudoedit /etc/nixos/configuration.nix 
+sudo nixos-rebuild switch 
+clear
+n
+n
+n
+clear
+n
+clear
+ls
+rm log.txt 
+clear
+shutdown now
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+clear
+n
+n
+clear
+clear
+shutdown now
+q
+clear
+n
+clear
+n
+clear
+shutdown now
+clear
+clear
+clear
+clear
+clear
+n
+n
+clear
+n
+n
+n
+clear
+n
+n
+clear
+ls
+clear
+ls
+git add .
+git commit -m "nvim kebind reform"
+git push
+clear
+n
+clea
+rc
+c
+xz
+xz -v
+xz --version
+clear
+clear
+e
+clear
+clear
+shutdown now
+shutdown now
+shutdown now
+e
+n
+clear
+ls
+clear
+ls
+clear
+n
+git statu
+git status
 clear
 n
 n
 n
 n
-clear
 n
 n
 n
-n
-n
-clear
-source ~/.basrc
-source ~/.bashrc
-clear
-source ~/.bashrc
-source ~/.bashrc
-source ~/.bashrc
-source ~/.bashrc
-source ~/.bashrc
-source ~/.bashrc
-clear
-source ~/.bashrc
 clear
 l
 clear
+ls
+cd Projects/
+ls
+mkdir tets
+mv tets/ test
 clear
-clear
-clear
-clear
-clear
-clear
-clear
-clear
-clear
-c
+cd test/
+ls
+touch file1.txt
+touch file2.txt
 clear
 n
 clear
+n
+n
 clear
-tmux kill-server
-z .config/
+n
+n
+clear
+n
+claer
+clear
+n
+n
+n
+n
+n
+n
+clear
+n
+n
+n
+clear
+n
+n
+clear
+n
+n
+clear
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+clear
+clear
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
 ls
-cd qutebrowser/
-ls
-cd bookmarks/
-ls
-cat urls 
-cd ..
-cat autoconfig.yml 
 clear
-ls
-cat config.py 
-clear
-ls
-cd qsettings/
-ls
-cat QtProject.conf 
-clear
-cd .
-cd ..
-ls
-cat q
-cat quickmarks 
-clear
-nix-build -A shell
-sudo nix-build -A shell
-sudo nix-build -A hello
-clear
-sudo nix-build -A hello
-ls
-cd result
-;s
-;s
-ls
-cd bin/
-ls
-./hello 
-cat .
-cat hello 
-exit
-ls
-cat result/bin/hello 
-nvim result/bin/hello 
-clear
-nvim -v
-clear
-clear
-nix-shell 
-sudo nix-shell 
-ls
-cd distrobox/
-clar
-clear
-nix-shell 
-sudo nix-shell 
-clear
-sudo nix-shell --command bash
-clear
-sudo nix-shell --command bash
-clear
-ls
-clear
-ls
-n shell.nix 
-clear
-sudo nix-shell
-nix-shell
-sudo chown -R $(whoami) /nix
-[200~ls -ld /nix/store
-~
-ls -ld /nix/store
-$ rm -rf /nix
-rm -rf /nix
-sudo rm -rf /nix
-sudo systemctl stop nix-daemon.service
-sudo systemctl disable nix-daemon.socket nix-daemon.service
-sudo systemctl daemon-reload
-sudo rm -rf /etc/nix /etc/profile.d/nix.sh /etc/tmpfiles.d/nix-daemon.conf /nix ~root/.nix-channels ~root/.nix-defexpr ~root/.nix-profile
-for i in $(seq 1 32); do   sudo userdel nixbld$i; done
-sudo groupdel nixbld
-e
-ls
-cd distrobox/
-clear
-nix-s
-nix-shell 
-clear
-$ curl -L https://nixos.org/nix/install | sh -s -- --daemon
-curl -L https://nixos.org/nix/install | sh -s -- --daemon
-ls
-sudo groupdel nixbld 
-sudo userdel nixbld01 
-sudo groupdel nixbld 
-sudo userdel nixbld02
-sudo userdel nixbld0*
-sudo userdel nixbld03
-sudo userdel nixbld04
-sudo userdel nixbld05
-sudo userdel nixbld06
-sudo userdel nixbld07
-sudo userdel nixbld08
-sudo userdel nixbld0
-sudo groupdel nixbld 
-clear
-curl -L https://nixos.org/nix/install | sh -s -- --daemon
-clear
-e
-b
-clear
-tmux kill-server
 clear
 ls
-cd distrobox/
-ls
-nix-shell
-sudo su
+git status
+n
+n
+clear
+n
+clear
+n
+n
 clear
 ls
-n shell.nix 
-n shell.nix 
-nix-shell
-sudo nix-shell
+n
+n
+n
+n
+n
+n
 clear
-sudo pacman -S distrobox
-exit
+sudo shutdown now
+n
+n
+n
+clear
 ls
-distrobox
-distrobox create 
-distrobox create -n nix
-distrobox
-distrobox assemble
-distrobox-create -n nixos
 clear
-exit
-nix-shell
-cd distrobox/
-nix-shell
+sudo shutdown now
+:q
 clear
-nix-shell
-exit
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+ls
 clear
-e
-b
 clear
-b
+cd Projects/test/
+ls
+n file
+n file1.txt 
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
 clear
+n
+n
+n
+clear
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+clear
+n
+n
+n
+n
+clear
+n
+n
+n

@@ -39,6 +39,8 @@ ssh-add ~/.ssh/keys/* >/dev/null 2>&1
 # Exports
 export EDITOR='nvim'
 export ANDROID_SDK_ROOT="/home/jofre/Android/Sdk"
+export SRC_ENDPOINT="https://sourcegraph.com"
+export SRC_ACCESS_TOKEN="sgp_a0d7ccb4f752ea73_f523428927ec2668d8641e98ec6a22e7238653d4"
 
 # Other
 eval "$(zoxide init bash)"

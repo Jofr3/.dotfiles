@@ -8,16 +8,18 @@ return {
 			view_options = {
 				show_hidden = true,
 			},
-            skip_confirm_for_simple_edits = true,
-            keymaps = {
-                ["<CR>"] = "actions.select",
-                ["<Esc>"] = "actions.close",
-                ["<Tab>"] = "actions.parent"
-            },
-            use_default_keymaps = false,
+			win_options = {
+				signcolumn = "yes",
+			},
+			keymaps = {
+				["<CR>"] = "actions.select",
+				["<Esc>"] = "actions.close",
+				["<Tab>"] = "actions.parent",
+			},
+			use_default_keymaps = false,
 		})
 	end,
 	keys = {
-		{ "<Leader>n", "<CMD>Oil<CR>", desc = "File exporer" },
+		{ "<C-n>", "<CMD>Oil<CR>", desc = "File exporer" },
 	},
 }

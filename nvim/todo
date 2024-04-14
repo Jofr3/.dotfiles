@@ -21,4 +21,3 @@ keymaps:
 
 - Misc
     > disable/enable spell checking
-    > nvim completion

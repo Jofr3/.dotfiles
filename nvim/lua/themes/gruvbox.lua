@@ -31,3 +31,10 @@ vim.cmd("hi PmenuSel guibg=#ffffff guifg=#0d0d0d")
 vim.cmd("hi MarkdownLinkText guifg=#83a598")
 
 vim.cmd("hi Folded guibg=#000000 guifg=#928374")
+
+vim.cmd("hi SignColumn guibg=#000000 guifg=#928374")
+
+vim.cmd("hi GitSignsAdd guibg=#000000 guifg=#b8bb26")
+vim.cmd("hi GitSignsChange guibg=#000000 guifg=#fe8019")
+vim.cmd("hi GitSignsDelete guibg=#000000 guifg=#fb4934")
+vim.cmd("hi GitSignsUntracked guibg=#000000 guifg=#928374 ")

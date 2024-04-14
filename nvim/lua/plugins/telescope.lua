@@ -20,9 +20,9 @@ return {
 		})
 	end,
 	keys = {
-		{ "<Leader>f", "<cmd>Telescope find_files<cr>", desc = "Find files" },
-		{ "<Leader>g", "<cmd>Telescope live_grep<cr>", desc = "Grep string" },
-		{ "<Leader>b", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Current buffer fuzzy find" },
+		{ "<C-f>", "<cmd>Telescope find_files<cr>", desc = "Find files" },
+		{ "<C-g>", "<cmd>Telescope live_grep<cr>", desc = "Grep string" },
+		{ "<C-b>", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Current buffer fuzzy find" },
 		{ "<Leader>s", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace symbols" },
 	}
 }

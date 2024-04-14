@@ -7,6 +7,6 @@ return {
         apm:setup({})
     end,
     keys = {
-        { "<Leader>m", "<cmd>:lua require('vim-apm'):toggle_monitor()<cr>", desc = "Toggle vim-apm monitor" },
+        { "<Leader>amp", "<cmd>:lua require('vim-apm'):toggle_monitor()<cr>", desc = "Toggle vim-apm monitor" },
     }
 }

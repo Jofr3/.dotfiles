@@ -1,8 +1,8 @@
 return {
     "Jofr3/needle",
-    enabled = true,
+    enabled = false,
     config = function()
-        require("needle").setup()
+        -- require("needle").setup()
     end,
     keys = {
         { "<C-m>", "<cmd>:NeedleAddMark<CR>", remap = true, desc = "Add mark at cursor", { silent = true } },

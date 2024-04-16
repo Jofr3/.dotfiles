@@ -1,40 +1,42 @@
 vim.cmd("colorscheme gruvbox")
 
-vim.cmd("hi Comment gui=italic")
+vim.api.nvim_set_hl(0, 'Normal', { fg = "#d5d5d5", bg = "black" })
 
-vim.cmd("hi Normal guibg=#000000")
+vim.api.nvim_set_hl(0, 'Visual', { bg = "#2b2b2b" })
 
-vim.cmd("hi EndOfBuffer guifg=#000000")
+vim.api.nvim_set_hl(0, 'Search', { fg="black", bg="#83a598" })
+vim.api.nvim_set_hl(0, 'IncSearch', { fg="black", bg="#b8bb26" })
 
-vim.cmd("hi Visual guibg=#262626 gui=none")
+vim.api.nvim_set_hl(0, 'SignColumn', { bg = "black" })
 
-vim.cmd("hi ColorColumn guibg=#0d0d0d")
+vim.api.nvim_set_hl(0, 'EndOfBuffer', { fg = "black", bg = "black" })
 
-vim.cmd("hi StatusLine gui=none guifg=#EBDBB2 guibg=#0d0d0d")
-vim.cmd("hi StatusLineNC gui=none guifg=#EBDBB2 guibg=#0d0d0d")
+vim.api.nvim_set_hl(0, 'ColorColumn', { bg = "#161616" })
 
-vim.cmd("hi CursorLine gui=none guibg=#171717")
+vim.api.nvim_set_hl(0, 'Comment', { fg = "#6b6b6b" })
 
-vim.cmd("hi VertSplit guibg=#0d0d0d guifg=#0d0d0d")
+vim.api.nvim_set_hl(0, 'Folded', { fg = "#8ec07c" })
 
-vim.cmd("hi DiagnosticUnderlineError gui=underdotted")
-vim.cmd("hi DiagnosticUnderlineWarn gui=underdotted")
-vim.cmd("hi DiagnosticUnderlineInfo gui=underdotted")
-vim.cmd("hi DiagnosticUnderlineHint gui=underdotted")
+vim.api.nvim_set_hl(0, 'VertSplit', { fg = "#161616", bg = "#161616" })
 
-vim.cmd("hi TreesitterContext guibg=#121212")
-vim.cmd("hi TreesitterContextBottom guibg=#0d0d0d")
+vim.api.nvim_set_hl(0, 'StatusLine', { fg = "#787878", bg = '#161616' })
+vim.api.nvim_set_hl(0, 'StatusLineNC', { fg = "#787878", bg = '#161616', italic = true })
 
-vim.cmd("hi Pmenu guibg=#121212 guifg=#ebdbb2")
-vim.cmd("hi PmenuSel guibg=#ffffff guifg=#0d0d0d")
+vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = "#555555", })
+vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = "#555555", })
+vim.api.nvim_set_hl(0, 'LineNr', { fg = "#959595", })
 
-vim.cmd("hi MarkdownLinkText guifg=#83a598")
+vim.api.nvim_set_hl(0, 'Pmenu', { bg = "#161616" })
+vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = "#2b2b2b" })
+vim.api.nvim_set_hl(0, 'PmenuSel', { bg = "#2b2b2b" })
+vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = "#555555" })
 
-vim.cmd("hi Folded guibg=#000000 guifg=#928374")
+vim.api.nvim_set_hl(0, 'GitSignsAdd', { fg = '#b8bb26', bg = "black" })
+vim.api.nvim_set_hl(0, 'GitSignsChange', { fg = '#fe8019', bg = "black" })
+vim.api.nvim_set_hl(0, 'GitSignsDelete', { fg = '#fb4934', bg = "black" })
+vim.api.nvim_set_hl(0, 'GitSignsUntracked', { fg = '#928374', bg = "black" })
 
-vim.cmd("hi SignColumn guibg=#000000 guifg=#928374")
-
-vim.cmd("hi GitSignsAdd guibg=#000000 guifg=#b8bb26")
-vim.cmd("hi GitSignsChange guibg=#000000 guifg=#fe8019")
-vim.cmd("hi GitSignsDelete guibg=#000000 guifg=#fb4934")
-vim.cmd("hi GitSignsUntracked guibg=#000000 guifg=#928374 ")
+vim.api.nvim_set_hl(0, 'DiagnosticUnderlineError', { undercurl = true })
+vim.api.nvim_set_hl(0, 'DiagnosticUnderlineWarn', { undercurl = true })
+vim.api.nvim_set_hl(0, 'DiagnosticUnderlineInfo', { undercurl = true })
+vim.api.nvim_set_hl(0, 'DiagnosticUnderlineHint', { undercurl = true })

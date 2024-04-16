@@ -15,13 +15,16 @@ return {
 				local optsL = { buffer = ev.buf }
 				vim.keymap.set("n", "<space>ld", vim.lsp.buf.declaration, optsL)
 				vim.keymap.set("n", "<space>lf", vim.lsp.buf.definition, optsL)
-				vim.keymap.set("n", "<space>lh", vim.lsp.buf.hover, optsL)
+				vim.keymap.set("n", "K", vim.lsp.buf.hover, optsL)
 				vim.keymap.set("n", "<space>li", vim.lsp.buf.implementation, optsL)
 				vim.keymap.set("n", "<space>ls", vim.lsp.buf.signature_help, optsL)
 				vim.keymap.set("n", "<space>lt", vim.lsp.buf.type_definition, optsL)
 				vim.keymap.set("n", "<space>lr", vim.lsp.buf.rename, optsL)
 				vim.keymap.set("n", "<space>la", vim.lsp.buf.code_action, optsL)
 				vim.keymap.set("n", "<space>le", vim.lsp.buf.references, optsL)
+				vim.keymap.set('n', '<Leader>z', function()
+				    vim.lsp.buf.format { async = true }
+				end, optsL)
 			end,
 		})
 
@@ -38,6 +41,7 @@ return {
 			"dockerls",
 			"intelephense",
 			"docker_compose_language_service",
+			"nil_ls",
 		}
 
 		for _, lsp in ipairs(vim.g.lsp_servers) do

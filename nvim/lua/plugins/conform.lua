@@ -7,7 +7,8 @@ return {
             formatters_by_ft = {
                 lua = { "stylua" },
                 javascript = { { "prettier", "rustywind" } },
-                markdown = { "prettier" }
+                markdown = { "prettier" },
+                nix = { "nixpkgs-fmt" }
             },
         })
     end,

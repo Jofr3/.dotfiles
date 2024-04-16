@@ -13,7 +13,7 @@ return {
 			},
 			keymaps = {
 				["<CR>"] = "actions.select",
-				["<Esc>"] = "actions.close",
+				["<q>"] = "actions.close",
 				["<Tab>"] = "actions.parent",
 			},
 			use_default_keymaps = false,

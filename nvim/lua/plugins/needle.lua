@@ -1,23 +1,20 @@
 return {
     "Jofr3/needle",
-    enabled = false,
+    enabled = true,
+    branch = "main",
     config = function()
-        -- require("needle").setup()
+        require("needle").setup()
     end,
     keys = {
-        { "<C-m>", "<cmd>:NeedleAddMark<CR>", remap = true, desc = "Add mark at cursor", { silent = true } },
-        { "<C-x>", "<cmd>:NeedleDeleteMark<CR>", remap = true, desc = "Delete mark at cursor", { silent = true } },
-        { "<Leader>x", "<cmd>:NeedleClearMarks<CR>", remap = true, desc = "Clear all local marks", { silent = true } },
+        { "<C-l>", "<cmd>:lua require('needle.marks').add_mark()<cr>", remap = true, desc = "Add mark" },
+        { "<C-x>", "<cmd>:lua require('needle.marks').delete_mark()<cr>", remap = true, desc = "Delete mark" },
+        { "<Leader>x", "<cmd>:lua require('needle.marks').clear_marks()<cr>", remap = true, desc = "Clear marks" },
 
-        { "<Leader>q", "<cmd>:NeedleJumpToMark q<CR>", remap = true, desc = "Jump to mark", { silent = true } },
-        { "<Leader>w", "<cmd>:NeedleJumpToMark w<CR>", remap = true, desc = "Jump to mark", { silent = true } },
-        { "<Leader>e", "<cmd>:NeedleJumpToMark e<CR>", remap = true, desc = "Jump to mark", { silent = true } },
-        { "<Leader>r", "<cmd>:NeedleJumpToMark r<CR>", remap = true, desc = "Jump to mark", { silent = true } },
-        { "<Leader>t", "<cmd>:NeedleJumpToMark t<CR>", remap = true, desc = "Jump to mark", { silent = true } },
-        { "<Leader>y", "<cmd>:NeedleJumpToMark y<CR>", remap = true, desc = "Jump to mark", { silent = true } },
-        { "<Leader>u", "<cmd>:NeedleJumpToMark u<CR>", remap = true, desc = "Jump to mark", { silent = true } },
-        { "<Leader>i", "<cmd>:NeedleJumpToMark i<CR>", remap = true, desc = "Jump to mark", { silent = true } },
-        { "<Leader>o", "<cmd>:NeedleJumpToMark o<CR>", remap = true, desc = "Jump to mark", { silent = true } },
-        { "<Leader>p", "<cmd>:NeedleJumpToMark p<CR>", remap = true, desc = "Jump to mark", { silent = true } }
+        { "<Leader>q", "<cmd>:lua require('needle.marks').jump_to_mark('q')<cr>", remap = true, desc = "Jump to mark q" },
+        { "<Leader>w", "<cmd>:lua require('needle.marks').jump_to_mark('w')<cr>", remap = true, desc = "Jump to mark w" },
+        { "<Leader>e", "<cmd>:lua require('needle.marks').jump_to_mark('e')<cr>", remap = true, desc = "Jump to mark e" },
+        { "<Leader>r", "<cmd>:lua require('needle.marks').jump_to_mark('r')<cr>", remap = true, desc = "Jump to mark r" },
+        { "<Leader>t", "<cmd>:lua require('needle.marks').jump_to_mark('t')<cr>", remap = true, desc = "Jump to mark t" },
+        -- ...
     }
 }

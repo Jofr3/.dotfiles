@@ -11,12 +11,12 @@ return {
 			win_options = {
 				signcolumn = "yes",
 			},
+			use_default_keymaps = false,
 			keymaps = {
 				["<CR>"] = "actions.select",
 				["<q>"] = "actions.close",
 				["<Tab>"] = "actions.parent",
 			},
-			use_default_keymaps = false,
 		})
 	end,
 	keys = {

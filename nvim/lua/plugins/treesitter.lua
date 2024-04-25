@@ -1,13 +1,21 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
-	enabled = true,
-	config = function()
-		require("nvim-treesitter.configs").setup({
-			ensure_installed = { "lua", "vim", "vimdoc", "python", "html", "css", "javascript", "markdown", "markdown_inline", "json", "yaml", "bash", },
-			highlight = { enable = true, disable = { "php" }},
-			incremental_selection = { enable = true },
-			autotag = { enable = true },
-			indent = { enable = true },
-		})
+	build = ":TSUpdate",
+	opts = {
+		ensure_installed = { "bash", "c", "html", "lua", "luadoc", "markdown", "vim", "vimdoc" },
+		auto_install = true,
+		highlight = {
+			enable = true,
+		},
+		indent = {
+			enable = true,
+		},
+	},
+	config = function(_, opts)
+		require("nvim-treesitter.install").prefer_git = true
+		require("nvim-treesitter.configs").setup(opts)
+		--    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
+		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
+		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	end,
 }

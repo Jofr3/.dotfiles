@@ -1,55 +1,105 @@
 return {
 	"neovim/nvim-lspconfig",
-	enabled = true,
+	dependencies = {
+		{ "williamboman/mason.nvim", config = true },
+		"williamboman/mason-lspconfig.nvim",
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
+		{ "folke/neodev.nvim", opts = {} },
+	},
 	config = function()
-		local lspconfig = require("lspconfig")
-
-		vim.keymap.set("n", "<space>e", vim.diagnostic.open_float)
-		vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
-		vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
-		vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist)
-
 		vim.api.nvim_create_autocmd("LspAttach", {
-			group = vim.api.nvim_create_augroup("UserLspConfig", {}),
-			callback = function(ev)
-				local optsL = { buffer = ev.buf }
-				vim.keymap.set("n", "<space>ld", vim.lsp.buf.declaration, optsL)
-				vim.keymap.set("n", "<space>lf", vim.lsp.buf.definition, optsL)
-				vim.keymap.set("n", "K", vim.lsp.buf.hover, optsL)
-				vim.keymap.set("n", "<space>li", vim.lsp.buf.implementation, optsL)
-				vim.keymap.set("n", "<space>ls", vim.lsp.buf.signature_help, optsL)
-				vim.keymap.set("n", "<space>lt", vim.lsp.buf.type_definition, optsL)
-				vim.keymap.set("n", "<space>lr", vim.lsp.buf.rename, optsL)
-				vim.keymap.set("n", "<space>la", vim.lsp.buf.code_action, optsL)
-				vim.keymap.set("n", "<space>le", vim.lsp.buf.references, optsL)
-				vim.keymap.set('n', '<Leader>z', function()
-				    vim.lsp.buf.format { async = true }
-				end, optsL)
+			group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
+			callback = function(event)
+				local map = function(keys, func, desc)
+					vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
+				end
+
+				-- Jump to the definition of the word under your cursor.
+				--  This is where a variable was first declared, or where a function is defined, etc.
+				--  To jump back, press <C-t>.
+				map("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
+
+				-- Find references for the word under your cursor.
+				map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
+
+				-- Jump to the implementation of the word under your cursor.
+				--  Useful when your language has ways of declaring types without an actual implementation.
+				map("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+
+				-- Jump to the type of the word under your cursor.
+				--  Useful when you're not sure what type a variable is and you want to see the definition of its *type*, not where it was *defined*.
+				map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
+
+				-- Fuzzy find all the symbols in your current document.
+				--  Symbols are things like variables, functions, types, etc.
+				map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
+
+				-- Fuzzy find all the symbols in your current workspace.
+				--  Similar to document symbols, except searches over your entire project.
+				-- map("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+
+				-- Rename the variable under your cursor.
+				map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
+
+				-- Execute a code action, usually your cursor needs to be on top of an error or a suggestion from your LSP for this to activate.
+				map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+
+				-- Opens a popup that displays documentation about the word under your cursor
+				map("K", vim.lsp.buf.hover, "Hover Documentation")
+
+				-- WARN: This is not Goto Definition, this is Goto Declaration.
+				map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+
+				-- The following autocommand is used to enable inlay hints in your code, if the language server you are using supports them
+				-- This may be unwanted, since they displace some of your code
+				if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
+					map("<leader>th", function()
+						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+					end, "[T]oggle Inlay [H]ints")
+				end
 			end,
 		})
 
-		vim.g.lsp_servers = {
-			"bashls",
-			"html",
-			"cssls",
-			"tailwindcss",
-			"tsserver",
-			"jsonls",
-			"volar",
-			"prismals",
-			"lua_ls",
-			"dockerls",
-			"intelephense",
-			"docker_compose_language_service",
-			"nil_ls",
+		vim.api.nvim_create_autocmd("LspDetach", {
+			group = vim.api.nvim_create_augroup("kickstart-lsp-detach", { clear = true }),
+			callback = function(event)
+				vim.lsp.buf.clear_references()
+				vim.api.nvim_clear_autocmds({ group = "kickstart-lsp-highlight", buffer = event.buf })
+			end,
+		})
+
+		local capabilities = vim.lsp.protocol.make_client_capabilities()
+		capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+		local servers = {
+			lua_ls = {
+				cmd = { "/run/current-system/sw/bin/lua-language-server" },
+				settings = {
+					Lua = {
+						completion = {
+							callSnippet = "Replace",
+						},
+					},
+				},
+			},
 		}
 
-		for _, lsp in ipairs(vim.g.lsp_servers) do
-			lspconfig[lsp].setup({})
-		end
+		require("mason").setup()
 
-        vim.diagnostic.config({
-            signs = false
-        })
+		local ensure_installed = vim.tbl_keys(servers or {})
+		vim.list_extend(ensure_installed, {
+			"stylua",
+		})
+
+		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+
+		require("mason-lspconfig").setup({
+			handlers = {
+				function(server_name)
+					local server = servers[server_name] or {}
+					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+					require("lspconfig")[server_name].setup(server)
+				end,
+			},
+		})
 	end,
 }

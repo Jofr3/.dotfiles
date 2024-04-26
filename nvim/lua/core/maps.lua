@@ -3,8 +3,8 @@ vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { silent = true })
 vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { silent = true })
 
 -- Moving selected text left and right
-vim.keymap.set("v", "<A-h>", "<gv", { silent = true })
-vim.keymap.set("v", "<A-l>", ">gv", { silent = true })
+vim.keymap.set("v", "<A-h>", "<gv")
+vim.keymap.set("v", "<A-l>", ">gv")
 
 -- Scrolls up or down and centers screen
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
@@ -36,7 +36,17 @@ vim.keymap.set("i", "<up>", '<cmd>echo "Use k to move!!"<CR>')
 vim.keymap.set("i", "<down>", '<cmd>echo "Use j to move!!"<CR>')
 
 -- Move window focus
-vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
-vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
-vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
-vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
+vim.keymap.set("n", "<A-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
+vim.keymap.set("n", "<A-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
+vim.keymap.set("n", "<A-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
+vim.keymap.set("n", "<A-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
+
+-- Resizing windows
+vim.keymap.set("n", "<A-H>", "<cmd>vertical resize +5<CR>", { desc = "Resizing the window horizontally" })
+vim.keymap.set("n", "<A-L>", "<cmd>vertical resize -5<CR>", { desc = "Resizing the window horizontally" })
+vim.keymap.set("n", "<A-J>", "<cmd>resize -2<CR>", { desc = "Resizing the window horizontally" })
+vim.keymap.set("n", "<A-K>", "<cmd>resize +2<CR>", { desc = "Resizing the window horizontally" })
+
+-- Quickfix list navigation
+vim.keymap.set("n", "<Tab>", "<cmd>cnext<CR>", { desc = "Navigate to next item in quickfix list" })
+vim.keymap.set("n", "<S-Tab>", "<cmd>cprev<CR>", { desc = "Navigate to prev item in quickfix list" })

@@ -28,21 +28,25 @@ return {
 
 				-- Jump to the type of the word under your cursor.
 				--  Useful when you're not sure what type a variable is and you want to see the definition of its *type*, not where it was *defined*.
-				map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
+				map("<leader>ld", require("telescope.builtin").lsp_type_definitions, "[L]sp type [D]efinition")
 
 				-- Fuzzy find all the symbols in your current document.
 				--  Symbols are things like variables, functions, types, etc.
-				map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
+				map("<leader>ls", require("telescope.builtin").lsp_document_symbols, "[L]sp document [S]ymbols")
 
 				-- Fuzzy find all the symbols in your current workspace.
 				--  Similar to document symbols, except searches over your entire project.
-				-- map("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+				map(
+					"<leader>lw",
+					require("telescope.builtin").lsp_dynamic_workspace_symbols,
+					"[L]sp [W]orkspace symbols"
+				)
 
 				-- Rename the variable under your cursor.
-				map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
+				map("<leader>lr", vim.lsp.buf.rename, "[R]e[n]ame")
 
 				-- Execute a code action, usually your cursor needs to be on top of an error or a suggestion from your LSP for this to activate.
-				map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+				map("<leader>la", vim.lsp.buf.code_action, "[C]ode [A]ction")
 
 				-- Opens a popup that displays documentation about the word under your cursor
 				map("K", vim.lsp.buf.hover, "Hover Documentation")
@@ -53,11 +57,15 @@ return {
 				-- The following autocommand is used to enable inlay hints in your code, if the language server you are using supports them
 				-- This may be unwanted, since they displace some of your code
 				if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
-					map("<leader>th", function()
+					map("<leader>lh", function()
 						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 					end, "[T]oggle Inlay [H]ints")
 				end
 			end,
+		})
+
+		vim.diagnostic.config({
+			signs = false,
 		})
 
 		vim.api.nvim_create_autocmd("LspDetach", {
@@ -84,13 +92,6 @@ return {
 		}
 
 		require("mason").setup()
-
-		local ensure_installed = vim.tbl_keys(servers or {})
-		vim.list_extend(ensure_installed, {
-			"stylua",
-		})
-
-		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
 		require("mason-lspconfig").setup({
 			handlers = {

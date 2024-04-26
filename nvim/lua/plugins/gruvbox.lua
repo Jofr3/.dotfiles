@@ -44,5 +44,13 @@ return {
 		vim.api.nvim_set_hl(0, "DiagnosticUnderlineWarn", { undercurl = true })
 		vim.api.nvim_set_hl(0, "DiagnosticUnderlineInfo", { undercurl = true })
 		vim.api.nvim_set_hl(0, "DiagnosticUnderlineHint", { undercurl = true })
+
+		vim.api.nvim_set_hl(0, "DiagnosticUnderlineHint", { undercurl = true })
+
+		vim.api.nvim_set_hl(0, "QuickFixLine", { bg = "#2b2b2b" })
+
+		vim.api.nvim_set_hl(0, "Error", { fg = "#fb4934" })
+		vim.api.nvim_set_hl(0, "ErrorMsg", { fg = "#fb4934" })
+		vim.api.nvim_set_hl(0, "NvimInternalError", { fg = "#fb4934" })
 	end,
 }

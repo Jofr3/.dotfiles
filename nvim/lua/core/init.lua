@@ -29,10 +29,10 @@ vim.opt.smartcase = true
 vim.opt.signcolumn = "yes"
 
 -- Update time
-vim.opt.updatetime = 250
+vim.opt.updatetime = 200
 
 -- Mapped sequence wait time
-vim.opt.timeoutlen = 300
+vim.opt.timeoutlen = 400
 
 -- How new splits open
 vim.opt.splitright = true
@@ -62,3 +62,16 @@ vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
+
+-- Disable wrap
+vim.opt.wrap = false
+
+-- Remove welcome message
+vim.opt.shortmess = "I"
+
+-- Disable netrw
+vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_netrw = 1
+
+-- Completition max results
+vim.opt.pumheight = 10

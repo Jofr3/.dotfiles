@@ -1,5 +1,6 @@
 return {
 	"gruvbox-community/gruvbox",
+	enabled = true,
 	priority = 1000,
 	init = function()
 		vim.cmd.colorscheme("gruvbox")

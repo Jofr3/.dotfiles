@@ -1,6 +1,7 @@
 return {
 	"hrsh7th/nvim-cmp",
 	event = "InsertEnter",
+	lazy = false,
 	dependencies = {
 		"hrsh7th/cmp-buffer",
 		"hrsh7th/cmp-nvim-lsp",
@@ -60,7 +61,6 @@ return {
 		})
 
 		cmp.setup.cmdline({ "/", "?" }, {
-			completion = { completeopt = "menu,menuone,noinsert" },
 			mapping = cmp.mapping.preset.cmdline(),
 			sources = {
 				{ name = "buffer" },
@@ -68,11 +68,10 @@ return {
 		})
 
 		cmp.setup.cmdline(":", {
-			completion = { completeopt = "menu,menuone,noinsert" },
 			mapping = cmp.mapping.preset.cmdline(),
 			sources = cmp.config.sources({
-				{ name = "cmdline" },
 				{ name = "path" },
+				{ name = "cmdline" },
 			}),
 		})
 	end,

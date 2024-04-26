@@ -1,5 +1,6 @@
 return {
 	"stevearc/oil.nvim",
+	enabled = true,
 	opts = {
 		default_file_explorer = true,
 		delete_to_trash = true,

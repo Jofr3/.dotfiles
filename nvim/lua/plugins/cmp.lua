@@ -25,7 +25,6 @@ return {
 			},
 			completion = { completeopt = "menu,menuone,noinsert" },
 			mapping = cmp.mapping.preset.insert({
-				["<Esc>"] = cmp.mapping.abort(),
 				["<C-j>"] = cmp.mapping.select_next_item(),
 				["<C-k>"] = cmp.mapping.select_prev_item(),
 				["<Tab>"] = cmp.mapping(function(fallback)
@@ -61,9 +60,8 @@ return {
 		})
 
 		cmp.setup.cmdline({ "/", "?" }, {
-			mapping = cmp.mapping.preset.cmdline({
-				["<Tab>"] = cmp.mapping.confirm({ select = true }),
-			}),
+			completion = { completeopt = "menu,menuone,noinsert" },
+			mapping = cmp.mapping.preset.cmdline(),
 			sources = {
 				{ name = "buffer" },
 			},
@@ -71,9 +69,7 @@ return {
 
 		cmp.setup.cmdline(":", {
 			completion = { completeopt = "menu,menuone,noinsert" },
-			mapping = cmp.mapping.preset.cmdline({
-				["<Tab>"] = cmp.mapping.confirm({ select = true }),
-			}),
+			mapping = cmp.mapping.preset.cmdline(),
 			sources = cmp.config.sources({
 				{ name = "cmdline" },
 				{ name = "path" },

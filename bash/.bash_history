@@ -1,237 +1,3 @@
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-n init.lua 
-e
-z nvim
-> needle.json 
-clear
-clear
-cat needle.json 
-cat needle.json 
-clear
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-clear
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-cat needle.json 
-clear
-cat needle.json 
-> needle.json 
-clear
-clear
-cat needle.json 
-cat needle.json 
-cat needle.json 
-clear
-cat needle.json 
-cat needle.json 
-> needle.json 
-clear
-cat needle.json 
-> needle.json 
-clear
-> needle.json 
-> needle.json 
-clear
-clear
-cat needle.json 
-clear
-> needle.json 
-clear
-> needle.json 
-clear
-> needle.json 
-clear
-clear
-> needle.json 
-clear
-> needle.json 
-> needle.json 
-> needle.json 
-e
-e
-n
-z dot nvim
-clear
-n
-c
-n init.lua 
-clear
-n init.lua 
-n init.lua 
-z needle
-clear
-clear
-clear
-n
-n
-n
-n
-clear
-n
-n
-n
-n
-clear
-clear
-clear
-clear
-clear
-clear
-clear
-clear
-clear
-n
-n
-e
-z nvim
-clear
-cat needle.json 
-cat needle.json 
-clear
-e
-e
-shutdown now
-ls
-clear
-git status
-git add .
-git loh
-git lohg
-git log
-git commit -m "persistance"
-git push
-git checkout main
-clear
-clear
-n
-n
-n
-clear
-:q
-e
-clear
-ls
-c
-ls
-ls -a
-cat .gnupg/
-ls .gnupg/
-ls .hyprland/
-ls
-ls .mozilla/
-ls .npm/
-ls .vim
-ls .local/
-clear
-clear
-clear
-clear
-n
-clear
-n
-z dot nvim
-celar
-clear
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-n
-shutdown now
-clear
-n
-n
-git add .
-git commit -m "v1.0.1"
-git push
-git pull
-git diff
-git config pull.rebase true
-git pull
-s
-ls
-cd lua/
 ls
 de needle/l
 cd needle/
@@ -498,3 +264,237 @@ git status
 git add .
 git commit -m "lfs demo.gif"
 clear
+git log
+clear
+git log daa3db7fd143cf1765766338a6fd0d0d86c44629
+git diff daa3db7fd143cf1765766338a6fd0d0d86c44629
+clear
+git diff 
+c
+git log
+git diff daa3db7fd143cf1765766338a6fd0d0d86c44629 -- 
+q
+clear
+clear
+
+git diff daa3db7fd143cf1765766338a6fd0d0d86c44629 -- lua/plugins/cmp.lua
+git diff daa3db7fd143cf1765766338a6fd0d0d86c44629 -- lua/plugins/cmp.lua --unified=0 | grep '^+'
+git diff daa3db7fd143cf1765766338a6fd0d0d86c44629 -- lua/plugins/cmp.lua --unified=0 | grep '^-'
+git diff daa3db7fd143cf1765766338a6fd0d0d86c44629 -- lua/plugins/cmp.lua --unified=0 | grep '^-' | less
+wl-copy 
+git diff daa3db7fd143cf1765766338a6fd0d0d86c44629 -- lua/plugins/cmp.lua --unified=0 | grep '^-' | wl-copy
+clear
+clear
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+clear
+n
+n
+n
+n
+n
+n
+clear
+claer
+n
+clear
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+git status
+n
+n
+clear
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+clear
+ls
+git log
+git add .
+git commit -m "more nvim config"
+git push
+clear
+ls
+git checkout -b old daa3db7fd143cf1765766338a6fd0d0d86c44629
+clear
+git checkout main
+git reset --hard
+git checkout main
+n
+n
+n
+n
+git add .
+git commit -m "even more nvim changes"
+git checkout old
+n
+n
+git checkout main
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+n
+clear
+n
+clear
+git add .
+git commit -m "fixed cmp-cmdline"
+git push
+clear
+git status
+clear
+clear
+clear
+clear
+clear
+sudo shutdown now
+clear
+clear
+clear
+z nix
+sudoedit configuration.nix 
+sudo nixos-rebuild switch 
+clear
+ls
+ls
+z
+ls
+ls -a
+touch .zshrc
+touch .zshenv
+touch .zprofile
+clear
+n .bashrc
+z nixos
+sudoedit configuration.nix 
+sudo nixos-rebuild switch 
+sudoedit configuration.nix 
+sudo nixos-rebuild switch 
+lear
+clear
+ls
+sudo nixos-rebuild switch 
+sudoedit configuration.nix 
+sudo nixos-rebuild switch 
+sudoedit configuration.nix 
+sudo nixos-rebuild switch 
+clear
+tmux kill-server
+shell
+fs
+clear
+shutdown now
+cd lol
+cd .config/
+clear
+zsh
+clear
+e
+clear
+source ~/.bashrc
+source ~/.bashrc
+source ~/.bashrc
+source ~/.bashrc
+source ~/.bashrc
+source ~/.bashrc
+source ~/.bashrc
+e
+source ~/.zshrc
+source ~/.zshrc
+source ~/.zshrc
+source ~/.zshrc
+source ~/.zshrc
+e
+clear
+source ~/.zshrc
+source ~/.zshrc
+e

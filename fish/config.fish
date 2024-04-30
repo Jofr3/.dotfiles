@@ -4,12 +4,15 @@ set -U fish_prompt_pwd_dir_length 0
 
 # Prompt
 function fish_prompt
-    echo '' (set_color green)(prompt_pwd) (set_color cyan)'* ' 
+    echo '' (set_color cyan)(prompt_pwd) (set_color green)'* ' 
 end
 
 function fish_right_prompt
     echo (set_color red)(fish_git_prompt) ''
 end
+
+# Exports
+set EDITOR nvim
 
 # Abbreviations
 abbr .. cd ..
@@ -26,9 +29,13 @@ abbr b bluetoothctl
 
 abbr gst git status
 abbr gad git add .
-abbr gcm git commit -m
+abbr gco git commit -m
+abbr gpu git push
 abbr gbr git branch
 abbr gch git checkout
+abbr gre git reset
+abbr gre! git reset --hard
+abbr glo git log
 abbr grf git reflog
 
 abbr nr sudo nixor-rebuild switch
@@ -42,3 +49,12 @@ bind \cs "source ~/.config/fish/config.fish"
 bind \ea "tmux new-session -A -s main"
 bind \cn "nvim -c ':lua require(\"oil\").open()'"
 bind \cf "nvim -c ':Telescope find_files'"
+
+bind \e! 'switch_tmux_session 1'
+bind \e@ 'switch_tmux_session 2'
+bind \e# 'switch_tmux_session 3'
+bind \e\$ 'switch_tmux_session 4'
+bind \e% 'switch_tmux_session 5'
+bind \e^ 'switch_tmux_session 6'
+
+bind \ef '~/Desktop/.dotfiles/scripts/tools/tmux-sessionizer.sh'

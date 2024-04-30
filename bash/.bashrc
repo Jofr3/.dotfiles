@@ -2,7 +2,7 @@
 
 # Prompt
 PS1=' \[\e[92m\]\w\[\e[0m\] \[\e[32m\]*\[\e[0m\] '
-                        
+
 # General
 alias c="clear"
 alias e="exit"

@@ -3,7 +3,7 @@ return {
 	enabled = true,
 	opts = {},
 	keys = {
-		{ "<C-l>", "<cmd>lua require('needle.marks').add_mark()<cr>", remap = true, desc = "Add mark" },
+		{ "<C-p>", "<cmd>lua require('needle.marks').add_mark()<cr>", remap = true, desc = "Add mark" },
 		{ "<C-x>", "<cmd>lua require('needle.marks').delete_mark()<cr>", remap = true, desc = "Delete mark" },
 		{ "<Leader>x", "<cmd>lua require('needle.marks').clear_marks()<cr>", remap = true, desc = "Clear marks" },
 

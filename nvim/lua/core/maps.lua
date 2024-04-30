@@ -49,5 +49,5 @@ vim.keymap.set("n", "<A-K>", "<cmd>resize +2<CR>", { desc = "Resizing the window
 
 -- Quickfix list navigation
 vim.keymap.set("n", "q", "<cmd>cclose<CR>", { desc = "Close quickfix list" })
-vim.keymap.set("n", "<Tab>", "<cmd>cnext<CR>", { desc = "Navigate to next item in quickfix list" })
-vim.keymap.set("n", "<S-Tab>", "<cmd>cprev<CR>", { desc = "Navigate to prev item in quickfix list" })
+vim.keymap.set("n", "<C-j>", "<cmd>cnext<CR>", { desc = "Navigate to next item in quickfix list" })
+vim.keymap.set("n", "<C-k>", "<cmd>cprev<CR>", { desc = "Navigate to prev item in quickfix list" })

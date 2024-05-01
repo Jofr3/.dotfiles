@@ -7,12 +7,6 @@ return {
 		"hrsh7th/cmp-nvim-lsp",
 		"hrsh7th/cmp-path",
 		"hrsh7th/cmp-cmdline",
-		"saadparwaiz1/cmp_luasnip",
-		{
-			"L3MON4D3/LuaSnip",
-			version = "v2.3",
-			build = "make install_jsregexp",
-		},
 	},
 	config = function()
 		local cmp = require("cmp")
@@ -28,7 +22,6 @@ return {
 			mapping = cmp.mapping.preset.insert({
 				["<C-j>"] = cmp.mapping.select_next_item(),
 				["<C-k>"] = cmp.mapping.select_prev_item(),
-
 				["<Tab>"] = cmp.mapping(function(fallback)
 					if cmp.visible() then
 						local entry = cmp.get_selected_entry()
@@ -40,19 +33,6 @@ return {
 						fallback()
 					end
 				end, { "i", "s", "c" }),
-				["<C-K>"] = cmp.mapping(function()
-					luasnip.expand()
-				end, { "i", "s" }),
-				["<C-l>"] = cmp.mapping(function()
-					if luasnip.locally_jumpable(1) then
-						luasnip.jump(1)
-					end
-				end, { "i", "s" }),
-				["<C-h>"] = cmp.mapping(function()
-					if luasnip.locally_jumpable(-1) then
-						luasnip.jump(-1)
-					end
-				end, { "i", "s" }),
 			}),
 			sources = {
 				{ name = "buffer" },

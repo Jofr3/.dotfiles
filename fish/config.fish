@@ -20,8 +20,10 @@ abbr .. cd ..
 abbr c clear
 abbr e exit
 abbr ! sudo !!
+abbr to touch
+abbr mk mkdir
+abbr se sudoedit
 
-abbr n nvim
 abbr t tmux
 abbr tr tree
 abbr ff fastfetch
@@ -38,9 +40,13 @@ abbr gre! git reset --hard
 abbr glo git log
 abbr grf git reflog
 
-abbr nr sudo nixor-rebuild switch
+abbr ns nix-shell
+abbr nsf nix-shell --run fish
+abbr nrw sudo nixor-rebuild switch
 
 # Aliases
+alias n="nvim"
+
 alias ls="exa --icons"
 alias grep="grep --color='auto'"
 

@@ -10,9 +10,9 @@ return {
 		end, { silent = true })
 		vim.keymap.set({ "i", "s" }, "<C-L>", function()
 			ls.jump(1)
-		end, { silent = true })
+		end, { remap = true, silent = true })
 		vim.keymap.set({ "i", "s" }, "<C-J>", function()
 			ls.jump(-1)
-		end, { silent = true })
+		end, { remap = true, silent = true })
 	end,
 }

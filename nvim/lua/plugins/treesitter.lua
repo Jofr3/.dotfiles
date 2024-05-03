@@ -7,6 +7,7 @@ return {
 		auto_install = true,
 		highlight = {
 			enable = true,
+			disable = { "php" },
 		},
 		indent = {
 			enable = true,

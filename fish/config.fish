@@ -34,9 +34,12 @@ abbr gad git add .
 abbr gco git commit -m
 abbr gpu git push
 abbr gbr git branch
+abbr gdi git diff 
+abbr gdif git diff --
 abbr gch git checkout
 abbr gre git reset
 abbr gre! git reset --hard
+abbr gchf git checkout --
 abbr glo git log
 abbr grf git reflog
 

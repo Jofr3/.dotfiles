@@ -7,11 +7,37 @@ local t = ls.text_node
 local i = ls.insert_node
 
 ls.add_snippets("lua", {
-	s("ins", {
-		t("print(vim.inspect("),
-		i(1),
-		t("))"),
-	}),
+	s(
+		"p",
+		fmt(
+			[[
+        print({})
+            ]],
+			{ i(1) }
+		)
+	),
+
+	s(
+		"ins",
+		fmt(
+			[[
+        print(vim.inspect({}))
+            ]],
+			{ i(1) }
+		)
+	),
+
+	s(
+		"fun",
+		fmt(
+			[[
+        function {}()
+            {}
+        end
+            ]],
+			{ i(1), i(2) }
+		)
+	),
 })
 
 ls.add_snippets("php", {
@@ -26,6 +52,16 @@ ls.add_snippets("php", {
 		i(1),
 		t(");"),
 	}),
+
+	s(
+		"log",
+		fmt(
+			[[
+        console.log({});
+            ]],
+			{ i(1) }
+		)
+	),
 
 	s("get", {
 		t("Session::get('"),
@@ -78,6 +114,28 @@ ls.add_snippets("vue", {
         <{}>{}</{}>
             ]],
 			{ i(1), i(2), rep(1) }
+		)
+	),
+
+	s(
+		"log",
+		fmt(
+			[[
+        console.log({})
+            ]],
+			{ i(1) }
+		)
+	),
+})
+
+ls.add_snippets("js", {
+	s(
+		"log",
+		fmt(
+			[[
+        console.log({})
+            ]],
+			{ i(1) }
 		)
 	),
 })

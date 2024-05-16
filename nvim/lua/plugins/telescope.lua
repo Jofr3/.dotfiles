@@ -11,17 +11,17 @@ return {
 	},
 	config = function()
 		require("telescope").setup({
-			pickers = {},
-			extensions = {
-				["ui-select"] = {
-					require("telescope.themes").get_dropdown(),
+			defaults = {
+				file_ignore_patterns = { "public_html", "node_modules" },
+				mappings = {
+					i = {
+						["<C-j>"] = "move_selection_next",
+						["<C-k>"] = "move_selection_previous",
+					},
 				},
 			},
+			pickers = {},
 		})
-
-		-- Enable Telescope extensions if they are installed
-		-- pcall(require("telescope").load_extension, "fzf")
-		pcall(require("telescope").load_extension, "ui-select")
 
 		local builtin = require("telescope.builtin")
 		vim.keymap.set("n", "<C-f>", builtin.find_files, { desc = "[S]earch [F]iles" })

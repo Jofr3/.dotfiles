@@ -23,6 +23,7 @@ abbr ! sudo !!
 abbr to touch
 abbr mk mkdir
 abbr se sudoedit
+abbr sd shutdown now 
 
 abbr t tmux
 abbr tr tree
@@ -36,6 +37,7 @@ abbr gpu git push
 abbr gbr git branch
 abbr gdi git diff 
 abbr gdif git diff --
+abbr gsh git show
 abbr gch git checkout
 abbr gre git reset
 abbr gre! git reset --hard

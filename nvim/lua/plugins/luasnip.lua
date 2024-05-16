@@ -8,10 +8,10 @@ return {
 		vim.keymap.set({ "i" }, "<A-Tab>", function()
 			ls.expand()
 		end, { silent = true })
-		vim.keymap.set({ "i", "s" }, "<C-L>", function()
+		vim.keymap.set({ "i", "s" }, "<C-h>", function()
 			ls.jump(1)
 		end, { remap = true, silent = true })
-		vim.keymap.set({ "i", "s" }, "<C-J>", function()
+		vim.keymap.set({ "i", "s" }, "<C-l>", function()
 			ls.jump(-1)
 		end, { remap = true, silent = true })
 	end,

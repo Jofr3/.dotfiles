@@ -12,4 +12,7 @@ require("lazy").setup("plugins", {
 		enabled = false,
 		notify = false,
 	},
+	dev = {
+		path = "~/Projects/",
+	},
 })

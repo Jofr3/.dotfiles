@@ -39,8 +39,7 @@ vim.opt.splitright = true
 vim.opt.splitbelow = true
 
 -- Whitespace characters
-vim.opt.list = true
-vim.opt.listchars = { tab = "  ", trail = ".", nbsp = " " }
+vim.opt.list = false
 
 -- Preview substitutions as you type
 vim.opt.inccommand = "split"

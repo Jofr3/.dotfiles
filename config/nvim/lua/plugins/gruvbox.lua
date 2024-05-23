@@ -9,7 +9,7 @@ return {
 
         vim.api.nvim_set_hl(0, "Visual", { bg = "#2b2b2b" })
 
-        vim.api.nvim_set_hl(0, "CursorLine", { bg = "#242120" })
+        vim.api.nvim_set_hl(0, "CursorLine", { bg = "#161616" })
 
         vim.api.nvim_set_hl(0, "Search", { fg = "black", bg = "#83a598" })
         vim.api.nvim_set_hl(0, "CurSearch", { fg = "#b8bb26", bg = "black" })

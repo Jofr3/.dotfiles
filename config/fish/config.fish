@@ -13,6 +13,7 @@ end
 
 # Exports
 set EDITOR nvim
+set -x ANSIBLE_CONFIG /home/jofre/.config/ansible/ansible.cfg
 
 # Abbreviations
 abbr .. cd ..

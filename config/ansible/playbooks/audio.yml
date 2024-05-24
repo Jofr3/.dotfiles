@@ -1,0 +1,24 @@
+- name: Audio setup
+  hosts: localhost
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.12
+
+  tasks:
+    - name: Fetch for package updates
+      package:
+        update_cache: true
+        upgrade: true
+
+    - name: Install packages
+      package:
+        name:
+          - alsa-utils
+          - alsa-plugins
+          - alsa-firmware
+          - sof-firmware
+          - pipewire
+          - pipewire-pulse
+          - pipewire-alsa
+          - pipewire-jack
+        state: present

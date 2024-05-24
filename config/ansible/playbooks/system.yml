@@ -1,0 +1,26 @@
+- name: Initial system setup
+  hosts: localhost
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.12
+
+  tasks:
+    - name: Ensure user default shell is fish
+      user:
+        name: jofre
+        shell: /usr/bin/fish
+        state: present
+
+    - name: Ensure directories exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: jofre
+        group: jofre
+      with_items:
+        - /home/jofre/.ssh/keys
+        - /home/jofre/.local/state/fonts
+        - /home/jofre/.config
+        - /home/jofre/Projects
+        - /home/jofre/Downloads
+        - /home/jofre/Documents

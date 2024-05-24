@@ -1,0 +1,35 @@
+- name: Link multiple configurations
+  hosts: localhost
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.12
+    configs:
+      - { src: ~/.dotfiles/config/alacritty, dest: ~/.config/alacritty }
+      - { src: ~/.dotfiles/config/nvim, dest: ~/.config/nvim }
+      - { src: ~/.dotfiles/config/fish, dest: ~/.config/fish }
+      - { src: ~/.dotfiles/config/tmux, dest: ~/.config/tmux }
+      - { src: ~/.dotfiles/config/hypr, dest: ~/.config/hypr }
+
+  tasks:
+    - name: Ensure the destination directory exists
+      file:
+        path: ~/.config
+        state: directory
+
+    - name: Remove existing configurations if they exist
+      file:
+        path: "{{ item.dest }}"
+        state: absent
+        force: yes
+      loop: "{{ configs }}"
+      loop_control:
+        label: "{{ item.dest }}"
+
+    - name: Create symbolic links for configurations
+      file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        state: link
+      loop: "{{ configs }}"
+      loop_control:
+        label: "{{ item.dest }}"
+

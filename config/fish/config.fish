@@ -48,6 +48,8 @@ abbr gchf git checkout --
 abbr glo git log
 abbr grf git reflog
 
+abbr apl ansible-playbook 
+
 abbr ns nix-shell
 abbr nsf nix-shell --run fish
 abbr nrw sudo nixor-rebuild switch

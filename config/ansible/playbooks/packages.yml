@@ -1,0 +1,64 @@
+- name: Install packages with dependencies
+  hosts: localhost
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.12
+
+    package_groups:
+      - group: "Hyprland and its dependencies"
+        packages:
+          - hyprland
+          - hyprpaper
+          - hyprcursor
+          - wl-clipboard
+          - brightnessctl
+          - dmenu
+      - group: "Alacitty and its dependencies"
+        packages:
+          - alacritty
+          - fastfetch
+          - zoxide
+          - fish
+          - tmux
+          - eza
+      - group: "Neovim and its dependencies"
+        packages:
+          - neovim
+          - fzf
+          - ripgrep
+          - fd
+          - wget
+          - rust
+          - composer
+          - php
+          - npm
+          - nodejs
+          - jdk-openjdk
+          - julia
+          - go
+          - luarocks
+          - ruby
+          - python-pip
+          - tree-sitter
+          - python
+          - perl
+          - lua-jsregexp
+      - group: "Other"
+        packages:
+          - nix
+          - docker
+          - docker-compose
+
+  tasks:
+    - name: Fetch for package updates
+      package:
+        update_cache: true
+        upgrade: true
+
+    - name: Install packages
+      package:
+        name: "{{ item.packages }}"
+        state: present
+      loop: "{{ package_groups }}"
+      loop_control:
+        label: "{{ item.group }}"

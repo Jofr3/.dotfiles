@@ -1,0 +1,55 @@
+- name: Setup ssh keys
+  hosts: localhost
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.12
+    keys:
+      - { src: /home/jofre/.dotfiles/ssh/keys/github-Jofr3, dest: /home/jofre/.ssh/keys/github-Jofr3 }
+      - { src: /home/jofre/.dotfiles/ssh/keys/gitlab-JofreLSW, dest: /home/jofre/.ssh/keys/gitlab-JofreLSW }
+    pubs:
+      - { src: /home/jofre/.dotfiles/ssh/pubs/github-Jofr3.pub, dest: /home/jofre/.ssh/pubs/github-Jofr3.pub }
+      - { src: /home/jofre/.dotfiles/ssh/pubs/gitlab-JofreLSW.pub, dest: /home/jofre/.ssh/pubs/gitlab-JofreLSW.pub }
+
+  tasks:
+    - name: Ensure directories exist
+      file:
+        path: /home/jofre/.ssh
+        state: directory
+        owner: jofre
+        group: jofre
+
+    - name: Ensure directories exist
+      file:
+        path: /home/jofre/.ssh/keys
+        state: directory
+        owner: jofre
+        group: jofre
+
+    - name: Ensure directories exist
+      file:
+        path: /home/jofre/.ssh/pubs
+        state: directory
+        owner: jofre
+        group: jofre
+
+    - name: Copy encrypted ssh keys
+      copy:
+        content: "{{ lookup('file', item.src) }}"
+        dest: "{{ item.dest }}"
+        owner: jofre
+        group: jofre
+        mode: '0600'
+      loop: "{{ keys }}"
+      loop_control:
+        label: "{{ item.dest }}"
+
+    - name: Copy encrypted pub keys
+      copy:
+        content: "{{ lookup('file', item.src) }}"
+        dest: "{{ item.dest }}"
+        owner: jofre
+        group: jofre
+        mode: '0600'
+      loop: "{{ pubs }}"
+      loop_control:
+        label: "{{ item.dest }}"

@@ -1,0 +1,6 @@
+Defaults env_keep += "ANSIBLE_CONFIG XDG_CONFIG_HOME WAYLAND_DISPLAY XDG_RUNTIME_DIR"
+Defaults editor=/usr/bin/nvim
+
+root ALL=(ALL:ALL) ALL
+
+@includedir /etc/sudoers.d

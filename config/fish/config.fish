@@ -12,9 +12,9 @@ function fish_right_prompt
 end
 
 # Exports
-set EDITOR nvim
+set -x EDITOR nvim
 set -x ANSIBLE_CONFIG /home/jofre/.config/ansible/ansible.cfg
-
+set -x XDG_CONFIG_HOME /home/jofre/.config
 # Abbreviations
 abbr .. cd ..
 

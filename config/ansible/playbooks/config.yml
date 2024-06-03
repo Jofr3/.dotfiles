@@ -10,6 +10,7 @@
       - { src: /home/jofre/.dotfiles/config/tmux, dest: /home/jofre/.config/tmux }
       - { src: /home/jofre/.dotfiles/config/hypr, dest: /home/jofre/.config/hypr }
       - { src: /home/jofre/.dotfiles/ssh/config, dest: /home/jofre/.ssh/config }
+      - { src: /home/jofre/.dotfiles/sudoers, dest: /etc/sudoers }
 
   tasks:
     - name: Ensure the destination directory exists

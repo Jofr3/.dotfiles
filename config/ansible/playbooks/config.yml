@@ -3,17 +3,21 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3.12
     configs:
-      - { src: ~/.dotfiles/config/alacritty, dest: ~/.config/alacritty }
-      - { src: ~/.dotfiles/config/nvim, dest: ~/.config/nvim }
-      - { src: ~/.dotfiles/config/fish, dest: ~/.config/fish }
-      - { src: ~/.dotfiles/config/tmux, dest: ~/.config/tmux }
-      - { src: ~/.dotfiles/config/hypr, dest: ~/.config/hypr }
+      - { src: /home/jofre/.dotfiles/config/fontconfig, dest: /home/jofre/.config/fontconfig }
+      - { src: /home/jofre/.dotfiles/config/alacritty, dest: /home/jofre/.config/alacritty }
+      - { src: /home/jofre/.dotfiles/config/nvim, dest: /home/jofre/.config/nvim }
+      - { src: /home/jofre/.dotfiles/config/fish, dest: /home/jofre/.config/fish }
+      - { src: /home/jofre/.dotfiles/config/tmux, dest: /home/jofre/.config/tmux }
+      - { src: /home/jofre/.dotfiles/config/hypr, dest: /home/jofre/.config/hypr }
+      - { src: /home/jofre/.dotfiles/ssh/config, dest: /home/jofre/.ssh/config }
 
   tasks:
     - name: Ensure the destination directory exists
       file:
-        path: ~/.config
+        path: /home/jofre/.config
         state: directory
+        owner: jofre
+        group: jofre
 
     - name: Remove existing configurations if they exist
       file:

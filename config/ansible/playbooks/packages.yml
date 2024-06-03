@@ -13,6 +13,11 @@
           - wl-clipboard
           - brightnessctl
           - dmenu
+          - grim
+          - slurp
+          - nautilus
+          - evince
+          - eog
       - group: "Alacitty and its dependencies"
         packages:
           - alacritty

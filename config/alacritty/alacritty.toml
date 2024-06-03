@@ -1,15 +1,16 @@
 [font]
-size = 15.0
-normal = { family = "FiraCode", style = "Regular" }
-bold = { family = "FiraCode", style = "Bold" }
-italic = { family = "FiraCode", style = "Italic" }
-bold_italic = { family = "FiraCode", style = "Bold italic" }
+size = 14.0
+normal = { family = "FiraCodeNerdFontMono", style = "Regular" }
+bold = { family = "FiraCodeNerdFontMono", style = "Bold" }
+italic = { family = "FiraCodeNerdFontMono", style = "Italic" }
+bold_italic = { family = "FiraCodeNerdFontMono", style = "Bold italic" }
 offset = { x = 0, y = 12 }
 glyph_offset = { x = 0, y = 6 }
 
 [window]
-dynamic_padding = true
 decorations = "None"
+startup_mode = "Maximized"
+dynamic_padding = true
 
 [colors]
 [colors.primary]

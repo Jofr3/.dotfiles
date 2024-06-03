@@ -15,7 +15,7 @@ return {
                 preserve_window_proportions = true,
             },
             renderer = {
-                indent_width = 1,
+                indent_width = 2,
                 icons = {
                     web_devicons = {
                         file = {

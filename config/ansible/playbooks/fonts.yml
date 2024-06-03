@@ -7,10 +7,12 @@
   tasks:
     - name: Install FiraCode Mono
       block: 
-        - name: Create a temporary directory for font binaries
+        - name: Ensure font directory exists
           file:
             path: /home/jofre/.local/share/fonts
             state: directory
+            owner: jofre
+            group: jofre
 
         - name: Create a temporary directory for font binaries
           file:
@@ -19,12 +21,12 @@
 
         - name: Download the font binaries
           get_url:
-            url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraMono.zip"
+            url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip"
             dest: "/home/jofre/temp"
 
         - name: Unzip the font binaries
           unarchive:
-            src: "/home/jofre/temp/FiraMono.zip"
+            src: "/home/jofre/temp/FiraCode.zip"
             dest: "/home/jofre/temp"
 
         - name: Delete the ZIP file
@@ -33,7 +35,7 @@
             state: absent
 
         - name: Copy the fonts binaries to the fonts folder
-          shell: mv /home/jofre/temp/FiraMono* /home/jofre/.local/share/fonts
+          shell: mv /home/jofre/temp/FiraCode* /home/jofre/.local/share/fonts
 
         - name: Reload the font cache
           command: fc-cache -f -v
@@ -43,41 +45,41 @@
             path: "/home/jofre/temp"
             state: absent
 
-    - name: Install Icons
-      block: 
-        - name: Ensure font directory exists
-          file:
-            path: /home/jofre/.local/share/fonts
-            state: directory
-
-        - name: Create a temporary directory for font binaries
-          file:
-            path: /home/jofre/temp
-            state: directory
-
-        - name: Download the font binaries
-          get_url:
-            url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/NerdFontsSymbolsOnly.zip"
-            dest: "/home/jofre/temp"
-
-        - name: Unzip the font binaries
-          unarchive:
-            src: "/home/jofre/temp/NerdFontsSymbolsOnly.zip"
-            dest: "/home/jofre/temp"
-
-        - name: Delete the ZIP file
-          file:
-            path: "/home/jofre/temp/NerdFontsSymbolsOnly.zip"
-            state: absent
-
-        - name: Copy the fonts binaries to the fonts folder
-          shell: mv /home/jofre/temp/SymbolsNerdFont* /home/jofre/.local/share/fonts
-
-        - name: Reload the font cache
-          command: fc-cache -f -v
-
-        - name: Delete the temporary folder
-          file:
-            path: "/home/jofre/temp"
-            state: absent
-
+    # - name: Install Icons
+    #   block: 
+    #     - name: Ensure font directory exists
+    #       file:
+    #         path: /home/jofre/.local/share/fonts
+    #         state: directory
+    #
+    #     - name: Create a temporary directory for font binaries
+    #       file:
+    #         path: /home/jofre/temp
+    #         state: directory
+    #
+    #     - name: Download the font binaries
+    #       get_url:
+    #         url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/NerdFontsSymbolsOnly.zip"
+    #         dest: "/home/jofre/temp"
+    #
+    #     - name: Unzip the font binaries
+    #       unarchive:
+    #         src: "/home/jofre/temp/NerdFontsSymbolsOnly.zip"
+    #         dest: "/home/jofre/temp"
+    #
+    #     - name: Delete the ZIP file
+    #       file:
+    #         path: "/home/jofre/temp/NerdFontsSymbolsOnly.zip"
+    #         state: absent
+    #
+    #     - name: Copy the fonts binaries to the fonts folder
+    #       shell: mv /home/jofre/temp/SymbolsNerdFont* /home/jofre/.local/share/fonts
+    #
+    #     - name: Reload the font cache
+    #       command: fc-cache -f -v
+    #
+    #     - name: Delete the temporary folder
+    #       file:
+    #         path: "/home/jofre/temp"
+    #         state: absent
+    #

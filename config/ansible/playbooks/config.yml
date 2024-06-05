@@ -10,9 +10,18 @@
       - { src: /home/jofre/.dotfiles/config/tmux, dest: /home/jofre/.config/tmux }
       - { src: /home/jofre/.dotfiles/config/hypr, dest: /home/jofre/.config/hypr }
       - { src: /home/jofre/.dotfiles/ssh/config, dest: /home/jofre/.ssh/config }
+
+    extra_configs:
       - { src: /home/jofre/.dotfiles/sudoers, dest: /etc/sudoers }
 
   tasks:
+    - name: Clone the dotfiles if not already present
+      git:
+        repo: 'https://github.com/Jofr3/.dotfiles'
+        dest: /home/jofre/.dotfiles/
+        clone: yes
+        update: no  
+
     - name: Ensure the destination directory exists
       file:
         path: /home/jofre/.config
@@ -38,3 +47,23 @@
       loop_control:
         label: "{{ item.dest }}"
 
+    - name: Remove extra existing configurations if they exist
+      file:
+        path: "{{ item.dest }}"
+        state: absent
+        force: yes
+      loop: "{{ extra_configs }}"
+      loop_control:
+        label: "{{ item.dest }}"
+
+    - name: Link extra configurations
+      file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        state: link
+        owner: root
+        group: root
+        mode: 0440
+      loop: "{{ extra_configs }}"
+      loop_control:
+        label: "{{ item.dest }}"

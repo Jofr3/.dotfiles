@@ -48,11 +48,23 @@
           - python
           - perl
           - lua-jsregexp
+      - group: "Audio"
+        packages:
+          - alsa-utils
+          - alsa-plugins
+          - alsa-firmware
+          - sof-firmware
+          - pipewire
+          - pipewire-pulse
+          - pipewire-alsa
+          - pipewire-jack
       - group: "Other"
         packages:
           - nix
           - docker
           - docker-compose
+          - chromium
+          - base-devel
 
   tasks:
     - name: Fetch for package updates

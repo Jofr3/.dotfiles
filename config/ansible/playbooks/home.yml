@@ -5,12 +5,6 @@
     ansible_python_interpreter: /usr/bin/python3.12
 
   tasks:
-    - name: Ensure user default shell is fish
-      user:
-        name: jofre
-        shell: /usr/bin/fish
-        state: present
-
     - name: Ensure directories exist
       file:
         path: "{{ item }}"

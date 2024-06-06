@@ -57,10 +57,7 @@ return {
                 { name = "buffer" },
                 { name = "nvim_lsp" },
                 { name = "path" },
-            },
-            experimental = {
-                ghost_text = true,
-            },
+            }
         })
 
         cmp.setup.cmdline({ "/", "?" }, {

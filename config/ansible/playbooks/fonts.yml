@@ -2,7 +2,7 @@
   hosts: localhost
   become: true
   vars:
-    ansible_python_interpreter: /usr/bin/python3.12
+    ansible_python_interpreter: /usr/bin/python3
 
   tasks:
     - name: Ensure font directory exists
@@ -40,7 +40,26 @@
     - name: Reload the font cache
       command: fc-cache -f -v
 
+    - name: Download the cursor binaries
+      get_url:
+        url: "https://github.com/LOSEARDES77/Bibata-Cursor-hyprcursor/releases/download/1.0/hypr_Bibata-Modern-Ice.tar.gz"
+        dest: "/home/jofre/temp"
+
+    - name: Ensure cursor directory exists
+      file:
+        path: /home/jofre/.local/share/icons/Bibata-Modern-Ice
+        state: directory
+        owner: jofre
+        group: jofre
+
+    - name: Unzip the cursor binaries
+      unarchive:
+        src: "/home/jofre/temp/hypr_Bibata-Modern-Ice.tar.gz"
+        dest: "/home/jofre/.local/share/icons/Bibata-Modern-Ice"
+
     - name: Delete the temporary folder
       file:
         path: "/home/jofre/temp"
         state: absent
+
+

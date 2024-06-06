@@ -36,11 +36,3 @@ vim.api.nvim_create_autocmd("BufEnter", {
     end
   end
 })
-
--- vim.api.nvim_create_autocmd("BufWinLeave", {
---     pattern = "*",
---     callback = function()
---         local jumplist = vim.fn.getjumplist()[1]
---         print(vim.inspect(jumplist))
---   end
--- })

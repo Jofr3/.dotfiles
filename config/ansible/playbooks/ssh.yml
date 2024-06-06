@@ -2,7 +2,7 @@
   hosts: localhost
   become: true
   vars:
-    ansible_python_interpreter: /usr/bin/python3.12
+    ansible_python_interpreter: /usr/bin/python3
     keys:
       - { src: /home/jofre/.dotfiles/ssh/keys/github-Jofr3, dest: /home/jofre/.ssh/keys/github-Jofr3 }
       - { src: /home/jofre/.dotfiles/ssh/keys/gitlab-JofreLSW, dest: /home/jofre/.ssh/keys/gitlab-JofreLSW }

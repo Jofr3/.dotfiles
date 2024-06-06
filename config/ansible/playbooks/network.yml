@@ -2,7 +2,7 @@
   hosts: localhost
   become: true
   vars:
-    ansible_python_interpreter: /usr/bin/python3.12
+    ansible_python_interpreter: /usr/bin/python3
 
   tasks:
     - name: Ensure NetworkManager is installed
@@ -17,13 +17,7 @@
         enabled: true
 
     - name: Configure WiFi connection
-      community.general.nmcli:
-        conn_name: 'WIFI'
-        ifname: 'wlan0'
-        type: wifi
-        ssid: 'Vera_C326AB'
-        wifi_password: 'cab6533559'
-        state: present
+      shell: nmcli device wifi connect Vera_C326AB password cab6533559
 
     - name: Restart NetworkManager to apply changes
       service:

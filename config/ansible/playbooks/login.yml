@@ -1,4 +1,4 @@
-- name: Initial system setup
+- name: Display manager setup
   hosts: localhost
   become: true
   vars:
@@ -10,13 +10,12 @@
         update_cache: true
         upgrade: true
 
-    - name: Install fish shell
+    - name: Install packages
       package:
-        name: fish
+        name: gdm
         state: present
 
-    - name: Ensure user default shell is fish
-      user:
-        name: jofre
-        shell: /usr/bin/fish
-        state: present
+    - name: Enable display manager
+      ansible.builtin.service:
+        name: gdm
+        enabled: true

@@ -1,10 +1,11 @@
 - name: Link multiple configurations
   hosts: localhost
   vars:
-    ansible_python_interpreter: /usr/bin/python3.12
+    ansible_python_interpreter: /usr/bin/python3
     configs:
       - { src: /home/jofre/.dotfiles/config/fontconfig, dest: /home/jofre/.config/fontconfig }
       - { src: /home/jofre/.dotfiles/config/alacritty, dest: /home/jofre/.config/alacritty }
+      - { src: /home/jofre/.dotfiles/config/ansible, dest: /home/jofre/.config/ansible }
       - { src: /home/jofre/.dotfiles/config/nvim, dest: /home/jofre/.config/nvim }
       - { src: /home/jofre/.dotfiles/config/fish, dest: /home/jofre/.config/fish }
       - { src: /home/jofre/.dotfiles/config/tmux, dest: /home/jofre/.config/tmux }
@@ -57,10 +58,9 @@
         label: "{{ item.dest }}"
 
     - name: Link extra configurations
-      file:
+      copy:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
-        state: link
         owner: root
         group: root
         mode: 0440

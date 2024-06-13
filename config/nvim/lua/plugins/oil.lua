@@ -17,7 +17,16 @@ return {
 			["<Tab>"] = "actions.parent",
 		},
 	},
+    init = function()
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = "oil",
+            callback = function()
+                vim.opt_local.number = false
+                vim.opt_local.relativenumber = false
+            end,
+        })
+    end,
 	keys = {
 		{ "<C-n>", "<CMD>Oil<CR>", desc = "File exporer" },
-	},
+	}
 }

@@ -9,8 +9,8 @@
       file:
         path: "{{ item }}"
         state: directory
-        owner: jofre
-        group: jofre
+      become: true
+      become_user: jofre
       with_items:
         - /home/jofre/.ssh/keys
         - /home/jofre/.local/state/fonts

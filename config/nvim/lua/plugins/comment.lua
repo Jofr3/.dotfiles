@@ -1,5 +1,5 @@
 return {
 	"numToStr/Comment.nvim",
-	enabled = true,
+	enabled = false,
 	opts = {},
 }

@@ -1,42 +1,50 @@
 - name: Install yay (AUR helper)
   hosts: localhost
+  become: true
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
   tasks:
-    - name: Create a temporary directory for yay build
-      file:
-        path: ~/temp
-        state: directory
-      become: false
+    - name: Fetch for package updates
+      package:
+        update_cache: true
+        upgrade: true
+
+    - name: Install dependencies
+      package:
+        name:
+          - git
+          - base-devel
+        state: present
 
     - name: Clone the yay repository from AUR
       git:
         repo: 'https://aur.archlinux.org/yay.git'
-        dest: ~/temp/yay
+        dest: /home/jofre/.dotfiles/config/ansible/tmp/yay
         update: yes
         version: HEAD
-      become_user: "{{ ansible_user_id }}"
-      become: false
+      become: true
+      become_user: jofre
 
     - name: Build and install yay
       command: "makepkg -si --noconfirm"
       args:
         chdir: ~/temp/yay
-      become_user: "{{ ansible_user_id }}"
-      become: false
+      become: true
+      become_user: jofre
 
     - name: Clean up temporary directory
       file:
-        path: ~/temp
+        path: /home/jofre/.dotfiles/config/ansible/tmp/yay
         state: absent
         force: yes
 
     - name: Install AUR packages with yay
-      command: yay -Syu --noconfirm "{{ item }}"
+      shell: yay -Syu --noconfirm "{{ item }}"
       with_items:
         - dmenu-wayland-git
         - google-chrome
         - hyprpicker
-      become_user: "{{ ansible_user_id }}"
-      become: false
+        - logseq-desktop-bin
+      become: true
+      become_user: jofre

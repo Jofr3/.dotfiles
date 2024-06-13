@@ -1,9 +1,9 @@
-Host github-Jofr3
+Host github.com-Jofr3
     HostName github.com
     User git
-    IdentityFile ~/.ssh/keys/github-Jofr3
+    IdentityFile /home/jofre/.ssh/keys/github-Jofr3
 
-Host gitlab-JofreLSW
+Host gitlab.com-JofreLSW
     HostName gitlab.com
     User git
-    IdentityFile ~/.ssh/keys/gitlab-JofreLSW
+    IdentityFile /home/jofre/.ssh/keys/gitlab-JofreLSW

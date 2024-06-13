@@ -4,52 +4,49 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
     keys:
-      - { src: /home/jofre/.dotfiles/ssh/keys/github-Jofr3, dest: /home/jofre/.ssh/keys/github-Jofr3 }
-      - { src: /home/jofre/.dotfiles/ssh/keys/gitlab-JofreLSW, dest: /home/jofre/.ssh/keys/gitlab-JofreLSW }
+      - { src: /home/jofre/.dotfiles/ssh/keys/github-Jofr3.enc, dest: /home/jofre/.ssh/keys/github-Jofr3 }
+      - { src: /home/jofre/.dotfiles/ssh/keys/gitlab-JofreLSW.enc, dest: /home/jofre/.ssh/keys/gitlab-JofreLSW }
     pubs:
-      - { src: /home/jofre/.dotfiles/ssh/pubs/github-Jofr3.pub, dest: /home/jofre/.ssh/pubs/github-Jofr3.pub }
-      - { src: /home/jofre/.dotfiles/ssh/pubs/gitlab-JofreLSW.pub, dest: /home/jofre/.ssh/pubs/gitlab-JofreLSW.pub }
+      - { src: /home/jofre/.dotfiles/ssh/pubs/github-Jofr3.pub.enc, dest: /home/jofre/.ssh/pubs/github-Jofr3.pub }
+      - { src: /home/jofre/.dotfiles/ssh/pubs/gitlab-JofreLSW.pub.enc, dest: /home/jofre/.ssh/pubs/gitlab-JofreLSW.pub }
 
   tasks:
     - name: Ensure directories exist
       file:
-        path: /home/jofre/.ssh
+        path: "{{ item }}"
         state: directory
-        owner: jofre
-        group: jofre
+      become: true
+      become_user: jofre
+      with_items:
+        - /home/jofre/.ssh
+        - /home/jofre/.ssh/keys
+        - /home/jofre/.ssh/pubs
 
-    - name: Ensure directories exist
-      file:
-        path: /home/jofre/.ssh/keys
-        state: directory
-        owner: jofre
-        group: jofre
-
-    - name: Ensure directories exist
-      file:
-        path: /home/jofre/.ssh/pubs
-        state: directory
-        owner: jofre
-        group: jofre
+    - name: Copy encrypted vault password
+      shell: ansible-vault decrypt ~/.dotfiles/config/ansible/vault-password.enc --output ~/.dotfiles/config/ansible/tmp/
+      become: true
+      become_user: jofre
 
     - name: Copy encrypted ssh keys
-      copy:
-        content: "{{ lookup('file', item.src) }}"
-        dest: "{{ item.dest }}"
-        owner: jofre
-        group: jofre
-        mode: '0600'
+      shell: ansible-vault decrypt {{ item.src }} --output {{ item.dest }} --vault-password-file ~/.dotfiles/config/ansible/tmp/vault-password
+      become: true
+      become_user: jofre
       loop: "{{ keys }}"
       loop_control:
         label: "{{ item.dest }}"
 
     - name: Copy encrypted pub keys
-      copy:
-        content: "{{ lookup('file', item.src) }}"
-        dest: "{{ item.dest }}"
-        owner: jofre
-        group: jofre
-        mode: '0600'
+      shell: ansible-vault decrypt {{ item.src }} --output {{ item.dest }} --vault-password-file ~/.dotfiles/config/ansible/tmp/vault-password
+      become: true
+      become_user: jofre
       loop: "{{ pubs }}"
       loop_control:
         label: "{{ item.dest }}"
+
+    - name: Remove vault password
+      file:
+        path: /home/jofre/vault-password
+        state: absent
+        force: yes
+      become: true
+      become_user: jofre

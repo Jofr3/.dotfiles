@@ -3,7 +3,7 @@ return {
 	enabled = true,
 	build = ":TSUpdate",
 	opts = {
-		ensure_installed = { "javascript", "vue", "typescript", "nix", "toml", "yaml", "bash", "sql", "pem", "xml", "diff", "fish", "http", "tmux", "regex", "angular", "html", "lua", "luadoc", "markdown", "vim", "vimdoc" },
+		ensure_installed = { "javascript", "vue", "typescript", "nix", "toml", "yaml", "bash", "sql", "pem", "xml", "diff", "fish", "http", "tmux", "regex", "angular", "html", "lua", "luadoc", "markdown", "vim", "vimdoc", "json" },
 		auto_install = true,
 		highlight = {
 			enable = true,

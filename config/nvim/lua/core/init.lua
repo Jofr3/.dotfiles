@@ -53,9 +53,6 @@ vim.opt.hlsearch = true
 -- Status line
 vim.opt.statusline = " %{expand('%:~:.')} %m"
 
--- Enable colors
-vim.opt.termguicolors = true
-
 -- Tab settings
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4

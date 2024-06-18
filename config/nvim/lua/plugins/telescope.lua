@@ -23,9 +23,11 @@ return {
         })
 
         local builtin = require("telescope.builtin")
+        vim.keymap.set("n", "<C-x>", builtin.builtin, { desc = "[S]earch [F]iles" })
         vim.keymap.set("n", "<C-f>", builtin.find_files, { desc = "[S]earch [F]iles" })
-        vim.keymap.set("n", "<C-b>", builtin.current_buffer_fuzzy_find, { desc = "[S]earch [B]uffer fuzzy find" })
+        vim.keymap.set("n", "<C-a>", builtin.current_buffer_fuzzy_find, { desc = "[S]earch [B]uffer fuzzy find" })
         vim.keymap.set("n", "<C-g>", builtin.grep_string, { desc = "[S]earch [G]rep string" })
+        vim.keymap.set("n", "<C-v>", builtin.live_grep, { desc = "[S]earch [G]rep string" })
         vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
         vim.keymap.set("n", "<Leader>gb", builtin.git_branches, { desc = "Search [G]it [B]anches" })
         vim.keymap.set("n", "<Leader>gf", builtin.git_files, { desc = "Search [G]it [F]iles" })

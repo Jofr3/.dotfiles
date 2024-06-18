@@ -63,13 +63,12 @@
         label: "{{ item.dest }}"
 
     - name: Copy extra configurations
-      file:
+      copy:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
-        state: link
-        owner: root
-        group: root
         mode: 0040
+      become: true
+      become_user: root
       loop: "{{ extra_configs }}"
       loop_control:
         label: "{{ item.dest }}"

@@ -11,6 +11,15 @@
       - { src: /home/jofre/.dotfiles/ssh/pubs/gitlab-JofreLSW.pub.enc, dest: /home/jofre/.ssh/pubs/gitlab-JofreLSW.pub }
 
   tasks:
+    - name: Clone the dotfiles if not already present
+      git:
+        repo: 'https://github.com/Jofr3/.dotfiles'
+        dest: /home/jofre/.dotfiles/
+        clone: yes
+        update: no  
+      become: true
+      become_user: jofre
+
     - name: Ensure directories exist
       file:
         path: "{{ item }}"
@@ -22,13 +31,20 @@
         - /home/jofre/.ssh/keys
         - /home/jofre/.ssh/pubs
 
+    - name: Create a temporary directory for vault password
+      file:
+        path: /home/jofre/temp
+        state: directory
+      become: true
+      become_user: jofre
+
     - name: Copy encrypted vault password
-      shell: ansible-vault decrypt ~/.dotfiles/config/ansible/vault-password.enc --output ~/.dotfiles/config/ansible/tmp/
+      shell: ansible-vault decrypt ~/.dotfiles/config/ansible/vault-password.enc --output /home/jofre/temp/vault-password
       become: true
       become_user: jofre
 
     - name: Copy encrypted ssh keys
-      shell: ansible-vault decrypt {{ item.src }} --output {{ item.dest }} --vault-password-file ~/.dotfiles/config/ansible/tmp/vault-password
+      shell: ansible-vault decrypt {{ item.src }} --output {{ item.dest }} --vault-password-file /home/jofre/temp/vault-password
       become: true
       become_user: jofre
       loop: "{{ keys }}"
@@ -36,17 +52,15 @@
         label: "{{ item.dest }}"
 
     - name: Copy encrypted pub keys
-      shell: ansible-vault decrypt {{ item.src }} --output {{ item.dest }} --vault-password-file ~/.dotfiles/config/ansible/tmp/vault-password
+      shell: ansible-vault decrypt {{ item.src }} --output {{ item.dest }} --vault-password-file /home/jofre/temp/vault-password
       become: true
       become_user: jofre
       loop: "{{ pubs }}"
       loop_control:
         label: "{{ item.dest }}"
 
-    - name: Remove vault password
+    - name: Remove temporary directory
       file:
-        path: /home/jofre/vault-password
+        path: /home/jofre/temp
         state: absent
         force: yes
-      become: true
-      become_user: jofre

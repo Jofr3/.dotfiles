@@ -8,7 +8,7 @@
     - name: Fetch for package updates
       package:
         update_cache: true
-        upgrade: true
+        upgrade: false
 
     - name: Install fish shell
       package:

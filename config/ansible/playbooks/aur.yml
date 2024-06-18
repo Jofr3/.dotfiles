@@ -8,7 +8,7 @@
     - name: Fetch for package updates
       package:
         update_cache: true
-        upgrade: true
+        upgrade: false
 
     - name: Install dependencies
       package:
@@ -17,10 +17,17 @@
           - base-devel
         state: present
 
+    - name: Create a temporary directory for binaries
+      file:
+        path: /home/jofre/temp
+        state: directory
+      become: true
+      become_user: jofre
+
     - name: Clone the yay repository from AUR
       git:
         repo: 'https://aur.archlinux.org/yay.git'
-        dest: /home/jofre/.dotfiles/config/ansible/tmp/yay
+        dest: /home/jofre/temp
         update: yes
         version: HEAD
       become: true
@@ -29,13 +36,13 @@
     - name: Build and install yay
       command: "makepkg -si --noconfirm"
       args:
-        chdir: ~/temp/yay
+        chdir: /home/jofre/temp/
       become: true
       become_user: jofre
 
     - name: Clean up temporary directory
       file:
-        path: /home/jofre/.dotfiles/config/ansible/tmp/yay
+        path: /home/jofre/temp/
         state: absent
         force: yes
 

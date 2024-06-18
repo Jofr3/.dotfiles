@@ -5,6 +5,11 @@
     ansible_python_interpreter: /usr/bin/python3
 
   tasks:
+    - name: Fetch for package updates
+      package:
+        update_cache: true
+        upgrade: false
+
     - name: Ensure NetworkManager is installed
       package:
         name: networkmanager

@@ -18,6 +18,7 @@
           - nautilus
           - evince
           - eog
+          - gnome-text-editor
       - group: "Alacitty and its dependencies"
         packages:
           - alacritty
@@ -66,6 +67,7 @@
           - chromium
           - base-devel
           - openssh
+          - onefetch
 
   tasks:
     - name: Fetch for package updates

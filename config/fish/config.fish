@@ -15,6 +15,7 @@ end
 set -x EDITOR nvim
 set -x ANSIBLE_CONFIG /home/jofre/.config/ansible/ansible.cfg
 set -x XDG_CONFIG_HOME /home/jofre/.config
+
 # Abbreviations
 abbr .. cd ..
 
@@ -27,8 +28,6 @@ abbr se sudoedit
 abbr sd shutdown now 
 abbr rb sudo reboot now 
 
-
-abbr t tmux
 abbr tr tree
 abbr ff fastfetch
 abbr b bluetoothctl
@@ -48,10 +47,9 @@ abbr gchf git checkout --
 abbr glo git log
 abbr grf git reflog
 
-abbr apl ansible-playbook 
+abbr ap ansible-playbook 
 
-abbr ns nix-shell
-abbr nsf nix-shell --run fish
+abbr ns nix-shell --run fish
 abbr nrw sudo nixor-rebuild switch
 
 # Aliases
@@ -62,16 +60,5 @@ alias grep="grep --color='auto'"
 
 # Keybinds
 bind \cs "source ~/.config/fish/config.fish"
-bind \ea "tmux new-session -A -s main"
 bind \cn "nvim -c ':lua require(\"oil\").open()'"
 bind \cf "nvim -c ':Telescope find_files'"
-
-bind \e! 'switch_tmux_session 1'
-bind \e@ 'switch_tmux_session 2'
-bind \e# 'switch_tmux_session 3'
-bind \e\$ 'switch_tmux_session 4'
-bind \e% 'switch_tmux_session 5'
-bind \e^ 'switch_tmux_session 6'
-
-bind \ef '~/.dotfiles/scripts/tmux/tmux-sessionizer.sh'
-

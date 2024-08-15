@@ -39,5 +39,42 @@ return {
         vim.keymap.set("n", "<Leader>sr", builtin.registers, { desc = "[S]earch [R]egisters" })
         vim.keymap.set("n", "<Leader>sl", builtin.quickfixhistory, { desc = "[S]earch quickfix history [L]ist" })
         vim.keymap.set("n", "<Leader>sc", builtin.spell_suggest, { desc = "[S]earch [C]heck" })
+
+        -- Custom pickers
+
+        local actions = require('telescope.actions')
+        local action_state = require('telescope.actions.state')
+        local finders = require('telescope.finders')
+        local pickers = require('telescope.pickers')
+        local sorters = require('telescope.sorters')
+        local scan = require('plenary.scandir')
+
+        local function select_folder(opts)
+          opts = opts or {}
+
+          local results = scan.scan_dir(vim.loop.cwd(), {
+            hidden = opts.hidden or false,
+            only_dirs = true,
+            respect_gitignore = true,
+          })
+
+          pickers.new(opts, {
+            prompt_title = 'Select Folder',
+            finder = finders.new_table {
+              results = results,
+            },
+            sorter = sorters.get_generic_fuzzy_sorter(),
+            attach_mappings = function(prompt_bufnr)
+              actions.select_default:replace(function()
+                actions.close(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                require("oil").open(selection[1])
+              end)
+              return true
+            end,
+          }):find()
+        end
+
+        vim.keymap.set('n', '<C-c>', select_folder, { noremap = true, silent = true })
     end,
 }

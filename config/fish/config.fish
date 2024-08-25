@@ -54,6 +54,7 @@ abbr nrw sudo nixor-rebuild switch
 
 # Aliases
 alias n="nvim"
+alias t="task"
 
 alias ls="exa --icons"
 alias grep="grep --color='auto'"

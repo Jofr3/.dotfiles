@@ -1,15 +1,15 @@
-- name: Link multiple configurations
+- name: Link configuration files
   hosts: localhost
   become: false
   vars:
     ansible_python_interpreter: /usr/bin/python3
     configs:
       - { src: /home/jofre/.dotfiles/config/fontconfig, dest: /home/jofre/.config/fontconfig }
-      - { src: /home/jofre/.dotfiles/config/alacritty, dest: /home/jofre/.config/alacritty }
       - { src: /home/jofre/.dotfiles/config/ansible, dest: /home/jofre/.config/ansible }
+      - { src: /home/jofre/.dotfiles/config/kitty, dest: /home/jofre/.config/kitty }
+      - { src: /home/jofre/.dotfiles/config/task, dest: /home/jofre/.config/task }
       - { src: /home/jofre/.dotfiles/config/nvim, dest: /home/jofre/.config/nvim }
       - { src: /home/jofre/.dotfiles/config/fish, dest: /home/jofre/.config/fish }
-      - { src: /home/jofre/.dotfiles/config/tmux, dest: /home/jofre/.config/tmux }
       - { src: /home/jofre/.dotfiles/config/hypr, dest: /home/jofre/.config/hypr }
       - { src: /home/jofre/.dotfiles/ssh/config, dest: /home/jofre/.ssh/config }
 

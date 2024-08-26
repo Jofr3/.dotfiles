@@ -11,7 +11,7 @@ return {
 	config = function()
 		require("telescope").setup({
 			defaults = {
-				file_ignore_patterns = { "public_html", "node_modules" },
+                file_ignore_patterns = { "public_html", "node_modules", "assets", "android", "ios" },
 				mappings = {
 					i = {
 						["<C-j>"] = "move_selection_next",

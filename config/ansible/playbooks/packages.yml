@@ -19,6 +19,7 @@
           - evince
           - eog
           - gnome-text-editor
+          - totem
       - group: "Alacitty and its dependencies"
         packages:
           - alacritty

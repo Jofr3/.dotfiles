@@ -53,5 +53,6 @@
         - google-chrome
         - hyprpicker
         - logseq-desktop-bin
+        - lorem
       become: true
       become_user: jofre

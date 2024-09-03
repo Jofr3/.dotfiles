@@ -13,8 +13,11 @@ end
 
 # Exports
 set -x EDITOR nvim
-set -x ANSIBLE_CONFIG /home/jofre/.config/ansible/ansible.cfg
-set -x XDG_CONFIG_HOME /home/jofre/.config
+set -x ANSIBLE_CONFIG "/home/jofre/.config/ansible/ansible.cfg"
+set -x XDG_CONFIG_HOME "/home/jofre/.config"
+set -x CAPACITOR_ANDROID_STUDIO_PATH "/nix/store/blyhb62588lz46flnz855whvmwq3ibng-android-studio-stable-2023.3.1.19/bin/android-studio"
+set -x ANDROID_SDK_ROOT "/home/jofre/Android/Sdk"
+set -x JAVA_HOME "/usr/lib/jvm/java-17-openjdk-amd64"
 
 # Abbreviations
 abbr .. cd ..

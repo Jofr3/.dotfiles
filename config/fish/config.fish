@@ -53,7 +53,8 @@ abbr grf git reflog
 abbr ap ansible-playbook 
 
 abbr ns nix-shell --run fish
-abbr nrw sudo nixor-rebuild switch
+abbr nr sudo nixos-rebuild switch --flake .#nixos
+abbr hr home-manager switch --flake .#jofre@nixos
 
 # Aliases
 alias n="nvim"

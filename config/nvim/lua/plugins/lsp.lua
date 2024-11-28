@@ -96,6 +96,7 @@ return {
 
         require("mason-lspconfig").setup({
             -- ensure_installed = { "bashls", "cssls", "html", "jsonls", "tsserver", "ansiblels", "lua_ls" },
+            ensure_installed = {},
             handlers = {
                 function(server_name)
                     local server = servers[server_name] or {}

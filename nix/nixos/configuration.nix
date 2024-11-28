@@ -106,6 +106,10 @@
     image = ./../../wallpapers/15.jpg;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
     polarity = "dark";
+
+    override = {
+        base00 = "0B0B0B";
+    };
   };
 
   system.stateVersion = "25.05";

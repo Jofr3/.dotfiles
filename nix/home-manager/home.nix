@@ -33,6 +33,14 @@
     nautilus
     gnome-randr
     eog
+    wl-color-picker
+    gnome-calculator
+    papers
+    gnome-bluetooth
+    gnome-screenshot
+    dialect
+    apostrophe
+    errands
 
     # other
     dmenu-wayland
@@ -40,7 +48,6 @@
     bitwarden-cli
     rbw
     rofi-rbw
-
 
     # dependencies
     git
@@ -82,6 +89,10 @@
     image = ./../../wallpapers/15.jpg;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
     polarity = "dark";
+
+    override = {
+        base00 = "0B0B0B";
+    };
   };
 
   home.activation = {

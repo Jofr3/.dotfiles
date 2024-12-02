@@ -1,136 +1,110 @@
 { inputs, lib, config, pkgs, ... }: 
 {
-  imports = [ ];
+  description = "Home manager";
 
-  nixpkgs = {
-    overlays = [
-      # neovim-nightly-overlay.overlays.default
-    ];
-    config = {
-      allowUnfree = true;
-      allowInsecure = true;
+  #inputs = {
+  #  nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  #  home-manager = {
+  #    url = "github:nixos/home-manager";
+  #    inputs.nixpkgs.follows = "nixpkgs";
+  #  };
+  #};
+
+  outputs = { self, nixpkgs, home-manager, ... } @ inputs:
+    let
+        inherit (self) outputs;
+    in {
+      homeConfigurations = {
+        "jofre@nixos" = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          modules = [
+            {
+              # Home Manager settings
+              home = {
+                username = "jofre";
+                homeDirectory = "/home/jofre";
+                stateVersion = "24.05";
+              };
+
+              nixpkgs = {
+                overlays = [
+                  # neovim-nightly-overlay.overlays.default
+                ];
+                config = {
+                  allowUnfree = true;
+                  allowInsecure = true;
+                };
+              };
+
+              home.packages = with pkgs; [ 
+                # cli
+                fastfetch
+                #neovim
+                zoxide
+                eza
+                yazi
+
+                # apps
+                kitty
+                chromium
+                qutebrowser
+                obsidian
+                google-chrome
+                nautilus
+                gnome-randr
+                eog
+                wl-color-picker
+                gnome-calculator
+                papers
+                gnome-bluetooth
+                gnome-screenshot
+                dialect
+                apostrophe
+                errands
+
+                # other
+                dmenu-wayland
+                wofi
+                bitwarden-cli
+                rbw
+                rofi-rbw
+
+                # dependencies
+                git
+                gccgo
+                zig
+                python39
+                lua
+                luajitPackages.luarocks
+                unzip
+                wget
+                ripgrep
+                fd
+                rustc
+                cargo
+                sqlite
+                wl-clipboard-rs
+                wtype
+                pinentry-tty
+                openssl
+                nodejs_23
+
+                # lsp's
+              ];
+
+              programs = {
+                home-manager.enable = true;
+
+                git = {
+                  enable = true;
+                  userName = "Jofr3";
+                  userEmail = "jofrescari@gmail.com";
+                };
+              };
+
+            }
+          ];
+        };
+      };
     };
-  };
-
-  home = {
-    username = "jofre";
-    homeDirectory = "/home/jofre";
-  };
-
-  home.packages = with pkgs; [ 
-    # cli
-    fastfetch
-    neovim
-    zoxide
-    eza
-
-    # apps
-    kitty
-    chromium
-    qutebrowser
-    obsidian
-    google-chrome
-    nautilus
-    gnome-randr
-    eog
-    wl-color-picker
-    gnome-calculator
-    papers
-    gnome-bluetooth
-    gnome-screenshot
-    dialect
-    apostrophe
-    errands
-
-    # other
-    dmenu-wayland
-    wofi
-    bitwarden-cli
-    rbw
-    rofi-rbw
-
-    # dependencies
-    git
-    gccgo
-    zig
-    python39
-    lua
-    luajitPackages.luarocks
-    unzip
-    wget
-    ripgrep
-    fd
-    rustc
-    cargo
-    sqlite
-    wl-clipboard-rs
-    wtype
-    pinentry-tty
-    openssl
-  ];
-
-  programs = {
-    home-manager.enable = true;
-    git = {
-      enable = true;
-      userName = "Jofr3";
-      userEmail = "jofrescari@gmail.com";
-    };
-    ssh = {
-     enable = true;
-     # keyFiles = [
-        # "~/.ssh/id_rsa"
-     # ];
-    };
-  };
-
-  stylix = {
-    enable = true;
-    image = ./../../wallpapers/15.jpg;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
-    polarity = "dark";
-
-    override = {
-        base00 = "0B0B0B";
-    };
-  };
-
-  home.activation = {
-    cloneDotfiles = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      if [ ! -d "/home/jofre/.dotfiles" ]; then
-      	${pkgs.git}/bin/git clone https://github.com/Jofr3/.dotfiles /home/jofre/.dotfiles
-      fi
-
-      if [ -d "/home/jofre/.config/hypr" ]; then
-        rm -rf /home/jofre/.config/hypr
-      fi
-
-      if [ ! -L "/home/jofre/.config/hypr" ]; then
-        ln -s /home/jofre/.dotfiles/config/hypr /home/jofre/.config/hypr
-      fi
-
-      if [ ! -L "/home/jofre/.config/kitty" ]; then
-        ln -s /home/jofre/.dotfiles/config/kitty /home/jofre/.config/kitty
-      fi
-
-      if [ ! -L "/home/jofre/.config/fish" ]; then
-        ln -s /home/jofre/.dotfiles/config/fish /home/jofre/.config/fish
-      fi
-
-      if [ ! -L "/home/jofre/.config/nvim" ]; then
-        ln -s /home/jofre/.dotfiles/config/nvim /home/jofre/.config/nvim
-      fi
-
-      if [ ! -L "/home/jofre/.config/qutebrowser" ]; then
-        ln -s /home/jofre/.dotfiles/config/qutebrowser /home/jofre/.config/qutebrowser
-      fi
-
-      if [ ! -L "/home/jofre/.config/rbw" ]; then
-        ln -s /home/jofre/.dotfiles/config/rbw /home/jofre/.config/rbw
-      fi
-    '';
-  };
-
-  systemd.user.startServices = "sd-switch";
-  home.stateVersion = "24.05";
 }

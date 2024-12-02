@@ -12,11 +12,9 @@ return {
 		},
 		use_default_keymaps = false,
 		keymaps = {
-			["<Tab>"] = "actions.parent",
 			["<CR>"] = "actions.select",
-            ["<C-v>"] = { "actions.select", opts = { vertical = true } },
-            ["<C-x>"] = { "actions.select", opts = { horizontal = true } },
-            ["<C-e>"] = "actions.open_external",
+			["<q>"] = "actions.close",
+			["<Tab>"] = "actions.parent",
 		},
 	},
     init = function()

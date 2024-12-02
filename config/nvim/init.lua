@@ -1,6 +1,1 @@
-require("core")
-require("core.lazy")
-require("core.maps")
-require("core.cmds")
-require("other.fish")
-
+/nix/store/hs5i8czh8g32hfpawmwikfhd9p1rw9m4-home-manager-files/.config/nvim/init.lua

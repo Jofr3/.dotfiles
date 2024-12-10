@@ -188,11 +188,8 @@
             
             fromLua = [
               {
-                paths = ./snippets.lua;
-      #  {
-      #  lazyLoad = true;
-      #  paths = "${pkgs.vimPlugins.friendly-snippets}";
-      #}
+                lazyLoad = false;
+                paths = ./nix.lua;
               }
             ];
         };
@@ -243,6 +240,18 @@
 
         lspconfig['lua-ls'].setup({ capabilities = capabilities })
         lspconfig['nil_ls'].setup({ capabilities = capabilities })
+
+        local ls = require('luasnip')
+
+        local s = ls.snippet
+        local t = ls.text_node
+        local i = ls.insert_node
+
+        ls.add_snippets('nix', {
+            s('test', {
+                t('lol')
+            }),
+        })
     ";
 
 	keymaps = [
@@ -289,9 +298,11 @@
 	{mode = [ "n" ]; key = "<Leader>5"; action = "5gt"; options = { remap = true; }; }
 	{mode = [ "n" ]; key = "<Leader>6"; action = "6gt"; options = { remap = true; }; }
 
-	{mode = [ "i" ]; key = "<A-Tab>"; action = "<cmd>lua require('luasnip').expand()"; options = { silent = true; }; }
+	{mode = [ "i" ]; key = "<C-Space>"; action = "<cmd>lua require('luasnip').expand()<cr>"; options = { silent = true; }; }
 	#{mode = [ "i" "s" ]; key = "<A-Tab>"; action = "<cmd>lua require('luasnip').expand()"; options = { silent = true; }; }
 	#{mode = [ "i" "s" ]; key = "<A-Tab>"; action = "<cmd>lua require('luasnip').expand()"; options = { silent = true; }; }
+
+
 
     #vim.keymap.set({"i"}, "<C-K>", function() ls.expand() end, {silent = true})
     #vim.keymap.set({"i", "s"}, "<C-L>", function() ls.jump( 1) end, {silent = true})

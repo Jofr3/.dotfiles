@@ -14,5 +14,6 @@ return {
         { "<C-v>", "<cmd>lua require('telescope.builtin').live_grep()<cr>", remap = true, desc = "Grep" },
         { "<Leader><Leader>", "<cmd>lua require('telescope.builtin').resume()<cr>", remap = true, desc = "Resume" },
         { "<Leader>u", "<cmd>Telescope undo<cr>", remap = true, desc = "Undo tree" },
+
     },
 }

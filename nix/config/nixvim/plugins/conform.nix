@@ -11,5 +11,18 @@
         };
       };
     };
+    keymaps = [
+      {
+        mode = [
+          "n"
+          "i"
+        ];
+        key = "<leader>a";
+        action = "<cmd>lua require('conform').format({ async = true, lsp_fallback = true })<cr>";
+        options = {
+          silent = true;
+        };
+      }
+    ];
   };
 }

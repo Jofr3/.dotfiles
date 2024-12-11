@@ -23,5 +23,26 @@
         };
       };
     };
+
+    keymaps = [
+      {
+        mode = [ "n" ];
+        key = "<C-n>";
+        action = "<cmd>Oil<cr>";
+        options = {
+          silent = true;
+        };
+      }
+    ];
+
+    autoCmd = [
+      {
+        event = [ "FileType" ];
+        pattern = [ "oil" ];
+        callback = {
+          __raw = "function() vim.opt_local.number = false vim.opt_local.relativenumber = false end";
+        };
+      }
+    ];
   };
 }

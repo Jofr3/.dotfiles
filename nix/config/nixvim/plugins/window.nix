@@ -6,7 +6,7 @@
       vimPlugins."middleclass"
     ];
 
-    keymap = [
+    keymaps = [
       {
         mode = [ "n" ];
         key = "<C-m>";

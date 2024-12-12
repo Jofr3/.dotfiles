@@ -28,7 +28,7 @@
       }
       {
         mode = [ "n" ];
-        key = "<Leader><Leadear>";
+        key = "<leader><leader>";
         action = "<cmd>lua require('telescope.builtin').resume()<cr>";
         options = {
           remap = true;
@@ -36,7 +36,7 @@
       }
       {
         mode = [ "n" ];
-        key = "<Leader>u";
+        key = "<leader>u";
         action = "<cmd>Telescope undo<cr>";
         options = {
           remap = true;

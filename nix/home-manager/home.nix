@@ -122,10 +122,6 @@
         ln -s /home/jofre/.dotfiles/config/fish /home/jofre/.config/fish
       fi
 
-      if [ ! -L "/home/jofre/.config/nvim" ]; then
-        ln -s /home/jofre/.dotfiles/config/nvim /home/jofre/.config/nvim
-      fi
-
       if [ ! -L "/home/jofre/.config/qutebrowser" ]; then
         ln -s /home/jofre/.dotfiles/config/qutebrowser /home/jofre/.config/qutebrowser
       fi
@@ -133,13 +129,12 @@
       if [ ! -L "/home/jofre/.config/rbw" ]; then
         ln -s /home/jofre/.dotfiles/config/rbw /home/jofre/.config/rbw
       fi
-
-      export NIX_LD=$(nix eval --impure --raw --expr 'let pkgs = import <nixpkgs> {}; NIX_LD = pkgs.lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker"; in NIX_LD')
     '';
   };
 
   imports = [
     ../config/nixvim
+    ../config/hyprland
   ];
 
   systemd.user.startServices = "sd-switch";

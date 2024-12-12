@@ -5,7 +5,7 @@
       blink-cmp = {
         enable = true;
         settings = {
-          keymap = {
+          keymaps = {
             "<C-j>" = [
               "select_next"
               "fallback"

@@ -13,10 +13,7 @@
     };
     keymaps = [
       {
-        mode = [
-          "n"
-          "i"
-        ];
+        mode = [ "n" ];
         key = "<leader>a";
         action = "<cmd>lua require('conform').format({ async = true, lsp_fallback = true })<cr>";
         options = {

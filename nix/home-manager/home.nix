@@ -106,14 +106,6 @@
       	${pkgs.git}/bin/git clone https://github.com/Jofr3/.dotfiles /home/jofre/.dotfiles
       fi
 
-      if [ -d "/home/jofre/.config/hypr" ]; then
-        rm -rf /home/jofre/.config/hypr
-      fi
-
-      if [ ! -L "/home/jofre/.config/hypr" ]; then
-        ln -s /home/jofre/.dotfiles/config/hypr /home/jofre/.config/hypr
-      fi
-
       if [ ! -L "/home/jofre/.config/kitty" ]; then
         ln -s /home/jofre/.dotfiles/config/kitty /home/jofre/.config/kitty
       fi

@@ -7,6 +7,7 @@
     ./lsp.nix
     ./luasnip.nix
     ./oil.nix
+    ./rsync.nix
     ./smart-splits.nix
     ./tabby.nix
     ./telescope.nix

@@ -5,7 +5,7 @@
       blink-cmp = {
         enable = true;
         settings = {
-          keymaps = {
+          keymap = {
             "<C-j>" = [
               "select_next"
               "fallback"
@@ -27,7 +27,7 @@
       local capabilities = require('blink.cmp').get_lsp_capabilities()
       local lspconfig = require('lspconfig')
 
-      lspconfig['lua-ls'].setup({ capabilities = capabilities })
+      lspconfig['lua_ls'].setup({ capabilities = capabilities })
       lspconfig['nil_ls'].setup({ capabilities = capabilities })
     '';
   };

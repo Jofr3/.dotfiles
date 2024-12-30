@@ -9,6 +9,7 @@
     ./oil.nix
     ./rsync.nix
     ./smart-splits.nix
+    ./supermaven.nix
     ./tabby.nix
     ./telescope.nix
     ./treesitter.nix

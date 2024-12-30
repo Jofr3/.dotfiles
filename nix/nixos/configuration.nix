@@ -1,4 +1,10 @@
-{ inputs, lib, config, pkgs, ... }: 
+{
+  inputs,
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 {
   imports = [
     ./hardware-configuration.nix
@@ -18,13 +24,15 @@
     };
   };
 
-  nix = let
-    flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
-  in {
-    settings = {
-      experimental-features = "nix-command flakes";
+  nix =
+    let
+      flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
+    in
+    {
+      settings = {
+        experimental-features = "nix-command flakes";
+      };
     };
-  };
 
   networking.hostName = "nixos";
 
@@ -33,7 +41,7 @@
   ];
 
   environment.systemPackages = with pkgs; [
-	home-manager
+    home-manager
     fish
     hyprland
     hyprpaper
@@ -51,13 +59,17 @@
       openssh.authorizedKeys.keys = [
         # TODO: Add your SSH public key(s) here, if you plan on using SSH to connect
       ];
-      extraGroups = ["wheel"];
+      extraGroups = [
+        "wheel"
+        "docker"
+      ];
     };
   };
 
+  virtualisation.docker.enable = true;
+
   time.timeZone = "Europe/Madrid";
   i18n.defaultLocale = "en_US.UTF-8";
-
 
   services.xserver.enable = true;
   services.xserver.displayManager.gdm.enable = true;
@@ -108,7 +120,7 @@
     polarity = "dark";
 
     override = {
-        base00 = "0B0B0B";
+      base00 = "0B0B0B";
     };
   };
 

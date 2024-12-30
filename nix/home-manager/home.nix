@@ -1,7 +1,28 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   nixpkgs = {
     overlays = [
+      (final: prev: {
+        vimPlugins = prev.vimPlugins // {
+          arsync = prev.vimUtils.buildVimPlugin {
+            name = "arsync";
+            src = inputs.plugin-arsync;
+          };
+        };
+      })
+      (final: prev: {
+        vimPlugins = prev.vimPlugins // {
+          async = prev.vimUtils.buildVimPlugin {
+            name = "async";
+            src = inputs.plugin-async;
+          };
+        };
+      })
       # neovim-nightly-overlay.overlays.default
     ];
     config = {
@@ -22,6 +43,9 @@
     zoxide
     eza
     yazi
+    docker
+    docker-compose
+    inetutils
 
     # apps
     kitty
@@ -67,6 +91,8 @@
     pinentry-tty
     openssl
     nodejs_23
+
+    sshpass
 
     # formatters
     nixfmt-rfc-style

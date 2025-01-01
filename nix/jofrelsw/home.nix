@@ -32,8 +32,8 @@
   };
 
   home = {
-    username = "jofre";
-    homeDirectory = "/home/jofre";
+    username = "jofrelsw";
+    homeDirectory = "/home/jofrelsw";
   };
 
   home.packages = with pkgs; [
@@ -64,6 +64,8 @@
     dialect
     apostrophe
     errands
+    vscode
+    dbeaver-bin
 
     # other
     dmenu-wayland
@@ -104,16 +106,11 @@
 
     git = {
       enable = true;
-      userName = "Jofr3";
-      userEmail = "jofrescari@gmail.com";
+      userName = "JofreLSW";
+      userEmail = "jofrelsw@gmail.com";
     };
 
-    ssh = {
-      enable = true;
-      # keyFiles = [
-      # "~/.ssh/id_rsa"
-      # ];
-    };
+    ssh.enable = true;
   };
 
   stylix = {
@@ -129,24 +126,24 @@
 
   home.activation = {
     cloneDotfiles = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      if [ ! -d "/home/jofre/.dotfiles" ]; then
+      if [ ! -d "/home/jofrelsw/.dotfiles" ]; then
       	${pkgs.git}/bin/git clone https://github.com/Jofr3/.dotfiles /home/jofre/.dotfiles
       fi
 
-      if [ ! -L "/home/jofre/.config/kitty" ]; then
-        ln -s /home/jofre/.dotfiles/config/kitty /home/jofre/.config/kitty
+      if [ ! -L "/home/jofrelsw/.config/kitty" ]; then
+        ln -s /home/jofrelsw/.dotfiles/config/kitty /home/jofre/.config/kitty
       fi
 
-      if [ ! -L "/home/jofre/.config/fish" ]; then
-        ln -s /home/jofre/.dotfiles/config/fish /home/jofre/.config/fish
+      if [ ! -L "/home/jofrelsw/.config/fish" ]; then
+        ln -s /home/jofrelsw/.dotfiles/config/fish /home/jofrelsw/.config/fish
       fi
 
-      if [ ! -L "/home/jofre/.config/qutebrowser" ]; then
-        ln -s /home/jofre/.dotfiles/config/qutebrowser /home/jofre/.config/qutebrowser
+      if [ ! -L "/home/jofrelsw/.config/qutebrowser" ]; then
+        ln -s /home/jofrelsw/.dotfiles/config/qutebrowser /home/jofrelsw/.config/qutebrowser
       fi
 
-      if [ ! -L "/home/jofre/.config/rbw" ]; then
-        ln -s /home/jofre/.dotfiles/config/rbw /home/jofre/.config/rbw
+      if [ ! -L "/home/jofrelsw/.config/rbw" ]; then
+        ln -s /home/jofrelsw/.dotfiles/config/rbw /home/jofrelsw/.config/rbw
       fi
     '';
   };

@@ -55,7 +55,19 @@
             inherit inputs outputs;
           };
           modules = [
-            ./home-manager/home.nix
+            ./jofre/home.nix
+            inputs.stylix.homeManagerModules.stylix
+            inputs.nixvim.homeManagerModules.nixvim
+          ];
+        };
+
+        "jofrelsw@nixos" = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          extraSpecialArgs = {
+            inherit inputs outputs;
+          };
+          modules = [
+            ./jofrelsw/home.nix
             inputs.stylix.homeManagerModules.stylix
             inputs.nixvim.homeManagerModules.nixvim
           ];

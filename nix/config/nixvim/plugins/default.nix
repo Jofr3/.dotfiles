@@ -4,6 +4,7 @@
     ./blink-cmp.nix
     ./comment.nix
     ./conform.nix
+    ./dadbod.nix
     ./lsp.nix
     ./luasnip.nix
     ./oil.nix

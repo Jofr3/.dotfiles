@@ -6,14 +6,12 @@
     ];
 
     extraConfigLua = ''
-      config = function()
-            require("supermaven-nvim").setup({
-                  keymaps = {
-                    accept_suggestion = "<A-Tab>",
-                    accept_word = "<A-Space>",
-                  },
-            })
-      end
+        require("supermaven-nvim").setup({
+              keymaps = {
+                accept_suggestion = "<A-Tab>",
+                accept_word = "<S-Tab>",
+              },
+        })
     '';
   };
 }

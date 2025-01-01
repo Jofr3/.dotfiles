@@ -71,6 +71,7 @@
     bitwarden-cli
     rbw
     rofi-rbw
+    openconnect
 
     # dependencies
     git

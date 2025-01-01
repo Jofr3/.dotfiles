@@ -23,6 +23,11 @@
       autoindent = true;
       wrap = false;
       pumheight = 15;
+
+      termguicolors = true;
+      backup = false;
+      swapfile = false;
+      writebackup = false;
     };
   };
 }

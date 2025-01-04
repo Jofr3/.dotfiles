@@ -2,12 +2,11 @@
 {
   programs.nixvim = {
     extraPlugins = with pkgs; [
-      vimPlugins."arsync"
-      vimPlugins."async"
+      vimPlugins."render-markdown-nvim"
     ];
 
     extraConfigLua = ''
-      --require('nvim-sftp-sync').setup({})
+        require('render-markdown').setup({})
     '';
   };
 }

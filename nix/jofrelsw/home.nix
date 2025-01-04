@@ -127,11 +127,11 @@
   home.activation = {
     cloneDotfiles = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       if [ ! -d "/home/jofrelsw/.dotfiles" ]; then
-      	${pkgs.git}/bin/git clone https://github.com/Jofr3/.dotfiles /home/jofre/.dotfiles
+      	${pkgs.git}/bin/git clone https://github.com/Jofr3/.dotfiles /home/jofrelsw/.dotfiles
       fi
 
       if [ ! -L "/home/jofrelsw/.config/kitty" ]; then
-        ln -s /home/jofrelsw/.dotfiles/config/kitty /home/jofre/.config/kitty
+        ln -s /home/jofrelsw/.dotfiles/config/kitty /home/jofrelsw/.config/kitty
       fi
 
       if [ ! -L "/home/jofrelsw/.config/fish" ]; then

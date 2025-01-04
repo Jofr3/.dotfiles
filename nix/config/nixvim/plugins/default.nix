@@ -8,6 +8,7 @@
     ./lsp.nix
     ./luasnip.nix
     ./oil.nix
+    ./render-markdown.nix
     ./rsync.nix
     ./smart-splits.nix
     ./supermaven.nix

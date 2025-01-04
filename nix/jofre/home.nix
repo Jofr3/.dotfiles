@@ -39,6 +39,7 @@
   home.packages = with pkgs; [
     # cli
     fastfetch
+
     # neovim
     zoxide
     eza
@@ -74,6 +75,7 @@
     rbw
     rofi-rbw
     openconnect
+    dropbox-cli
 
     # dependencies
     git

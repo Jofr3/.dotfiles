@@ -13,6 +13,7 @@
     ./smart-splits.nix
     ./supermaven.nix
     ./tabby.nix
+    ./telekasten.nix
     ./telescope.nix
     ./treesitter.nix
     ./web-devicons.nix

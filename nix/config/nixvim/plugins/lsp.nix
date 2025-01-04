@@ -10,7 +10,11 @@
         };
         keymaps = {
           lspBuf = {
-            # todo
+            K = "hover";
+            gD = "references";
+            gd = "definition";
+            gi = "implementation";
+            gt = "type_definition";
           };
         };
       };

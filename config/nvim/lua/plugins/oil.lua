@@ -1,34 +1,35 @@
 return {
-	"stevearc/oil.nvim",
-	enabled = true,
-	opts = {
-		default_file_explorer = true,
-		delete_to_trash = true,
-		view_options = {
-			show_hidden = true,
-		},
-		win_options = {
-			signcolumn = "yes",
-		},
-		use_default_keymaps = false,
-		keymaps = {
-			["<Tab>"] = "actions.parent",
-			["<CR>"] = "actions.select",
-            ["<C-v>"] = { "actions.select", opts = { vertical = true } },
-            ["<C-x>"] = { "actions.select", opts = { horizontal = true } },
-            ["<C-e>"] = "actions.open_external",
-		},
-	},
-    init = function()
-        vim.api.nvim_create_autocmd("FileType", {
-            pattern = "oil",
-            callback = function()
-                vim.opt_local.number = false
-                vim.opt_local.relativenumber = false
-            end,
-        })
-    end,
-	keys = {
-		{ "<C-n>", "<CMD>Oil<CR>", desc = "File exporer" },
-	}
+    'stevearc/oil.nvim',
+    enabled = true,
+    lazy = false,
+    opts = {
+        win_options = {
+            signcolumn = "yes",
+            concealcursor = "nvic",
+        },
+        view_options = {
+            show_hidden = true,
+        },
+        keymaps = {
+            ["g?"] = { "actions.show_help", mode = "n" },
+            ["<CR>"] = "actions.select",
+            ["<C-s>"] = { "actions.select", opts = { vertical = true } },
+            ["<C-h>"] = { "actions.select", opts = { horizontal = true } },
+            ["<C-t>"] = { "actions.select", opts = { tab = true } },
+            ["<C-p>"] = "actions.preview",
+            ["<C-c>"] = { "actions.close", mode = "n" },
+            ["<C-l>"] = "actions.refresh",
+            ["-"] = { "actions.parent", mode = "n" },
+            ["_"] = { "actions.open_cwd", mode = "n" },
+            ["`"] = { "actions.cd", mode = "n" },
+            ["~"] = { "actions.cd", opts = { scope = "tab" }, mode = "n" },
+            ["gs"] = { "actions.change_sort", mode = "n" },
+            ["gx"] = "actions.open_external",
+            ["g."] = { "actions.toggle_hidden", mode = "n" },
+            ["g\\"] = { "actions.toggle_trash", mode = "n" },
+        },
+    },
+    keys = {
+      { mode = "n", "<A-n>", "<cmd>Oil<cr>" },
+    },
 }

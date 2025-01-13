@@ -1,28 +1,12 @@
 {
   lib,
   pkgs,
-  inputs,
+  _inputs,
   ...
 }:
 {
   nixpkgs = {
     overlays = [
-      (final: prev: {
-        vimPlugins = prev.vimPlugins // {
-          arsync = prev.vimUtils.buildVimPlugin {
-            name = "arsync";
-            src = inputs.plugin-arsync;
-          };
-        };
-      })
-      (final: prev: {
-        vimPlugins = prev.vimPlugins // {
-          async = prev.vimUtils.buildVimPlugin {
-            name = "async";
-            src = inputs.plugin-async;
-          };
-        };
-      })
       # neovim-nightly-overlay.overlays.default
     ];
     config = {
@@ -39,8 +23,10 @@
   home.packages = with pkgs; [
     # cli
     fastfetch
+    lazygit
 
     # neovim
+    neovim
     zoxide
     eza
     yazi
@@ -96,11 +82,13 @@
     pinentry-tty
     openssl
     nodejs_23
+    rsync
+    gnumake
 
-    sshpass
-
-    # formatters
-    nixfmt-rfc-style
+    # lsp's
+    lua-language-server
+    nil
+    vscode-langservers-extracted
   ];
 
   programs = {
@@ -143,15 +131,10 @@
       if [ ! -L "/home/jofre/.config/qutebrowser" ]; then
         ln -s /home/jofre/.dotfiles/config/qutebrowser /home/jofre/.config/qutebrowser
       fi
-
-      if [ ! -L "/home/jofre/.config/rbw" ]; then
-        ln -s /home/jofre/.dotfiles/config/rbw /home/jofre/.config/rbw
-      fi
     '';
   };
 
   imports = [
-    ../config/nixvim
     ../config/hyprland
   ];
 

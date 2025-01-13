@@ -456,46 +456,12 @@
         "type": "github"
       }
     },
-    "plugin-arsync": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1699438433,
-        "narHash": "sha256-OQ5XDFyyiAD9Oqxv9+x1hMNH4LscKiLzBapmB4ZvOw4=",
-        "owner": "KenN7",
-        "repo": "vim-arsync",
-        "rev": "dd5fd93182aafb67ede2ef465f379610980b52d3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "KenN7",
-        "repo": "vim-arsync",
-        "type": "github"
-      }
-    },
-    "plugin-async": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1649093846,
-        "narHash": "sha256-YxZdOpV66YxNBACZRPugpk09+h42Sx/kjjDYPnOmqyI=",
-        "owner": "prabirshrestha",
-        "repo": "async.vim",
-        "rev": "2082d13bb195f3203d41a308b89417426a7deca1",
-        "type": "github"
-      },
-      "original": {
-        "owner": "prabirshrestha",
-        "repo": "async.vim",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixpkgs-stable": "nixpkgs-stable",
         "nixvim": "nixvim",
-        "plugin-arsync": "plugin-arsync",
-        "plugin-async": "plugin-async",
         "stylix": "stylix"
       }
     },

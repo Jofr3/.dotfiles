@@ -1,11 +1,14 @@
-return { 
-    "anuvyklack/windows.nvim",
-    dependencies = { "anuvyklack/middleclass" },
-    lazy = false,
-   config = function()
-      require('windows').setup()
-   end,
+return {
+	"anuvyklack/windows.nvim",
+    	enabled = true,
+    	lazy = false,
+   	dependencies = { "anuvyklack/middleclass" },
+	opts = {
+ 		autowidth = {
+      			enable = false
+   		},
+	},
 	keys = {
-		{ "<Leader>m", "<cmd>:WindowsMaximize<cr>", remap = true, desc = "Maximize window" },
+      		{ mode = "n", "<A-m>", "<cmd>WindowsMaximize<cr>" },
 	},
 }

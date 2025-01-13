@@ -16,11 +16,6 @@
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs-stable";
     };
-
-    plugin-arsync.url = "github:KenN7/vim-arsync";
-    plugin-arsync.flake = false;
-    plugin-async.url = "github:prabirshrestha/async.vim";
-    plugin-async.flake = false;
   };
 
   outputs =
@@ -57,19 +52,6 @@
           modules = [
             ./jofre/home.nix
             inputs.stylix.homeManagerModules.stylix
-            inputs.nixvim.homeManagerModules.nixvim
-          ];
-        };
-
-        "jofrelsw@nixos" = home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          extraSpecialArgs = {
-            inherit inputs outputs;
-          };
-          modules = [
-            ./jofrelsw/home.nix
-            inputs.stylix.homeManagerModules.stylix
-            inputs.nixvim.homeManagerModules.nixvim
           ];
         };
       };

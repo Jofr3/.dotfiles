@@ -1,19 +1,28 @@
 return {
-    'nvim-telescope/telescope.nvim', tag = '0.1.8',	
-    dependencies = { 'nvim-lua/plenary.nvim', 'nvim-tree/nvim-web-devicons', "debugloop/telescope-undo.nvim" },
-    config = function()
-    	require("telescope").load_extension("undo")
-    end,
-    opts = {
-	defaults = {
-        	file_ignore_patterns = { "public_html", "node_modules", "assets", "android", "ios" },
-	    },
+  "nvim-telescope/telescope.nvim",
+  enabled = true,
+  lazy = false,
+  tag = "0.1.8",
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    "debugloop/telescope-undo.nvim",
+    "albenisolmos/telescope-oil.nvim"
+  },
+  opts = {
+    defaults = {
+      file_ignore_patterns = { "^public_html/", "^node_modules/", "^assets/", "^database/migrations/", "^bootstrap/", "^vendor/", "^android/", "^ios/" },
+      mappings = {
+        n = {
+          ['<c-d>'] = require('telescope.actions').delete_buffer,
+        },
+      },
     },
-    keys = {
-        { "<C-f>", "<cmd>lua require('telescope.builtin').find_files()<cr>", remap = true, desc = "Search files" },
-        { "<C-v>", "<cmd>lua require('telescope.builtin').live_grep()<cr>", remap = true, desc = "Grep" },
-        { "<Leader><Leader>", "<cmd>lua require('telescope.builtin').resume()<cr>", remap = true, desc = "Resume" },
-        { "<Leader>u", "<cmd>Telescope undo<cr>", remap = true, desc = "Undo tree" },
-
-    },
+  },
+  keys = {
+    { mode = "n", "<A-f>", "<cmd>lua require('telescope.builtin').find_files()<cr>" },
+    { mode = "n", "<A-b>", "<cmd>lua require('telescope.builtin').buffers()<cr>" },
+    { mode = "n", "<A-r>", "<cmd>lua require('telescope.builtin').resume()<cr>" },
+    { mode = "n", "<A-u>", "<cmd>Telescope undo<cr>" },
+    { mode = "n", "<A-c>", "<cmd>Telescope oil<cr>" },
+  },
 }

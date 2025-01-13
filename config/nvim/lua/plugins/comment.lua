@@ -1,7 +1,8 @@
 return {
     'numToStr/Comment.nvim',
+    enabled = true,
+    lazy = false,
     opts = {
-        padding = false,
-        ignore = '^$'
+        ignore = "^$";
     }
 }

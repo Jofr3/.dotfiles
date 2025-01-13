@@ -1,7 +1,7 @@
 {
   inputs,
   lib,
-  config,
+  _config,
   pkgs,
   ...
 }:
@@ -51,7 +51,6 @@
     blueman
   ];
 
-  # TODO: Configure your system-wide user settings (groups, etc), add more users as needed.
   users.users = {
     jofre = {
       initialPassword = "1234";

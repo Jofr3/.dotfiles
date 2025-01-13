@@ -1,19 +1,24 @@
-return { 
-    'mrjones2014/smart-splits.nvim',
-    keys = {
-		{ "<A-h>", "<cmd>:lua require('smart-splits').move_cursor_left()<cr>", remap = true, desc = "Move cursor left" },
-		{ "<A-j>", "<cmd>:lua require('smart-splits').move_cursor_down()<cr>", remap = true, desc = "Move cursor down" },
-		{ "<A-k>", "<cmd>:lua require('smart-splits').move_cursor_up()<cr>", remap = true, desc = "Move cursor up" },
-		{ "<A-l>", "<cmd>:lua require('smart-splits').move_cursor_right()<cr>", remap = true, desc = "Move cursor right" },
+return {
+	'mrjones2014/smart-splits.nvim',
+    	enabled = true,
+    	lazy = false,
+	opts = {
+ 		default_amount = 7,
+	},
+	keys = {
+      		{ mode = "n", "<A-h>", "<cmd>lua require('smart-splits').move_cursor_left()<cr>" },
+      		{ mode = "n", "<A-j>", "<cmd>lua require('smart-splits').move_cursor_down()<cr>" },
+      		{ mode = "n", "<A-k>", "<cmd>lua require('smart-splits').move_cursor_up()<cr>" },
+      		{ mode = "n", "<A-l>", "<cmd>lua require('smart-splits').move_cursor_right()<cr>" },
 
-		{ "<A-H>", "<cmd>:lua require('smart-splits').resize_left()<cr>", remap = true, desc = "Resize window left" },
-		{ "<A-J>", "<cmd>:lua require('smart-splits').resize_down()<cr>", remap = true, desc = "Resize window down" },
-		{ "<A-K>", "<cmd>:lua require('smart-splits').resize_up()<cr>", remap = true, desc = "Resize window up" },
-		{ "<A-L>", "<cmd>:lua require('smart-splits').resize_right()<cr>", remap = true, desc = "Resize window right" },
+      		{ mode = "n", "<A-H>", "<cmd>lua require('smart-splits').resize_left()<cr>" },
+      		{ mode = "n", "<A-J>", "<cmd>lua require('smart-splits').resize_down()<cr>" },
+      		{ mode = "n", "<A-K>", "<cmd>lua require('smart-splits').resize_up()<cr>" },
+      		{ mode = "n", "<A-L>", "<cmd>lua require('smart-splits').resize_right()<cr>" },
 
-		{ "<A-C-h>", "<cmd>:lua require('smart-splits').swap_buf_left()<cr>", remap = true, desc = "Swap window left" },
-		{ "<A-C-j>", "<cmd>:lua require('smart-splits').swap_buf_down()<cr>", remap = true, desc = "Swap window down" },
-		{ "<A-C-k>", "<cmd>:lua require('smart-splits').swap_buf_up()<cr>", remap = true, desc = "Swap window up" },
-		{ "<A-C-l>", "<cmd>:lua require('smart-splits').swap_buf_right()<cr>", remap = true, desc = "Swap window right" },
-    }
+      		{ mode = "n", "<A-C-h>", "<cmd>lua require('smart-splits').swap_buf_left()<cr>" },
+      		{ mode = "n", "<A-C-j>", "<cmd>lua require('smart-splits').swap_buf_down()<cr>" },
+      		{ mode = "n", "<A-C-k>", "<cmd>lua require('smart-splits').swap_buf_up()<cr>" },
+      		{ mode = "n", "<A-C-l>", "<cmd>lua require('smart-splits').swap_buf_right()<cr>" },
+	},
 }

@@ -115,11 +115,11 @@
   stylix = {
     enable = true;
     image = ./../../wallpapers/15.jpg;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+    base16Scheme = ./theme.yml;
     polarity = "dark";
 
     override = {
-      base00 = "0B0B0B";
+      # base00 = "0B0B0B";
     };
   };
 

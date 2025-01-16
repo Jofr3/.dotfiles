@@ -1,0 +1,29 @@
+system: "base24"
+name: "Gruvbox Dark Hard"
+author: "Jofr3"
+variant: "dark"
+palette:
+  base00: "#282828"  # from bg
+  base01: "#3c3836"  # from bg1
+  base02: "#504945"  # from bg2
+  base03: "#665c54"  # from bg3
+  base04: "#7c6f64"  # from bg4
+  base05: "#928374"  # from gray
+  base06: "#d5c4a1"  # from fg2
+  base07: "#fbf1c7"  # from fg0
+  base08: "#cc241d"  # from red
+  base09: "#d65d0e"  # from orange
+  base0A: "#d79921"  # from yellow
+  base0B: "#98971a"  # from green
+  base0C: "#689d6a"  # from aqua
+  base0D: "#458588"  # from blue
+  base0E: "#b16286"  # from purple
+  base0F: "#a89984"  # from fg4
+  base10: "#3c3836"  # from bg1
+  base11: "#1d2021"  # from bg0_h
+  base12: "#fb4934"  # from bright red
+  base13: "#fabd2f"  # from bright yellow
+  base14: "#8ec07c"  # from bright aqua
+  base15: "#83a598"  # from bright blue
+  base16: "#d3869b"  # from bright purple
+  base17: "#fe8019"  # from bright orange

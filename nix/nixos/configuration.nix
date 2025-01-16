@@ -117,10 +117,6 @@
     image = ./../../wallpapers/15.jpg;
     base16Scheme = ./theme.yml;
     polarity = "dark";
-
-    override = {
-      # base00 = "0B0B0B";
-    };
   };
 
   system.stateVersion = "25.05";

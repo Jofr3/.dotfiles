@@ -1,3 +1,0 @@
-SRC += lib/oled.c
-MOUSEKEY_ENABLE = yes
-BACKLIGHT_ENABLE = no

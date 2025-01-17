@@ -3,7 +3,7 @@ return {
   enabled = true,
   -- lazy = false,
   opts = {
-    ensure_installed = { "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "json", "nix" },
+    ensure_installed = { "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "json", "nix", "fish" },
     sync_install = true,
     highlight = {
       enable = true

@@ -39,18 +39,6 @@ abbr gst git status
 abbr gad git add .
 abbr gco git commit -m
 abbr gpu git push
-abbr gbr git branch
-abbr gdi git diff 
-abbr gdif git diff --
-abbr gsh git show
-abbr gch git checkout
-abbr gre git reset
-abbr gre! git reset --hard
-abbr gchf git checkout --
-abbr glo git log
-abbr grf git reflog
-
-abbr ap ansible-playbook 
 
 abbr ns nix-shell --run fish
 abbr nr sudo nixos-rebuild switch --flake /home/jofre/nix/.#nixos
@@ -64,6 +52,5 @@ alias ls="exa --icons"
 alias grep="grep --color='auto'"
 
 # Keybinds
-bind \cs "source ~/.config/fish/config.fish"
-bind \cn "nvim -c ':lua require(\"oil\").open()'"
-bind \cf "nvim -c ':Telescope find_files'"
+bind \en "nvim -c ':Oil"
+bind \ef "nvim -c ':Telescope find_files'"

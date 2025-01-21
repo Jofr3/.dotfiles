@@ -21,6 +21,8 @@ return {
   keys = {
     { mode = "n", "<A-f>", "<cmd>lua require('telescope.builtin').find_files()<cr>" },
     { mode = "n", "<A-b>", "<cmd>lua require('telescope.builtin').buffers()<cr>" },
+    { mode = "n", "<A-v>", "<cmd>lua require('telescope.builtin').live_grep()<cr>" },
+    { mode = "n", "<A-/>", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>" },
     { mode = "n", "<A-r>", "<cmd>lua require('telescope.builtin').resume()<cr>" },
     { mode = "n", "<A-u>", "<cmd>Telescope undo<cr>" },
     { mode = "n", "<A-c>", "<cmd>Telescope oil<cr>" },

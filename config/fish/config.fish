@@ -54,3 +54,4 @@ alias grep="grep --color='auto'"
 # Keybinds
 bind \en "nvim -c ':Oil'"
 bind \ef "nvim -c ':Telescope find_files'"
+bind \ev "nvim -c ':Telescope live_grep'"

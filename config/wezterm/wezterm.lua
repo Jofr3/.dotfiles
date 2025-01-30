@@ -5,7 +5,6 @@ local config = wezterm.config_builder()
 config.unix_domains = {
   {
     name = 'unix',
-    local_echo_threshold_ms = 0,
   },
 }
 

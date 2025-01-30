@@ -1,20 +1,12 @@
 local wezterm = require 'wezterm'
-
 local config = wezterm.config_builder()
 
-config.unix_domains = {
-  {
-    name = 'unix',
-  },
-}
-
+config.unix_domains = { { name = 'unix', }, }
 config.default_gui_startup_args = { 'connect', 'unix' }
 
 config.default_cursor_style = 'SteadyBar'
 
 config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
-
-config.enable_kitty_keyboard = true
 
 function Tab_title(tab_info)
   local title = tab_info.tab_title
@@ -49,30 +41,60 @@ config.force_reverse_video_cursor = true
 config.hide_tab_bar_if_only_one_tab = true
 config.tab_max_width = 100000
 
-config.colors = {
-  tab_bar = {
-    background = '#282828',
-  }
-}
+config.colors = { tab_bar = { background = '#282828', } }
 
 local act = wezterm.action
 
 config.keys = {
+  {
+    key = 'j',
+    mods = 'CTRL',
+    action = act.ActivateTabRelative(-1)
+  },
+  {
+    key = 'k',
+    mods = 'CTRL',
+    action = act.ActivateTabRelative(1)
+  },
   {
     key = 'Enter',
     mods = 'CTRL',
     action = act.SpawnTab 'CurrentPaneDomain',
   },
   {
-    key = 'c',
-    mods = 'CTRL',
-    action = act.CloseCurrentTab { confirm = true },
-  },
-  {
     key = 'f',
     mods = 'CTRL',
     action = act.ShowLauncherArgs {
       flags = 'FUZZY|WORKSPACES',
+    },
+  },
+  {
+    key = 'l',
+    mods = 'CTRL',
+    action = act.SwitchWorkspaceRelative(1)
+  },
+  {
+    key = 'h',
+    mods = 'CTRL',
+    action = act.SwitchWorkspaceRelative(-1)
+  },
+  {
+    key = 'Enter',
+    mods = 'CTRL|SHIFT',
+    action = act.PromptInputLine {
+      description = wezterm.format {
+        { Text = 'Enter name for new workspace' },
+      },
+      action = wezterm.action_callback(function(window, pane, line)
+        if line then
+          window:perform_action(
+            act.SwitchToWorkspace {
+              name = line,
+            },
+            pane
+          )
+        end
+      end),
     },
   },
 }
@@ -84,6 +106,5 @@ for i = 1, 8 do
     action = act.ActivateTab(i - 1),
   })
 end
-
 
 return config

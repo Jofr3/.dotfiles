@@ -1,6 +1,6 @@
 return {
   'mrjones2014/smart-splits.nvim',
-  enabled = true,
+  enabled = false,
   lazy = false,
   opts = {
     default_amount = 7,

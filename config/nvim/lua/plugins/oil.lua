@@ -30,6 +30,6 @@ return {
     },
   },
   keys = {
-    { mode = "n", "<A-n>", require("oil").open(nil, { preview = { vertical = true } }) },
+    { mode = "n", "<A-n>", "<cmd>lua require('oil').open(nil, { preview = { vertical = true } })<cr>", }
   },
 }

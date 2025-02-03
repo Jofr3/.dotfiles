@@ -30,6 +30,6 @@ return {
     },
   },
   keys = {
-    { mode = "n", "<A-n>", "<cmd>Oil<cr>" },
+    { mode = "n", "<A-n>", require("oil").open(nil, { preview = { vertical = true } }) },
   },
 }

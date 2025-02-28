@@ -5,7 +5,7 @@ return {
   opts = {
     inverses = {
       ['true'] = 'false',
-      ['[ ]'] = '[X]',
+      ['- [ ]'] = '- [X]',
     },
     remove_default_keybinds = true,
     remove_default_inverses = true,

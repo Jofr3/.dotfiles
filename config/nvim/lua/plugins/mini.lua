@@ -12,7 +12,7 @@ return {
   },
   {
     "echasnovski/mini.pairs",
-    enabled = true,
+    enabled = false,
     lazy = false,
     opts = {},
   },

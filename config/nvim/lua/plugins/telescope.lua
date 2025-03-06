@@ -10,7 +10,7 @@ return {
   },
   opts = {
     defaults = {
-      file_ignore_patterns = { "^public_html/", "^node_modules/", "^assets/", "^database/migrations/", "^bootstrap/", "^vendor/", "^android/", "^ios/" },
+      file_ignore_patterns = { "^public_html/", "^node_modules/", "^assets/", "^database/migrations/", "^bootstrap/", "^vendor/", "^android/", "^ios/", "^neo4j/" },
       mappings = {
         n = {
           ['<c-d>'] = require('telescope.actions').delete_buffer,

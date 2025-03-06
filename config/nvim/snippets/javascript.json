@@ -1,0 +1,16 @@
+{
+  "log": {
+    "prefix": "log",
+    "body": [
+      "console.log($1);"
+    ]
+  },
+  "fun": {
+    "prefix": "fun",
+    "body": [
+      "function $1($2) {",
+      "\t$3",
+      "}"
+    ]
+  }
+}

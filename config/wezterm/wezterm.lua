@@ -1,8 +1,8 @@
 local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
-config.unix_domains = { { name = 'unix', }, }
-config.default_gui_startup_args = { 'connect', 'unix' }
+-- config.unix_domains = { { name = 'unix', }, }
+-- config.default_gui_startup_args = { 'connect', 'unix' }
 
 config.default_cursor_style = 'SteadyBar'
 
@@ -46,65 +46,65 @@ config.colors = { tab_bar = { background = '#282828', } }
 local act = wezterm.action
 
 config.keys = {
-  {
-    key = 'j',
-    mods = 'CTRL',
-    action = act.ActivateTabRelative(-1)
-  },
-  {
-    key = 'k',
-    mods = 'CTRL',
-    action = act.ActivateTabRelative(1)
-  },
-  {
-    key = 'Enter',
-    mods = 'CTRL',
-    action = act.SpawnTab 'CurrentPaneDomain',
-  },
-  {
-    key = 'f',
-    mods = 'CTRL',
-    action = act.ShowLauncherArgs {
-      flags = 'FUZZY|WORKSPACES',
-    },
-  },
-  {
-    key = 'l',
-    mods = 'CTRL',
-    action = act.SwitchWorkspaceRelative(1)
-  },
-  {
-    key = 'h',
-    mods = 'CTRL',
-    action = act.SwitchWorkspaceRelative(-1)
-  },
-  {
-    key = 'Enter',
-    mods = 'CTRL|SHIFT',
-    action = act.PromptInputLine {
-      description = wezterm.format {
-        { Text = 'Enter name for new workspace' },
-      },
-      action = wezterm.action_callback(function(window, pane, line)
-        if line then
-          window:perform_action(
-            act.SwitchToWorkspace {
-              name = line,
-            },
-            pane
-          )
-        end
-      end),
-    },
-  },
+  -- {
+  --   key = 'j',
+  --   mods = 'CTRL',
+  --   action = act.ActivateTabRelative(-1)
+  -- },
+  -- {
+  --   key = 'k',
+  --   mods = 'CTRL',
+  --   action = act.ActivateTabRelative(1)
+  -- },
+  -- {
+  --   key = 'Enter',
+  --   mods = 'CTRL',
+  --   action = act.SpawnTab 'CurrentPaneDomain',
+  -- },
+  -- {
+  --   key = 'f',
+  --   mods = 'CTRL',
+  --   action = act.ShowLauncherArgs {
+  --     flags = 'FUZZY|WORKSPACES',
+  --   },
+  -- },
+  -- {
+  --   key = 'l',
+  --   mods = 'CTRL',
+  --   action = act.SwitchWorkspaceRelative(1)
+  -- },
+  -- {
+  --   key = 'h',
+  --   mods = 'CTRL',
+  --   action = act.SwitchWorkspaceRelative(-1)
+  -- },
+  -- {
+  --   key = 'Enter',
+  --   mods = 'CTRL|SHIFT',
+  --   action = act.PromptInputLine {
+  --     description = wezterm.format {
+  --       { Text = 'Enter name for new workspace' },
+  --     },
+  --     action = wezterm.action_callback(function(window, pane, line)
+  --       if line then
+  --         window:perform_action(
+  --           act.SwitchToWorkspace {
+  --             name = line,
+  --           },
+  --           pane
+  --         )
+  --       end
+  --     end),
+  --   },
+  -- },
 }
 
-for i = 1, 8 do
-  table.insert(config.keys, {
-    key = tostring(i),
-    mods = 'CTRL',
-    action = act.ActivateTab(i - 1),
-  })
-end
+-- for i = 1, 8 do
+--   table.insert(config.keys, {
+--     key = tostring(i),
+--     mods = 'CTRL',
+--     action = act.ActivateTab(i - 1),
+--   })
+-- end
 
 return config

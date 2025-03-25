@@ -19,6 +19,8 @@ set -x CAPACITOR_ANDROID_STUDIO_PATH "/nix/store/blyhb62588lz46flnz855whvmwq3ibn
 set -x ANDROID_SDK_ROOT "/home/jofre/Android/Sdk"
 set -x JAVA_HOME "/usr/lib/jvm/java-17-openjdk-amd64"
 
+set -x PATH $PATH "$HOME/.dotfiles/config/tofi/scripts/"
+
 # Abbreviations
 abbr .. cd ..
 

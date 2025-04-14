@@ -43,3 +43,7 @@ vim.opt.scrolloff = 10
 vim.opt.termguicolors = true
 
 vim.opt.clipboard = "unnamedplus"
+
+vim.opt.lazyredraw = true
+
+vim.opt.shadafile = "NONE"

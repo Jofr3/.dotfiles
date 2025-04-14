@@ -1,14 +1,16 @@
 return {
-  'saghen/blink.cmp',
+  "saghen/blink.cmp",
   enabled = true,
   lazy = false,
-  version = '0.10.0',
+  version = '1.*',
   opts = {
     sources = {
-      default = { 'snippets', 'lsp', 'path', 'buffer', "dadbod" },
+      default = { "lsp", "path", "buffer", "dadbod" },
+      -- default = { 'snippets', 'lsp', 'path', 'buffer', "dadbod" },
+      per_filetype = { sql = { 'dadbod' } },
       providers = {
-        dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink" },
-      },
+        dadbod = { module = "vim_dadbod_completion.blink" },
+      }
     },
     keymap = {
       preset = 'none',

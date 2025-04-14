@@ -2,46 +2,29 @@ return {
   "ThePrimeagen/harpoon",
   enabled = true,
   lazy = false,
-  branch = "harpoon2",
-  dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
+  dependencies = { "nvim-lua/plenary.nvim" },
   config = function()
-    local harpoon = require("harpoon")
-    harpoon:setup({})
+    require("harpoon").setup {
+      global_settings = {
 
-    vim.keymap.set("n", "<A-w>", function() harpoon:list():add() end)
-    vim.keymap.set("n", "<A-s>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+        save_on_toggle = true,
+        save_on_change = true,
 
-    vim.keymap.set("n", "<A-1>", function() harpoon:list():select(1) end)
-    vim.keymap.set("n", "<A-2>", function() harpoon:list():select(2) end)
-    vim.keymap.set("n", "<A-3>", function() harpoon:list():select(3) end)
-    vim.keymap.set("n", "<A-4>", function() harpoon:list():select(4) end)
-    vim.keymap.set("n", "<A-5>", function() harpoon:list():select(5) end)
-    vim.keymap.set("n", "<A-6>", function() harpoon:list():select(6) end)
-    vim.keymap.set("n", "<A-7>", function() harpoon:list():select(7) end)
-    vim.keymap.set("n", "<A-8>", function() harpoon:list():select(8) end)
-    vim.keymap.set("n", "<A-9>", function() harpoon:list():select(9) end)
-
-    vim.keymap.set("n", "<A-o>", function() harpoon:list():prev() end)
-    vim.keymap.set("n", "<A-i>", function() harpoon:list():next() end)
-
-    local conf = require("telescope.config").values
-    local function toggle_telescope(harpoon_files)
-      local file_paths = {}
-      for _, item in ipairs(harpoon_files.items) do
-        table.insert(file_paths, item.value)
-      end
-
-      require("telescope.pickers").new({}, {
-        prompt_title = "Harpoon",
-        finder = require("telescope.finders").new_table({
-          results = file_paths,
-        }),
-        previewer = conf.file_previewer({}),
-        sorter = conf.generic_sorter({}),
-      }):find()
-    end
-
-    vim.keymap.set("n", "<A-e>", function() toggle_telescope(harpoon:list()) end,
-      { desc = "Open harpoon window" })
-  end
+        excluded_filetypes = { "harpoon", "oil" },
+      }
+    }
+  end,
+  keys = {
+    { mode = "n", "<A-s>", "<cmd>lua require('harpoon.mark').add_file()<cr>" },
+    { mode = "n", "<A-d>", "<cmd>lua require('harpoon.ui').toggle_quick_menu()<cr>" },
+    { mode = "n", "<A-1>", "<cmd>lua require('harpoon.ui').nav_file(1)<cr>" },
+    { mode = "n", "<A-2>", "<cmd>lua require('harpoon.ui').nav_file(2)<cr>" },
+    { mode = "n", "<A-3>", "<cmd>lua require('harpoon.ui').nav_file(3)<cr>" },
+    { mode = "n", "<A-4>", "<cmd>lua require('harpoon.ui').nav_file(4)<cr>" },
+    { mode = "n", "<A-5>", "<cmd>lua require('harpoon.ui').nav_file(5)<cr>" },
+    { mode = "n", "<A-6>", "<cmd>lua require('harpoon.ui').nav_file(6)<cr>" },
+    { mode = "n", "<A-7>", "<cmd>lua require('harpoon.ui').nav_file(7)<cr>" },
+    { mode = "n", "<A-8>", "<cmd>lua require('harpoon.ui').nav_file(8)<cr>" },
+    { mode = "n", "<A-9>", "<cmd>lua require('harpoon.ui').nav_file(9)<cr>" },
+  }
 }

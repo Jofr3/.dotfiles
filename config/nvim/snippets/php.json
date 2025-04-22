@@ -1,0 +1,73 @@
+{
+  "dd": {
+    "prefix": "dd",
+    "body": [
+      "dd($1);"
+    ]
+  },
+  "du": {
+    "prefix": "du",
+    "body": [
+      "dump($1);"
+    ]
+  },
+  "vd": {
+    "prefix": "vd",
+    "body": [
+      "var_dump($1);"
+    ]
+  },
+  "if": {
+    "prefix": "if",
+    "body": [
+      "if ($1) {",
+      "\t$2",
+      "}"
+    ]
+  },
+  "el": {
+    "prefix": "el",
+    "body": [
+      "} else {",
+      "\t$1"
+    ]
+  },
+  "eli": {
+    "prefix": "eli",
+    "body": [
+      "} else if ($1) {",
+      "\t$2"
+    ]
+  },
+  ":": {
+    "prefix": ":",
+    "body": [
+      "${1:if} ? ${2:true} : ${3:false}"
+    ]
+  },
+  "sw": {
+    "prefix": "sw",
+    "body": [
+      "switch ($1) {",
+      "\tcase ${2:match}:",
+      "\t\t$3",
+      "\t\tbreak;"
+    ]
+  },
+  "for": {
+    "prefix": "for",
+    "body": [
+      "for ($x = 0; $x <= 10; $x++) {",
+      "\t$1",
+      "}"
+    ]
+  },
+  "fe": {
+    "prefix": "fe",
+    "body": [
+      "foreach (${1:array} as ${2:item}) {",
+      "\t$3",
+      "}"
+    ]
+  }
+}

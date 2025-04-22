@@ -4,7 +4,10 @@ set bookmarks "
 gmail|https://mail.google.com/mail/u/0/#inbox
 gpt|https://chatgpt.com
 claude|https://claude.ai/new
+gemini|https://gemini.google.com/app
 nix packages|https://search.nixos.org/packages
+
+calendar|https://calendar.google.com
 "
 
 set selected (echo "$bookmarks" | cut -d'|' -f1 | tofi --fuzzy-match=true)

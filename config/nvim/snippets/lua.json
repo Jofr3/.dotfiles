@@ -1,16 +1,10 @@
 {
-  "foo": {
-    "prefix": "foo",
+  "fun": {
+    "prefix": "fun",
     "body": [
-      "local ${1:foo} = ${2:bar}",
-      "return ${3:baz}"
-    ]
-  },
-  "bar": {
-    "prefix": "bar",
-    "body": [
-      "local ${1:foo} = ${2:bar}",
-      "return ${3:baz}"
+      "function ${1:fun}($2)",
+      "\t$3",
+      "return"
     ]
   }
 }

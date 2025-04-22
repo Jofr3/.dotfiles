@@ -47,3 +47,5 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.lazyredraw = true
 
 vim.opt.shadafile = "NONE"
+
+vim.diagnostic.config({ virtual_text = false, signs = false })

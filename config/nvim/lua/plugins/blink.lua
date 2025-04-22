@@ -15,29 +15,6 @@ return {
 		fuzzy = {
 			implementation = "rust",
 		},
-		cmdline = {
-			keymap = {
-				preset = "none",
-				["<A-j>"] = {
-					function(cmp)
-						return cmp.select_next({ auto_insert = true })
-					end,
-					"select_and_accept",
-				},
-				["<A-k>"] = {
-					function(cmp)
-						return cmp.select_prev({ auto_insert = true })
-					end,
-					"select_and_accept",
-				},
-				["<Tab>"] = { "select_and_accept" },
-			},
-			completion = {
-				menu = {
-					auto_show = true,
-				},
-			},
-		},
 		keymap = {
 			preset = "none",
 			["<A-j>"] = {
@@ -53,6 +30,29 @@ return {
 				"select_and_accept",
 			},
 			["<Tab>"] = { "select_and_accept", "fallback" },
+		},
+		cmdline = {
+			completion = {
+				menu = {
+					auto_show = true,
+				},
+			},
+			keymap = {
+				preset = "none",
+				["<A-j>"] = {
+					function(cmp)
+						return cmp.select_next({ auto_insert = true })
+					end,
+					"select_and_accept",
+				},
+				["<A-k>"] = {
+					function(cmp)
+						return cmp.select_prev({ auto_insert = true })
+					end,
+					"select_and_accept",
+				},
+				["<Tab>"] = { "select_and_accept", "fallback" },
+			},
 		},
 	},
 }

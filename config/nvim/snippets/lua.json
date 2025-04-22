@@ -5,6 +5,7 @@
       "function ${1:fun}($2)",
       "\t$3",
       "return"
-    ]
+    ],
+    "scope": "lua"
   }
 }

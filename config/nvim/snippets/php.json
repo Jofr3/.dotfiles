@@ -3,19 +3,22 @@
     "prefix": "dd",
     "body": [
       "dd($1);"
-    ]
+    ],
+    "scope": "php"
   },
   "du": {
     "prefix": "du",
     "body": [
       "dump($1);"
-    ]
+    ],
+    "scope": "php"
   },
   "vd": {
     "prefix": "vd",
     "body": [
       "var_dump($1);"
-    ]
+    ],
+    "scope": "php"
   },
   "if": {
     "prefix": "if",
@@ -23,27 +26,31 @@
       "if ($1) {",
       "\t$2",
       "}"
-    ]
+    ],
+    "scope": "php"
   },
   "el": {
     "prefix": "el",
     "body": [
       "} else {",
       "\t$1"
-    ]
+    ],
+    "scope": "php"
   },
   "eli": {
     "prefix": "eli",
     "body": [
       "} else if ($1) {",
       "\t$2"
-    ]
+    ],
+    "scope": "php"
   },
   ":": {
     "prefix": ":",
     "body": [
       "${1:if} ? ${2:true} : ${3:false}"
-    ]
+    ],
+    "scope": "php"
   },
   "sw": {
     "prefix": "sw",
@@ -52,7 +59,8 @@
       "\tcase ${2:match}:",
       "\t\t$3",
       "\t\tbreak;"
-    ]
+    ],
+    "scope": "php"
   },
   "for": {
     "prefix": "for",
@@ -60,7 +68,8 @@
       "for ($x = 0; $x <= 10; $x++) {",
       "\t$1",
       "}"
-    ]
+    ],
+    "scope": "php"
   },
   "fe": {
     "prefix": "fe",
@@ -68,6 +77,7 @@
       "foreach (${1:array} as ${2:item}) {",
       "\t$3",
       "}"
-    ]
+    ],
+    "scope": "php"
   }
 }

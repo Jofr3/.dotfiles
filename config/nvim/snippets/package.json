@@ -1,0 +1,31 @@
+{
+	"name": "snippets",
+	"contributes": {
+		"snippets": [
+			{
+				"language": [
+					"javascript"
+				],
+				"path": "./snippets/javascript.json"
+			},
+			{
+				"language": [
+					"lua"
+				],
+				"path": "~/.config/nvim/snippets/lua.json"
+			},
+			{
+				"language": [
+					"markdown"
+				],
+				"path": "./snippets/markdown.json"
+			},
+			{
+				"language": [
+					"php"
+				],
+				"path": "./snippets/php.json"
+			}
+		]
+	}
+}

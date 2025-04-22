@@ -3,7 +3,8 @@
     "prefix": "log",
     "body": [
       "console.log($1);"
-    ]
+    ],
+    "scope": "javascript"
   },
   "fun": {
     "prefix": "fun",
@@ -11,7 +12,8 @@
       "function $1($2) {",
       "\t$3",
       "}"
-    ]
+    ],
+    "scope": "javascript"
   },
   "if": {
     "prefix": "if",
@@ -19,20 +21,23 @@
       "if ($1) {",
       "\t$2",
       "}"
-    ]
+    ],
+    "scope": "javascript"
   },
   "el": {
     "prefix": "el",
     "body": [
       "} else {",
       "\t$1"
-    ]
+    ],
+    "scope": "javascript"
   },
   "eli": {
     "prefix": "eli",
     "body": [
       "} else if ($1) {",
       "\t$2"
-    ]
+    ],
+    "scope": "javascript"
   }
 }

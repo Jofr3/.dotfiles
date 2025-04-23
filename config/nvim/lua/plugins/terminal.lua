@@ -7,10 +7,10 @@ return {
 		opts = {
 			direction = "float",
 			close_on_exit = false,
-      float_opts = {
-          width = 150,
-          height = 43,
-      }
+			float_opts = {
+				width = 184,
+				height = 45,
+			},
 		},
 		init = function()
 			vim.keymap.set("t", "<Esc>", "<C-\\><C-n>")
@@ -19,7 +19,14 @@ return {
 				callback = function(args)
 					if vim.startswith(vim.api.nvim_buf_get_name(args.buf), "term://") then
 						vim.cmd("startinsert")
+						-- vim.keymap.set("n", "q", "<cmd>ToggleTerm<CR>", { buffer = true })
 					end
+				end,
+			})
+
+			vim.api.nvim_create_autocmd({ "TermOpen" }, {
+				callback = function()
+					vim.keymap.set({"n", "t" }, "<A-c>", "<cmd>ToggleTerm<CR>", { buffer = true })
 				end,
 			})
 		end,

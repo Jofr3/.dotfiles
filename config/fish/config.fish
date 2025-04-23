@@ -58,3 +58,4 @@ bind \en "nvim -c ':Oil'"
 bind \ef "nvim -c ':Telescope find_files'"
 bind \ev "nvim -c ':Telescope live_grep'"
 bind \ep "nvim -c ':NeovimProjectDiscover'"
+bind \ec -e

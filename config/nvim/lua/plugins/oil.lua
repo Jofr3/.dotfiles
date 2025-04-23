@@ -12,8 +12,8 @@ return {
 		},
 		float = {
 			padding = 0,
-			max_width = 150,
-			max_height = 43,
+			max_width = 184,
+			max_height = 45,
 			border = { "┌", "─", "┐", "│", "┘", "─", "└", "│" },
 		},
 		keymaps = {
@@ -23,7 +23,7 @@ return {
 			["<C-h>"] = { "actions.select", opts = { horizontal = true } },
 			["<C-t>"] = { "actions.select", opts = { tab = true } },
 			["<C-p>"] = "actions.preview",
-			["q"] = { "actions.close", mode = "n" },
+			["<A-c>"] = { "actions.close", mode = "n" },
 			["<C-l>"] = "actions.refresh",
 			["-"] = { "actions.parent", mode = "n" },
 			["_"] = { "actions.open_cwd", mode = "n" },

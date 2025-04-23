@@ -6,7 +6,6 @@ return {
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		"debugloop/telescope-undo.nvim",
-		"albenisolmos/telescope-oil.nvim",
 		{
 			"nvim-telescope/telescope-fzf-native.nvim",
 			build = "make",
@@ -30,13 +29,17 @@ return {
 				},
 				mappings = {
 					n = {
+						["<A-c>"] = require("telescope.actions").close,
 						["<c-d>"] = require("telescope.actions").delete_buffer,
 					},
 				},
+        layout_config = {
+          width = 184,
+          height = 45,
+        },
 			},
 			pickers = {
 				find_files = {
-					-- theme = "ivy",
 					preview = false,
 				},
 			},
@@ -52,6 +55,5 @@ return {
 		{ mode = "n", "<A-/>", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>" },
 		{ mode = "n", "<space><space>", "<cmd>lua require('telescope.builtin').resume()<cr>" },
 		{ mode = "n", "<A-u>", "<cmd>Telescope undo<cr>" },
-		{ mode = "n", "<A-c>", "<cmd>Telescope oil<cr>" },
 	},
 }

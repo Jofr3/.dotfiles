@@ -16,10 +16,10 @@ return {
 			"~/nix",
 			"~/Dropbox/notes/",
 		},
-		last_session_on_startup = false,
+		last_session_on_startup = true,
 		picker = {
 			type = "telescope",
-			preview = true,
+			preview = false,
 		},
 	},
 	keys = {

@@ -16,17 +16,7 @@ return {
 		require("telescope").setup({
 			defaults = {
 				-- preview = false,
-				file_ignore_patterns = {
-					"^public_html/",
-					"^node_modules/",
-					"^assets/",
-					"^database/migrations/",
-					"^bootstrap/",
-					"^vendor/",
-					"^android/",
-					"^ios/",
-					"^neo4j/",
-				},
+        file_ignore_patterns = { "^storage/", "^public/", "^public_html/", "^node_modules/", "^assets/", "^database/migrations/", "^bootstrap/", "^vendor/", "^android/", "^ios/", "^neo4j/" },
 				mappings = {
 					n = {
 						["<A-c>"] = require("telescope.actions").close,

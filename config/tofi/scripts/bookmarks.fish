@@ -17,7 +17,7 @@ set url (echo "$bookmark" | cut -d'|' -f2)
 #  Open the bookmark in the browser if it's not empty
 
 if test -n "$url"
-    google-chrome-stable "$url"
+    open "$url"
 end
 
 

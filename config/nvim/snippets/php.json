@@ -1,6 +1,6 @@
 {
   "dd": {
-    "prefix": "dd",
+    "prefix": "d",
     "body": [
       "dd($1);"
     ],

@@ -17,13 +17,13 @@ return {
 		},
 		keymap = {
 			preset = "none",
-			["<A-j>"] = {
+			["<D-j>"] = {
 				function(cmp)
 					return cmp.select_next({ auto_insert = true })
 				end,
 				"select_and_accept",
 			},
-			["<A-k>"] = {
+			["<D-k>"] = {
 				function(cmp)
 					return cmp.select_prev({ auto_insert = true })
 				end,
@@ -39,13 +39,13 @@ return {
 			},
 			keymap = {
 				preset = "none",
-				["<A-j>"] = {
+				["<D-j>"] = {
 					function(cmp)
 						return cmp.select_next({ auto_insert = true })
 					end,
 					"select_and_accept",
 				},
-				["<A-k>"] = {
+				["<D-k>"] = {
 					function(cmp)
 						return cmp.select_prev({ auto_insert = true })
 					end,

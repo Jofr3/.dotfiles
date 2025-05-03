@@ -26,7 +26,7 @@ return {
 
 			vim.api.nvim_create_autocmd({ "TermOpen" }, {
 				callback = function()
-					vim.keymap.set({"n", "t" }, "<A-c>", "<cmd>ToggleTerm<CR>", { buffer = true })
+					vim.keymap.set({"n", "t" }, "<D-c>", "<cmd>ToggleTerm<CR>", { buffer = true })
 				end,
 			})
 		end,

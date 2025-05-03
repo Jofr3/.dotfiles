@@ -36,6 +36,6 @@ return {
 		},
 	},
 	keys = {
-		{ mode = "n", "<A-n>", "<cmd>lua require('oil').toggle_float()<cr>" },
+		{ mode = "n", "<D-n>", "<cmd>lua require('oil').toggle_float()<cr>" },
 	},
 }

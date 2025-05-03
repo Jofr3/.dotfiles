@@ -11,8 +11,8 @@ return {
 		require("luasnip.loaders.from_vscode").load_standalone({ path = "~/.config/nvim/snippets/php.json" })
 	end,
 	keys = {
-		{ mode = "i", "<A-Tab>", "<cmd>lua require('luasnip').expand()<cr>" },
-		{ mode = { "i", "n" }, "<A-l>", "<cmd>lua require('luasnip').jump(1)<cr>" },
-		{ mode = { "i", "n" }, "<A-h>", "<cmd>lua require('luasnip').jump(-1)<cr>" },
+		{ mode = "i", "<D-Tab>", "<cmd>lua require('luasnip').expand()<cr>" },
+		{ mode = { "i", "n" }, "<D-l>", "<cmd>lua require('luasnip').jump(1)<cr>" },
+		{ mode = { "i", "n" }, "<D-h>", "<cmd>lua require('luasnip').jump(-1)<cr>" },
 	},
 }

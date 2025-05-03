@@ -4,8 +4,8 @@ return {
 	lazy = false,
 	opts = {
 		keymaps = {
-			accept_suggestion = "<A-Tab>",
-			accept_word = "<A-Space>",
+			accept_suggestion = "<D-Tab>",
+			accept_word = "<D-Space>",
 		},
 	},
 }

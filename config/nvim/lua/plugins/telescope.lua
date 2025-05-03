@@ -19,8 +19,8 @@ return {
         file_ignore_patterns = { "^storage/", "^public/", "^public_html/", "^node_modules/", "^assets/", "^database/migrations/", "^bootstrap/", "^vendor/", "^android/", "^ios/", "^neo4j/" },
 				mappings = {
 					n = {
-						["<A-c>"] = require("telescope.actions").close,
-						["<c-d>"] = require("telescope.actions").delete_buffer,
+						["<D-c>"] = require("telescope.actions").close,
+						["<C-d>"] = require("telescope.actions").delete_buffer,
 					},
 				},
         layout_config = {
@@ -39,11 +39,11 @@ return {
 		})
 	end,
 	keys = {
-		{ mode = "n", "<A-f>", "<cmd>lua require('telescope.builtin').find_files({ preview = false })<cr>" },
-		{ mode = { "n", "t" }, "<A-b>", "<cmd>lua require('telescope.builtin').buffers()<cr>" },
-		{ mode = "n", "<A-v>", "<cmd>lua require('telescope.builtin').live_grep()<cr>" },
-		{ mode = "n", "<A-/>", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>" },
+		{ mode = "n", "<D-f>", "<cmd>lua require('telescope.builtin').find_files({ preview = false })<cr>" },
+		{ mode = { "n", "t" }, "<D-b>", "<cmd>lua require('telescope.builtin').buffers()<cr>" },
+		{ mode = "n", "<D-v>", "<cmd>lua require('telescope.builtin').live_grep()<cr>" },
+		{ mode = "n", "<D-/>", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>" },
 		{ mode = "n", "<space><space>", "<cmd>lua require('telescope.builtin').resume()<cr>" },
-		{ mode = "n", "<A-u>", "<cmd>Telescope undo<cr>" },
+		{ mode = "n", "<D-u>", "<cmd>Telescope undo<cr>" },
 	},
 }

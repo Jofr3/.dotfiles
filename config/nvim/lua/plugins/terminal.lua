@@ -31,7 +31,7 @@ return {
 			})
 		end,
 		keys = {
-			{ mode = { "n", "t" }, "<A-Enter>", "<cmd>ToggleTerm<cr>" },
+			{ mode = { "n", "t" }, "<D-Enter>", "<cmd>ToggleTerm<cr>" },
 			{ mode = { "n", "t" }, "<leader>tn", "<cmd>terminal<cr>" },
 			{ mode = { "n", "t" }, "<leader>tx", "<cmd>split | terminal<cr>" },
 			{ mode = { "n", "t" }, "<leader>tv", "<cmd>vsplit | terminal<cr>" },

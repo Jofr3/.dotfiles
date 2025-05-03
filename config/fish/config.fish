@@ -34,6 +34,7 @@ abbr rb sudo reboot now
 abbr tr tree
 abbr ff fastfetch
 abbr b bluetoothctl
+abbr ze zellij
 
 abbr gst git status
 abbr gad git add .
@@ -46,14 +47,12 @@ abbr hr home-manager switch --flake /home/jofre/nix/.#jofre@nixos
 
 # Aliases
 alias n="nvim"
-alias t="task"
 
 alias ls="exa --icons"
 alias grep="grep --color='auto'"
 
 # Keybinds
-bind \en "nvim -c ':Oil'"
-bind \ef "nvim -c ':Telescope find_files'"
-bind \ev "nvim -c ':Telescope live_grep'"
-bind \ep "nvim -c ':NeovimProjectDiscover'"
+# bind \en "nvim -c ':Oil'"
+# bind \ef "nvim -c ':Telescope find_files'"
+# bind \ev "nvim -c ':Telescope live_grep'"
 bind \ec -e

@@ -8,6 +8,7 @@ vim.g.maplocalleader = " "
 -- vim.keymap.set("x", "<A-p>", "\"_dP")
 -- vim.keymap.set({ "n", "v" }, "<A-d>", "\"_d")
 
+vim.keymap.set("n", "q", "<nop>")
 vim.keymap.set("n", "Q", "<nop>")
 
 vim.keymap.set("n", "<D-o>", function()

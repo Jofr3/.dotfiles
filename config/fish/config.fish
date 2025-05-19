@@ -48,7 +48,7 @@ abbr hr home-manager switch --flake /home/jofre/nix/.#jofre@nixos
 # Aliases
 alias n="nvim"
 
-alias ls="exa --icons"
+alias ls="exa --icons --group-directories-first"
 alias grep="grep --color='auto'"
 
 # Keybinds

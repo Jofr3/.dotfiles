@@ -1,10 +1,15 @@
 {
-  "fun": {
-    "prefix": "fun",
+  "p": {
+    "prefix": "p",
     "body": [
-      "function ${1:fun}($2)",
-      "\t$3",
-      "return"
+      "print($1)"
+    ],
+    "scope": "lua"
+  },
+  "pv": {
+    "prefix": "pv",
+    "body": [
+      "print(vim.inspect($1))"
     ],
     "scope": "lua"
   }

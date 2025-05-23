@@ -5,11 +5,13 @@ return {
 	version = "1.1.1",
 	opts = {
 		sources = {
-			default = { "lsp", "path", "buffer", --[[ "dadbod" ]] },
-			-- per_filetype = { sql = { "dadbod" } },
-			-- providers = {
-			-- 	dadbod = { module = "vim_dadbod_completion.blink" },
-			-- },
+			default = { "lsp", "path", "buffer",   "dadbod"},
+			per_filetype = {
+				sql = { "snippets", "dadbod", "buffer" },
+			},
+			providers = {
+				dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink" },
+			},
 			min_keyword_length = 1,
 		},
 		fuzzy = {

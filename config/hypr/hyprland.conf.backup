@@ -1,0 +1,138 @@
+$fileManager=nautilus
+$mod=MOD3
+$terminal=foot
+animations {
+  bezier=easeOutQuint,0.23,1,0.32,1
+  bezier=easeInOutCubic,0.65,0.05,0.36,1
+  bezier=linear,0,0,1,1
+  bezier=almostLinear,0.5,0.5,0.75,1.0
+  bezier=quick,0.15,0,0.1,1
+  animation=global, 1, 10, default
+  animation=border, 1, 5.39, easeOutQuint
+  animation=windows, 1, 4.79, easeOutQuint
+  animation=windowsIn, 1, 4.1, easeOutQuint, popin 87%
+  animation=windowsOut, 1, 1.49, linear, popin 87%
+  animation=fadeIn, 1, 1.73, almostLinear
+  animation=fadeOut, 1, 1.46, almostLinear
+  animation=fade, 1, 3.03, quick
+  animation=layers, 1, 3.81, easeOutQuint
+  animation=layersIn, 1, 4, easeOutQuint, fade
+  animation=layersOut, 1, 1.5, linear, fade
+  animation=fadeLayersIn, 1, 1.79, almostLinear
+  animation=fadeLayersOut, 1, 1.39, almostLinear
+  animation=workspaces, 0, 1.94, almostLinear, fade
+  animation=workspacesIn, 0, 1.21, almostLinear, fade
+  animation=workspacesOut, 0, 1.94, almostLinear, fade
+  enabled=false
+}
+
+decoration {
+  blur {
+    enabled=false
+  }
+
+  shadow {
+    color=rgba(0b0b0b99)
+    enabled=false
+  }
+  rounding=0
+}
+
+general {
+  border_size=0
+  col.active_border=rgb(83a598)
+  col.inactive_border=rgb(665c54)
+  gaps_in=0
+  gaps_out=0
+}
+
+group {
+  groupbar {
+    col.active=rgb(83a598)
+    col.inactive=rgb(665c54)
+    text_color=rgb(d5c4a1)
+  }
+  col.border_active=rgb(83a598)
+  col.border_inactive=rgb(665c54)
+  col.border_locked_active=rgb(8ec07c)
+}
+
+input {
+  kb_layout=us,ca
+  kb_options = caps:hyper
+  # kb_options = level3:ralt_switch,level3:ralt_alt
+
+  # kb_options = custom:altgr_mod3
+}
+
+misc {
+  background_color=rgb(0b0b0b)
+}
+
+# bind=$mod, M, fullscreen
+bind=$mod, C, killactive
+bind=$mod, Return, exec, foot
+bind=$mod, T, togglefloating
+bind=$mod, F, exec, exec $(tofi-run --drun-launch=true --fuzzy-match=true)
+bind=$mod, B, exec, ~/.config/tofi/scripts/bookmarks.fish 
+bind=$mod, X, exec, grim -g "$(slurp)" "/home/jofre/Documents/screenshots/$(date +%Y%m%d-%H%M%S)".png
+bind=$mod, I, exec, brightnessctl set 5%-
+bind=$mod, O, exec, brightnessctl set +5%
+bind=$mod, Up, exec, pactl set-sink-volume @DEFAULT_SINK@ +5%
+bind=$mod, Down, exec, pactl set-sink-volume @DEFAULT_SINK@ -5%
+bind=$mod, Space, exec, playerctl play-pause
+bind=$mod, Left, exec, playerctl previous
+bind=$mod, Right, exec, playerctl next
+bind=$mod, Space, exec, hyprctl switchxkblayout active next
+
+# bind=$mod SHIFT, K, movewindow, u
+# bind=$mod SHIFT, J, movewindow, d
+# bind=$mod Ctrl, H, resizeactive, -160 0
+# bind=$mod Ctrl, L, resizeactive, 160 0
+# bind=$mod Ctrl, K, resizeactive, 0 -160
+# bind=$mod Ctrl, J, resizeactive, 0 160
+
+bind=Alt_R, T, exec, kitty
+
+bind=$mod, 1, workspace, 1
+bind=$mod, 2, workspace, 2
+bind=$mod, 3, workspace, 3
+bind=$mod, 4, workspace, 4
+bind=$mod, 7, workspace, 5
+bind=$mod, 8, workspace, 6
+bind=$mod, 9, workspace, 7
+bind=$mod, 0, workspace, 8
+
+bind=$mod SUPER, 1, movetoworkspace, 1
+bind=$mod SUPER, 2, movetoworkspace, 2
+bind=$mod SUPER, 3, movetoworkspace, 3
+bind=$mod SUPER, 4, movetoworkspace, 4
+bind=$mod SUPER, 7, movetoworkspace, 5
+bind=$mod SUPER, 8, movetoworkspace, 6
+bind=$mod SUPER, 9, movetoworkspace, 7
+bind=$mod SUPER, 0, movetoworkspace, 8
+
+bindm=$mod, mouse:272, movewindow
+bindm=$mod, mouse:273, resizewindow
+
+env=XCURSOR_SIZE,24
+env=HYPRCURSOR_SIZE,24
+env=QT_CURSOR_SIZE,24
+
+monitor=eDP-1, 1920x1080@60, 0x1080, 1
+monitor=HDMI-A-1, 1920x1080@144, 0x0, 1
+
+workspace=1, monitor:eDP-1
+workspace=2, monitor:eDP-1
+workspace=3, monitor:eDP-1
+workspace=4, monitor:eDP-1
+workspace=5, monitor:eDP-1
+workspace=6, monitor:eDP-1
+workspace=7, monitor:eDP-1
+workspace=8, monitor:HDMI-A-1
+
+exec-once = hyprpaper
+exec-once = dropbox start
+xwayland {
+  force_zero_scaling = true
+}

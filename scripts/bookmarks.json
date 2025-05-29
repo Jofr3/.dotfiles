@@ -1,0 +1,83 @@
+{
+  "bookmarks": {
+    "cliq": "https://cliq.zoho.com/company/667424570/index.do",
+    "gmail": "https://mail.google.com/mail/u/0/#inboxgmail",
+    "admin": "https://admin.lasevaweb.com/admin",
+    "gitlab": "https://gitlab.com",
+    "gemini": "https://gemini.google.com/app",
+    "chat": "https://chat.openai.com/chat",
+    "claude": "https://claude.ai/new",
+    "nix packages": "https://search.nixos.org/packages",
+    "spotify": "https://open.spotify.com/",
+    "softcatala":"https://www.softcatala.org/corrector/",
+    "chrome inspect": "chrome://inspect/#devices",
+    "myclientum": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/lsw/myclientum-new",
+      "dev": "https://dev.myclientum.com/admin",
+      "prod": "https://myclientum.com/admin"
+    },
+    "pam_mancoplana": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/mancoplana.cat/pam.mancoplana.cat",
+      "prod": "https://pam.mancoplana.cat"
+    },
+    "concurs_lactium": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/formatgeslactium.cat/concurs.formatgeslactium.cat",
+      "prod": "https://concurs.lactium.cat/admin/signin"
+    },
+    "myclientum app": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/lsw/app-myclientum"
+    },
+    "gesame": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/gesame/gesamefoodmachinery.com",
+      "dev": "https://dev.gesamefoodmachinery.com/",
+      "prod": "https://gesamefoodmachinery.com/"
+    },
+    "vicfires": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/vicfires",
+      "dev": "https://dev.vicfires.cat/admin/",
+      "prod": "https://vicfires.cat/admin/"
+    },
+    "garden_tona": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/garden-tona/produccio.gardentona.com",
+      "dev": "https://devgarden.lasevaweb.com/signin",
+      "prod": "https://produccio.gardentona.com/"
+    },
+    "garden_tona app": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/garden-tona/new-app-garden",
+      "gitlab old": "https://gitlab.com/lasevaweb_group/garden-tona/app-garden-tona"
+    },
+    "gestio_mancoplana": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/mancoplana.cat/gestio-mancoplana-cat",
+      "prod": "https://gestio.mancoplana.cat/admin"
+    },
+    "memoria_mancoplana": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/mancoplana.cat/gestio-mancoplana-cat",
+      "prod": "https://memoria.mancoplana.cat/"
+    },
+    "tacprod": {
+      "trello": "https://trello.com/b/HmXLVNIP/tacprod",
+      "gitlab": "https://gitlab.com/lasevaweb_group/tacosona/tacprod",
+      "dev": "https://dev2.tacprod.cat/",
+      "prod": "https://preprod.tacprod.cat/"
+    },
+    "tacprod crons": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/tacosona/crons-tacprod"
+    },
+    "senditum": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/lsw/senditum",
+      "prod": "https://senditum.cat/admin/campanyes"
+    },
+    "myproductium": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/lsw/myproductium",
+      "dev": "https://dev.myproductium.com/admin/gh/home",
+      "prod": "https://myproductium.com/admin/4424/2024/treballador"
+    },
+    "myproductium app": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/apps/my-productium"
+    },
+    "targecopy": {
+      "gitlab": "https://gitlab.com/targecopy/app-targecopy",
+      "prod": "https://virtual.targecopy.com/admin"
+    }
+  }
+}

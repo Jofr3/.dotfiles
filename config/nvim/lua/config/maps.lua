@@ -11,6 +11,6 @@ vim.g.maplocalleader = " "
 vim.keymap.set("n", "q", "<nop>")
 vim.keymap.set("n", "Q", "<nop>")
 
-vim.keymap.set("n", "<D-o>", function()
+vim.keymap.set("n", "<A-o>", function()
 	vim.diagnostic.open_float({ border = { "┌", "─", "┐", "│", "┘", "─", "└", "│" } })
 end)

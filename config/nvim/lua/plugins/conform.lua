@@ -11,6 +11,6 @@ return {
 		},
 	},
 	keys = {
-		{ mode = "n", "<D-;>", "<cmd>lua require('conform').format()<cr>" },
+		{ mode = "n", "<A-;>", "<cmd>lua require('conform').format()<cr>" },
 	},
 }

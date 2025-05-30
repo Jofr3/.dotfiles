@@ -16,10 +16,10 @@ return {
 		lazy = false,
 		opts = {
 			mappings = {
-				left = "<D-h>",
-				right = "<D-l>",
-				down = "<D-j>",
-				up = "<D-k>",
+				left = "<A-h>",
+				right = "<A-l>",
+				down = "<A-j>",
+				up = "<A-k>",
 
 				line_left = "",
 				line_right = "",

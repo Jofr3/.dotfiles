@@ -33,8 +33,9 @@ abbr rb sudo reboot now
 
 abbr tr tree
 abbr ff fastfetch
-abbr b bluetoothctl
 abbr ze zellij
+abbr b btop
+abbr p sudo lsof -i -P -n
 
 abbr gst git status
 abbr gad git add .

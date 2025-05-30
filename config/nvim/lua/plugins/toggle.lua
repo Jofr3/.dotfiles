@@ -16,6 +16,6 @@ return {
 		remove_default_inverses = true,
 	},
 	keys = {
-		{ mode = { "n", "v" }, "<D-a>", "<cmd>lua require('nvim-toggler').toggle()<cr>" },
+		{ mode = { "n", "v" }, "<A-a>", "<cmd>lua require('nvim-toggler').toggle()<cr>" },
 	},
 }

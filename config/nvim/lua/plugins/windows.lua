@@ -9,6 +9,6 @@ return {
 		},
 	},
 	keys = {
-		{ mode = "n", "<D-m>", "<cmd>WindowsMaximize<cr>" },
+		{ mode = "n", "<A-m>", "<cmd>WindowsMaximize<cr>" },
 	},
 }

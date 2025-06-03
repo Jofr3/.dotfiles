@@ -18,6 +18,10 @@ return {
 
 		vim.g.dbs = {
 			{
+				name = "myclientum",
+				url = "mysql://admin_crm_lsw:$Nok7n30@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/crm_lsw",
+			},
+			{
 				name = "myclientum dev",
 				url = "mysql://dev_myclientum:giX%250ZFrZ6dlLOrAe9D%212T2%40ps5tBzaY@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/dev_myclientum",
 			},

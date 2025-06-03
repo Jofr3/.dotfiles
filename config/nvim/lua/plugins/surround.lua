@@ -1,5 +1,5 @@
 return {
-	"echasnovski/mini.comment",
+	"echasnovski/mini.surround",
 	enabled = true,
 	lazy = false,
 }

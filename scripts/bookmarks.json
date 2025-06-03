@@ -79,6 +79,8 @@
       "gitlab": "https://gitlab.com/targecopy/app-targecopy",
       "dev": "https://dev.virtual.targecopy.com/admin",
       "prod": "https://virtual.targecopy.com/admin"
-    }
+    },
+    "fontawesome": "https://fontawesome.com/icons",
+    "translate": "https://translate.google.com/?sl=ca&tl=en&op=translate"
   }
 }

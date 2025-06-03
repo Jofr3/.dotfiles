@@ -5,19 +5,18 @@ local config = wezterm.config_builder()
 config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
 config.use_fancy_tab_bar = false
 config.show_new_tab_button_in_tab_bar = false
--- config.force_reverse_video_cursor = true
+config.force_reverse_video_cursor = true
 config.hide_tab_bar_if_only_one_tab = true
 config.disable_default_key_bindings = true
 config.tab_max_width = 100000
+config.line_height = 0.9
 config.font_size = 11
-config.font = wezterm.font 'FiraCodeNerdFontMono'
+config.font = wezterm.font("FiraCodeNerdFontMono")
 config.colors = {
 	background = "#282828",
-  cursor_fg = "#928374",
-  cursor_bg = "#928374",
-	tab_bar = { background = "#282828" }
+	tab_bar = { background = "#282828" },
 }
-config.window_close_confirmation = 'NeverPrompt'
+config.window_close_confirmation = "NeverPrompt"
 
 function Tab_title(tab_info)
 	local title = tab_info.tab_title
@@ -27,9 +26,15 @@ function Tab_title(tab_info)
 	return tab_info.active_pane.title
 end
 
+function Basename(s)
+	return string.gsub(s, "(.*[/\\])(.*)", "%2")
+end
+
 wezterm.on("format-tab-title", function(tab)
-	local title = Tab_title(tab)
 	local index = tab.tab_index + 1
+
+	local pane = tab.active_pane
+	local title = Basename(pane.foreground_process_name)
 	if tab.is_active then
 		return {
 			{ Background = { Color = "#3C3836" } },
@@ -69,7 +74,17 @@ config.keys = {
 	{
 		mods = "SUPER",
 		key = "c",
-		action = wezterm.action.CloseCurrentTab({ confirm = false }),
+		action = act.CloseCurrentTab({ confirm = false }),
+	},
+	{
+		mods = "CTRL|SHIFT",
+		key = "c",
+		action = act.CopyTo("Clipboard"),
+	},
+	{
+		mods = "CTRL|SHIFT",
+		key = "v",
+		action = act.PasteFrom("Clipboard"),
 	},
 	{
 		mods = "SUPER",

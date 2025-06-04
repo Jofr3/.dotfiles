@@ -8,6 +8,7 @@
   "key-analyzer.nvim": { "branch": "main", "commit": "4e4bef34498e821bcbd5203f44db8b67e4f10e04" },
   "lazy.nvim": { "branch": "main", "commit": "6c3bda4aca61a13a9c63f1c1d1b16b9d3be90d7a" },
   "middleclass": { "branch": "master", "commit": "9fab4d5bca67262614960960ca35c4740eb2be2c" },
+  "mini-git": { "branch": "main", "commit": "a0ddc6302f654523053c28109e8b6dbbf05c08f8" },
   "mini.comment": { "branch": "main", "commit": "22ee9f6be1c78bcebe009a564758e5b6df08903b" },
   "mini.diff": { "branch": "main", "commit": "fcde3f00a32437ffebad23d357564d7c4df9f18e" },
   "mini.extra": { "branch": "main", "commit": "69ba107ac8712820f3ad391d327f62b57fead277" },

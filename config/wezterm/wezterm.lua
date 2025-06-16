@@ -1,7 +1,6 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
--- config.default_cursor_style = "SteadyBar"
 config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
 config.use_fancy_tab_bar = false
 config.show_new_tab_button_in_tab_bar = false
@@ -50,16 +49,19 @@ end)
 
 local sessionizer = wezterm.plugin.require("https://github.com/mikkasendke/sessionizer.wezterm")
 
+local HOME = wezterm.home_dir
 local my_schema = {
 	{ label = "default", id = "default" },
-	sessionizer.FdSearch(wezterm.home_dir .. "/lsw"),
-	sessionizer.FdSearch(wezterm.home_dir .. "/.dotfiles/config"),
-	wezterm.home_dir .. "/nix",
-	wezterm.home_dir .. "/.dotfiles",
-	wezterm.home_dir .. "/Dropbox/notes",
+	sessionizer.FdSearch(HOME .. "/lsw"),
+	HOME .. "/nix",
+	HOME .. "/.dotfiles",
+	HOME .. "/.dotfiles/config/nvim",
+	HOME .. "/.dotfiles/config/fish",
+	HOME .. "/.dotfiles/config/wezterm",
+	HOME .. "/Dropbox/notes",
 
 	processing = sessionizer.for_each_entry(function(entry)
-		entry.label = entry.label:gsub(wezterm.home_dir, "~")
+		entry.label = entry.label:gsub(HOME, "~")
 	end),
 }
 

@@ -14,3 +14,5 @@ vim.keymap.set("n", "Q", "<nop>")
 vim.keymap.set("n", "<A-o>", function()
 	vim.diagnostic.open_float({ border = { "┌", "─", "┐", "│", "┘", "─", "└", "│" } })
 end)
+
+vim.keymap.set("n", "<A-x>", "<cmd>vnew<cr>")

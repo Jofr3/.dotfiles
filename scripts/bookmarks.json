@@ -35,7 +35,8 @@
     "vicfires": {
       "gitlab": "https://gitlab.com/lasevaweb_group/vicfires",
       "dev": "https://dev.vicfires.cat/admin/",
-      "prod": "https://vicfires.cat/admin/"
+      "prod": "https://vicfires.cat/admin/",
+      "trello": "https://trello.com/b/QuGtUNO2/web-i-app"
     },
     "garden_tona": {
       "gitlab": "https://gitlab.com/lasevaweb_group/garden-tona/produccio.gardentona.com",

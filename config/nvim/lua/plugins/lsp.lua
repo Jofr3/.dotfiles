@@ -33,5 +33,6 @@ return {
 		lspconfig.jsonls.setup({ capabilities = capabilities })
 		lspconfig.ts_ls.setup({ capabilities = capabilities })
 		lspconfig.typos_lsp.setup({ capabilities = capabilities })
+		lspconfig.markdown_oxide.setup({ capabilities = capabilities })
 	end,
 }

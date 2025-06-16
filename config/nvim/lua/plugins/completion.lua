@@ -2,19 +2,20 @@ return {
 	"saghen/blink.cmp",
 	enabled = true,
 	lazy = false,
-  version = "1.*",
+	version = "1.*",
 	opts = {
-    completion = {
-      menu = {
-        draw = {
-          columns = { 
-            { "label", gap = 1 }, { "kind_icon" } 
-          }
-        },
-      },
-    },
+		completion = {
+			menu = {
+				draw = {
+					columns = {
+						{ "label", gap = 1 },
+						{ "kind_icon" },
+					},
+				},
+			},
+		},
 		sources = {
-			default = { "lsp", "path", "buffer",   "dadbod"},
+			default = { "lsp", "path", "buffer", "dadbod" },
 			per_filetype = {
 				sql = { "dadbod", "buffer" },
 			},

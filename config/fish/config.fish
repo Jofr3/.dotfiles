@@ -48,8 +48,8 @@ function fzf-cd
     set -l directories (
         fd --type d --max-depth 1 --min-depth 1 . ~/lsw/
         printf "%s\n" \
-            "~/.dotfiles/scripts" \
-            "~/.dotfiles"
+            "~/.dotfiles" \
+            "~/.dotfiles/scripts"
         fd --type d --max-depth 1 --min-depth 1 . ~/.dotfiles/config/
         printf "%s\n" \
             "~/Dropbox/notes" \

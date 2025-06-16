@@ -26,14 +26,12 @@ abbr c clear
 abbr e exit
 abbr ! sudo !!
 abbr to touch
-abbr mk mkdir
 abbr se sudoedit
 abbr sd shutdown now 
 abbr rb sudo reboot now 
 
 abbr tr tree
 abbr ff fastfetch
-abbr ze zellij
 abbr b btop
 abbr p sudo lsof -i -P -n
 
@@ -46,6 +44,32 @@ abbr ns nix-shell --run fish
 abbr nr sudo nixos-rebuild switch --flake /home/jofre/nix/.#nixos
 abbr hr home-manager switch --flake /home/jofre/nix/.#jofre@nixos
 
+function fzf-cd
+    set -l directories (
+        fd --type d --max-depth 1 --min-depth 1 . ~/lsw/
+        printf "%s\n" \
+            "~/.dotfiles/scripts" \
+            "~/.dotfiles"
+        fd --type d --max-depth 1 --min-depth 1 . ~/.dotfiles/config/
+        printf "%s\n" \
+            "~/Dropbox/notes" \
+            "~/Downloads" \
+            "~/Documents" \
+            "~/nix" 
+    )
+
+    set -l display_directories
+    for dir in $directories
+        set -a display_directories (string replace -- "$HOME" "~" "$dir")
+    end
+
+    set -l selected_dir (printf "%s\n" $display_directories | sk)
+
+    if test -n "$selected_dir"
+      cd (string replace '~' "$HOME" "$selected_dir")
+    end
+end
+
 # Aliases
 alias n="nvim"
 
@@ -53,7 +77,5 @@ alias ls="exa --icons --group-directories-first"
 alias grep="grep --color='auto'"
 
 # Keybinds
-# bind \en "nvim -c ':Oil'"
-# bind \ef "nvim -c ':Telescope find_files'"
-# bind \ev "nvim -c ':Telescope live_grep'"
-bind \ec -e
+bind \ee "nvim"
+bind \ef fzf-cd

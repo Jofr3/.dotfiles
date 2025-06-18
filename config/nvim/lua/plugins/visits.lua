@@ -1,6 +1,6 @@
 return {
 	"echasnovski/mini.visits",
-	enabled = true,
+	enabled = false,
 	lazy = false,
 	opts = { },
 	init = function()
@@ -29,7 +29,7 @@ return {
 
 
 	keys = {
-		{ mode = "n", "<A-s>", "<cmd>lua MiniVisits.select_path()<cr>" },
+		-- { mode = "n", "<A-s>", "<cmd>lua MiniVisits.select_path()<cr>" },
 
 		{ mode = "n", "<A-!>", "<cmd>lua MiniVisits.add_label('1')<cr>" },
 		{ mode = "n", "<A-@>", "<cmd>lua MiniVisits.add_label('2')<cr>" },

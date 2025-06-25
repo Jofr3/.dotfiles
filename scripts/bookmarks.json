@@ -2,7 +2,6 @@
   "bookmarks": {
     "cliq": "https://cliq.zoho.com/company/667424570/index.do",
     "gmail": "https://mail.google.com/mail/u/0/#inboxgmail",
-    "admin": "https://admin.lasevaweb.com/admin",
     "gitlab": "https://gitlab.com",
     "gemini": "https://gemini.google.com/app",
     "chat": "https://chat.openai.com/chat",
@@ -80,6 +79,11 @@
       "gitlab": "https://gitlab.com/targecopy/app-targecopy",
       "dev": "https://dev.virtual.targecopy.com/admin",
       "prod": "https://virtual.targecopy.com/admin"
+    },
+    "admin": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/lsw/new-admin-lsw",
+      "dev": "https://dev.admin.lasevaweb.com/admin",
+      "prod": "https://admin.lasevaweb.com/admin"
     },
     "fontawesome": "https://fontawesome.com/icons",
     "translate": "https://translate.google.com/?sl=ca&tl=en&op=translate"

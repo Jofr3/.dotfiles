@@ -55,6 +55,7 @@ function fzf-cd
             "~/Dropbox/notes" \
             "~/Downloads" \
             "~/Documents" \
+            "~/.ssh" \
             "~/nix" 
     )
 
@@ -67,6 +68,7 @@ function fzf-cd
 
     if test -n "$selected_dir"
       cd (string replace '~' "$HOME" "$selected_dir")
+      commandline -f repaint
     end
 end
 

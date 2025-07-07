@@ -1,0 +1,134 @@
+#!/bin/bash
+
+alias n="nvim"
+alias ff="fastfetch"
+alias b="btop"
+
+alias ..="cd .."
+
+alias sd="shutdown now"
+alias rb="sudo reboot now"
+
+alias p="sudo lsof -i -P -n"
+
+alias gst="git status"
+alias gad="git add ."
+alias gco="git commit -m"
+alias gpu="git push"
+
+alias ns="nix-shell"
+alias nd="nix develop"
+alias nr="sudo nixos-rebuild switch --flake /home/jofre/nix/.#nixos"
+alias hr="home-manager switch --flake /home/jofre/nix/.#jofre@nixos"
+
+alias ls="exa --icons --group-directories-first"
+alias lt="exa --tree --level=4 --icons --group-directories-first"
+alias grep="grep --color='auto'"
+
+###################################################################
+
+fzf-cd() {
+    local dirs selected_dir
+    
+    dirs=$(
+        {
+            fd --type d --max-depth 1 --min-depth 1 . ~/lsw/ 2>/dev/null
+            printf '%s\n' \
+                ~/.config \
+                ~/.dotfiles \
+                ~/.dotfiles/scripts \
+                ~/Dropbox/notes \
+                ~/Downloads \
+                ~/Documents \
+                ~/.ssh \
+                ~/nix
+            fd --type d --max-depth 1 --min-depth 1 . ~/.dotfiles/config/ 2>/dev/null
+        } | sed "s|^$HOME|~|"
+    )
+    
+    selected_dir=$(printf '%s\n' "$dirs" | fzf)
+    
+    if [[ -n $selected_dir ]]; then
+        cd "${selected_dir/#\~/$HOME}" || return 1
+    fi
+}
+
+gch() {
+    local branch
+    branch=$(git branch -a | grep -v HEAD | sed 's/^[* ] //' | sed 's/remotes\///' | sort -u | sk --prompt="Switch to branch: " --height=20)
+    
+    if [[ -n "$branch" ]]; then
+        # Remove 'origin/' prefix if present for remote branches
+        local clean_branch=$(echo "$branch" | sed 's/^origin\///')
+        git checkout "$clean_branch"
+    fi
+}
+
+###################################################################
+
+bind -x '"\ef": fzf-cd'
+
+###################################################################
+
+# Update window size after every command
+shopt -s checkwinsize
+
+# Perform file completion in a case insensitive fashion
+bind "set completion-ignore-case on"
+
+# Treat hyphens and underscores as equivalent
+bind "set completion-map-case on"
+#
+# Display matches for ambiguous patterns at first tab press
+bind "set show-all-if-ambiguous on"
+
+# Immediately add a trailing slash when autocompleting symlinks to directories
+bind "set mark-symlinked-directories on"
+
+# Append to the history file, don't overwrite it
+shopt -s histappend
+
+# Save multi-line commands as one command
+shopt -s cmdhist
+#
+# Record each line as it gets issued
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
+#
+# Huge history. Doesn't appear to slow things down, so why not?
+HISTSIZE=250000
+HISTFILESIZE=50000
+
+# Avoid duplicate entries
+HISTCONTROL="erasedups:ignoreboth"
+
+# Don't record some commands
+export HISTIGNORE="exit:ls:history:clear:ff:nvim"
+
+
+# Use standard ISO 8601 timestamp
+HISTTIMEFORMAT='%F %T '
+
+# Enable incremental history search with up/down arrows (also Readline goodness)
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
+bind '"\e[C": forward-char'
+bind '"\e[D": backward-char'
+
+# Prepend cd to directory names automatically
+shopt -s autocd 2> /dev/null
+# Correct spelling errors during tab-completion
+shopt -s dirspell 2> /dev/null
+# Correct spelling errors in arguments supplied to cd
+shopt -s cdspell 2> /dev/null
+
+###################################################################
+
+set_prompt() {
+    local cyan='\[\033[36m\]'
+    local reset='\[\033[0m\]'
+    local magenta='\[\033[35m\]'  
+
+    PS1=" ${cyan}\w${magenta} * ${reset}"
+}
+
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}set_prompt"

@@ -15,6 +15,9 @@ config.colors = {
 	background = "#282828",
 	tab_bar = { background = "#282828" },
 }
+-- config.font = wezterm.font("BigBlueTerm437 Nerd Font Mono")
+-- config.freetype_load_target = "Mono"
+-- config.freetype_render_target = "Mono"
 config.window_close_confirmation = "NeverPrompt"
 
 function Tab_title(tab_info)

@@ -1,27 +1,98 @@
 #!/bin/bash
 
-bookmarks_file="/home/jofre/.dotfiles/scripts/bookmarks.json"
+set -euo pipefail
 
-bookmarks=$(jq -r '.bookmarks | keys[]' $bookmarks_file)
-chosen=$(echo "$bookmarks" | tofi --fuzzy-match=true)
-has_children=$(jq --arg chosen "$chosen" '.bookmarks.[$chosen] | type == "object" or type == "array"' $bookmarks_file)
+readonly BOOKMARKS_FILE="${HOME}/.dotfiles/scripts/bookmarks.json"
+readonly BROWSER="vivaldi"
 
-if [ -z "$chosen" ]; then
-  exit 0
-fi
+error_exit() {
+    echo "Error: $1" >&2
+    exit 1
+}
 
-if [ $has_children == "false" ]; then
-  goto=$(jq -r --arg chosen "$chosen" '.bookmarks.[$chosen]' $bookmarks_file)
-else
-  children=$(jq -r --arg chosen "$chosen" '.bookmarks.[$chosen] | keys[]' $bookmarks_file)
-  child_chosen=$(echo "$children" | tofi --fuzzy-match=true)
-  goto=$(jq -r --arg chosen "$chosen" --arg child_chosen "$child_chosen" '.bookmarks.[$chosen].[$child_chosen]' $bookmarks_file)
+validate_dependencies() {
+    local deps=("jq" "tofi" "$BROWSER")
+    for dep in "${deps[@]}"; do
+        command -v "$dep" >/dev/null 2>&1 || error_exit "Required dependency '$dep' not found"
+    done
+}
 
-  if [ -z "$child_chosen" ]; then
-    exit 0
-  fi
-fi
+validate_bookmarks_file() {
+    [[ -f "$BOOKMARKS_FILE" ]] || error_exit "Bookmarks file not found: $BOOKMARKS_FILE"
+    [[ -r "$BOOKMARKS_FILE" ]] || error_exit "Cannot read bookmarks file: $BOOKMARKS_FILE"
+}
 
-vivaldi $goto
-exit 0
+get_selection() {
+    local items="$1"
+    local selection
+    selection=$(echo "$items" | tofi --fuzzy-match=true)
+    echo "$selection"
+}
 
+has_children() {
+    local bookmark="$1"
+    jq --exit-status --arg bookmark "$bookmark" \
+        '.bookmarks[$bookmark] | type == "object" or type == "array"' \
+        "$BOOKMARKS_FILE" >/dev/null 2>&1
+}
+
+get_bookmark_url() {
+    local bookmark="$1"
+    local child="${2:-}"
+    
+    if [[ -n "$child" ]]; then
+        jq -r --arg bookmark "$bookmark" --arg child "$child" \
+            '.bookmarks[$bookmark][$child]' "$BOOKMARKS_FILE"
+    else
+        jq -r --arg bookmark "$bookmark" \
+            '.bookmarks[$bookmark]' "$BOOKMARKS_FILE"
+    fi
+}
+
+get_bookmark_list() {
+    local parent="${1:-}"
+    
+    if [[ -n "$parent" ]]; then
+        jq -r --arg parent "$parent" \
+            '.bookmarks[$parent] | keys[]' "$BOOKMARKS_FILE"
+    else
+        jq -r '.bookmarks | keys[]' "$BOOKMARKS_FILE"
+    fi
+}
+
+launch_browser() {
+    local url="$1"
+    [[ -n "$url" && "$url" != "null" ]] || error_exit "Invalid URL: $url"
+    exec "$BROWSER" "$url"
+}
+
+main() {
+    validate_dependencies
+    validate_bookmarks_file
+    
+    local bookmarks
+    bookmarks=$(get_bookmark_list) || error_exit "Failed to read bookmarks"
+    
+    local chosen
+    chosen=$(get_selection "$bookmarks")
+    [[ -n "$chosen" ]] || exit 0
+    
+    local url
+    
+    if has_children "$chosen"; then
+        local children
+        children=$(get_bookmark_list "$chosen") || error_exit "Failed to read bookmark children"
+        
+        local child_chosen
+        child_chosen=$(get_selection "$children")
+        [[ -n "$child_chosen" ]] || exit 0
+        
+        url=$(get_bookmark_url "$chosen" "$child_chosen")
+    else
+        url=$(get_bookmark_url "$chosen")
+    fi
+    
+    launch_browser "$url"
+}
+
+main "$@"

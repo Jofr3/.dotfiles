@@ -1,7 +1,7 @@
 # Settings
 set -g fish_greeting
 set -U fish_prompt_pwd_dir_length 0
-set -g fish_history_ignore "exit" "ls" "history" "clear" "ff" "nvim"
+set -g fish_history_ignore "exit" "ls" "history" "clear" "ff" "nvim" "nr" "hr"
 set -g fish_autosuggestion_enabled 0
 set -g fish_key_bindings fish_vi_key_bindings
 
@@ -31,12 +31,6 @@ alias rb="sudo reboot now"
 
 alias p="sudo lsof -i -P -n"
 
-alias gst="git status"
-alias gad="git add ."
-alias gco="git commit -m"
-alias gpu="git push"
-
-alias ns="nix-shell"
 alias nd="nix develop"
 alias nr="sudo nixos-rebuild switch --flake /home/jofre/nix/.#nixos"
 alias hr="home-manager switch --flake /home/jofre/nix/.#jofre@nixos"
@@ -46,5 +40,8 @@ alias lt="exa --tree --level=4 --icons --group-directories-first"
 alias grep="grep --color='auto'"
 
 # Keybinds
+bind -M insert \ee "nvim"
 bind \ee "nvim"
+
+bind -M insert \ef super-cd
 bind \ef super-cd

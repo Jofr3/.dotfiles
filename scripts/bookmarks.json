@@ -85,7 +85,13 @@
       "dev": "https://dev.admin.lasevaweb.com/admin",
       "prod": "https://admin.lasevaweb.com/admin"
     },
+    "arete": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/aretesegonama.cat/analytics.aretesegonama.cat",
+      "prod": "https://analytics.aretesegonama.cat/admin"
+    },
     "fontawesome": "https://fontawesome.com/icons",
-    "translate": "https://translate.google.com/?sl=ca&tl=en&op=translate"
+    "translate": "https://translate.google.com/?sl=ca&tl=en&op=translate",
+    "wikimedia": "https://www.wikimedia.org",
+    "dictionary": "https://www.wiktionary.org"
   }
 }

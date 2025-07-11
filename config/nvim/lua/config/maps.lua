@@ -1,12 +1,8 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- vim.keymap.set("v", "<C-C>", "\"+y")
--- vim.keymap.set({ "n", "v" }, "<C-V>", "\"+p")
--- vim.keymap.set("i", "<C-V>", "<esc>\"+p")
-
--- vim.keymap.set("x", "<A-p>", "\"_dP")
--- vim.keymap.set({ "n", "v" }, "<A-d>", "\"_d")
+vim.keymap.set("n", "gv", "<cmd>vs <cfile><cr>")
+vim.keymap.set("n", "gx", "<cmd>split <cfile><cr>")
 
 vim.keymap.set("n", "q", "<nop>")
 vim.keymap.set("n", "Q", "<nop>")
@@ -16,3 +12,7 @@ vim.keymap.set("n", "<A-o>", function()
 end)
 
 vim.keymap.set("n", "<A-x>", "<cmd>vnew<cr>")
+
+vim.keymap.set({ "n", "i" }, "<A-t>", function()
+	vim.api.nvim_put({ os.date("%Y%m%d%H%M%S") .. ".md" }, "c", true, true)
+end, { noremap = true, silent = true })

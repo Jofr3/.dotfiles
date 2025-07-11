@@ -49,3 +49,5 @@ vim.opt.lazyredraw = true
 vim.opt.shadafile = "NONE"
 
 vim.diagnostic.config({ virtual_text = false, signs = false })
+
+vim.opt.switchbuf = "vsplit"

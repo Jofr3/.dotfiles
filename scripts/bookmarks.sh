@@ -3,7 +3,7 @@
 set -euo pipefail
 
 readonly BOOKMARKS_FILE="${HOME}/.dotfiles/scripts/bookmarks.json"
-readonly BROWSER="vivaldi"
+readonly BROWSER="qutebrowser"
 
 error_exit() {
     echo "Error: $1" >&2

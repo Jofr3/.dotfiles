@@ -1,7 +1,7 @@
 return {
 	"echasnovski/mini.files",
 	version = "*",
-	enabled = true,
+	enabled = false,
 	lazy = false,
 	opts = {
 		mappings = {

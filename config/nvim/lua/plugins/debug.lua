@@ -6,7 +6,7 @@ return {
 		"nvim-neotest/nvim-nio",
 		"theHamsta/nvim-dap-virtual-text",
 	},
-	lazy = false,
+	lazy = true,
 	config = function()
 		local dap = require("dap")
 		dap.configurations.lua = {

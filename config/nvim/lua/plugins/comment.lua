@@ -1,5 +1,6 @@
 return {
-	"echasnovski/mini.comment",
-	enabled = true,
-	lazy = false,
+  "folke/ts-comments.nvim",
+  enabled = true,
+  event = "VeryLazy",
+  opts = {},
 }

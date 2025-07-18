@@ -10,5 +10,8 @@ settings:
     https://claude.ai: access-paste
     https://gemini.google.com: access-paste
     https://github.com: access-paste
+    https://translate.google.com: access-paste
   content.notifications.enabled:
     https://dev.admin.lasevaweb.com: true
+  content.register_protocol_handler:
+    https://mail.google.com?extsrc=mailto&url=%25s: false

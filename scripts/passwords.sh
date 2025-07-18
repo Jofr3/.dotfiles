@@ -39,7 +39,7 @@ get_login_credentials() {
         error_exit "Username or password not found for $selected_name"
     fi
     
-    echo -n "$password" | wl-copy
+    echo -n "$username" | wl-copy
 
     echo "$username" > /tmp/username
     echo "$password" > /tmp/password

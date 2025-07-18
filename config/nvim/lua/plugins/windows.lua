@@ -1,7 +1,8 @@
 return {
 	"anuvyklack/windows.nvim",
 	enabled = false,
-	lazy = false,
+	-- lazy = false,
+  event = "VeryLazy",
 	dependencies = { "anuvyklack/middleclass" },
 	opts = {
 		autowidth = {

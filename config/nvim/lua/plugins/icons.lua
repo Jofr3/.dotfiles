@@ -2,6 +2,6 @@ return {
 	"echasnovski/mini.icons",
 	version = "*",
 	enabled = true,
-	lazy = false,
+	lazy = true,
 	opts = {},
 }

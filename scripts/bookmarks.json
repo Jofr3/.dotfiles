@@ -51,7 +51,7 @@
       "prod": "https://gestio.mancoplana.cat/admin"
     },
     "memoria_mancoplana": {
-      "gitlab": "https://gitlab.com/lasevaweb_group/mancoplana.cat/gestio-mancoplana-cat",
+      "gitlab": "https://gitlab.com/lasevaweb_group/mancoplana.cat/pam.mancoplana.cat",
       "prod": "https://memoria.mancoplana.cat/"
     },
     "tacprod": {

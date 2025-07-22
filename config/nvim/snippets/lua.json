@@ -7,7 +7,7 @@
     "scope": "lua"
   },
   "pv": {
-    "prefix": "pv",
+    "prefix": "pi",
     "body": [
       "print(vim.inspect($1))"
     ],

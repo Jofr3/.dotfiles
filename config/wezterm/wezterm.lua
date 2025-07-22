@@ -60,7 +60,9 @@ local my_schema = {
 	HOME .. "/.dotfiles",
 	HOME .. "/.dotfiles/config/nvim",
 	HOME .. "/.dotfiles/config/fish",
-	HOME .. "/.dotfiles/config/wezterm",
+	HOME .. "/.dotfiles/config/fish",
+	HOME .. "/projects/sftp-nvim",
+	HOME .. "/projects/needle",
 	HOME .. "/Dropbox/notes",
 
 	processing = sessionizer.for_each_entry(function(entry)

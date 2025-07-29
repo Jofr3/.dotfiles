@@ -61,7 +61,7 @@ local my_schema = {
 	HOME .. "/.dotfiles/config/nvim",
 	HOME .. "/.dotfiles/config/fish",
 	HOME .. "/.dotfiles/config/fish",
-	HOME .. "/projects/sftp-nvim",
+	HOME .. "/projects/sftp.nvim",
 	HOME .. "/projects/needle",
 	HOME .. "/Dropbox/notes",
 

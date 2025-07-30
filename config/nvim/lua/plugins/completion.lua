@@ -1,7 +1,7 @@
 return {
 	"saghen/blink.cmp",
 	enabled = true,
-	lazy = false,
+	lazy = true,
 	version = "1.*",
 	opts = {
 		completion = {

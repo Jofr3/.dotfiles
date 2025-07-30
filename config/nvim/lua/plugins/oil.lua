@@ -1,7 +1,7 @@
 return {
 	"stevearc/oil.nvim",
 	enabled = false,
-	lazy = false,
+	lazy = true,
 	opts = {
 		win_options = {
 			signcolumn = "no",

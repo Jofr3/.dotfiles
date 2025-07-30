@@ -1,8 +1,7 @@
 return {
 	"nguyenvukhang/nvim-toggler",
 	enabled = true,
-	-- lazy = false,
-  event = "VeryLazy",
+	lazy = true,
 	opts = {
 		inverses = {
 			["true"] = "false",

@@ -1,6 +1,5 @@
 return {
-	"sftp.nvim",
-	dev = true,
+	"Jofr3/sftp.nvim",
 	enabled = true,
 	lazy = false,
 	opts = {

@@ -2,9 +2,7 @@ return {
 	"Jofr3/needle",
   enabled = true,
 	lazy = false,
-	config = function()
-		require("needle").setup()
-	end,
+  opts = {},
 	keys = {
 		{ mode = "n", "<A-q>", "<cmd>lua require('needle.mark').jump_to_mark(1)<cr>" },
 		{ mode = "n", "<A-w>", "<cmd>lua require('needle.mark').jump_to_mark(2)<cr>" },

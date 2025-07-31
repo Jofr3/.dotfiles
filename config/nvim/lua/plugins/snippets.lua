@@ -3,7 +3,7 @@ return {
 	version = "v2.*",
 	build = "make install_jsregexp",
 	enabled = true,
-	lazy = true,
+	lazy = false,
 	init = function()
 		require("luasnip.loaders.from_vscode").load_standalone({ path = "~/.config/nvim/snippets/javascript.json" })
 		require("luasnip.loaders.from_vscode").load_standalone({ path = "~/.config/nvim/snippets/lua.json" })

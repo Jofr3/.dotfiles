@@ -1,7 +1,7 @@
 return {
 	"mrjones2014/smart-splits.nvim",
 	enabled = true,
-	lazy = true,
+	lazy = false,
 	opts = {
 		default_amount = 7,
 	},

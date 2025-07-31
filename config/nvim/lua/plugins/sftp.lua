@@ -1,7 +1,7 @@
 return {
 	"Jofr3/sftp.nvim",
 	enabled = true,
-	lazy = true,
+	lazy = false,
 	opts = {
 		projects = {
 			{

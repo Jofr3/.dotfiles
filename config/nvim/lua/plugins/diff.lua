@@ -1,7 +1,7 @@
 return {
 	"echasnovski/mini.diff",
 	enabled = true,
-	lazy = true,
+	lazy = false,
 	opts = {
 		view = {
 			style = "sign",

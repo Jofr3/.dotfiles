@@ -16,5 +16,6 @@ return {
 		vim.api.nvim_set_hl(0, "SignColumn", { bg = "#282828" })
 
 		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#282828" })
+		vim.api.nvim_set_hl(0, "StatusLine", { bg = "none" })
 	end,
 }

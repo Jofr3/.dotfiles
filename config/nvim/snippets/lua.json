@@ -12,5 +12,14 @@
       "print(vim.inspect($1))"
     ],
     "scope": "lua"
+  },
+  "for": {
+    "prefix": "for",
+    "body": [
+      "for key, $2 in pairs($1) do",
+      "\t$3",
+      "end"
+    ],
+    "scope": "lua"
   }
 }

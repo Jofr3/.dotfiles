@@ -1,10 +1,16 @@
 return {
 	"sftp-nvim",
-  dev = true,
-  enabled = true,
+	dev = true,
+	enabled = true,
 	lazy = false,
-	config = function()
-		require("sftp").setup()
-	end,
-	keys = { }
+	opts = {
+		projects = {
+			{
+				local_path = "/home/jofre/lsw/myclientum-new",
+				host = "myclientum_dev",
+				remote_path = "/dev.myclientum.com",
+			},
+		},
+	},
+	keys = {},
 }

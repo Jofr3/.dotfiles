@@ -19,6 +19,8 @@ set -x EDITOR nvim
 set -x XDG_CONFIG_HOME "/home/jofre/.config"
 set -x PATH $PATH "$HOME/.dotfiles/config/tofi/scripts/"
 
+set -x AVANTE_GEMINI_API_KEY "AIzaSyBxnxUzgwXiUzPYXMP-80136YpFFBHzg7I"
+
 # Abbreviations
 alias n="nvim"
 alias ff="fastfetch"

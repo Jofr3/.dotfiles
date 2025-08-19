@@ -1,8 +1,7 @@
 return {
   "echasnovski/mini.move",
   enabled = true,
-  -- lazy = false,
-  event = "VeryLazy",
+  lazy = false,
   opts = {
     mappings = {
       left = "<A-h>",

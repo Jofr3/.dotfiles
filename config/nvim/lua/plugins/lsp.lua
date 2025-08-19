@@ -1,7 +1,7 @@
 return {
 	"neovim/nvim-lspconfig",
 	enabled = true,
-	lazy = true,
+	lazy = false,
 	config = function()
 		vim.api.nvim_create_autocmd("LspAttach", {
 			callback = function()

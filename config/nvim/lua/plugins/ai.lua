@@ -1,6 +1,6 @@
 return {
 	"echasnovski/mini.ai",
 	enabled = true,
-	lazy = false,
+	lazy = true,
   opts = {}
 }

@@ -1,7 +1,7 @@
 return {
 	"stevearc/conform.nvim",
 	enabled = true,
-	lazy = false,
+	lazy = true,
 	opts = {
 		formatters_by_ft = {
 			lua = { "stylua", lsp_format = "fallback" },

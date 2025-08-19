@@ -1,0 +1,6 @@
+[user]
+  email = "jofrescari@gmail.com"
+  name = "Jofr3"
+
+[includeIf "gitdir:~/lsw/**/.git"]
+  path = ~/.config/git/config-lsw

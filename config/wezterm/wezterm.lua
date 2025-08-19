@@ -11,6 +11,7 @@ config.tab_max_width = 100000
 config.line_height = 0.9
 config.font_size = 11
 config.font = wezterm.font("FiraCodeNerdFontMono")
+config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
 config.colors = {
 	background = "#282828",
 	tab_bar = { background = "#282828" },
@@ -61,7 +62,7 @@ local my_schema = {
 	HOME .. "/.dotfiles/config/nvim",
 	HOME .. "/.dotfiles/config/fish",
 	HOME .. "/.dotfiles/config/fish",
-	HOME .. "/projects/sftp-nvim",
+	HOME .. "/projects/sftp.nvim",
 	HOME .. "/projects/needle",
 	HOME .. "/Dropbox/notes",
 

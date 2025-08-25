@@ -1,0 +1,21 @@
+system: "base16"
+name: "Github"
+author: "Defman21"
+variant: "light"
+palette:
+  base00: "#282828"  # bg
+  base01: "#3c3836"  # bg1
+  base02: "#504945"  # bg2
+  base03: "#665c54"  # bg3
+  base04: "#7c6f64"  # bg4
+  base05: "#928374"  # gray
+  base06: "#d5c4a1"  # fg2
+  base07: "#fbf1c7"  # fg0
+  base08: "#cc241d"  # red
+  base09: "#d65d0e"  # orange
+  base0A: "#d79921"  # yellow
+  base0B: "#98971a"  # green
+  base0C: "#689d6a"  # aqua
+  base0D: "#458588"  # blue
+  base0E: "#b16286"  # purple
+  base0F: "#a89984"  # gray (fg4)

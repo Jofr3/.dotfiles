@@ -57,10 +57,9 @@ local HOME = wezterm.home_dir
 local my_schema = {
 	{ label = "default", id = "default" },
 	sessionizer.FdSearch(HOME .. "/lsw"),
-	HOME .. "/nix",
 	HOME .. "/.dotfiles",
+	HOME .. "/.dotfiles/config/nix",
 	HOME .. "/.dotfiles/config/nvim",
-	HOME .. "/.dotfiles/config/fish",
 	HOME .. "/.dotfiles/config/fish",
 	HOME .. "/projects/sftp.nvim",
 	HOME .. "/projects/needle",

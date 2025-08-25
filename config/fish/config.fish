@@ -34,8 +34,8 @@ alias rb="sudo reboot now"
 alias p="sudo lsof -i -P -n"
 
 alias nd="nix develop"
-alias nr="sudo nixos-rebuild switch --flake /home/jofre/nix/.#nixos"
-alias hr="home-manager switch --flake /home/jofre/nix/.#jofre@nixos"
+alias nr="sudo nixos-rebuild switch --flake /home/jofre/.dotfiles/config/nix/.#nixos"
+alias hr="home-manager switch --flake /home/jofre/.dotfiles/config/nix/.#jofre@nixos"
 
 alias ls="exa --icons --group-directories-first"
 alias lt="exa --tree --level=4 --icons --group-directories-first"

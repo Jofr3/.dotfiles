@@ -7,15 +7,14 @@
 config_version: 2
 settings:
   content.javascript.clipboard:
-    https://gemini.google.com: access-paste
-    https://github.com: access-paste
-    https://translate.google.com: access-paste
     https://chatgpt.com: access-paste
     https://claude.ai: access-paste
     https://gemini.google.com: access-paste
     https://github.com: access-paste
     https://translate.google.com: access-paste
+    https://www.justetf.com: access-paste
   content.notifications.enabled:
+    https://admin.lasevaweb.com: false
     https://dev.admin.lasevaweb.com: true
     https://www.tiktok.com: false
   content.register_protocol_handler:

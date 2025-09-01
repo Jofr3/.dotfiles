@@ -24,6 +24,11 @@ return {
 				host = "memoria_mancoplana",
 				remote_path = "/pam.mancoplana.cat",
 			},
+			{
+				local_path = "/home/jofre/lsw/gardentona",
+				host = "garden_tona",
+				remote_path = "/devgarden.lasevaweb.com",
+			},
 		},
 	},
 }

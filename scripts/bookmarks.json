@@ -94,6 +94,7 @@
     "translate": "https://translate.google.com/?sl=ca&tl=en&op=translate",
     "wikimedia": "https://www.wikimedia.org",
     "dictionary": "https://www.wiktionary.org",
-    "books": "https://play.google.com/books"
+    "books": "https://play.google.com/books",
+    "ibkr": "https://www.interactivebrokers.ie"
   }
 }

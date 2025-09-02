@@ -13,6 +13,6 @@ end)
 
 vim.keymap.set("n", "<A-x>", "<cmd>vnew<cr>")
 
-vim.keymap.set({ "n", "i" }, "<A-t>", function()
-	vim.api.nvim_put({ os.date("%Y%m%d%H%M%S") .. ".md" }, "c", true, true)
-end, { noremap = true, silent = true })
+-- vim.keymap.set({ "n", "i" }, "<A-t>", function()
+-- 	vim.api.nvim_put({ os.date("%Y%m%d%H%M%S") .. ".md" }, "c", true, true)
+-- end, { noremap = true, silent = true })

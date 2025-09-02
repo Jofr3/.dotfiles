@@ -9,8 +9,7 @@ function super-cd
                 "~/Dropbox/notes" \
                 "~/Downloads" \
                 "~/Documents" \
-                "~/.ssh" \
-                "~/nix"
+                "~/.ssh"
             fd --type d --max-depth 1 --min-depth 1 . ~/.dotfiles/config/
         end | string replace -- "$HOME" "~" | sk
     )

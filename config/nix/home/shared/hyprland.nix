@@ -2,7 +2,7 @@
   wayland.windowManager.hyprland = {
     enable = true;
     settings = {
-      "$mod" = "MOD3";
+      "$mod" = "SUPER";
 
       animations = { enabled = false; };
 

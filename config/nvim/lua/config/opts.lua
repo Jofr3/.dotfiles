@@ -12,7 +12,7 @@ vim.opt.signcolumn = 'yes'
 
 vim.opt.updatetime = 50
 
-vim.opt.timeoutlen = 300
+vim.opt.timeoutlen = 1300
 
 vim.opt.splitright = true
 vim.opt.splitbelow = true

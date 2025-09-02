@@ -8,17 +8,18 @@ config.force_reverse_video_cursor = true
 config.hide_tab_bar_if_only_one_tab = true
 config.disable_default_key_bindings = true
 config.tab_max_width = 100000
-config.line_height = 0.9
-config.font_size = 11
-config.font = wezterm.font("FiraCodeNerdFontMono")
+
+config.font = wezterm.font("Tamzen")
+
+-- config.font = wezterm.font("FiraCodeNerdFontMono")
+-- config.font_size = 11
+
 config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
 config.colors = {
 	background = "#282828",
 	tab_bar = { background = "#282828" },
 }
--- config.font = wezterm.font("BigBlueTerm437 Nerd Font Mono")
--- config.freetype_load_target = "Mono"
--- config.freetype_render_target = "Mono"
+
 config.window_close_confirmation = "NeverPrompt"
 
 function Tab_title(tab_info)
@@ -72,14 +73,16 @@ local my_schema = {
 
 local act = wezterm.action
 
+local mod = "ALT|SHIFT"
+
 config.keys = {
 	{
-		mods = "SUPER",
+		mods = mod,
 		key = "Enter",
 		action = act.SpawnTab("CurrentPaneDomain"),
 	},
 	{
-		mods = "SUPER",
+		mods = mod,
 		key = "c",
 		action = act.CloseCurrentTab({ confirm = false }),
 	},
@@ -94,7 +97,7 @@ config.keys = {
 		action = act.PasteFrom("Clipboard"),
 	},
 	{
-		mods = "SUPER",
+		mods = mod,
 		key = "f",
 		action = sessionizer.show(my_schema),
 	},
@@ -103,7 +106,7 @@ config.keys = {
 for i = 1, 8 do
 	table.insert(config.keys, {
 		key = tostring(i),
-		mods = "SUPER",
+		mods = mod,
 		action = act.ActivateTab(i - 1),
 	})
 end

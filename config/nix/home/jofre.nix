@@ -27,6 +27,7 @@
 
       syncthing
       gemini-cli
+      usbutils
     ];
   };
 

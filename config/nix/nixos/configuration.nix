@@ -21,15 +21,8 @@
   fonts.packages = with pkgs;
     [
       nerd-fonts.fira-code
-
-      # to try
-      # creep
-      # tamzen
-      # curie
-      # envypn-font
-      # scientifica
-      # tewi-font
-      # uw-ttyp0
+      tamzen
+      creep
     ];
 
   environment.systemPackages = with pkgs; [
@@ -71,6 +64,8 @@
         "plugdev"
         "kvm"
         "adbusers"
+        "dialout"
+        "tty"
       ];
     };
   };

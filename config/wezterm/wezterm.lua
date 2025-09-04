@@ -9,7 +9,7 @@ config.hide_tab_bar_if_only_one_tab = true
 config.disable_default_key_bindings = true
 config.tab_max_width = 100000
 config.line_height = 0.9
-config.font_size = 11
+config.font_size = 10
 config.font = wezterm.font("FiraCodeNerdFontMono")
 config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
 config.colors = {

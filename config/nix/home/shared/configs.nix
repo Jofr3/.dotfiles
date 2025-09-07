@@ -10,6 +10,7 @@ in
     tofi.source = "${dotfiles}/config/tofi";
     nvim.source = "${dotfiles}/config/nvim";
     btop.source = "${dotfiles}/config/btop";
+    emacs.source = "${dotfiles}/config/emacs";
     kitty.source = "${dotfiles}/config/kitty";
     zellij.source = "${dotfiles}/config/zellij";
     wezterm.source = "${dotfiles}/config/wezterm";

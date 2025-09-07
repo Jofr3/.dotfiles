@@ -21,8 +21,9 @@
 
       bind = [
         "$mod, C, killactive"
-        "$mod, Return, exec, wezterm"
         "$mod, T, togglefloating"
+        "$mod, Return, exec, wezterm"
+        "$mod, E, exec, emacsclient -c"
         "$mod, F, exec, exec $(tofi-run --drun-launch=true --fuzzy-match=true)"
         "$mod, B, exec, bash /home/jofre/.dotfiles/scripts/bookmarks.sh"
         "$mod, L, exec, bash /home/jofre/.dotfiles/scripts/passwords.sh"

@@ -37,8 +37,8 @@ alias nd="nix develop"
 alias nr="sudo nixos-rebuild switch --flake /home/jofre/.dotfiles/config/nix/.#nixos"
 alias hr="home-manager switch --flake /home/jofre/.dotfiles/config/nix/.#jofre@nixos"
 
-alias ls="exa --icons --group-directories-first"
-alias lt="exa --tree --level=4 --icons --group-directories-first"
+# alias ls="exa --icons --group-directories-first"
+# alias lt="exa --tree --level=4 --icons --group-directories-first"
 alias grep="grep --color='auto'"
 
 # Keybinds

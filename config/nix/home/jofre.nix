@@ -28,6 +28,8 @@
       syncthing
       gemini-cli
       usbutils
+
+      emacs
     ];
   };
 
@@ -40,6 +42,7 @@
   };
 
   services = {
+    emacs.enable = true;
     hyprpaper = {
       enable = true;
       settings = {

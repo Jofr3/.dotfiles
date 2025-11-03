@@ -15,6 +15,7 @@ end
 
 # Exports
 set -x EDITOR nvim
+set -x SHELL (which fish)
 # Do in nixos config
 set -x XDG_CONFIG_HOME "/home/jofre/.config"
 set -x PATH $PATH "$HOME/.dotfiles/config/tofi/scripts/"

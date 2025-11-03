@@ -1,6 +1,6 @@
 return {
 	"stevearc/oil.nvim",
-	enabled = false,
+	enabled = true,
 	lazy = true,
 	opts = {
 		win_options = {
@@ -21,6 +21,6 @@ return {
 		},
 	},
 	keys = {
-		{ mode = "n", "<A-n>", "<cmd>lua require('oil').toggle_float()<cr>" },
+		{ mode = "n", "<A-n>", "<cmd>lua require('oil').open()<cr>" },
 	},
 }

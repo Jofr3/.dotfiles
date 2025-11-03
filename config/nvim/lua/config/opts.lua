@@ -3,12 +3,12 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 vim.opt.relativenumber = true
 
-vim.opt.mouse = 'a'
+vim.opt.mouse = "a"
 
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
-vim.opt.signcolumn = 'yes'
+vim.opt.signcolumn = "yes"
 
 vim.opt.updatetime = 50
 
@@ -17,7 +17,7 @@ vim.opt.timeoutlen = 300
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
-vim.opt.inccommand = 'split'
+vim.opt.inccommand = "split"
 
 vim.opt.breakindent = true
 
@@ -54,3 +54,5 @@ vim.opt.switchbuf = "vsplit"
 
 -- temp
 vim.opt.laststatus = 3
+
+vim.opt.shortmess:append("I")

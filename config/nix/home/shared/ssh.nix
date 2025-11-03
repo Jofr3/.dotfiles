@@ -64,6 +64,13 @@
           port = 22;
           identityFile = "~/.ssh/keys/jofre_key.pem";
         };
+
+        "garden_tona" = {
+          hostname = "devgarden.lasevaweb.com";
+          user = "devgarden_lasevaweb_com";
+          port = 22;
+          identityFile = "~/.ssh/keys/jofre_key.pem";
+        };
       };
     };
   };

@@ -61,7 +61,7 @@
       isNormalUser = true;
       extraGroups = [
         "wheel"
-        # "docker"
+        "docker"
         "networkmanager"
         "video"
         "audio"
@@ -75,8 +75,10 @@
     };
   };
 
+  programs.adb.enable = true;
+
   users.groups = {
-    # docker = { };
+    docker = { };
     plugdev = { };
   };
 
@@ -84,11 +86,13 @@
     enable = true;
     packages = [ pkgs.android-udev-rules ];
     extraRules = ''
-      SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", MODE="0666", GROUP="plugdev"
+      SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", MODE="0666", GROUP="adbusers"
+      SUBSYSTEM=="usb", ATTR{idVendor}=="2717", MODE="0666", GROUP="adbusers"
     '';
   };
 
-  # virtualisation.docker.enable = true;
+
+  virtualisation.docker.enable = true;
 
   time.timeZone = "Europe/Madrid";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -130,9 +134,7 @@
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
-  programs.ssh = {
-    startAgent = true;
-  };
+  programs.ssh = { startAgent = true; };
 
   services.gnome.gnome-keyring.enable = true;
 

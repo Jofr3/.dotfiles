@@ -17,5 +17,7 @@ return {
 
 		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#282828" })
 		vim.api.nvim_set_hl(0, "StatusLine", { bg = "none" })
+
+		vim.api.nvim_set_hl(0, "FylerFSDirectoryName", { fg = "#b8bb26" })
 	end,
 }

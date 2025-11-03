@@ -26,7 +26,12 @@
       tree-sitter-grammars.tree-sitter-zig
 
       syncthing
-      gemini-cli
+
+      himalaya
+      august
+
+      angular-language-server
+      vscode-langservers-extracted
     ];
   };
 

@@ -1,17 +1,13 @@
 function super-cd
     set -l selected_dir (
         begin
-            fd --type d --max-depth 1 --min-depth 1 . ~/lsw/
+            fd --type d --max-depth 1 --min-depth 1 . ~/lsw/ ~/projects/ ~/.dotfiles/config/
             printf "%s\n" \
                 "~/.config" \
                 "~/.dotfiles" \
                 "~/.dotfiles/scripts" \
-                "~/Dropbox/notes" \
-                "~/Downloads" \
-                "~/Documents" \
-                "~/.ssh" \
-                "~/nix"
-            fd --type d --max-depth 1 --min-depth 1 . ~/.dotfiles/config/
+                "~/notes/"
+
         end | string replace -- "$HOME" "~" | sk
     )
     

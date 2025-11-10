@@ -9,6 +9,7 @@ in
     fish.source = "${dotfiles}/config/fish";
     tofi.source = "${dotfiles}/config/tofi";
     nvim.source = "${dotfiles}/config/nvim";
+    tmux.source = "${dotfiles}/config/tmux";
     btop.source = "${dotfiles}/config/btop";
     kitty.source = "${dotfiles}/config/kitty";
     zellij.source = "${dotfiles}/config/zellij";

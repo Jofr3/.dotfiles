@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, lib, ... }: {
   imports = [
     ../home/shared/packages.nix
     ../home/shared/stylix.nix
@@ -19,19 +19,18 @@
       hyprpicker
 
       skim
-      postman
 
       libreoffice-qt
 
-      tree-sitter-grammars.tree-sitter-zig
-
       syncthing
-
-      himalaya
-      august
 
       angular-language-server
       vscode-langservers-extracted
+
+      tmux
+      openfortivpn
+
+      claude-code
     ];
   };
 

@@ -2,7 +2,7 @@
   wayland.windowManager.hyprland = {
     enable = true;
     settings = {
-      "$mod" = "MOD3";
+      "$mod" = "SUPER";
 
       animations = { enabled = false; };
 
@@ -14,14 +14,14 @@
 
       input = {
         kb_layout = "us,ca";
-        kb_options = "caps:hyper";
+        kb_options = "caps:escape";
         repeat_delay = 250;
         repeat_rate = 30;
       };
 
       bind = [
         "$mod, C, killactive"
-        "$mod, Return, exec, wezterm"
+        "$mod, Return, exec, foot"
         "$mod, T, togglefloating"
         "$mod, F, exec, exec $(tofi-run --drun-launch=true --fuzzy-match=true)"
         "$mod, B, exec, bash /home/jofre/.dotfiles/scripts/bookmarks.sh"
@@ -49,14 +49,14 @@
         "$mod, 9, workspace, 7"
         "$mod, 0, workspace, 8"
 
-        "$mod SUPER, 1, movetoworkspace, 1"
-        "$mod SUPER, 2, movetoworkspace, 2"
-        "$mod SUPER, 3, movetoworkspace, 3"
-        "$mod SUPER, 4, movetoworkspace, 4"
-        "$mod SUPER, 7, movetoworkspace, 5"
-        "$mod SUPER, 8, movetoworkspace, 6"
-        "$mod SUPER, 9, movetoworkspace, 7"
-        "$mod SUPER, 0, movetoworkspace, 8"
+        "$mod SHIFT, 1, movetoworkspace, 1"
+        "$mod SHIFT, 2, movetoworkspace, 2"
+        "$mod SHIFT, 3, movetoworkspace, 3"
+        "$mod SHIFT, 4, movetoworkspace, 4"
+        "$mod SHIFT, 7, movetoworkspace, 5"
+        "$mod SHIFT, 8, movetoworkspace, 6"
+        "$mod SHIFT, 9, movetoworkspace, 7"
+        "$mod SHIFT, 0, movetoworkspace, 8"
       ];
 
       bindm = [ "$mod, mouse:272, movewindow" "$mod, mouse:273, resizewindow" ];

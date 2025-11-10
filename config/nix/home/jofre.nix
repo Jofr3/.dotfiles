@@ -1,7 +1,7 @@
 { pkgs, lib, ... }: {
   imports = [
     ../home/shared/packages.nix
-    ../home/shared/stylix.nix
+   # ../home/shared/stylix.nix
     ../home/shared/configs.nix
     ../home/shared/hyprland.nix
     ../home/shared/ssh.nix
@@ -30,7 +30,7 @@
       tmux
       openfortivpn
 
-      claude-code
+      opencode
     ];
   };
 

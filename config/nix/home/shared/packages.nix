@@ -71,7 +71,7 @@
     wtype
     pinentry-tty
     openssl
-    nodejs_24
+    nodejs_22
     rsync
     gnumake
     xdg-desktop-portal-hyprland

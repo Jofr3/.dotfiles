@@ -149,17 +149,17 @@
   # package = config.boot.kernelPackages.nvidiaPackages.stable;
   # };
 
-  stylix = {
-    enable = true;
-    image = ../theme/wallpaper.jpg;
-    base16Scheme = ../theme/gruvbox.yml;
-    cursor = {
-      package = pkgs.vanilla-dmz;
-      name = "Vanilla-DMZ";
-      size = 24;
-    };
-    polarity = "dark";
-  };
+  # stylix = {
+  # enable = true;
+  #  image = ../theme/wallpaper.jpg;
+  #  base16Scheme = ../theme/gruvbox.yml;
+  #  cursor = {
+  #    package = pkgs.vanilla-dmz;
+  #    name = "Vanilla-DMZ";
+  #    size = 24;
+  #  };
+  #  polarity = "dark";
+  #};
 
   system.stateVersion = "25.05";
 }

@@ -132,9 +132,9 @@
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
-  # programs.ssh = { startAgent = true; };
+  programs.ssh = { startAgent = true; };
 
-  services.gnome.gnome-keyring.enable = true;
+  # services.gnome.gnome-keyring.enable = true;
 
   #services.xserver.videoDrivers = [ "nvidia" ];
 

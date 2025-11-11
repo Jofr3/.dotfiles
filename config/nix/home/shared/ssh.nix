@@ -3,12 +3,14 @@
   programs = {
     ssh = {
       enable = true;
-
-      controlMaster = "auto";
-      controlPath = "~/.ssh/control-%r@%h:%p";
-      controlPersist = "10m";
+      enableDefaultConfig = false;
 
       matchBlocks = {
+        "*" = {
+          controlMaster = "auto";
+          controlPath = "~/.ssh/control-%r@%h:%p";
+          controlPersist = "10m";
+        };
         "myclientum" = {
           hostname = "dev.myclientum.com";
           user = "dev_myclientum_com";

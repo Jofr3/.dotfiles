@@ -1,5 +1,5 @@
-{ inputs, lib, config, pkgs, ... }: {
-  imports = [ ./hardware-configuration.nix ];
+{ inputs, lib, pkgs, ... }: {
+  imports = [ ./hardware-configuration.nix inputs.stylix.nixosModules.stylix ];
 
   boot.loader.systemd-boot.enable = true;
 
@@ -18,23 +18,10 @@
   networking.hostName = "nixos";
   networking.firewall.enable = false;
 
-  fonts.packages = with pkgs;
-    [
-      nerd-fonts.fira-code
-
-      # to try
-      # creep
-      # tamzen
-      # curie
-      # envypn-font
-      # scientifica
-      # tewi-font
-      # uw-ttyp0
-    ];
+  fonts.packages = with pkgs; [ nerd-fonts.fira-code ];
 
   environment.systemPackages = with pkgs; [
     python312Packages.qtile
-    river
     wayland
     xwayland
     libinput
@@ -84,13 +71,11 @@
 
   services.udev = {
     enable = true;
-    packages = [ pkgs.android-udev-rules ];
     extraRules = ''
       SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", MODE="0666", GROUP="adbusers"
       SUBSYSTEM=="usb", ATTR{idVendor}=="2717", MODE="0666", GROUP="adbusers"
     '';
   };
-
 
   virtualisation.docker.enable = true;
 
@@ -108,7 +93,7 @@
     variant = "";
   };
 
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -149,17 +134,17 @@
   # package = config.boot.kernelPackages.nvidiaPackages.stable;
   # };
 
-  # stylix = {
-  # enable = true;
-  #  image = ../theme/wallpaper.jpg;
-  #  base16Scheme = ../theme/gruvbox.yml;
-  #  cursor = {
-  #    package = pkgs.vanilla-dmz;
-  #    name = "Vanilla-DMZ";
-  #    size = 24;
-  #  };
-  #  polarity = "dark";
-  #};
+  stylix = {
+    enable = true;
+    image = ../theme/wallpaper.jpg;
+    base16Scheme = ../theme/gruvbox.yml;
+    cursor = {
+      package = pkgs.vanilla-dmz;
+      name = "Vanilla-DMZ";
+      size = 24;
+    };
+    polarity = "dark";
+  };
 
   system.stateVersion = "25.05";
 }

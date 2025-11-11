@@ -1,8 +1,10 @@
-{ pkgs, ... }: {
+{ pkgs, inputs, ... }: {
+  imports = [ inputs.stylix.homeModules.stylix ];
+
   stylix = {
     enable = true;
-    image = ../../theme/wallpaper.jpg;
-    base16Scheme = ../../theme/gruvbox.yml;
+    image = ../theme/wallpaper.jpg;
+    base16Scheme = ../theme/gruvbox.yml;
     cursor = {
       package = pkgs.vanilla-dmz;
       name = "Vanilla-DMZ";

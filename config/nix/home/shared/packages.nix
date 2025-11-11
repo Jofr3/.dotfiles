@@ -19,6 +19,9 @@
     lsof
     openconnect
     jq
+    tmux
+    openfortivpn
+    opencode
 
     # neovim
     neovim
@@ -46,12 +49,16 @@
     foot
     discord
     thunderbird
+    dbeaver-bin
+    overskride
+    libreoffice
 
     # other
     slurp
     grim
     mako
     tofi
+    syncthing
 
     # dependencies
     git
@@ -82,10 +89,11 @@
     # lsp's
     lua-language-server
     nil
-    vscode-langservers-extracted
     typescript-language-server
     typos-lsp
     markdown-oxide
+    angular-language-server
+    vscode-langservers-extracted
 
     # formatters
     stylua

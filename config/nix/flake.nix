@@ -3,16 +3,14 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
- #   stylix = {
- #     url = "github:danth/stylix/release-25.05";
- #     inputs.nixpkgs.follows = "nixpkgs-stable";
- #   };
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    stylix = {
+      url = "github:nix-community/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
@@ -22,11 +20,10 @@
     in {
       # sudo nixos-rebuild switch --flake .#nixos
       nixosConfigurations = {
-        nixos = inputs.nixpkgs-stable.lib.nixosSystem {
+        nixos = nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs outputs; };
           modules = [ 
             ./nixos/configuration.nix 
-            # inputs.stylix.nixosModules.stylix 
           ];
         };
       };

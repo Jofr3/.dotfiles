@@ -1,45 +1,22 @@
-{ pkgs, lib, ... }: {
+{ pkgs, ... }: {
   imports = [
     ../home/shared/packages.nix
-   # ../home/shared/stylix.nix
     ../home/shared/configs.nix
     ../home/shared/hyprland.nix
     ../home/shared/ssh.nix
+    ../shared/stylix.nix
   ];
 
   home = {
     username = "jofre";
     homeDirectory = "/home/jofre";
 
-    packages = with pkgs; [
-      dbeaver-bin
-
-      overskride
-
-      hyprpicker
-
-      skim
-
-      libreoffice-qt
-
-      syncthing
-
-      angular-language-server
-      vscode-langservers-extracted
-
-      tmux
-      openfortivpn
-
-      opencode
-    ];
+    packages = with pkgs; [ hyprpicker skim ];
   };
 
   gtk = {
     enable = true;
     iconTheme = {
-      # name = "Papirus-Dark";
-      # package = pkgs.papirus-icon-theme;
-
       name = "Adwaita";
       package = pkgs.adwaita-icon-theme;
     };

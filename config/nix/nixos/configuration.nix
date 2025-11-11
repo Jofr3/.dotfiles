@@ -13,7 +13,20 @@
   };
 
   nix = let flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
-  in { settings = { experimental-features = "nix-command flakes"; }; };
+  in { 
+    settings = { 
+      experimental-features = "nix-command flakes";
+      substituters = [
+        "https://cache.nixos.org"
+        "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
+        "https://mirror.sjtu.edu.cn/nix-channels/store"
+      ];
+      trusted-public-keys = [
+        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      ];
+      connect-timeout = 60;
+    };
+  };
 
   networking.hostName = "nixos";
   networking.firewall.enable = false;
@@ -119,7 +132,7 @@
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
-  programs.ssh = { startAgent = true; };
+  # programs.ssh = { startAgent = true; };
 
   services.gnome.gnome-keyring.enable = true;
 
@@ -137,6 +150,7 @@
   stylix = {
     enable = true;
     image = ../theme/wallpaper.jpg;
+    # base16Scheme = "${pkgs.base16-schemes}/share/themes/tokyo-night-dark.yaml";
     base16Scheme = ../theme/gruvbox.yml;
     cursor = {
       package = pkgs.vanilla-dmz;

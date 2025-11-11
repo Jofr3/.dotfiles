@@ -4,7 +4,7 @@
     ../home/shared/configs.nix
     ../home/shared/hyprland.nix
     ../home/shared/ssh.nix
-    ../shared/stylix.nix
+    ../home/shared/stylix.nix
   ];
 
   home = {

@@ -5,6 +5,7 @@ return {
 	opts = {
 		inverses = {
 			["true"] = "false",
+			["enabled"] = "disabled",
 			["- [ ]"] = "- [X]",
 			["yes"] = "no",
 			["left"] = "right",
@@ -15,6 +16,7 @@ return {
 			[">"] = "<",
 			[">="] = "<=",
 			["=="] = "!=",
+
 		},
 		remove_default_keybinds = true,
 		remove_default_inverses = true,

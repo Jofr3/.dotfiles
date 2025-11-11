@@ -24,6 +24,7 @@ set -x PATH $PATH "$HOME/.dotfiles/config/tofi/scripts/"
 alias n="nvim"
 alias ff="fastfetch"
 alias b="btop"
+alias op="opencode"
 
 alias ..="cd .."
 
@@ -41,11 +42,11 @@ alias lt="exa --tree --level=4 --icons --group-directories-first"
 alias grep="grep --color='auto'"
 
 # Keybinds
-bind -M insert \ee "nvim"
-bind \ee "nvim"
+bind -M insert \en "nvim -c Oil"
+bind \en "nvim -c Oil"
 
-bind -M insert \ef super-cd
-bind \ef super-cd
+bind -M insert \cd super-cd
+bind \cd super-cd
 
 bind -M insert \cf "bash /home/jofre/.dotfiles/scripts/tmux-sessionizer.sh"
 bind \cf "bash /home/jofre/.dotfiles/scripts/tmux-sessionizer.sh"

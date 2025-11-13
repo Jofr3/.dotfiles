@@ -13,6 +13,8 @@
     "calendar": "https://calendar.google.com/calendar/u/0/r",
     "softcatala":"https://www.softcatala.org/corrector/",
     "chrome inspect": "chrome://inspect/#devices",
+    "android": "https://play.google.com/console/u/1/developers/7541721304623344789/app-list",
+    "expo": "https://expo.dev/accounts/lasevaweb",
     "myclientum": {
       "gitlab": "https://gitlab.com/lasevaweb_group/lsw/myclientum-new",
       "dev": "https://dev.myclientum.com/admin",

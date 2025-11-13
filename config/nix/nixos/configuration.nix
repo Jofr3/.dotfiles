@@ -1,5 +1,20 @@
-{ inputs, lib, pkgs, ... }: {
-  imports = [ ./hardware-configuration.nix inputs.stylix.nixosModules.stylix ];
+{ inputs, lib, pkgs, ... }:
+let
+  pciDevicesFile = /proc/bus/pci/devices;
+  hasNvidiaGPU = if builtins.pathExists pciDevicesFile then
+    builtins.any (line: builtins.match ".*10de.*" line != null)
+    (lib.splitString "\n" (builtins.readFile pciDevicesFile))
+  else
+    false;
+
+  graphicsModule =
+    if hasNvidiaGPU then ./graphics-nvidia.nix else ./graphics-intel.nix;
+in {
+  imports = [
+    ./hardware-configuration.nix
+    graphicsModule
+    inputs.stylix.nixosModules.stylix
+  ];
 
   boot.loader.systemd-boot.enable = true;
 
@@ -121,7 +136,6 @@
   environment.sessionVariables = { NIXOS_OZONE_WL = "1"; };
 
   hardware = {
-    graphics.enable = true;
     bluetooth.enable = true;
     bluetooth.powerOnBoot = true;
   };
@@ -133,19 +147,6 @@
   };
 
   programs.ssh = { startAgent = true; };
-
-  # services.gnome.gnome-keyring.enable = true;
-
-  #services.xserver.videoDrivers = [ "nvidia" ];
-
-  #hardware.nvidia = {
-  # modesetting.enable = true;
-  # powerManagement.enable = false;
-  # powerManagement.finegrained = false;
-  #open = false;
-  # nvidiaSettings = true;
-  # package = config.boot.kernelPackages.nvidiaPackages.stable;
-  # };
 
   stylix = {
     enable = true;

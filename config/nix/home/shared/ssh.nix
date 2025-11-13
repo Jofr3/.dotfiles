@@ -73,6 +73,11 @@
           port = 22;
           identityFile = "~/.ssh/keys/jofre_key.pem";
         };
+
+        "ateinsa" = {
+          hostname = "appserver.ateinsa.com";
+          user = "ateinsa";
+        };
       };
     };
   };

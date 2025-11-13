@@ -24,6 +24,7 @@ set -x PATH $PATH "$HOME/.dotfiles/config/tofi/scripts/"
 alias n="nvim"
 alias ff="fastfetch"
 alias b="btop"
+alias op="opencode"
 
 alias ..="cd .."
 
@@ -40,12 +41,16 @@ alias ls="exa --icons --group-directories-first"
 alias lt="exa --tree --level=4 --icons --group-directories-first"
 alias grep="grep --color='auto'"
 
-# Keybinds
-bind -M insert \ee "nvim"
-bind \ee "nvim"
+function ateinsa-vpn
+    sudo openfortivpn mail.ateinsa.com:10443 --username=jscaricaciottoli --trusted-cert e2f07f1955c5f81a26c7542c6616104c55cf5eaf81147aacccfd7a4aef019737 -p "1234567j\$" $argv
+end
 
-bind -M insert \ef super-cd
-bind \ef super-cd
+# Keybinds
+bind -M insert \en "nvim -c Oil"
+bind \en "nvim -c Oil"
+
+bind -M insert \cd super-cd
+bind \cd super-cd
 
 bind -M insert \cf "bash /home/jofre/.dotfiles/scripts/tmux-sessionizer.sh"
 bind \cf "bash /home/jofre/.dotfiles/scripts/tmux-sessionizer.sh"

@@ -16,61 +16,54 @@ in {
     inputs.stylix.nixosModules.stylix
   ];
 
+  # boot
   boot.loader.systemd-boot.enable = true;
 
-  networking.networkmanager.enable = true;
-
-  nixpkgs = {
-    config = {
-      allowUnfree = true;
-      allowInsecure = true;
-    };
+  # networking
+  networking = {
+    hostName = "nixos";
+    networkmanager.enable = true;
+    firewall.enable = false;
   };
 
-  nix = let flakeInputs = lib.filterAttrs (_: lib.isType "flake") inputs;
-  in { 
-    settings = { 
-      experimental-features = "nix-command flakes";
-      substituters = [
-        "https://cache.nixos.org"
-        "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
-        "https://mirror.sjtu.edu.cn/nix-channels/store"
-      ];
-      trusted-public-keys = [
-        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      ];
-      connect-timeout = 60;
-    };
+  # nix settings
+  nixpkgs.config = {
+    allowUnfree = true;
+    allowInsecure = true;
   };
 
-  networking.hostName = "nixos";
-  networking.firewall.enable = false;
+  nix.settings = {
+    experimental-features = "nix-command flakes";
+    substituters = [
+      "https://cache.nixos.org"
+      "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
+      "https://mirror.sjtu.edu.cn/nix-channels/store"
+    ];
+    trusted-public-keys =
+      [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
+    connect-timeout = 60;
+  };
 
+  # fonts
   fonts.packages = with pkgs; [ nerd-fonts.fira-code ];
 
-  environment.systemPackages = with pkgs; [
-    python312Packages.qtile
-    wayland
-    xwayland
-    libinput
+  # minimal system packages (user packages go in home-manager)
+  environment.systemPackages = with pkgs; [ home-manager git vim kitty ];
 
-    home-manager
-    fish
-    hyprland
-    hyprpaper
-    kitty
-    bash
-  ];
-
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true;
+  # programs
+  programs = {
+    hyprland = {
+      enable = true;
+      xwayland.enable = true;
+    };
+    fish.enable = true;
+    adb.enable = true;
+    ssh.startAgent = true;
   };
 
-  programs.fish.enable = true;
-
-  users.users = {
-    jofre = {
+  # users
+  users = {
+    users.jofre = {
       shell = pkgs.fish;
       initialPassword = "1234";
       isNormalUser = true;
@@ -82,21 +75,13 @@ in {
         "audio"
         "input"
         "render"
-        "dialout"
-        "plugdev"
-        "kvm"
         "adbusers"
       ];
     };
+    groups = { docker = { }; };
   };
 
-  programs.adb.enable = true;
-
-  users.groups = {
-    docker = { };
-    plugdev = { };
-  };
-
+  # udev rules for android
   services.udev = {
     enable = true;
     extraRules = ''
@@ -105,22 +90,31 @@ in {
     '';
   };
 
+  # virtualization
   virtualisation.docker.enable = true;
 
+  # localization
   time.timeZone = "Europe/Madrid";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  services.xserver.enable = true;
-  services.displayManager.enable = true;
-  services.displayManager.ly.enable = true;
-
-  services.dbus.enable = true;
-
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
+  # display manager
+  services = {
+    displayManager = {
+      enable = true;
+      ly.enable = true;
+    };
+    xserver = {
+      enable = true;
+      xkb = {
+        layout = "us";
+        variant = "";
+      };
+    };
+    dbus.enable = true;
+    flatpak.enable = true;
   };
 
+  # audio
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -131,14 +125,14 @@ in {
     jack.enable = true;
   };
 
-  services.flatpak.enable = true;
-
-  environment.sessionVariables = { NIXOS_OZONE_WL = "1"; };
-
-  hardware = {
-    bluetooth.enable = true;
-    bluetooth.powerOnBoot = true;
+  # bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
   };
+
+  # wayland
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   xdg.portal = {
     enable = true;
@@ -146,12 +140,10 @@ in {
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
-  programs.ssh = { startAgent = true; };
-
+  # theming
   stylix = {
     enable = true;
     image = ../theme/wallpaper.jpg;
-    # base16Scheme = "${pkgs.base16-schemes}/share/themes/tokyo-night-dark.yaml";
     base16Scheme = ../theme/gruvbox.yml;
     cursor = {
       package = pkgs.vanilla-dmz;

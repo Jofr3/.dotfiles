@@ -1,10 +1,14 @@
-{ ... }: {
+{ config, ... }:
+let
+  dotfiles = config.home.homeDirectory + "/.dotfiles";
+  screenshotDir = config.home.homeDirectory + "/Documents/screenshots";
+in {
   wayland.windowManager.hyprland = {
     enable = true;
     settings = {
       "$mod" = "SUPER";
 
-      animations = { enabled = false; };
+      animations.enabled = false;
 
       general = {
         border_size = 0;
@@ -20,26 +24,40 @@
       };
 
       bind = [
+        # window management
         "$mod, C, killactive"
-        "$mod, Return, exec, foot"
         "$mod, T, togglefloating"
+
+        # launchers
+        "$mod, Return, exec, foot"
         "$mod, F, exec, exec $(tofi-run --drun-launch=true --fuzzy-match=true)"
-        "$mod, B, exec, bash /home/jofre/.dotfiles/scripts/bookmarks.sh"
-        "$mod, L, exec, bash /home/jofre/.dotfiles/scripts/passwords.sh"
+
+        # scripts
+        "$mod, B, exec, ${dotfiles}/scripts/bookmarks.sh"
+        "$mod, L, exec, ${dotfiles}/scripts/passwords.sh"
         "$mod, Q, exec, wl-copy < /tmp/username"
         "$mod, W, exec, wl-copy < /tmp/password"
+
+        # screenshot
         ''
-          $mod, X, exec, grim -g "$(slurp)" "/home/jofre/Documents/screenshots/$(date +%Y%m%d-%H%M%S)".png 
-        ''
+          $mod, X, exec, grim -g "$(slurp)" "${screenshotDir}/$(date +%Y%m%d-%H%M%S).png"''
+
+        # brightness
         "$mod, I, exec, brightnessctl set 5%-"
         "$mod, O, exec, brightnessctl set +5%"
+
+        # volume
         "$mod, Up, exec, pactl set-sink-volume @DEFAULT_SINK@ +5%"
         "$mod, Down, exec, pactl set-sink-volume @DEFAULT_SINK@ -5%"
-        "$mod, Space, exec, playerctl play-pause"
+
+        # media
         "$mod, Left, exec, playerctl previous"
         "$mod, Right, exec, playerctl next"
+
+        # keyboard layout
         "$mod, Space, exec, hyprctl switchxkblayout active next"
 
+        # workspaces
         "$mod, 1, workspace, 1"
         "$mod, 2, workspace, 2"
         "$mod, 3, workspace, 3"
@@ -49,6 +67,7 @@
         "$mod, 9, workspace, 7"
         "$mod, 0, workspace, 8"
 
+        # move to workspace
         "$mod SHIFT, 1, movetoworkspace, 1"
         "$mod SHIFT, 2, movetoworkspace, 2"
         "$mod SHIFT, 3, movetoworkspace, 3"

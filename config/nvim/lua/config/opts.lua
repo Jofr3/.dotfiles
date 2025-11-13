@@ -56,3 +56,5 @@ vim.opt.switchbuf = "vsplit"
 vim.opt.laststatus = 3
 
 vim.opt.shortmess:append("I")
+
+vim.opt.autoread = true

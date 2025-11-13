@@ -1,8 +1,6 @@
 { config, ... }:
-let
-  dotfiles = config.lib.file.mkOutOfStoreSymlink "/home/jofre/.dotfiles";
-in
-{
+let dotfiles = config.lib.file.mkOutOfStoreSymlink "/home/jofre/.dotfiles";
+in {
   xdg.configFile = {
     git.source = "${dotfiles}/config/git";
     foot.source = "${dotfiles}/config/foot";
@@ -16,7 +14,6 @@ in
     wezterm.source = "${dotfiles}/config/wezterm";
     opencode.source = "${dotfiles}/config/opencode";
     qutebrowser.source = "${dotfiles}/config/qutebrowser";
-    opencode.source = "${dotfiles}/config/opencode";
   };
 }
 

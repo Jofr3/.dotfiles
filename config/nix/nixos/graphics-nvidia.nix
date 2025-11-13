@@ -10,7 +10,6 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
-  # Enable OpenGL with NVIDIA support
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [ vaapiVdpau libvdpau-va-gl ];

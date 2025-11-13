@@ -1,5 +1,4 @@
 { pkgs, ... }: {
-  # Intel Iris Xe graphics configuration
   services.xserver.videoDrivers = [ "modesetting" ];
 
   hardware.graphics = {
@@ -11,6 +10,5 @@
     ];
   };
 
-  # Enable Intel GPU tools
   environment.systemPackages = with pkgs; [ intel-gpu-tools ];
 }

@@ -31,7 +31,7 @@
     },
     "nixos": {
       "type": "local",
-      "command": ["run", "github:utensils/mcp-nixos", "--"]
+      "command": ["nix", "run", "github:utensils/mcp-nixos", "--"]
     }
   },
   "tools": {

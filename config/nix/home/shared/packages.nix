@@ -1,104 +1,104 @@
 { pkgs, ... }: {
-  nixpkgs = {
-    config = {
-      allowUnfree = true;
-      allowInsecure = true;
-    };
+  nixpkgs.config = {
+    allowUnfree = true;
+    allowInsecure = true;
   };
 
   home.packages = with pkgs; [
-    # cli
-    fastfetch
-    lazygit
-    nix-prefetch-github
-    brightnessctl
-    playerctl
-    pulseaudio
-    zellij
+    # cli tools
     btop
-    lsof
-    openconnect
-    jq
-    tmux
-    openfortivpn
-    opencode
-
-    # neovim
-    neovim
-    zoxide
+    brightnessctl
     eza
-    yazi
-    docker
-    docker-compose
-    inetutils
-
-    # apps
-    kitty
-    wezterm
-    chromium
-    qutebrowser
-    google-chrome
-    nautilus
-    eog
-    wl-color-picker
-    gnome-calculator
-    papers
-    gnome-text-editor
-    wdisplays
-    vscode
-    foot
-    discord
-    thunderbird
-    dbeaver-bin
-    overskride
-    libreoffice
-
-    # other
-    slurp
-    grim
-    mako
-    tofi
-    syncthing
-
-    # dependencies
-    git
-    gccgo
-    zig
-    python314
-    lua
-    luajitPackages.luarocks
+    fastfetch
+    fd
+    fzf
+    jq
+    lazygit
+    lsof
+    nix-prefetch-github
+    opencode
+    playerctl
+    ripgrep
+    rsync
+    tmux
     unzip
     wget
-    ripgrep
-    fd
-    rustc
-    cargo
-    sqlite
-    wl-clipboard-rs
-    wtype
-    pinentry-tty
-    openssl
-    nodejs_22
-    rsync
-    gnumake
-    xdg-desktop-portal-hyprland
-    fzf
-    mysql80
-    bash
+    yazi
+    zellij
+    zoxide
 
-    # lsp's
+    # editors
+    neovim
+    vscode
+
+    # terminals
+    foot
+    kitty
+    wezterm
+
+    # browsers
+    chromium
+    google-chrome
+    qutebrowser
+
+    # apps
+    dbeaver-bin
+    discord
+    eog
+    gnome-calculator
+    gnome-text-editor
+    libreoffice
+    nautilus
+    overskride
+    papers
+    thunderbird
+    wdisplays
+
+    # wayland utilities
+    grim
+    mako
+    slurp
+    tofi
+    wl-clipboard-rs
+    wl-color-picker
+    wtype
+    xdg-desktop-portal-hyprland
+
+    # vpn
+    openconnect
+    openfortivpn
+
+    # development tools
+    docker
+    docker-compose
+    git
+    gnumake
+
+    # languages & runtimes
+    cargo
+    gccgo
+    lua
+    luajitPackages.luarocks
+    mysql80
+    nodejs_22
+    python314
+    rustc
+    sqlite
+    zig
+
+    # lsp servers
+    angular-language-server
     lua-language-server
+    markdown-oxide
     nil
     typescript-language-server
     typos-lsp
-    markdown-oxide
-    angular-language-server
     vscode-langservers-extracted
 
     # formatters
-    stylua
     blade-formatter
-    php83Packages.php-cs-fixer
     nixfmt-classic
+    php83Packages.php-cs-fixer
+    stylua
   ];
 }

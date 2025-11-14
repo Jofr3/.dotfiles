@@ -8,7 +8,7 @@ in {
     matchBlocks = {
       "*" = {
         controlMaster = "auto";
-        controlPath = "~/.ssh/control-%r@%h:%p";
+        controlPath = "~/.ssh/control-%C";
         controlPersist = "10m";
       };
 

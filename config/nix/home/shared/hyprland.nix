@@ -33,8 +33,8 @@ in {
         "$mod, F, exec, exec $(tofi-run --drun-launch=true --fuzzy-match=true)"
 
         # scripts
-        "$mod, B, exec, ${dotfiles}/scripts/bookmarks.sh"
-        "$mod, L, exec, ${dotfiles}/scripts/passwords.sh"
+        "$mod, B, exec, bash ${dotfiles}/scripts/bookmarks.sh"
+        "$mod, L, exec, bash ${dotfiles}/scripts/passwords.sh"
         "$mod, Q, exec, wl-copy < /tmp/username"
         "$mod, W, exec, wl-copy < /tmp/password"
 
@@ -82,8 +82,10 @@ in {
 
       env = [ "XCURSOR_SIZE,24" "HYPRCURSOR_SIZE,24" "QT_CURSOR_SIZE,24" ];
 
-      monitor =
-        [ "eDP-1, 1920x1080@60, 0x1080, 1" "HDMI-A-1, 1920x1080@144, 0x0, 1" ];
+      monitor = [
+        "HDMI-A-1, preferred, 0x0, 1"
+        "eDP-1, 1920x1080@60, 0x1080, 1"
+      ];
 
       workspace = [
         "1, monitor:eDP-1"

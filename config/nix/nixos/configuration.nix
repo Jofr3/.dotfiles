@@ -7,11 +7,11 @@ let
   else
     false;
 
-  graphicsModule =
-    if hasNvidiaGPU then ./graphics-nvidia.nix else ./graphics-intel.nix;
+  hardwareModul = if hasNvidiaGPU then ./hardware-nvidia.nix else ./hardware-intel.nix;
+  graphicsModule = if hasNvidiaGPU then ./graphics-nvidia.nix else ./graphics-intel.nix;
 in {
   imports = [
-    ./hardware-configuration.nix
+    hardwareModul
     graphicsModule
     inputs.stylix.nixosModules.stylix
   ];

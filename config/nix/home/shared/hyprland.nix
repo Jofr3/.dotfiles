@@ -29,7 +29,7 @@ in {
         "$mod, T, togglefloating"
 
         # launchers
-        "$mod, Return, exec, foot"
+        "$mod, Return, exec, kitty"
         "$mod, F, exec, exec $(tofi-run --drun-launch=true --fuzzy-match=true)"
 
         # scripts

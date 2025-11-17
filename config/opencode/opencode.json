@@ -15,7 +15,7 @@
     }
   },
   "tui": {
-    "scroll_speed": 6
+    "scroll_speed": 15
   },
   "mcp": {
     "context7": {
@@ -25,10 +25,6 @@
         "CONTEXT7_API_KEY": "ctx7sk-57a11e2f-1ae9-4b8c-93c5-e911c0ceacc0"
       }
     },
-    "gh_grep": {
-      "type": "remote",
-      "url": "https://mcp.grep.app"
-    },
     "nixos": {
       "type": "local",
       "command": ["nix", "run", "github:utensils/mcp-nixos", "--"]
@@ -37,7 +33,6 @@
   "tools": {
     "context7_resolve-library-id": false,
     "context7_get-library-docs": false,
-    "gh_grep_*": false,
     "nixos_*": false
   },
   "agent": {
@@ -49,19 +44,16 @@
         "context7_get-library-docs": true
       }
     },
-    "examples": {
-      "description": "Search code examples from GitHub repositories",
-      "mode": "subagent",
-      "tools": {
-        "gh_grep_*": true
-      }
-    },
     "nixos": {
       "description": "Search NixOS options, packages, and configuration",
       "mode": "subagent",
       "tools": {
         "nixos_*": true
       }
+    },
+    "database": {
+      "description": "Interact with databases for schema design, queries, and migrations",
+      "mode": "subagent"
     }
   },
   "command": {
@@ -71,16 +63,16 @@
       "agent": "docs",
       "subtask": true
     },
-    "examples": {
-      "description": "Search code examples from GitHub",
-      "template": "@examples $ARGUMENTS",
-      "agent": "examples",
-      "subtask": true
-    },
     "nixos": {
       "description": "Search NixOS options and packages",
       "template": "@nixos $ARGUMENTS",
       "agent": "nixos",
+      "subtask": true
+    },
+    "db": {
+      "description": "Database operations and schema design",
+      "template": "@database $ARGUMENTS",
+      "agent": "database",
       "subtask": true
     }
   }

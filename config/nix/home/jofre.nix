@@ -13,7 +13,7 @@
     stateVersion = "25.05";
     enableNixpkgsReleaseCheck = false;
 
-    packages = with pkgs; [ hyprpicker skim ];
+    packages = with pkgs; [ hyprpicker skim vivaldi ];
   };
 
   programs.home-manager.enable = true;

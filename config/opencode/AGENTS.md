@@ -11,7 +11,6 @@ This is the OpenCode configuration directory (`~/.config/opencode`), not a devel
 ## Commands
 - Install/update plugins: `bun install` or `npm install`
 - Search docs: `/docs <library> <topic>` (uses Context7 MCP)
-- Search code examples: `/examples <query>` (uses Grep by Vercel)
 - Search NixOS options/packages: `/nixos <query>` (uses mcp-nixos)
 
 ## Custom Agents
@@ -19,9 +18,6 @@ All agents use `mode: "auto"` and are automatically invoked when relevant:
 - **docs** - Documentation search agent using Context7 MCP (auto-invoked)
   - Usage: Automatically invoked for documentation queries
   - Command: `/docs next.js authentication`
-- **examples** - Code example search agent using Grep by Vercel (auto-invoked)
-  - Usage: Automatically invoked for code example searches
-  - Command: `/examples React Server Components data fetching`
 - **nixos** - NixOS options and packages search agent (auto-invoked)
   - Usage: Automatically invoked for NixOS-related queries
   - Command: `/nixos services.postgresql`

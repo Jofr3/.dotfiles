@@ -1,18 +1,35 @@
 { inputs, lib, pkgs, ... }:
 let
-  pciDevicesFile = /proc/bus/pci/devices;
-  hasNvidiaGPU = if builtins.pathExists pciDevicesFile then
-    builtins.any (line: builtins.match ".*10de.*" line != null)
-    (lib.splitString "\n" (builtins.readFile pciDevicesFile))
+  machineId = if builtins.pathExists /etc/machine-id then
+    lib.strings.removeSuffix "\n" (builtins.readFile /etc/machine-id)
   else
-    false;
+    "";
 
-  hardwareModul = if hasNvidiaGPU then ./hardware-nvidia.nix else ./hardware-intel.nix;
-  graphicsModule = if hasNvidiaGPU then ./graphics-nvidia.nix else ./graphics-intel.nix;
+  machineConfigs = {
+    "9f0dfe7d00c547b1aeca6f104c49c846" = {
+      name = "personal";
+      gpu = "nvidia";
+      hardware = ./personal/hardware-nvidia.nix;
+      graphics = ./personal/graphics-nvidia.nix;
+    };
+    # "another-machine-id" = {
+    #   name = "work";
+    #   gpu = "intel";
+    #   hardware = ./work/hardware-intel.nix;
+    #   graphics = ./work/graphics-intel.nix;
+    # };
+  };
+
+  machineConfig = machineConfigs.${machineId} or {
+    personal = "personal";
+    gpu = "nvidia";
+    hardware = ./personal/hardware-nvidia.nix;
+    graphics = ./personal/graphics-nvidia.nix;
+  };
 in {
   imports = [
-    hardwareModul
-    graphicsModule
+    machineConfig.hardware
+    machineConfig.graphics
     inputs.stylix.nixosModules.stylix
   ];
 
@@ -32,17 +49,7 @@ in {
     allowInsecure = true;
   };
 
-  nix.settings = {
-    experimental-features = "nix-command flakes";
-    substituters = [
-      "https://cache.nixos.org"
-      "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
-      "https://mirror.sjtu.edu.cn/nix-channels/store"
-    ];
-    trusted-public-keys =
-      [ "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=" ];
-    connect-timeout = 60;
-  };
+  nix.settings = { experimental-features = "nix-command flakes"; };
 
   # fonts
   fonts.packages = with pkgs; [ nerd-fonts.fira-code ];

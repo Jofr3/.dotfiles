@@ -10,6 +10,17 @@ in {
         controlMaster = "auto";
         controlPath = "~/.ssh/control-%C";
         controlPersist = "10m";
+        # Performance optimizations
+        serverAliveInterval = 60;
+        serverAliveCountMax = 3;
+        compression = true;
+        # Disable slow DNS/GSSAPI lookups (major speed improvement)
+        extraOptions = {
+          TCPKeepAlive = "yes";
+          GSSAPIAuthentication = "no";
+          IPQoS = "throughput";
+          ForwardX11 = "no";
+        };
       };
 
       myclientum = {

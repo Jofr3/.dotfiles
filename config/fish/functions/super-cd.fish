@@ -8,7 +8,7 @@ function super-cd
                 "~/.dotfiles/scripts" \
                 "~/notes/"
 
-        end | string replace -- "$HOME" "~" | sk
+        end | string replace -- "$HOME" "~" | fzf
     )
     
     test -n "$selected_dir" && cd (string replace '~' "$HOME" "$selected_dir") && commandline -f repaint

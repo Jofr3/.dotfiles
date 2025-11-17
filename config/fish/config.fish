@@ -49,9 +49,8 @@ end
 bind -M insert \en "nvim -c Oil"
 bind \en "nvim -c Oil"
 
+bind -M insert \cf super-cd
+bind \cf super-cd
 
-bind -M insert \cd super-cd
-bind \cd super-cd
-
-bind -M insert \cf "bash /home/jofre/.dotfiles/scripts/tmux-sessionizer.sh"
-bind \cf "bash /home/jofre/.dotfiles/scripts/tmux-sessionizer.sh"
+# bind -M insert \cf "bash /home/jofre/.dotfiles/scripts/tmux-sessionizer.sh"
+# bind \cf "bash /home/jofre/.dotfiles/scripts/tmux-sessionizer.sh"

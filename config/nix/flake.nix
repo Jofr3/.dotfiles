@@ -19,7 +19,23 @@
     # sudo nixos-rebuild switch --flake .#nixos
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       specialArgs = { inherit inputs; };
-      modules = [ ./nixos/configuration.nix ];
+      modules = [
+        ./nixos/configuration.nix
+        ./nixos/personal/hardware-nvidia.nix
+        ./nixos/personal/graphics-nvidia.nix
+        { networking.hostName = "nixos"; }
+      ];
+    };
+
+    # sudo nixos-rebuild switch --flake .#nixos-lsw
+    nixosConfigurations.nixos-lsw = nixpkgs.lib.nixosSystem {
+      specialArgs = { inherit inputs; };
+      modules = [
+        ./nixos/configuration.nix
+        ./nixos/work/hardware-intel.nix
+        ./nixos/work/graphics-intel.nix
+        { networking.hostName = "nixos-lsw"; }
+      ];
     };
 
     # home-manager switch --flake .#jofre@nixos

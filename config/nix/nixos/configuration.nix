@@ -1,44 +1,13 @@
-{ inputs, lib, pkgs, ... }:
-let
-  machineId = if builtins.pathExists /etc/machine-id then
-    lib.strings.removeSuffix "\n" (builtins.readFile /etc/machine-id)
-  else
-    "";
+{ inputs, pkgs, ... }:
 
-  machineConfigs = {
-    "9f0dfe7d00c547b1aeca6f104c49c846" = {
-      name = "personal";
-      gpu = "nvidia";
-      hardware = ./personal/hardware-nvidia.nix;
-      graphics = ./personal/graphics-nvidia.nix;
-    };
-    # "another-machine-id" = {
-    #   name = "work";
-    #   gpu = "intel";
-    #   hardware = ./work/hardware-intel.nix;
-    #   graphics = ./work/graphics-intel.nix;
-    # };
-  };
-
-  machineConfig = machineConfigs.${machineId} or {
-    personal = "personal";
-    gpu = "nvidia";
-    hardware = ./personal/hardware-nvidia.nix;
-    graphics = ./personal/graphics-nvidia.nix;
-  };
-in {
-  imports = [
-    machineConfig.hardware
-    machineConfig.graphics
-    inputs.stylix.nixosModules.stylix
-  ];
+{
+  imports = [ inputs.stylix.nixosModules.stylix ];
 
   # boot
   boot.loader.systemd-boot.enable = true;
 
   # networking
   networking = {
-    hostName = "nixos";
     networkmanager.enable = true;
     firewall.enable = false;
   };

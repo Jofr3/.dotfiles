@@ -102,6 +102,14 @@
       "gitlab": "https://gitlab.com/lasevaweb_group/vivelloc.cat/ous.vivelloc.cat",
       "prod": "https://ous.vivelloc.cat"
     },
+    "beques": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/ccosona/beques.ccosona.cat",
+      "prod": "https://dev-beques.ccosona.cat"
+    },
+    "renovacions": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/ccosona/renovacions.ccosona.cat",
+      "prod": "https://renovacions.ccosona.cat"
+    },
     "fontawesome": "https://fontawesome.com/icons",
     "translate": "https://translate.google.com/?sl=ca&tl=en&op=translate",
     "wikimedia": "https://www.wikimedia.org",

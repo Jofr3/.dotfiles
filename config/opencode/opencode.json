@@ -28,12 +28,26 @@
     "nixos": {
       "type": "local",
       "command": ["nix", "run", "github:utensils/mcp-nixos", "--"]
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest", "-e", "/home/jofre/.nix-profile/bin/google-chrome-stable", "--browser-url=http://127.0.0.1:9222"]
+    },
+    "neovim": {
+      "type": "local",
+      "command": [ "npx",  "-y", "mcp-neovim-server" ],
+      "environment": {
+        "ALLOW_SHELL_COMMANDS": "true",
+        "NVIM_SOCKET_PATH": "/tmp/nvim"
+      }
     }
   },
   "tools": {
     "context7_resolve-library-id": false,
     "context7_get-library-docs": false,
-    "nixos_*": false
+    "nixos_*": false,
+    "neovim_*": false,
+    "chrome_*": false
   },
   "agent": {
     "docs": {
@@ -54,6 +68,20 @@
     "database": {
       "description": "Interact with databases for schema design, queries, and migrations",
       "mode": "subagent"
+    },
+    "neovim": {
+      "description": "Interact with Neovim through MCP for advanced text editing and navigation",
+      "mode": "subagent",
+      "tools": {
+        "neovim_*": true
+      }
+    },
+    "chrome": {
+      "description": "Interact with Chrome browser via DevTools protocol for automation and testing",
+      "mode": "subagent",
+      "tools": {
+        "chrome_*": true
+      }
     }
   },
   "command": {
@@ -73,6 +101,18 @@
       "description": "Database operations and schema design",
       "template": "@database $ARGUMENTS",
       "agent": "database",
+      "subtask": true
+    },
+    "vim": {
+      "description": "Neovim text editing operations",
+      "template": "@neovim $ARGUMENTS",
+      "agent": "neovim",
+      "subtask": true
+    },
+    "chrome": {
+      "description": "Chrome browser automation and testing",
+      "template": "@chrome $ARGUMENTS",
+      "agent": "chrome",
       "subtask": true
     }
   }

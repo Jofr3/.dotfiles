@@ -78,6 +78,18 @@ in {
         hostname = "appserver.ateinsa.com";
         user = "ateinsa";
       };
+
+      beques = {
+        hostname = "13.36.114.143";
+        user = "dev-beques_ccosona_cat";
+        identityFile = sshKeyPath;
+      };
+
+      renovacions = {
+        hostname = "ec2-13-36-114-143.eu-west-3.compute.amazonaws.com";
+        user = "dev_renovacions_ccosona_cat";
+        identityFile = sshKeyPath;
+      };
     };
   };
 }

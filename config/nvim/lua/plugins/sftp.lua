@@ -29,6 +29,26 @@ return {
 				host = "garden_tona",
 				remote_path = "/devgarden.lasevaweb.com",
 			},
+			{
+				local_path = "/home/jofre/lsw/vicfires",
+				host = "vicfires",
+				remote_path = "/dev.vicfires.cat",
+			},
+			{
+				local_path = "/home/jofre/lsw/ateinsa",
+				host = "ateinsa",
+				remote_path = "/var/www/html",
+			},
+			{
+				local_path = "/home/jofre/lsw/beques",
+				host = "beques",
+				remote_path = "/dev-beques.ccosona.cat",
+			},
+			{
+				local_path = "/home/jofre/lsw/renovacions",
+				host = "renovacions",
+				remote_path = "/dev.renovacions.ccosona.cat",
+			},
 		},
 	},
 }

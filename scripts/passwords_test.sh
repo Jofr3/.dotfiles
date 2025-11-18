@@ -9,7 +9,7 @@ error_exit() {
 }
 
 validate_dependencies() {
-    local deps=("jq" "walker" "wl-copy")
+    local deps=("jq" "walker" "ydotool")
     for dep in "${deps[@]}"; do
         command -v "$dep" >/dev/null 2>&1 || error_exit "Required dependency '$dep' not found"
     done
@@ -27,6 +27,12 @@ get_selection() {
     echo "$selection"
 }
 
+send_to_browser() {
+    local text="$1"
+    sleep 0.1
+    ydotool type "$text"
+}
+
 get_login_credentials() {
     local selected_name="$1"
     local selected_item="$2"
@@ -39,10 +45,17 @@ get_login_credentials() {
         error_exit "Username or password not found for $selected_name"
     fi
     
-    echo -n "$username" | wl-copy
-
-    echo "$username" > /tmp/username
-    echo "$password" > /tmp/password
+    # Send username to the active input field
+    send_to_browser "$username"
+    
+    # Wait before pressing Tab to move to password field
+    sleep 0.2
+    ydotool key 15:1 15:0  # Tab key (keycode 15)
+    
+    # Send password to the password field
+    send_to_browser "$password"
+    
+    echo "Credentials sent to browser input fields"
 }
 
 get_login_groups() {

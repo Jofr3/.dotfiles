@@ -11,7 +11,7 @@ error_exit() {
 }
 
 validate_dependencies() {
-    local deps=("jq" "tofi" "$BROWSER")
+    local deps=("jq" "walker" "$BROWSER")
     for dep in "${deps[@]}"; do
         command -v "$dep" >/dev/null 2>&1 || error_exit "Required dependency '$dep' not found"
     done
@@ -25,7 +25,7 @@ validate_bookmarks_file() {
 get_selection() {
     local items="$1"
     local selection
-    selection=$(echo "$items" | tofi --fuzzy-match=true)
+    selection=$(echo "$items" | walker --dmenu)
     echo "$selection"
 }
 

@@ -5,6 +5,7 @@
     ../home/shared/packages.nix
     ../home/shared/ssh.nix
     ../home/shared/stylix.nix
+    ../home/shared/walker.nix
   ];
 
   home = {

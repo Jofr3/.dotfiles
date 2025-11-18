@@ -24,7 +24,7 @@
   fonts.packages = with pkgs; [ nerd-fonts.fira-code ];
 
   # minimal system packages (user packages go in home-manager)
-  environment.systemPackages = with pkgs; [ home-manager git vim kitty ];
+  environment.systemPackages = with pkgs; [ home-manager git vim kitty ydotool ];
 
   # programs
   programs = {
@@ -35,6 +35,20 @@
     fish.enable = true;
     adb.enable = true;
     ssh.startAgent = true;
+  };
+
+  # ydotool
+  systemd.services.ydotool = {
+    description = "ydotool daemon";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      Restart = "always";
+      ExecStart = "${pkgs.ydotool}/bin/ydotoold";
+      ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
+      KillMode = "process";
+      TimeoutSec = 180;
+    };
   };
 
   # users
@@ -52,6 +66,7 @@
         "input"
         "render"
         "adbusers"
+        "ydotool"
       ];
     };
     groups = { docker = { }; };
@@ -87,7 +102,7 @@
       };
     };
     dbus.enable = true;
-    flatpak.enable = true;
+    # flatpak.enable = true;
   };
 
   # audio

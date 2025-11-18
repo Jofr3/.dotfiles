@@ -30,11 +30,13 @@ in {
 
         # launchers
         "$mod, Return, exec, kitty"
-        "$mod, F, exec, exec $(tofi-run --drun-launch=true --fuzzy-match=true)"
+        # "$mod, F, exec, exec $(tofi-run --drun-launch=true --fuzzy-match=true)"
+        "$mod, O, exec, walker"
+        # "$mod, C, exec, walker -m clipboard"
+        "$mod, K, exec, bash ${dotfiles}/scripts/bookmarks.sh"
+        "$mod, P, exec, bash ${dotfiles}/scripts/passwords.sh"
 
         # scripts
-        "$mod, B, exec, bash ${dotfiles}/scripts/bookmarks.sh"
-        "$mod, L, exec, bash ${dotfiles}/scripts/passwords.sh"
         "$mod, Q, exec, wl-copy < /tmp/username"
         "$mod, W, exec, wl-copy < /tmp/password"
 
@@ -44,7 +46,7 @@ in {
 
         # brightness
         "$mod, I, exec, brightnessctl set 5%-"
-        "$mod, O, exec, brightnessctl set +5%"
+        # "$mod, O, exec, brightnessctl set +5%"
 
         # volume
         "$mod, Up, exec, pactl set-sink-volume @DEFAULT_SINK@ +5%"

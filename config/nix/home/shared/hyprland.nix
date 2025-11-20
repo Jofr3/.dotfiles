@@ -34,11 +34,11 @@ in {
         "$mod, O, exec, walker"
         # "$mod, C, exec, walker -m clipboard"
         "$mod, K, exec, bash ${dotfiles}/scripts/bookmarks.sh"
-        "$mod, P, exec, bash ${dotfiles}/scripts/passwords.sh"
+        "$mod, P, exec, bash ${dotfiles}/scripts/passwords_test.sh"
 
         # scripts
-        "$mod, Q, exec, wl-copy < /tmp/username"
-        "$mod, W, exec, wl-copy < /tmp/password"
+        "$mod, Q, exec, wtype -M alt $(cat /tmp/username) -m alt"
+        "$mod, W, exec, wtype -M alt $(cat /tmp/password) -m alt"
 
         # screenshot
         ''

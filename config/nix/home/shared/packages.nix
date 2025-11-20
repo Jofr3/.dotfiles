@@ -23,7 +23,6 @@
     tmux
     unzip
     wget
-    yazi
     zellij
     zoxide
 
@@ -56,7 +55,6 @@
 
     # wayland utilities
     grim
-    mako
     slurp
     tofi
     wl-clipboard-rs

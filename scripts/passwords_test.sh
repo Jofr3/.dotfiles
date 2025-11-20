@@ -9,7 +9,7 @@ error_exit() {
 }
 
 validate_dependencies() {
-    local deps=("jq" "walker" "ydotool")
+    local deps=("jq" "walker" "wtype")
     for dep in "${deps[@]}"; do
         command -v "$dep" >/dev/null 2>&1 || error_exit "Required dependency '$dep' not found"
     done
@@ -29,8 +29,7 @@ get_selection() {
 
 send_to_browser() {
     local text="$1"
-    sleep 0.1
-    ydotool type "$text"
+    wtype "$text" || error_exit "Failed to type text with wtype"
 }
 
 get_login_credentials() {
@@ -45,17 +44,14 @@ get_login_credentials() {
         error_exit "Username or password not found for $selected_name"
     fi
     
-    # Send username to the active input field
     send_to_browser "$username"
-    
-    # Wait before pressing Tab to move to password field
-    sleep 0.2
-    ydotool key 15:1 15:0  # Tab key (keycode 15)
-    
-    # Send password to the password field
+
+    wtype -k Tab
+
     send_to_browser "$password"
-    
-    echo "Credentials sent to browser input fields"
+
+    echo "$username" > /tmp/username
+    echo "$password" > /tmp/password
 }
 
 get_login_groups() {

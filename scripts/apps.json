@@ -1,17 +1,5 @@
 {
-  "Firefox": "firefox",
-  "Chrome": "google-chrome-stable",
-  "Terminal": "kitty",
-  "File Manager": "thunar",
-  "VS Code": "code",
-  "Discord": "discord",
-  "Spotify": "spotify",
-  "Obsidian": "obsidian",
-  "GIMP": "gimp",
-  "Blender": "blender",
-  "Steam": "steam",
-  "Telegram": "telegram-desktop",
-  "Slack": "slack",
-  "System Monitor": "btop",
-  "Calculator": "qalculate-gtk"
+  "Qutebrowser": "qutebrowser",
+  "Foot": "footclient",
+  "VS Code": "code"
 }

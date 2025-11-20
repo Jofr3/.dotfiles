@@ -1,5 +1,19 @@
 {
+  "Bluetooth": "overskride",
+  "Calculator": "gnome-calculator",
+  "Chromium": "chromium",
+  "Dbeaver": "dbeaver",
+  "Discord": "discord",
+  "Displays": "wdisplays",
+  "Eye of gnome": "eog",
+  "Files": "nautilus",
+  "Chrome": "google-chrome-stable",
+  "Kitty": "kitty",
+  "Papers": "papers",
   "Qutebrowser": "qutebrowser",
-  "Foot": "footclient",
-  "VS Code": "code"
+  "Text editor": "gnome-text-editor",
+  "Thunderbird": "thunderbird",
+  "VSCode": "code",
+  "Vivaldi": "vivaldi",
+  "Wezterm": "wezterm"
 }

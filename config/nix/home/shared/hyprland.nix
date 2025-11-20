@@ -30,12 +30,10 @@ in {
 
         # launchers
         "$mod, Return, exec, kitty"
-        # "$mod, F, exec, exec $(tofi-run --drun-launch=true --fuzzy-match=true)"
-        "$mod, O, exec, walker"
         # "$mod, C, exec, walker -m clipboard"
         "$mod, K, exec, bash ${dotfiles}/scripts/bookmarks.sh"
         "$mod, P, exec, bash ${dotfiles}/scripts/passwords_test.sh"
-        "$mod, A, exec, bash ${dotfiles}/scripts/app-launcher.sh"
+        "$mod, O, exec, bash ${dotfiles}/scripts/app-launcher.sh"
 
         # scripts
         "$mod, Q, exec, wtype -M alt $(cat /tmp/username) -m alt"
@@ -88,6 +86,7 @@ in {
         "center, class:^(app-launcher)$"
         "size 600 400, class:^(app-launcher)$"
         "rounding 10, class:^(app-launcher)$"
+        "pin, class:^(app-launcher)$"
       ];
 
       env = [ "XCURSOR_SIZE,24" "HYPRCURSOR_SIZE,24" "QT_CURSOR_SIZE,24" ];

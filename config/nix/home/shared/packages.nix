@@ -17,7 +17,6 @@
     lsof
     nix-prefetch-github
     opencode
-    playerctl
     ripgrep
     rsync
     tmux

@@ -1,6 +1,6 @@
 return {
 	"Jofr3/needle",
-  enabled = true,
+  enabled = false,
 	lazy = false,
   opts = {},
 	keys = {

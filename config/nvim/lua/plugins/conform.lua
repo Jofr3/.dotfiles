@@ -5,9 +5,9 @@ return {
 	opts = {
 		formatters_by_ft = {
 			lua = { "stylua", lsp_format = "fallback" },
-			blade = { "blade-formatter" },
-			php = { "blade-formatter" },
-			nix = { "nixfmt" },
+			-- blade = { "blade-formatter" },
+			-- php = { "blade-formatter" },
+			nix = { "nixfmt", lsp_format = "fallback" },
 		},
 	},
 	keys = {

@@ -6,6 +6,10 @@ return {
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		"debugloop/telescope-undo.nvim",
+		{
+			"aaronhallaert/advanced-git-search.nvim",
+			cmd = { "AdvancedGitSearch" },
+		},
 	},
 	opts = {
 		defaults = {
@@ -42,9 +46,15 @@ return {
 				height = 45,
 			},
 		},
+		extensions = {
+			advanced_git_search = {
+				diff_plugin = "diffview",
+			},
+		},
 	},
 	config = function(_, opts)
 		require("telescope").setup(opts)
+		require("telescope").load_extension("advanced_git_search")
 		vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = "#928374" })
 		vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { fg = "#928374" })
 		vim.api.nvim_set_hl(0, "TelescopeResultsBorder", { fg = "#928374" })
@@ -55,5 +65,7 @@ return {
 		{ mode = "n", "<A-/>", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>" },
 		{ mode = "n", "<space><space>", "<cmd>lua require('telescope.builtin').resume()<cr>" },
 		{ mode = "n", "<A-u>", "<cmd>Telescope undo<cr>" },
+		{ mode = "n", "<A-c>", "<cmd>AdvancedGitSearch changed_on_branch<cr>" },
+		{ mode = "n", "<A-s>", "<cmd>lua require('telescope.builtin').git_status()<cr>" },
 	},
 }

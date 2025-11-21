@@ -41,16 +41,6 @@ alias ls="exa --icons --group-directories-first"
 alias lt="exa --tree --level=4 --icons --group-directories-first"
 alias grep="grep --color='auto'"
 
-function ateinsa-vpn
-    sudo openfortivpn mail.ateinsa.com:10443 --username=jscaricaciottoli --trusted-cert e2f07f1955c5f81a26c7542c6616104c55cf5eaf81147aacccfd7a4aef019737 -p "1234567j\$" $argv
-end
-
 # Keybinds
-bind -M insert \en "nvim -c Oil"
-bind \en "nvim -c Oil"
-
 bind -M insert \cf super-cd
 bind \cf super-cd
-
-# bind -M insert \cf "bash /home/jofre/.dotfiles/scripts/tmux-sessionizer.sh"
-# bind \cf "bash /home/jofre/.dotfiles/scripts/tmux-sessionizer.sh"

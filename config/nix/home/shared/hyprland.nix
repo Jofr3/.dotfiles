@@ -41,16 +41,12 @@ in {
         "$mod, W, exec, wtype -M alt $(cat /tmp/password) -m alt"
 
         # brightness
-        "$mod, I, exec, brightnessctl set 5%-"
-        # "$mod, O, exec, brightnessctl set +5%"
+        "$mod, Left, exec, brightnessctl set 5%-"
+        "$mod, Right, exec, brightnessctl set +5%"
 
         # volume
         "$mod, Up, exec, pactl set-sink-volume @DEFAULT_SINK@ +5%"
         "$mod, Down, exec, pactl set-sink-volume @DEFAULT_SINK@ -5%"
-
-        # media
-        "$mod, Left, exec, playerctl previous"
-        "$mod, Right, exec, playerctl next"
 
         # workspaces
         "$mod, 1, workspace, 1"

@@ -1,0 +1,34 @@
+{
+  "commands": {
+    "vpn lsw": {
+      "command": "echo 'YgH8m6jfaEFwkneAZVKbkE@gdCZGg3Q&' | sudo openconnect -b vpn.lasevaweb.com:8443 --user='jofre' --passwd-on-stdin",
+      "terminal": true,
+      "hold": false
+    },
+    "vpn ateinsa": {
+      "command": "sudo openfortivpn mail.ateinsa.com:10443 --username=jscaricaciottoli --trusted-cert e2f07f1955c5f81a26c7542c6616104c55cf5eaf81147aacccfd7a4aef019737 -p '1234567j$'",
+      "terminal": true,
+      "hold": false
+    },
+    "system resources": {
+      "command": "btop",
+      "terminal": true,
+      "hold": false
+    },
+    "screenshot": {
+      "command": "grim -g \"$(slurp)\" \"${screenshotDir}/$(date +%Y%m%d-%H%M%S).png\"",
+      "terminal": false,
+      "hold": false
+    },
+    "keyboard switch layout": {
+      "command": "hyprctl switchxkblayout active next",
+      "terminal": false,
+      "hold": false
+    },
+    "wifi": {
+      "command": "impala",
+      "terminal": true,
+      "hold": false
+    }
+  }
+}

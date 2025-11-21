@@ -14,7 +14,7 @@
     stateVersion = "25.05";
     enableNixpkgsReleaseCheck = false;
 
-    packages = with pkgs; [ hyprpicker skim vivaldi bun cliphist ];
+    packages = with pkgs; [ hyprpicker skim vivaldi impala firefox ];
   };
 
   programs.home-manager.enable = true;

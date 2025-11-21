@@ -34,14 +34,11 @@ in {
         "$mod, O, exec, bash ${dotfiles}/scripts/apps-launcher.sh"
         "$mod, K, exec, bash ${dotfiles}/scripts/bookmarks-launcher.sh"
         "$mod, P, exec, bash ${dotfiles}/scripts/passwords-launcher.sh"
+        "$mod, X, exec, bash ${dotfiles}/scripts/commands-launcher.sh"
 
         # credentials
         "$mod, Q, exec, wtype -M alt $(cat /tmp/username) -m alt"
         "$mod, W, exec, wtype -M alt $(cat /tmp/password) -m alt"
-
-        # screenshot
-        ''
-          $mod, X, exec, grim -g "$(slurp)" "${screenshotDir}/$(date +%Y%m%d-%H%M%S).png"''
 
         # brightness
         "$mod, I, exec, brightnessctl set 5%-"
@@ -54,9 +51,6 @@ in {
         # media
         "$mod, Left, exec, playerctl previous"
         "$mod, Right, exec, playerctl next"
-
-        # keyboard layout
-        "$mod, Space, exec, hyprctl switchxkblayout active next"
 
         # workspaces
         "$mod, 1, workspace, 1"
@@ -82,6 +76,7 @@ in {
       bindm = [ "$mod, mouse:272, movewindow" "$mod, mouse:273, resizewindow" ];
 
       windowrulev2 = [
+        # App launcher
         "float, class:^(launcher)$"
         "center, class:^(launcher)$"
         "size 600 400, class:^(launcher)$"

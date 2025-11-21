@@ -4,7 +4,7 @@ set -euo pipefail
 
 readonly BOOKMARKS_FILE="${HOME}/.dotfiles/scripts/bookmarks.json"
 readonly CACHE_FILE="/tmp/bookmarks-launcher-cache.txt"
-readonly BROWSER="qutebrowser"
+readonly BROWSER="firefox"
 
 error_exit() {
     echo "Error: $1" >&2

@@ -102,6 +102,10 @@
       "gitlab": "https://gitlab.com/lasevaweb_group/vivelloc.cat/ous.vivelloc.cat",
       "prod": "https://ous.vivelloc.cat"
     },
+    "ateinsa": {
+      "gitlab": "https://gitlab.com/lasevaweb_group/vivelloc.cat/ous.vivelloc.cat",
+      "prod": "https://ous.vivelloc.cat"
+    },
     "beques": {
       "gitlab": "https://gitlab.com/lasevaweb_group/ccosona/beques.ccosona.cat",
       "prod": "https://dev-beques.ccosona.cat"

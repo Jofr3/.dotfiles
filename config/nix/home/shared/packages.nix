@@ -72,6 +72,7 @@
     docker-compose
     git
     gnumake
+    bun
 
     # languages & runtimes
     cargo

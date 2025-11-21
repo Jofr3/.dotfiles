@@ -30,12 +30,12 @@ in {
 
         # launchers
         "$mod, Return, exec, kitty"
-        # "$mod, C, exec, walker -m clipboard"
-        "$mod, K, exec, bash ${dotfiles}/scripts/bookmarks.sh"
-        "$mod, P, exec, bash ${dotfiles}/scripts/passwords_test.sh"
-        "$mod, O, exec, bash ${dotfiles}/scripts/app-launcher.sh"
+        "$mod, V, exec, bash ${dotfiles}/scripts/clipboard-launcher.sh"
+        "$mod, O, exec, bash ${dotfiles}/scripts/apps-launcher.sh"
+        "$mod, K, exec, bash ${dotfiles}/scripts/bookmarks-launcher.sh"
+        "$mod, P, exec, bash ${dotfiles}/scripts/passwords-launcher.sh"
 
-        # scripts
+        # credentials
         "$mod, Q, exec, wtype -M alt $(cat /tmp/username) -m alt"
         "$mod, W, exec, wtype -M alt $(cat /tmp/password) -m alt"
 
@@ -82,11 +82,11 @@ in {
       bindm = [ "$mod, mouse:272, movewindow" "$mod, mouse:273, resizewindow" ];
 
       windowrulev2 = [
-        "float, class:^(app-launcher)$"
-        "center, class:^(app-launcher)$"
-        "size 600 400, class:^(app-launcher)$"
-        "rounding 10, class:^(app-launcher)$"
-        "pin, class:^(app-launcher)$"
+        "float, class:^(launcher)$"
+        "center, class:^(launcher)$"
+        "size 600 400, class:^(launcher)$"
+        "rounding 10, class:^(launcher)$"
+        "pin, class:^(launcher)$"
       ];
 
       env = [ "XCURSOR_SIZE,24" "HYPRCURSOR_SIZE,24" "QT_CURSOR_SIZE,24" ];
@@ -107,7 +107,11 @@ in {
         "8, monitor:HDMI-A-1"
       ];
 
-      exec-once = [ "hyprpaper" ];
+      exec-once = [
+        "hyprpaper"
+        "wl-paste --watch cliphist store"
+        "foot --server"
+      ];
     };
   };
 }

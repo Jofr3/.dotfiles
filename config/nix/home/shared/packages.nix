@@ -54,10 +54,11 @@
     wdisplays
 
     # wayland utilities
+    cliphist
     grim
     slurp
     tofi
-    wl-clipboard-rs
+    wl-clipboard
     wl-color-picker
     wtype
     xdg-desktop-portal-hyprland

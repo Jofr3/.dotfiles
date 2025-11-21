@@ -1,30 +1,42 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 set -euo pipefail
 
 readonly PASSWORDS_FILE="${HOME}/.dotfiles/scripts/passwords.json"
+readonly CACHE_FILE="/tmp/passwords-launcher-cache.txt"
 
 error_exit() {
     echo "Error: $1" >&2
     exit 1
 }
 
-validate_dependencies() {
-    local deps=("jq" "walker" "wtype")
-    for dep in "${deps[@]}"; do
-        command -v "$dep" >/dev/null 2>&1 || error_exit "Required dependency '$dep' not found"
-    done
+build_cache() {
+    jq -r '.items[] | select(.type == 1) | .name' "$PASSWORDS_FILE" | sort -u
 }
 
-validate_passwords_file() {
-    [[ -f "$PASSWORDS_FILE" ]] || error_exit "Passwords file not found: $PASSWORDS_FILE"
-    [[ -r "$PASSWORDS_FILE" ]] || error_exit "Cannot read passwords file: $PASSWORDS_FILE"
+update_cache() {
+    if [ ! -f "$CACHE_FILE" ] || [ "$PASSWORDS_FILE" -nt "$CACHE_FILE" ]; then
+        build_cache > "$CACHE_FILE"
+    fi
 }
 
-get_selection() {
-    local items="$1"
-    local selection
-    selection=$(echo "$items" | walker --dmenu)
-    echo "$selection"
+get_items_by_name() {
+    local name="$1"
+    jq --arg name "$name" '[.items[] | select(.type == 1 and .name == $name)]' "$PASSWORDS_FILE"
+}
+
+show_fzf_menu() {
+    local input_file="$1"
+    local FIFO="/tmp/passwords-launcher-$$.fifo"
+    mkfifo "$FIFO"
+    
+    foot --app-id="launcher" bash -c "fzf --reverse --no-scrollbar --padding=1,1,0,2 < $input_file > $FIFO" &
+    
+    local selected
+    selected=$(cat "$FIFO")
+    rm "$FIFO"
+    
+    echo "$selected"
 }
 
 send_to_browser() {
@@ -45,33 +57,18 @@ get_login_credentials() {
     fi
     
     send_to_browser "$username"
-
     wtype -k Tab
-
     send_to_browser "$password"
 
     echo "$username" > /tmp/username
     echo "$password" > /tmp/password
 }
 
-get_login_groups() {
-    jq -r '.items[] | select(.type == 1) | .name' "$PASSWORDS_FILE" | sort -u
-}
-
-get_items_by_name() {
-    local name="$1"
-    jq --arg name "$name" '[.items[] | select(.type == 1 and .name == $name)]' "$PASSWORDS_FILE"
-}
-
 main() {
-    validate_dependencies
-    validate_passwords_file
-    
-    local login_groups
-    login_groups=$(get_login_groups) || error_exit "Failed to read passwords"
+    update_cache
     
     local chosen
-    chosen=$(get_selection "$login_groups")
+    chosen=$(show_fzf_menu "$CACHE_FILE")
     [[ -n "$chosen" ]] || exit 0
     
     local items_json
@@ -87,18 +84,17 @@ main() {
         selected_item=$(echo "$items_json" | jq '.[0]')
         get_login_credentials "$chosen" "$selected_item"
     else
-        local item_options
-        item_options=$(echo "$items_json" | jq -r '.[] | (.login.username // "no-username")')
+        local usernames_file="/tmp/passwords-launcher-usernames-$$.txt"
+        echo "$items_json" | jq -r '.[] | (.login.username // "no-username")' > "$usernames_file"
         
-        local chosen_item
-        chosen_item=$(get_selection "$item_options")
-        [[ -n "$chosen_item" ]] || exit 0
+        local chosen_username
+        chosen_username=$(show_fzf_menu "$usernames_file")
+        rm "$usernames_file"
         
-        local selected_username
-        selected_username=$(echo "$chosen_item" | cut -d' ' -f1)
+        [[ -n "$chosen_username" ]] || exit 0
         
         local selected_item
-        selected_item=$(echo "$items_json" | jq --arg username "$selected_username" '
+        selected_item=$(echo "$items_json" | jq --arg username "$chosen_username" '
             .[] | select(.login.username == $username)
         ')
         

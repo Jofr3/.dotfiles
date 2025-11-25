@@ -52,6 +52,8 @@
         "input"
         "render"
         "adbusers"
+        "jmtpfs"
+        "mtpfs"
       ];
     };
     groups = { docker = { }; };
@@ -116,11 +118,17 @@
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
+  # usb
+  services.gvfs.enable = true;
+  services.udisks2.enable = true;
+  hardware.usb-modeswitch.enable = true;
+
   # theming
   stylix = {
     enable = true;
     image = ../theme/wallpaper.jpg;
-    base16Scheme = ../theme/gruvbox.yml;
+    # base16Scheme = ../theme/gruvbox.yml;
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/tokyo-night-moon.yaml";
     cursor = {
       package = pkgs.vanilla-dmz;
       name = "Vanilla-DMZ";

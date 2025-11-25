@@ -53,7 +53,7 @@ vim.diagnostic.config({ virtual_text = false, signs = false })
 vim.opt.switchbuf = "vsplit"
 
 -- temp
-vim.opt.laststatus = 3
+-- vim.opt.laststatus = 3
 
 vim.opt.shortmess:append("I")
 

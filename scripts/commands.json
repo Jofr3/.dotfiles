@@ -16,7 +16,7 @@
       "hold": false
     },
     "screenshot": {
-      "command": "grim -g \"$(slurp)\" \"${screenshotDir}/$(date +%Y%m%d-%H%M%S).png\"",
+      "command": "grim -g \"$(slurp)\" \"$HOME/Documents/screenshots/$(date +%Y%m%d-%H%M%S).png\"",
       "terminal": false,
       "hold": false
     },

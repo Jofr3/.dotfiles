@@ -25,20 +25,19 @@ in {
 
       bind = [
         # window management
-        "$mod, C, killactive"
-        "$mod, T, togglefloating"
+        "$mod, Q, killactive"
 
         # launchers
         "$mod, Return, exec, kitty"
-        "$mod, V, exec, bash ${dotfiles}/scripts/clipboard-launcher.sh"
+        "$mod, C, exec, bash ${dotfiles}/scripts/clipboard-launcher.sh"
         "$mod, O, exec, bash ${dotfiles}/scripts/apps-launcher.sh"
         "$mod, K, exec, bash ${dotfiles}/scripts/bookmarks-launcher.sh"
         "$mod, P, exec, bash ${dotfiles}/scripts/passwords-launcher.sh"
         "$mod, X, exec, bash ${dotfiles}/scripts/commands-launcher.sh"
 
         # credentials
-        "$mod, Q, exec, wtype -M alt $(cat /tmp/username) -m alt"
-        "$mod, W, exec, wtype -M alt $(cat /tmp/password) -m alt"
+        "$mod, A, exec, wtype -M alt $(cat /tmp/username) -m alt"
+        "$mod, S, exec, wtype -M alt $(cat /tmp/password) -m alt"
 
         # brightness
         "$mod, Left, exec, brightnessctl set 5%-"
@@ -49,24 +48,22 @@ in {
         "$mod, Down, exec, pactl set-sink-volume @DEFAULT_SINK@ -5%"
 
         # workspaces
-        "$mod, 1, workspace, 1"
-        "$mod, 2, workspace, 2"
-        "$mod, 3, workspace, 3"
-        "$mod, 4, workspace, 4"
-        "$mod, 7, workspace, 5"
-        "$mod, 8, workspace, 6"
-        "$mod, 9, workspace, 7"
-        "$mod, 0, workspace, 8"
+        "$mod, W, workspace, 1"
+        "$mod, T, workspace, 2"
+        "$mod, H, workspace, 3"
+        "$mod, M, workspace, 4"
+        "$mod, E, workspace, 5"
+        "$mod, D, workspace, 6"
+        "$mod, F, workspace, 7"
 
         # move to workspace
-        "$mod SHIFT, 1, movetoworkspace, 1"
-        "$mod SHIFT, 2, movetoworkspace, 2"
-        "$mod SHIFT, 3, movetoworkspace, 3"
-        "$mod SHIFT, 4, movetoworkspace, 4"
-        "$mod SHIFT, 7, movetoworkspace, 5"
-        "$mod SHIFT, 8, movetoworkspace, 6"
-        "$mod SHIFT, 9, movetoworkspace, 7"
-        "$mod SHIFT, 0, movetoworkspace, 8"
+        "$mod SHIFT, W, movetoworkspace, 1"
+        "$mod SHIFT, T, movetoworkspace, 2"
+        "$mod SHIFT, H, movetoworkspace, 3"
+        "$mod SHIFT, M, movetoworkspace, 4"
+        "$mod SHIFT, E, movetoworkspace, 5"
+        "$mod SHIFT, D, movetoworkspace, 6"
+        "$mod SHIFT, F, movetoworkspace, 7"
       ];
 
       bindm = [ "$mod, mouse:272, movewindow" "$mod, mouse:273, resizewindow" ];
@@ -92,10 +89,10 @@ in {
         "2, monitor:eDP-1"
         "3, monitor:eDP-1"
         "4, monitor:eDP-1"
-        "5, monitor:eDP-1"
+        "5, monitor:HDMI-A-1"
         "6, monitor:eDP-1"
         "7, monitor:eDP-1"
-        "8, monitor:HDMI-A-1"
+        "8, monitor:eDP-1"
       ];
 
       exec-once = [

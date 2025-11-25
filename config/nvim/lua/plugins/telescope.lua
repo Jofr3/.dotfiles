@@ -41,31 +41,95 @@ return {
 					["<A-i>"] = require("telescope.actions").cycle_history_next,
 				},
 			},
-			layout_config = {
-				width = 190,
-				height = 45,
-			},
+			layout_config = { width = 190, height = 45 },
 		},
 		extensions = {
-			advanced_git_search = {
-				diff_plugin = "diffview",
-			},
+			advanced_git_search = { diff_plugin = "diffview" },
 		},
 	},
 	config = function(_, opts)
-		require("telescope").setup(opts)
-		require("telescope").load_extension("advanced_git_search")
-		vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = "#928374" })
-		vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { fg = "#928374" })
-		vim.api.nvim_set_hl(0, "TelescopeResultsBorder", { fg = "#928374" })
+		local telescope = require("telescope")
+		local pickers = require("telescope.pickers")
+		local finders = require("telescope.finders")
+		local conf = require("telescope.config").values
+		local actions = require("telescope.actions")
+		local action_state = require("telescope.actions.state")
+
+		local custom_commands = {
+			{ name = "Copy file path", cmd = "let @+ = expand('%:p')" },
+
+			{ name = "Git diff", cmd = "DiffviewOpen" },
+			{ name = "Git history", cmd = "DiffviewOpen" },
+			{ name = "Git file diff", cmd = "DiffviewFileHistory" },
+			{ name = "Git file history", cmd = "AdvancedGitSearch diff_commit_file" },
+			{ name = "Git line history", cmd = "AdvancedGitSearch diff_commit_line" },
+			{ name = "Git status", cmd = "Telescope git_status" },
+			{ name = "Git blame", cmd = "G blame" },
+
+			{ name = "Live grep", cmd = "Telescope live_grep" },
+			{ name = "Search in file", cmd = "Telescope current_buffer_fuzzy_find" },
+			{ name = "Undo tree", cmd = "Telescope undo" },
+
+			{ name = "Format file", cmd = "lua require('conform').format()" },
+			{ name = "Database", cmd = "tabnew | DBUI" },
+		}
+
+		local function run_command_picker(from_visual)
+			pickers
+				.new({}, {
+					prompt_title = "Run Custom Command " .. (from_visual and "(Visual Selection)" or "(Normal)"),
+					finder = finders.new_table({
+						results = custom_commands,
+						entry_maker = function(entry)
+							return {
+								value = entry,
+								display = entry.name,
+								ordinal = entry.name,
+							}
+						end,
+					}),
+					sorter = conf.generic_sorter({}),
+					attach_mappings = function(prompt_bufnr, map)
+						actions.select_default:replace(function()
+							actions.close(prompt_bufnr)
+							local selection = action_state.get_selected_entry()
+							local cmd = selection.value.cmd
+
+							vim.schedule(function()
+								if from_visual then
+									local last_mode = vim.fn.visualmode()
+									if last_mode ~= "" then
+										vim.cmd("normal! gv")
+										vim.cmd("'<,'>" .. cmd)
+									else
+										print("No selection found, running normally.")
+										vim.cmd(cmd)
+									end
+								else
+									vim.cmd(cmd)
+								end
+							end)
+						end)
+						return true
+					end,
+				})
+				:find()
+		end
+
+		vim.keymap.set("n", "<A-p>", function()
+			run_command_picker(false)
+		end, { desc = "Telescope Custom Commands" })
+
+		vim.keymap.set("v", "<A-p>", function()
+			run_command_picker(true)
+		end, { desc = "Telescope Custom Commands (Visual)" })
+
+		telescope.setup(opts)
+		telescope.load_extension("advanced_git_search")
 	end,
 	keys = {
-		{ mode = "n", "<A-f>", "<cmd>lua require('telescope.builtin').find_files({ preview = false })<cr>" },
-		{ mode = "n", "<A-g>", "<cmd>lua require('telescope.builtin').live_grep()<cr>" },
-		{ mode = "n", "<A-/>", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>" },
+		{ mode = "n", "<A-f>", "<cmd>lua require('telescope.builtin').find_files()<cr>" },
+		{ mode = "n", "<A-c>", "<cmd>lua require('telescope.builtin').git_status()<cr>" },
 		{ mode = "n", "<space><space>", "<cmd>lua require('telescope.builtin').resume()<cr>" },
-		{ mode = "n", "<A-u>", "<cmd>Telescope undo<cr>" },
-		{ mode = "n", "<A-c>", "<cmd>AdvancedGitSearch changed_on_branch<cr>" },
-		{ mode = "n", "<A-s>", "<cmd>lua require('telescope.builtin').git_status()<cr>" },
 	},
 }

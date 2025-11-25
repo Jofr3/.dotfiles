@@ -10,7 +10,4 @@ return {
 			nix = { "nixfmt", lsp_format = "fallback" },
 		},
 	},
-	keys = {
-		{ mode = "n", "<A-;>", "<cmd>lua require('conform').format()<cr>" },
-	},
 }

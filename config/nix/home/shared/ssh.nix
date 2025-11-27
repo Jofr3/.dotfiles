@@ -74,6 +74,12 @@ in {
         identityFile = sshKeyPath;
       };
 
+      vivelloc = {
+        hostname = "ous.vivelloc.cat";
+        user = "ous_vivelloc_cat";
+        identityFile = sshKeyPath;
+      };
+
       ateinsa = {
         hostname = "appserver.ateinsa.com";
         user = "ateinsa";

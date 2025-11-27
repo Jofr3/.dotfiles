@@ -48,9 +48,9 @@
     libreoffice
     nautilus
     overskride
-    papers
     thunderbird
     wdisplays
+    zathura
 
     # wayland utilities
     cliphist

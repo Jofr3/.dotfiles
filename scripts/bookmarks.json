@@ -104,7 +104,7 @@
     },
     "ateinsa": {
       "gitlab": "https://gitlab.com/lasevaweb_ateinsa/APPSERVER",
-      "prod": "https://dev.ateinsa.cat"
+      "prod": "https://dev.ateinsa.com"
     },
     "beques": {
       "gitlab": "https://gitlab.com/lasevaweb_group/ccosona/beques.ccosona.cat",
@@ -113,6 +113,10 @@
     "renovacions": {
       "gitlab": "https://gitlab.com/lasevaweb_group/ccosona/renovacions.ccosona.cat",
       "prod": "https://renovacions.ccosona.cat"
+    },
+    "ayudas": {
+      "prod": "https://ayudas.asetconsultoria.com/",
+      "gitlab": "https://gitlab.com/lasevaweb_group/asetconsultoria.com/ayudas-asetconsultoria-com"
     },
     "fontawesome": "https://fontawesome.com/icons",
     "translate": "https://translate.google.com/?sl=ca&tl=en&op=translate",

@@ -55,6 +55,7 @@ in {
         "$mod, E, workspace, 5"
         "$mod, D, workspace, 6"
         "$mod, F, workspace, 7"
+        "$mod, I, workspace, 8"
 
         # move to workspace
         "$mod SHIFT, W, movetoworkspace, 1"
@@ -64,6 +65,7 @@ in {
         "$mod SHIFT, E, movetoworkspace, 5"
         "$mod SHIFT, D, movetoworkspace, 6"
         "$mod SHIFT, F, movetoworkspace, 7"
+        "$mod SHIFT, I, movetoworkspace, 8"
       ];
 
       bindm = [ "$mod, mouse:272, movewindow" "$mod, mouse:273, resizewindow" ];

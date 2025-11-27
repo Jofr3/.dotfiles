@@ -35,6 +35,11 @@ return {
 				remote_path = "/dev.vicfires.cat",
 			},
 			{
+				local_path = "/home/jofre/lsw/vivelloc",
+				host = "vivelloc",
+				remote_path = "/ous.vivelloc.cat",
+			},
+			{
 				local_path = "/home/jofre/lsw/ateinsa",
 				host = "ateinsa",
 				remote_path = "/var/www/html",

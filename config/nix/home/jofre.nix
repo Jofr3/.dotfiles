@@ -1,5 +1,6 @@
 { config, pkgs, ... }: {
   imports = [
+    ../home/shared/bash.nix
     ../home/shared/configs.nix
     ../home/shared/hyprland.nix
     ../home/shared/packages.nix

@@ -37,7 +37,7 @@
     # browsers
     chromium
     google-chrome
-    qutebrowser
+    firefox
 
     # apps
     dbeaver-bin

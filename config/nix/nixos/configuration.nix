@@ -1,5 +1,4 @@
-{ inputs, pkgs, ... }:
-
+{ config, inputs, pkgs, ... }:
 {
   imports = [ inputs.stylix.nixosModules.stylix ];
 
@@ -128,7 +127,8 @@
     enable = true;
     image = ../theme/wallpaper.jpg;
     # base16Scheme = ../theme/gruvbox.yml;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/tokyo-night-moon.yaml";
+    # base16Scheme = "${pkgs.base16-schemes}/share/themes/tokyo-night-moon.yaml";
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/rose-pine-moon.yaml";
     cursor = {
       package = pkgs.vanilla-dmz;
       name = "Vanilla-DMZ";

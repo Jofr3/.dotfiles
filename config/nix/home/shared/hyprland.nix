@@ -16,6 +16,15 @@ in {
         gaps_out = 0;
       };
 
+      group = {
+        auto_group = true;
+        groupbar = {
+          enabled = true;
+          height = 20;
+          render_titles = true;
+        };
+      };
+
       input = {
         kb_layout = "us,ca";
         kb_options = "caps:escape";
@@ -66,11 +75,18 @@ in {
         "$mod SHIFT, D, movetoworkspace, 6"
         "$mod SHIFT, F, movetoworkspace, 7"
         "$mod SHIFT, I, movetoworkspace, 8"
+
+        # groups (tabs)
+        "$mod, Tab, changegroupactive, f"
+        "$mod SHIFT, Tab, changegroupactive, b"
       ];
 
       bindm = [ "$mod, mouse:272, movewindow" "$mod, mouse:273, resizewindow" ];
 
       windowrulev2 = [
+        # Auto-group all windows
+        "group set, class:.*"
+
         # App launcher
         "float, class:^(launcher)$"
         "center, class:^(launcher)$"

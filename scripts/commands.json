@@ -25,11 +25,6 @@
       "terminal": false,
       "hold": false
     },
-    "wifi": {
-      "command": "impala",
-      "terminal": true,
-      "hold": false
-    },
     "color picker": {
       "command": "hyprpicker | wl-copy",
       "terminal": false,

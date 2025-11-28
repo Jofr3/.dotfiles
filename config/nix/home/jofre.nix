@@ -5,7 +5,6 @@
     ../home/shared/packages.nix
     ../home/shared/ssh.nix
     ../home/shared/stylix.nix
-    ../home/shared/walker.nix
   ];
 
   home = {
@@ -14,7 +13,7 @@
     stateVersion = "25.05";
     enableNixpkgsReleaseCheck = false;
 
-    packages = with pkgs; [ hyprpicker skim vivaldi impala ];
+    packages = with pkgs; [ hyprpicker skim vivaldi ];
   };
 
   programs.home-manager.enable = true;
@@ -28,16 +27,6 @@
   };
 
   services = {
-    hyprpaper = {
-      enable = true;
-      settings = {
-        ipc = false;
-        preload =
-          [ "${config.home.homeDirectory}/.dotfiles/wallpapers/16.png" ];
-        wallpaper =
-          [ "eDP-1,${config.home.homeDirectory}/.dotfiles/wallpapers/16.png" ];
-      };
-    };
     syncthing.enable = true;
   };
 

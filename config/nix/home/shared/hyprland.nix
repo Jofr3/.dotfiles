@@ -2,7 +2,21 @@
 let
   dotfiles = config.home.homeDirectory + "/.dotfiles";
   screenshotDir = config.home.homeDirectory + "/Documents/screenshots";
+  wallpaper = dotfiles + "/config/nix/theme/wallpaper.jpg";
 in {
+  services.hyprpaper = {
+    enable = true;
+    settings = {
+      preload = [ wallpaper ];
+      wallpaper = [
+        "HDMI-A-1,${wallpaper}"
+        "eDP-1,${wallpaper}"
+      ];
+      splash = false;
+      ipc = true;
+    };
+  };
+
   wayland.windowManager.hyprland = {
     enable = true;
     settings = {
@@ -19,9 +33,9 @@ in {
       group = {
         auto_group = true;
         groupbar = {
-          enabled = true;
-          height = 20;
-          render_titles = true;
+          render_titles = false;
+          gaps_in = 0;
+          gaps_out = 0;
         };
       };
 
@@ -37,7 +51,7 @@ in {
         "$mod, Q, killactive"
 
         # launchers
-        "$mod, Return, exec, kitty"
+        "$mod, Return, exec, footclient"
         "$mod, C, exec, bash ${dotfiles}/scripts/clipboard-launcher.sh"
         "$mod, O, exec, bash ${dotfiles}/scripts/apps-launcher.sh"
         "$mod, K, exec, bash ${dotfiles}/scripts/bookmarks-launcher.sh"
@@ -78,7 +92,6 @@ in {
 
         # groups (tabs)
         "$mod, Tab, changegroupactive, f"
-        "$mod SHIFT, Tab, changegroupactive, b"
       ];
 
       bindm = [ "$mod, mouse:272, movewindow" "$mod, mouse:273, resizewindow" ];
@@ -88,6 +101,7 @@ in {
         "group set, class:.*"
 
         # App launcher
+        "group deny, class:^(launcher)$"
         "float, class:^(launcher)$"
         "center, class:^(launcher)$"
         "size 600 400, class:^(launcher)$"
@@ -114,7 +128,6 @@ in {
       ];
 
       exec-once = [
-        "hyprpaper"
         "wl-paste --watch cliphist store"
         "foot --server"
       ];

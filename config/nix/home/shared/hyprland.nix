@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
   dotfiles = config.home.homeDirectory + "/.dotfiles";
   screenshotDir = config.home.homeDirectory + "/Documents/screenshots";
@@ -36,6 +36,8 @@ in {
           render_titles = false;
           gaps_in = 0;
           gaps_out = 0;
+          "col.active" = lib.mkForce "rgba(C4A7E780)";
+          "col.inactive" = lib.mkForce "rgba(6E6A8680)";
         };
       };
 

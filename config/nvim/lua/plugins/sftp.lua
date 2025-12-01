@@ -54,6 +54,11 @@ return {
 				host = "renovacions",
 				remote_path = "/dev.renovacions.ccosona.cat",
 			},
+			{
+				local_path = "/home/jofre/lsw/ayudas",
+				host = "ayudas",
+				remote_path = "/ayudas.asetconsultoria.com",
+			},
 		},
 	},
 }

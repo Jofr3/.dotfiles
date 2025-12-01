@@ -34,6 +34,13 @@
     fish.enable = true;
     adb.enable = true;
     ssh.startAgent = true;
+    nix-ld = {
+      enable = true;
+      libraries = with pkgs; [
+        stdenv.cc.cc.lib
+        zlib
+      ];
+    };
   };
 
   # users

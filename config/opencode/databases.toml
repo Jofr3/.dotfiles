@@ -1,0 +1,11 @@
+[[sources]]
+id = "vic_fires"
+dsn = "mysql://vic_fires_u:Uz6sCpr4BJBonEDfzwfNb9rqkXF2BF26@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/vic_fires"
+readonly = true
+max_rows = 1000
+
+[[sources]]
+id = "ateinsa"
+dsn = "sqlserver://web:Intranet-2020@192.168.1.26/master"
+readonly = true
+max_rows = 1000

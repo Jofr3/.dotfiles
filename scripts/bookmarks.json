@@ -104,11 +104,11 @@
     },
     "ateinsa": {
       "gitlab": "https://gitlab.com/lasevaweb_ateinsa/APPSERVER",
-      "prod": "https://dev.ateinsa.com"
+      "dev": "https://dev.ateinsa.com"
     },
     "beques": {
       "gitlab": "https://gitlab.com/lasevaweb_group/ccosona/beques.ccosona.cat",
-      "prod": "https://dev-beques.ccosona.cat"
+      "dev": "https://dev-beques.ccosona.cat"
     },
     "renovacions": {
       "gitlab": "https://gitlab.com/lasevaweb_group/ccosona/renovacions.ccosona.cat",

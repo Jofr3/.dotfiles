@@ -15,23 +15,16 @@
     }
   },
   "tui": {
-    "scroll_speed": 15
+    "scroll_speed": 20
   },
   "mcp": {
-    "context7": {
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "CONTEXT7_API_KEY": "ctx7sk-57a11e2f-1ae9-4b8c-93c5-e911c0ceacc0"
-      }
-    },
     "nixos": {
       "type": "local",
       "command": ["nix", "run", "github:utensils/mcp-nixos", "--"]
     },
     "chrome-devtools": {
       "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp@latest", "-e", "/home/jofre/.nix-profile/bin/google-chrome-stable", "--browser-url=http://127.0.0.1:9222"]
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest", "-e", "/home/jofre/.nix-profile/bin/chromium", "--browser-url=http://127.0.0.1:9222"]
     },
     "neovim": {
       "type": "local",
@@ -40,80 +33,56 @@
         "ALLOW_SHELL_COMMANDS": "true",
         "NVIM_SOCKET_PATH": "/tmp/nvim"
       }
+    },
+    "dbhub": {
+      "type": "local",
+      "command": [ "npx", "@bytebase/dbhub", "--config=./databases.toml" ]
     }
   },
   "tools": {
-    "context7_resolve-library-id": false,
-    "context7_get-library-docs": false,
     "nixos_*": false,
     "neovim_*": false,
     "chrome_*": false
   },
   "agent": {
-    "docs": {
-      "description": "Search documentation using Context7",
-      "mode": "subagent",
-      "tools": {
-        "context7_resolve-library-id": true,
-        "context7_get-library-docs": true
-      }
-    },
     "nixos": {
-      "description": "Search NixOS options, packages, and configuration",
+      "description": "Proactively help with NixOS system configuration, package management, and troubleshooting. Auto-invoked when user mentions NixOS options, system packages, configuration errors, rebuilding the system, or needs help finding NixOS settings. Search options and packages, suggest configurations, and help debug NixOS build issues.",
       "mode": "subagent",
       "tools": {
         "nixos_*": true
       }
     },
-    "database": {
-      "description": "Interact with databases for schema design, queries, and migrations",
-      "mode": "subagent"
-    },
-    "neovim": {
-      "description": "Interact with Neovim through MCP for advanced text editing and navigation",
-      "mode": "subagent",
-      "tools": {
-        "neovim_*": true
-      }
-    },
     "chrome": {
-      "description": "Interact with Chrome browser via DevTools protocol for automation and testing",
+      "description": "Proactively monitor Chrome browser for errors, console logs, network issues, and performance problems during development. Auto-invoked when user mentions browser issues, testing, debugging web apps, or when code changes might affect the browser. Use this agent to check browser state, capture screenshots, inspect console output, and validate web application behavior.",
       "mode": "subagent",
       "tools": {
         "chrome_*": true
       }
+    },
+    "neovim": {
+      "description": "Proactively assist with Neovim text editing, navigation, and code manipulation. Auto-invoked when user wants to open files in vim, perform search-replace operations, navigate to specific code locations, or execute vim commands. Use this agent to edit code in Neovim, locate functions/classes, perform refactoring, and manage vim buffers.",
+      "mode": "subagent",
+      "tools": {
+        "neovim_*": true
+      }
     }
   },
   "command": {
-    "docs": {
-      "description": "Search library documentation",
-      "template": "@docs $ARGUMENTS",
-      "agent": "docs",
-      "subtask": true
+    "check-browser": {
+      "description": "Check Chrome browser for console errors, warnings, and current page state",
+      "template": "Use the chrome agent to check the current state of the browser. Get console logs (errors and warnings), current page URL and title, and take a screenshot if there are any errors. Report any issues found."
     },
-    "nixos": {
-      "description": "Search NixOS options and packages",
-      "template": "@nixos $ARGUMENTS",
-      "agent": "nixos",
-      "subtask": true
+    "watch-browser": {
+      "description": "Start monitoring Chrome browser and report any errors or issues",
+      "template": "Use the chrome agent to monitor the browser. Check for console errors, network failures, and JavaScript exceptions. Report the current state and any problems detected. Suggest fixes if errors are found."
     },
-    "db": {
-      "description": "Database operations and schema design",
-      "template": "@database $ARGUMENTS",
-      "agent": "database",
-      "subtask": true
+    "nixos-rebuild": {
+      "description": "Search for NixOS options and help rebuild the system configuration",
+      "template": "Use the nixos agent to help with system configuration. If the user mentioned specific options or packages, search for them. Provide configuration examples and suggest the appropriate rebuild command (nixos-rebuild switch or home-manager switch)."
     },
-    "vim": {
-      "description": "Neovim text editing operations",
-      "template": "@neovim $ARGUMENTS",
-      "agent": "neovim",
-      "subtask": true
-    },
-    "chrome": {
-      "description": "Chrome browser automation and testing",
-      "template": "@chrome $ARGUMENTS",
-      "agent": "chrome",
-      "subtask": true
+    "vim-edit": {
+      "description": "Open a file in Neovim and optionally navigate to a specific location",
+      "template": "Use the neovim agent to open the file specified by the user in Neovim. If a line number or function name was mentioned, navigate to that location. Report whether the operation succeeded."
     }
   }
 }

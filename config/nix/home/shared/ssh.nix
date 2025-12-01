@@ -96,6 +96,12 @@ in {
         user = "dev_renovacions_ccosona_cat";
         identityFile = sshKeyPath;
       };
+
+      ayudas = {
+        hostname = "15.237.131.24";
+        user = "ayudas_asetconsultoria_com";
+        identityFile = sshKeyPath;
+      };
     };
   };
 }

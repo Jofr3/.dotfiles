@@ -1,7 +1,6 @@
 { config, lib, ... }:
 let
   dotfiles = config.home.homeDirectory + "/.dotfiles";
-  screenshotDir = config.home.homeDirectory + "/Documents/screenshots";
   wallpaper = dotfiles + "/config/nix/theme/wallpaper.jpg";
 in {
   services.hyprpaper = {
@@ -130,6 +129,7 @@ in {
       ];
 
       exec-once = [
+        "systemctl --user start hyprpaper"
         "wl-paste --watch cliphist store"
         "foot --server"
       ];

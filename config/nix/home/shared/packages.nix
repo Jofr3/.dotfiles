@@ -71,6 +71,7 @@
     docker-compose
     git
     gnumake
+    ninja
     bun
 
     # languages & runtimes
@@ -80,7 +81,11 @@
     luajitPackages.luarocks
     mysql80
     nodejs_22
-    python314
+    (python314.withPackages (ps: with ps; [
+      numpy
+      pandas
+      mysql-connector
+    ]))
     rustc
     sqlite
     zig

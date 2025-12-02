@@ -80,6 +80,7 @@ in {
         "$mod, D, workspace, 6"
         "$mod, F, workspace, 7"
         "$mod, I, workspace, 8"
+        "$mod, V, workspace, 9"
 
         # move to workspace
         "$mod SHIFT, W, movetoworkspace, 1"
@@ -90,6 +91,7 @@ in {
         "$mod SHIFT, D, movetoworkspace, 6"
         "$mod SHIFT, F, movetoworkspace, 7"
         "$mod SHIFT, I, movetoworkspace, 8"
+        "$mod SHIFT, V, movetoworkspace, 9"
 
         # groups (tabs)
         "$mod, Tab, changegroupactive, f"
@@ -108,6 +110,13 @@ in {
         "size 600 400, class:^(launcher)$"
         "rounding 10, class:^(launcher)$"
         "pin, class:^(launcher)$"
+
+        # Workspace assignments
+        "workspace 1, class:^(firefox)$"
+        "workspace 3, class:^(chromium-browser)$"
+        "workspace 4, class:^(thunderbird)$"
+        "workspace 6, class:^(DBeaver)$"
+        "workspace 9, class:^(code)$"
       ];
 
       env = [ "XCURSOR_SIZE,24" "HYPRCURSOR_SIZE,24" "QT_CURSOR_SIZE,24" ];
@@ -126,6 +135,7 @@ in {
         "6, monitor:eDP-1"
         "7, monitor:eDP-1"
         "8, monitor:eDP-1"
+        "9, monitor:eDP-1"
       ];
 
       exec-once = [

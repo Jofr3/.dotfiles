@@ -128,7 +128,8 @@ return {
 		telescope.load_extension("advanced_git_search")
 	end,
 	keys = {
-		{ mode = "n", "<A-f>", "<cmd>lua require('telescope.builtin').find_files()<cr>" },
+		{ mode = "n", "<A-o>", "<cmd>lua require('telescope.builtin').find_files()<cr>" },
+		{ mode = "n", "<A-f>", "<cmd>lua require('telescope.builtin').buffers()<cr>" },
 		{ mode = "n", "<A-c>", "<cmd>lua require('telescope.builtin').git_status()<cr>" },
 		{ mode = "n", "<space><space>", "<cmd>lua require('telescope.builtin').resume()<cr>" },
 	},

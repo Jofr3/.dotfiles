@@ -4,8 +4,33 @@ dsn = "mysql://vic_fires_u:Uz6sCpr4BJBonEDfzwfNb9rqkXF2BF26@lasevawebdatabases.c
 readonly = true
 max_rows = 1000
 
+# Commented out - local network database not always accessible
+# [[sources]]
+# id = "ateinsa"
+# dsn = "sqlserver://web:Intranet-2020@192.168.1.26/master"
+# readonly = true
+# max_rows = 1000
+
 [[sources]]
-id = "ateinsa"
-dsn = "sqlserver://web:Intranet-2020@192.168.1.26/master"
+id = "ayudas_asetconsultoria"
+dsn = "mysql://ayudas_asetconsultoria_com:MG%25LAJ%24H977KDhD%23FLbqEhvyqkfVQY3C@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/ayudas.asetconsultoria.com"
+readonly = false
+max_rows = 1000
+
+[[sources]]
+id = "ccosona"
+dsn = "mysql://ccosona:6YwpR3y%3F3%5DBt94u@lasevaweb-dbs.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/ccosona"
+readonly = true
+max_rows = 1000
+
+[[sources]]
+id = "produccio_gardentona_com"
+dsn = "mysql://produccio_gardentona_com:ekP5z4OVl%24F%25u%25A6%2537S@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/produccio_gardentona_com"
+readonly = true
+max_rows = 1000
+
+[[sources]]
+id = "virtualtargecopy"
+dsn = "mysql://admintargecopy:0d5M6i1x%2A@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/virtualtargecopy"
 readonly = true
 max_rows = 1000

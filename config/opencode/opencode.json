@@ -36,7 +36,7 @@
     },
     "dbhub": {
       "type": "local",
-      "command": [ "npx", "@bytebase/dbhub", "--config=./databases.toml" ]
+      "command": [ "npx", "@bytebase/dbhub", "--config=/home/jofre/.config/opencode/databases.toml" ]
     }
   },
   "tools": {

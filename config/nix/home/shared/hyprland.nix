@@ -73,25 +73,21 @@ in {
 
         # workspaces
         "$mod, W, workspace, 1"
-        "$mod, T, workspace, 2"
-        "$mod, H, workspace, 3"
-        "$mod, M, workspace, 4"
-        "$mod, E, workspace, 5"
-        "$mod, D, workspace, 6"
-        "$mod, F, workspace, 7"
-        "$mod, I, workspace, 8"
-        "$mod, V, workspace, 9"
+        "$mod, H, workspace, 2"
+        "$mod, M, workspace, 3"
+        "$mod, D, workspace, 4"
+        "$mod, F, workspace, 5"
+        "$mod, I, workspace, 6"
+        "$mod, V, workspace, 7"
 
         # move to workspace
         "$mod SHIFT, W, movetoworkspace, 1"
-        "$mod SHIFT, T, movetoworkspace, 2"
-        "$mod SHIFT, H, movetoworkspace, 3"
-        "$mod SHIFT, M, movetoworkspace, 4"
-        "$mod SHIFT, E, movetoworkspace, 5"
-        "$mod SHIFT, D, movetoworkspace, 6"
-        "$mod SHIFT, F, movetoworkspace, 7"
-        "$mod SHIFT, I, movetoworkspace, 8"
-        "$mod SHIFT, V, movetoworkspace, 9"
+        "$mod SHIFT, H, movetoworkspace, 2"
+        "$mod SHIFT, M, movetoworkspace, 3"
+        "$mod SHIFT, D, movetoworkspace, 4"
+        "$mod SHIFT, F, movetoworkspace, 5"
+        "$mod SHIFT, I, movetoworkspace, 6"
+        "$mod SHIFT, V, movetoworkspace, 7"
 
         # groups (tabs)
         "$mod, Tab, changegroupactive, f"
@@ -102,9 +98,10 @@ in {
       windowrulev2 = [
         # Auto-group all windows
         "group set, class:.*"
+        "group deny, class:^(launcher)$"
+        "group deny, class:^(footclient)$"
 
         # App launcher
-        "group deny, class:^(launcher)$"
         "float, class:^(launcher)$"
         "center, class:^(launcher)$"
         "size 600 400, class:^(launcher)$"
@@ -113,10 +110,10 @@ in {
 
         # Workspace assignments
         "workspace 1, class:^(firefox)$"
-        "workspace 3, class:^(chromium-browser)$"
-        "workspace 4, class:^(thunderbird)$"
-        "workspace 6, class:^(DBeaver)$"
-        "workspace 9, class:^(code)$"
+        "workspace 2, class:^(chromium-browser)$"
+        "workspace 3, class:^(thunderbird)$"
+        "workspace 4, class:^(DBeaver)$"
+        "workspace 7, class:^(code)$"
       ];
 
       env = [ "XCURSOR_SIZE,24" "HYPRCURSOR_SIZE,24" "QT_CURSOR_SIZE,24" ];
@@ -128,14 +125,12 @@ in {
 
       workspace = [
         "1, monitor:eDP-1"
-        "2, monitor:eDP-1"
+        "2, monitor:HDMI-A-1"
         "3, monitor:eDP-1"
         "4, monitor:eDP-1"
-        "5, monitor:HDMI-A-1"
+        "5, monitor:eDP-1"
         "6, monitor:eDP-1"
         "7, monitor:eDP-1"
-        "8, monitor:eDP-1"
-        "9, monitor:eDP-1"
       ];
 
       exec-once = [

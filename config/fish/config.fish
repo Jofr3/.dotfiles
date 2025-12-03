@@ -1,9 +1,8 @@
 # Settings
 set -g fish_greeting
 set -U fish_prompt_pwd_dir_length 0
-set -g fish_history_ignore "exit" "ls" "history" "clear" "ff" "nvim" "nr" "hr"
+set -g fish_history_ignore "exit" "ls" "history" "clear" "ff" "nvim" "nr" "hr" "op"
 set -g fish_autosuggestion_enabled 0
-set -g fish_key_bindings fish_vi_key_bindings
 
 # Prompt
 function fish_prompt
@@ -48,5 +47,5 @@ alias lt="exa --tree --level=4 --icons --group-directories-first"
 alias grep="grep --color='auto'"
 
 # Keybinds
-bind -M insert \cf super-cd
-bind \cf super-cd
+bind \eo super-cd
+bind \es "~/.dotfiles/scripts/tmux-sessionizer.sh"

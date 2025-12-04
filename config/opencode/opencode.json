@@ -22,10 +22,6 @@
       "type": "local",
       "command": ["nix", "run", "github:utensils/mcp-nixos", "--"]
     },
-    "chrome-devtools": {
-      "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp@latest", "-e", "/home/jofre/.nix-profile/bin/chromium", "--browser-url=http://127.0.0.1:9222"]
-    },
     "neovim": {
       "type": "local",
       "command": [ "npx",  "-y", "mcp-neovim-server" ],
@@ -33,6 +29,10 @@
         "ALLOW_SHELL_COMMANDS": "true",
         "NVIM_SOCKET_PATH": "/tmp/nvim"
       }
+    },
+    "browsermcp": {
+      "type": "local",
+      "command": [ "npx", "-y", "@browsermcp/mcp@latest"]
     },
     "dbhub": {
       "type": "local",

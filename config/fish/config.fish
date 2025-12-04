@@ -49,3 +49,5 @@ alias grep="grep --color='auto'"
 # Keybinds
 bind \eo super-cd
 bind \es "~/.dotfiles/scripts/tmux-sessionizer.sh"
+
+alias claude="/home/jofre/.claude/local/claude"

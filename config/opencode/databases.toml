@@ -34,3 +34,9 @@ id = "virtualtargecopy"
 dsn = "mysql://admintargecopy:0d5M6i1x%2A@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/virtualtargecopy"
 readonly = true
 max_rows = 1000
+
+[[sources]]
+id = "visat"
+dsn = "mysql://myvisat80:sDKDdvO3@visat.cat:3306/dbvisat2016"
+readonly = true
+max_rows = 1000

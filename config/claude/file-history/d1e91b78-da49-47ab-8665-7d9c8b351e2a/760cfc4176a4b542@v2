@@ -1,0 +1,8 @@
+{
+  "alwaysThinkingEnabled": true,
+  "permissions": {
+    "allow": [
+      "Read:**/*"
+    ]
+  }
+}

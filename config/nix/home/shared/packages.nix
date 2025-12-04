@@ -24,6 +24,7 @@
     wget
     zellij
     zoxide
+    claude-code
 
     # editors
     neovim
@@ -81,11 +82,6 @@
     luajitPackages.luarocks
     mysql80
     nodejs_22
-    (python314.withPackages (ps: with ps; [
-      numpy
-      pandas
-      mysql-connector
-    ]))
     rustc
     sqlite
     zig

@@ -1,0 +1,25 @@
+{"display":"/init ","pastedContents":{},"timestamp":1764869913556,"project":"/home/jofre/projects/chronos","sessionId":"6afe1f78-3a17-4eac-becb-da74c5f86caa"}
+{"display":"/init ","pastedContents":{},"timestamp":1764869913558,"project":"/home/jofre/projects/chronos","sessionId":"6afe1f78-3a17-4eac-becb-da74c5f86caa"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870132954,"project":"/home/jofre/projects/chronos","sessionId":"6afe1f78-3a17-4eac-becb-da74c5f86caa"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870132954,"project":"/home/jofre/projects/chronos","sessionId":"6afe1f78-3a17-4eac-becb-da74c5f86caa"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870132954,"project":"/home/jofre/projects/chronos","sessionId":"6afe1f78-3a17-4eac-becb-da74c5f86caa"}
+{"display":"add this mcp to claude code configuration:  \"dbhub\": {\n      \"type\": \"stdio\",\n      \"command\": \"npx\",\n      \"args\": [\n        \"@bytebase/dbhub\",\n        \"--transport\",\n        \"stdio\",\n        \"--dsn\",\n        \"${DATABASE_URL}\"\n      ]\n    }","pastedContents":{},"timestamp":1764870374540,"project":"/home/jofre/projects/chronos","sessionId":"6afe1f78-3a17-4eac-becb-da74c5f86caa"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870452286,"project":"/home/jofre/projects/chronos","sessionId":"6afe1f78-3a17-4eac-becb-da74c5f86caa"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870452286,"project":"/home/jofre/projects/chronos","sessionId":"6afe1f78-3a17-4eac-becb-da74c5f86caa"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870452286,"project":"/home/jofre/projects/chronos","sessionId":"6afe1f78-3a17-4eac-becb-da74c5f86caa"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870466942,"project":"/home/jofre/projects/chronos","sessionId":"6a617cf3-a68d-4652-bf91-cc46f040a80e"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870466942,"project":"/home/jofre/projects/chronos","sessionId":"6a617cf3-a68d-4652-bf91-cc46f040a80e"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870466942,"project":"/home/jofre/projects/chronos","sessionId":"6a617cf3-a68d-4652-bf91-cc46f040a80e"}
+{"display":"add this mcp to claude:  \"MCP Neovim Server\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"mcp-neovim-server\"\n      ],\n      \"env\": {\n        \"ALLOW_SHELL_COMMANDS\": \"true\",\n        \"NVIM_SOCKET_PATH\": \"/tmp/nvim\"\n      }\n    }","pastedContents":{},"timestamp":1764870679768,"project":"/home/jofre/projects/chronos","sessionId":"6a617cf3-a68d-4652-bf91-cc46f040a80e"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870712608,"project":"/home/jofre/projects/chronos","sessionId":"4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870712608,"project":"/home/jofre/projects/chronos","sessionId":"4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9"}
+{"display":"/mcp ","pastedContents":{},"timestamp":1764870712608,"project":"/home/jofre/projects/chronos","sessionId":"4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9"}
+{"display":"a","pastedContents":{},"timestamp":1764870793759,"project":"/home/jofre/projects/chronos","sessionId":"6a617cf3-a68d-4652-bf91-cc46f040a80e"}
+{"display":"/can","pastedContents":{},"timestamp":1764870793828,"project":"/home/jofre/projects/chronos","sessionId":"6a617cf3-a68d-4652-bf91-cc46f040a80e"}
+{"display":"should the mcp's not be configured in ~/.claude.json?","pastedContents":{},"timestamp":1764870902866,"project":"/home/jofre/projects/chronos","sessionId":"6a617cf3-a68d-4652-bf91-cc46f040a80e"}
+{"display":"open the claude configuration in neovim","pastedContents":{},"timestamp":1764871070966,"project":"/home/jofre/projects/chronos","sessionId":"8fbb603d-848c-41d5-ab2b-934cbacdf7e4"}
+{"display":"modify the claude code configuration to allow read access to all files, always","pastedContents":{},"timestamp":1764882938078,"project":"/home/jofre","sessionId":"d1e91b78-da49-47ab-8665-7d9c8b351e2a"}
+{"display":"is there a way to have a database schema file in typescript with types and all, and use that to update the database schema instad of a migration sql file. ","pastedContents":{},"timestamp":1764883092105,"project":"/home/jofre/projects/chronos","sessionId":"45287a05-5823-4d2b-8339-9088b663f229"}
+{"display":"fix l","pastedContents":{},"timestamp":1764883750724,"project":"/home/jofre/projects/chronos/apps","sessionId":"50efee01-c626-43ba-ba04-4d07d767f8c1"}
+{"display":"fix linting issues in frontend","pastedContents":{},"timestamp":1764883855067,"project":"/home/jofre/projects/chronos","sessionId":"cf207dac-8dbd-4db8-a7ac-04df526120e6"}
+{"display":"implement drizzle ORM in the codebase","pastedContents":{},"timestamp":1764884487021,"project":"/home/jofre/projects/chronos","sessionId":"5344d374-ba92-4556-a5e6-5b6fb66ff1ef"}

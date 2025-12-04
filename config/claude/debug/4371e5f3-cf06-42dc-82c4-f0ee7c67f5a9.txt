@@ -1,0 +1,141 @@
+[DEBUG] Watching for changes in setting files /home/jofre/.claude/settings.json, /home/jofre/projects/chronos/.claude/settings.local.json...
+[DEBUG] [LSP MANAGER] initializeLspServerManager() called
+[DEBUG] [LSP MANAGER] Created manager instance, state=pending
+[DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+[DEBUG] [LSP SERVER MANAGER] initialize() called
+[DEBUG] [LSP SERVER MANAGER] Calling getAllLspServers()
+[DEBUG] Applying permission update: Adding 3 allow rule(s) to destination 'localSettings': ["Bash(find:*)","Bash(cat:*)","Bash(test:*)"]
+[DEBUG] Found 0 plugins (0 enabled, 0 disabled)
+[DEBUG] Total LSP servers loaded: 0
+[DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+[DEBUG] LSP manager initialized with 0 servers
+[DEBUG] LSP server manager initialized successfully
+[DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+[DEBUG] Loading skills from directories: managed=/etc/claude-code/.claude/skills, user=/home/jofre/.claude/skills, project=/home/jofre/projects/chronos/.claude/skills
+[DEBUG] >>>>> getPluginSkills CALLED <<<<<
+[DEBUG] Creating shell snapshot for bash (/home/jofre/.nix-profile/bin/bash)
+[DEBUG] Looking for shell config file: /home/jofre/.bashrc
+[DEBUG] Snapshots directory: /home/jofre/.claude/shell-snapshots
+[DEBUG] Creating snapshot at: /home/jofre/.claude/shell-snapshots/snapshot-bash-1764870708412-q96wuf.sh
+[DEBUG] Shell binary exists: true
+[DEBUG] Execution timeout: 10000ms
+[DEBUG] Writing to temp file: /home/jofre/.claude/todos/4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9-agent-4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9.json.tmp.13882.1764870708417
+[DEBUG] Temp file written successfully, size: 2 bytes
+[DEBUG] Renaming /home/jofre/.claude/todos/4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9-agent-4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9.json.tmp.13882.1764870708417 to /home/jofre/.claude/todos/4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9-agent-4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9.json
+[DEBUG] File /home/jofre/.claude/todos/4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9-agent-4371e5f3-cf06-42dc-82c4-f0ee7c67f5a9.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870708431
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44825 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870708431 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] getPluginSkills: Processing 0 enabled plugins
+[DEBUG] Total plugin skills loaded: 0
+[DEBUG] Total plugin commands loaded: 0
+[DEBUG] Registered 0 hooks from 0 plugins
+[DEBUG] Loaded 0 unique skills (managed: 0, user: 0, project: 0, duplicates removed: 0)
+[DEBUG] getSkillsIfEnabled returning: 0 skill dir commands, 0 plugin skills
+[DEBUG] Total plugin agents loaded: 0
+[DEBUG] Ripgrep first use test: PASSED (mode=builtin, path=/nix/store/fmr69jrc2va9d83wg4hs9bnp1gj7flab-claude-code-2.0.35/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/x64-linux/rg)
+[DEBUG] Shell snapshot created successfully (2349 bytes)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870708681
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44825 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870708681 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870708690
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44825 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870708690 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870708961
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44825 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870708961 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Getting matching hook commands for SessionStart with query: startup
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "startup" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870709027
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44720 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870709027 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870709030
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44720 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870709030 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] performStartupChecks called
+[DEBUG] Starting background plugin installations
+[DEBUG] performBackgroundPluginInstallations called
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870709354
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44825 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870709354 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Setting installation status: 0 marketplaces, 0 installable plugins, 0 uninstallable plugins
+[DEBUG] Loaded plugins - Enabled: 0, Disabled: 0, Commands: 0, Agents: 0, Errors: 0
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] FileHistory: Added snapshot for e2b9bd98-679c-49a4-a92e-33ece46acc4a, tracking 0 files
+[DEBUG] Rendering user message with 1 content blocks
+[DEBUG] Block 0: <command-name>/mcp</command-name>
+            <command-message>mcp</command-message>
+            <co...
+[DEBUG] UserCommandMessage rendering: "mcp" (args: "none")
+[DEBUG] isSkillFormat: false, prefix: "/"
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870712604
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44859 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870712604 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Getting matching hook commands for SessionStart with query: resume
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "resume" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870777502
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44878 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870777502 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Rendering user message with 1 content blocks
+[DEBUG] Block 0: <command-name>/mcp</command-name>
+            <command-message>mcp</command-message>
+            <co...
+[DEBUG] UserCommandMessage rendering: "mcp" (args: "none")
+[DEBUG] isSkillFormat: false, prefix: "/"
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870777528
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44773 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870777528 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.13882.1764870777531
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44773 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.13882.1764870777531 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically

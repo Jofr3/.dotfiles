@@ -1,0 +1,235 @@
+[DEBUG] Watching for changes in setting files /home/jofre/.claude/settings.json, /home/jofre/.claude/settings.json...
+[DEBUG] [LSP MANAGER] initializeLspServerManager() called
+[DEBUG] [LSP MANAGER] Created manager instance, state=pending
+[DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+[DEBUG] [LSP SERVER MANAGER] initialize() called
+[DEBUG] [LSP SERVER MANAGER] Calling getAllLspServers()
+[DEBUG] Found 0 plugins (0 enabled, 0 disabled)
+[DEBUG] Total LSP servers loaded: 0
+[DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+[DEBUG] LSP manager initialized with 0 servers
+[DEBUG] LSP server manager initialized successfully
+[DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+[DEBUG] Loading skills from directories: managed=/etc/claude-code/.claude/skills, user=/home/jofre/.claude/skills, project=/home/jofre/.claude/skills
+[DEBUG] >>>>> getPluginSkills CALLED <<<<<
+[DEBUG] Creating shell snapshot for bash (/home/jofre/.nix-profile/bin/bash)
+[DEBUG] Looking for shell config file: /home/jofre/.bashrc
+[DEBUG] Snapshots directory: /home/jofre/.claude/shell-snapshots
+[DEBUG] Creating snapshot at: /home/jofre/.claude/shell-snapshots/snapshot-bash-1764882870665-bu2mfj.sh
+[DEBUG] Shell binary exists: true
+[DEBUG] Execution timeout: 10000ms
+[DEBUG] Writing to temp file: /home/jofre/.claude/todos/d1e91b78-da49-47ab-8665-7d9c8b351e2a-agent-d1e91b78-da49-47ab-8665-7d9c8b351e2a.json.tmp.1977.1764882870671
+[DEBUG] Temp file written successfully, size: 2 bytes
+[DEBUG] Renaming /home/jofre/.claude/todos/d1e91b78-da49-47ab-8665-7d9c8b351e2a-agent-d1e91b78-da49-47ab-8665-7d9c8b351e2a.json.tmp.1977.1764882870671 to /home/jofre/.claude/todos/d1e91b78-da49-47ab-8665-7d9c8b351e2a-agent-d1e91b78-da49-47ab-8665-7d9c8b351e2a.json
+[DEBUG] File /home/jofre/.claude/todos/d1e91b78-da49-47ab-8665-7d9c8b351e2a-agent-d1e91b78-da49-47ab-8665-7d9c8b351e2a.json written atomically
+[DEBUG] getPluginSkills: Processing 0 enabled plugins
+[DEBUG] Total plugin skills loaded: 0
+[DEBUG] Total plugin commands loaded: 0
+[DEBUG] Registered 0 hooks from 0 plugins
+[DEBUG] Loaded 0 unique skills (managed: 0, user: 0, project: 0, duplicates removed: 0)
+[DEBUG] getSkillsIfEnabled returning: 0 skill dir commands, 0 plugin skills
+[DEBUG] Total plugin agents loaded: 0
+[DEBUG] Shell snapshot created successfully (2305 bytes)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882870843
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45230 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882870843 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882870849
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45230 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882870849 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] MCP server "MCP Neovim Server": Starting connection with timeout of 30000ms
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882872757
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45230 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882872757 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Skipping SessionStart:startup hook execution - workspace trust not accepted
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882872839
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45125 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882872839 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882872845
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45125 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882872845 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882872849
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45125 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882872849 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] performStartupChecks called
+[DEBUG] Trust not accepted for current directory - skipping plugin installations
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882873249
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45230 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882873249 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Loaded plugins - Enabled: 0, Disabled: 0, Commands: 0, Agents: 0, Errors: 0
+[DEBUG] MCP server "MCP Neovim Server": Successfully connected to undefined server in 609ms
+[DEBUG] MCP server "MCP Neovim Server": Connection established with capabilities: {"hasTools":true,"hasPrompts":true,"hasResources":true,"serverVersion":{"name":"mcp-neovim-server","version":"0.5.5"}}
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882873461
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45230 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882873461 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] Skipping SubagentStop hook execution - workspace trust not accepted
+[DEBUG] Stream started - received first chunk
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Skipping SubagentStop hook execution - workspace trust not accepted
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skipping UserPromptSubmit hook execution - workspace trust not accepted
+[DEBUG] FileHistory: Added snapshot for f4896285-0bb6-4a89-9787-5f8a02c25775, tracking 0 files
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Skipping PreToolUse:Bash hook execution - workspace trust not accepted
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Skipping PreToolUse:Bash hook execution - workspace trust not accepted
+[DEBUG] No hook environment files found
+[DEBUG] Skipping PostToolUse:Bash hook execution - workspace trust not accepted
+[DEBUG] Skipping PostToolUse:Bash hook execution - workspace trust not accepted
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Read
+[DEBUG] Skipping PreToolUse:Read hook execution - workspace trust not accepted
+[DEBUG] Skipping PostToolUse:Read hook execution - workspace trust not accepted
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Edit
+[DEBUG] Skipping PreToolUse:Edit hook execution - workspace trust not accepted
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] FileHistory: Tracked file modification for /home/jofre/.claude/settings.json
+[DEBUG] Writing to temp file: /home/jofre/.claude/settings.json.tmp.1977.1764882930610
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 99 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude/settings.json.tmp.1977.1764882930610 to /home/jofre/.claude/settings.json
+[DEBUG] File /home/jofre/.claude/settings.json written atomically
+[DEBUG] Skipping PostToolUse:Edit hook execution - workspace trust not accepted
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Detected change to /home/jofre/.claude/settings.json
+[DEBUG] Replacing all allow rules for destination 'userSettings' with 1 rule(s): ["Read:**/*"]
+[DEBUG] Replacing all allow rules for destination 'projectSettings' with 1 rule(s): ["Read:**/*"]
+[DEBUG] Stream started - received first chunk
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882938034
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45254 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882938034 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Skipping Stop hook execution - workspace trust not accepted
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882938076
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45254 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882938076 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882962785
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45254 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882962785 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] UserCommandMessage rendering: "usage" (args: "none")
+[DEBUG] isSkillFormat: false, prefix: "/"
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882962851
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45254 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882962851 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Skipping SessionEnd:prompt_input_exit hook execution - workspace trust not accepted
+[DEBUG] Cleaned up session snapshot: /home/jofre/.claude/shell-snapshots/snapshot-bash-1764882870665-bu2mfj.sh
+[DEBUG] LSP server manager shut down successfully
+[DEBUG] FileHistory: Making snapshot for message eff53505-4ce8-40c1-b460-cffaf1025a7b
+[DEBUG] FileHistory: Added snapshot for eff53505-4ce8-40c1-b460-cffaf1025a7b, tracking 1 files
+[DEBUG] Rendering user message with 1 content blocks
+[DEBUG] Block 0: <command-name>/exit</command-name>
+            <command-message>exit</command-message>
+            <...
+[DEBUG] UserCommandMessage rendering: "exit" (args: "none")
+[DEBUG] isSkillFormat: false, prefix: "/"
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882967113
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45254 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882967113 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.1977.1764882967119
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45663 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.1977.1764882967119 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically

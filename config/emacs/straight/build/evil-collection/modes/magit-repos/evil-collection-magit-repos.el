@@ -1,0 +1,1 @@
+/home/jofre/.config/emacs/straight/repos/evil-collection/modes/magit-repos/evil-collection-magit-repos.el

@@ -40,3 +40,9 @@ id = "visat"
 dsn = "mysql://myvisat80:sDKDdvO3@visat.cat:3306/dbvisat2016"
 readonly = true
 max_rows = 1000
+
+[[sources]]
+id = "dev_mydocumentium_com"
+dsn = "mysql://dev_mydocumentium_com:dwXCDf3Nh%23%2AHtdD2j%40puJuAeZ4Ls%21%2A%5EF@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/dev.mydocumentium.com"
+readonly = false
+max_rows = 1000

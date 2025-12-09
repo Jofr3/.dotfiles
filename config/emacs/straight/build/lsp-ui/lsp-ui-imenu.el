@@ -1,0 +1,1 @@
+/home/jofre/.config/emacs/straight/repos/lsp-ui/lsp-ui-imenu.el

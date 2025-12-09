@@ -1,0 +1,1 @@
+/home/jofre/.config/emacs/straight/repos/company-mode/company-tempo.el

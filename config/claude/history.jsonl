@@ -23,3 +23,25 @@
 {"display":"fix l","pastedContents":{},"timestamp":1764883750724,"project":"/home/jofre/projects/chronos/apps","sessionId":"50efee01-c626-43ba-ba04-4d07d767f8c1"}
 {"display":"fix linting issues in frontend","pastedContents":{},"timestamp":1764883855067,"project":"/home/jofre/projects/chronos","sessionId":"cf207dac-8dbd-4db8-a7ac-04df526120e6"}
 {"display":"implement drizzle ORM in the codebase","pastedContents":{},"timestamp":1764884487021,"project":"/home/jofre/projects/chronos","sessionId":"5344d374-ba92-4556-a5e6-5b6fb66ff1ef"}
+{"display":"modify my claude config to trust every folder ","pastedContents":{},"timestamp":1764917319782,"project":"/home/jofre/.dotfiles/config/claude","sessionId":"2777436e-3d58-4afa-be63-41df56443841"}
+{"display":"#My operating system of choice for working is NixOS","pastedContents":{},"timestamp":1764917426480,"project":"/home/jofre/projects/chronos","sessionId":"d8cd5ef3-cb2d-471a-8409-66e3d77f7ac3"}
+{"display":"#My operating system of choice for working is NixOS","pastedContents":{},"timestamp":1764917426480,"project":"/home/jofre/projects/chronos","sessionId":"d8cd5ef3-cb2d-471a-8409-66e3d77f7ac3"}
+{"display":"List all available Skills","pastedContents":{},"timestamp":1764918476589,"project":"/home/jofre/projects/chronos","sessionId":"ec0f426d-b8a2-4d47-b166-f95206ab6865"}
+{"display":"ok but i dont want the dialog to apear when i use claude code in a new directory every to trust it","pastedContents":{},"timestamp":1764920823418,"project":"/home/jofre/.dotfiles/config/claude","sessionId":"2777436e-3d58-4afa-be63-41df56443841"}
+{"display":"/init ","pastedContents":{},"timestamp":1764922618759,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"541d28e7-e143-44a5-a638-1a769cdda1f8"}
+{"display":"/init ","pastedContents":{},"timestamp":1764922618759,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"541d28e7-e143-44a5-a638-1a769cdda1f8"}
+{"display":"cant use artisan or any php commands, im developing via sftp","pastedContents":{},"timestamp":1764922793552,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"541d28e7-e143-44a5-a638-1a769cdda1f8"}
+{"display":"/clear ","pastedContents":{},"timestamp":1764922801569,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"232f2872-7e6b-4e32-8617-ba95048801bc"}
+{"display":"/clear ","pastedContents":{},"timestamp":1764922801569,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"232f2872-7e6b-4e32-8617-ba95048801bc"}
+{"display":"/clear ","pastedContents":{},"timestamp":1764922801569,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"232f2872-7e6b-4e32-8617-ba95048801bc"}
+{"display":"/context ","pastedContents":{},"timestamp":1764922808555,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"232f2872-7e6b-4e32-8617-ba95048801bc"}
+{"display":"/context ","pastedContents":{},"timestamp":1764922808556,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"232f2872-7e6b-4e32-8617-ba95048801bc"}
+{"display":"/context ","pastedContents":{},"timestamp":1764922808556,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"232f2872-7e6b-4e32-8617-ba95048801bc"}
+{"display":"/clear ","pastedContents":{},"timestamp":1764922834698,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}
+{"display":"/clear ","pastedContents":{},"timestamp":1764922834699,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}
+{"display":"/clear ","pastedContents":{},"timestamp":1764922834699,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}
+{"display":"im testing the api, and i want to create a folder: [Pasted text #1 +8 lines]","pastedContents":{},"timestamp":1764922862840,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}
+{"display":"im testing the api, and i want to create a folder: [Pasted text #1 +8 lines] but it errors with message files:specify_atleast_1_file_tag","pastedContents":{},"timestamp":1764922899225,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}
+{"display":"sorry i ment to say upload a document, do this curl -X 'POST' \\\n  'https://devapi896623.mydocumentium.com/api/v1/login?email=api-jofre%40mydocumentium.com&password=api-jofre' \\\n  -H 'accept: application/json' \\\n  -H 'X-CSRF-TOKEN: ' \\\n  -d ''","pastedContents":{},"timestamp":1764923164012,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}
+{"display":"yes but change the file for a local one get a random pdf from my downloads folder","pastedContents":{},"timestamp":1764923528148,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}
+{"display":"continu","pastedContents":{},"timestamp":1764923791094,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}

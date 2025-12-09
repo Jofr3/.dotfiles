@@ -1,0 +1,1 @@
+/home/jofre/.config/emacs/straight/repos/nix-mode/nix-log.el

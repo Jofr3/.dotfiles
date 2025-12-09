@@ -1,0 +1,695 @@
+[DEBUG] Watching for changes in setting files /home/jofre/.claude/settings.json...
+[DEBUG] [LSP MANAGER] initializeLspServerManager() called
+[DEBUG] [LSP MANAGER] Created manager instance, state=pending
+[DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+[DEBUG] [LSP SERVER MANAGER] initialize() called
+[DEBUG] [LSP SERVER MANAGER] Calling getAllLspServers()
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'userSettings': ["Read:**/*"]
+[DEBUG] Found 0 plugins (0 enabled, 0 disabled)
+[DEBUG] Total LSP servers loaded: 0
+[DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+[DEBUG] LSP manager initialized with 0 servers
+[DEBUG] LSP server manager initialized successfully
+[DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+[DEBUG] Loading skills from directories: managed=/etc/claude-code/.claude/skills, user=/home/jofre/.claude/skills, project=/home/jofre/.dotfiles/config/claude/.claude/skills
+[DEBUG] >>>>> getPluginSkills CALLED <<<<<
+[DEBUG] Creating shell snapshot for bash (/home/jofre/.nix-profile/bin/bash)
+[DEBUG] Looking for shell config file: /home/jofre/.bashrc
+[DEBUG] Snapshots directory: /home/jofre/.claude/shell-snapshots
+[DEBUG] Creating snapshot at: /home/jofre/.claude/shell-snapshots/snapshot-bash-1764917249588-c7d4xn.sh
+[DEBUG] Shell binary exists: true
+[DEBUG] Execution timeout: 10000ms
+[DEBUG] Writing to temp file: /home/jofre/.claude/todos/2777436e-3d58-4afa-be63-41df56443841-agent-2777436e-3d58-4afa-be63-41df56443841.json.tmp.8162.1764917249592
+[DEBUG] Temp file written successfully, size: 2 bytes
+[DEBUG] Renaming /home/jofre/.claude/todos/2777436e-3d58-4afa-be63-41df56443841-agent-2777436e-3d58-4afa-be63-41df56443841.json.tmp.8162.1764917249592 to /home/jofre/.claude/todos/2777436e-3d58-4afa-be63-41df56443841-agent-2777436e-3d58-4afa-be63-41df56443841.json
+[DEBUG] File /home/jofre/.claude/todos/2777436e-3d58-4afa-be63-41df56443841-agent-2777436e-3d58-4afa-be63-41df56443841.json written atomically
+[DEBUG] getPluginSkills: Processing 0 enabled plugins
+[DEBUG] Total plugin skills loaded: 0
+[DEBUG] Total plugin commands loaded: 0
+[DEBUG] Registered 0 hooks from 0 plugins
+[DEBUG] Loaded 0 unique skills (managed: 0, user: 0, project: 0, duplicates removed: 0)
+[DEBUG] getSkillsIfEnabled returning: 0 skill dir commands, 0 plugin skills
+[DEBUG] Total plugin agents loaded: 0
+[DEBUG] Ripgrep first use test: PASSED (mode=builtin, path=/nix/store/fmr69jrc2va9d83wg4hs9bnp1gj7flab-claude-code-2.0.35/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/x64-linux/rg)
+[DEBUG] Shell snapshot created successfully (2349 bytes)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917249740
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44019 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917249740 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917249743
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44019 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917249743 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917251145
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44444 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917251145 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917251186
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44444 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917251186 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Getting matching hook commands for SessionStart with query: startup
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "startup" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917251220
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44339 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917251220 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917251224
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44339 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917251224 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] performStartupChecks called
+[DEBUG] Starting background plugin installations
+[DEBUG] performBackgroundPluginInstallations called
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917251460
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44444 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917251460 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Setting installation status: 0 marketplaces, 0 installable plugins, 0 uninstallable plugins
+[DEBUG] Loaded plugins - Enabled: 0, Disabled: 0, Commands: 0, Agents: 0, Errors: 0
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917251492
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44618 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917251492 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.claude/settings.json.tmp.8162.1764917262151
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 99 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude/settings.json.tmp.8162.1764917262151 to /home/jofre/.claude/settings.json
+[DEBUG] File /home/jofre/.claude/settings.json written atomically
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] FileHistory: Added snapshot for ca69c4cf-ae9f-4c7b-8d94-88219c7c93fe, tracking 0 files
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917271719
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44663 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917271719 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Glob
+[DEBUG] Getting matching hook commands for PreToolUse with query: Glob
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] No hook environment files found
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Glob
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Read
+[DEBUG] Getting matching hook commands for PreToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Edit
+[DEBUG] Getting matching hook commands for PreToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] Permission suggestions for Edit: [
+  {
+    "type": "setMode",
+    "mode": "acceptEdits",
+    "destination": "session"
+  }
+]
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] FileHistory: Tracked file modification for /home/jofre/.dotfiles/config/claude/settings.json
+[DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/claude/settings.json.tmp.8162.1764917314635
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 184 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.dotfiles/config/claude/settings.json.tmp.8162.1764917314635 to /home/jofre/.dotfiles/config/claude/settings.json
+[DEBUG] File /home/jofre/.dotfiles/config/claude/settings.json written atomically
+[DEBUG] Getting matching hook commands for PostToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Detected change to /home/jofre/.claude/settings.json
+[DEBUG] Replacing all allow rules for destination 'userSettings' with 5 rule(s): ["Read:**/*","Edit:**/*","Write:**/*","Bash:**/*","NotebookEdit:**/*"]
+[DEBUG] Stream started - received first chunk
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917319762
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44712 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917319762 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Getting matching hook commands for Stop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764917319780
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44750 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764917319780 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764920518792
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45264 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764920518792 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764920518796
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45264 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764920518796 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764920518955
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45369 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764920518955 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] FileHistory: Making snapshot for message e1147211-be44-4a84-913d-7399cb7cdbce
+[DEBUG] FileHistory: Added snapshot for e1147211-be44-4a84-913d-7399cb7cdbce, tracking 1 files
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: WebFetch
+[DEBUG] Getting matching hook commands for PreToolUse with query: WebFetch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebFetch" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: WebFetch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebFetch" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: WebFetch
+[DEBUG] Getting matching hook commands for PreToolUse with query: WebFetch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebFetch" (0 before deduplication)
+[DEBUG] Persisting permission update: addRules to source 'localSettings'
+[DEBUG] Persisting 1 allow rule(s) to localSettings
+[DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/claude/.claude/settings.local.json.tmp.8162.1764920576401
+[DEBUG] Temp file written successfully, size: 120 bytes
+[DEBUG] Renaming /home/jofre/.dotfiles/config/claude/.claude/settings.local.json.tmp.8162.1764920576401 to /home/jofre/.dotfiles/config/claude/.claude/settings.local.json
+[DEBUG] File /home/jofre/.dotfiles/config/claude/.claude/settings.local.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["WebFetch(domain:code.claude.com)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Stream started - received first chunk
+[DEBUG] Getting matching hook commands for PostToolUse with query: WebFetch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebFetch" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: WebFetch
+[DEBUG] Getting matching hook commands for PreToolUse with query: WebFetch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebFetch" (0 before deduplication)
+[DEBUG] Stream started - received first chunk
+[DEBUG] Getting matching hook commands for PostToolUse with query: WebFetch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebFetch" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: WebFetch
+[DEBUG] Getting matching hook commands for PreToolUse with query: WebFetch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebFetch" (0 before deduplication)
+[DEBUG] Stream started - received first chunk
+[DEBUG] Getting matching hook commands for PostToolUse with query: WebFetch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebFetch" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] executePreToolHooks called for tool: Glob
+[DEBUG] Getting matching hook commands for PreToolUse with query: Glob
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+[DEBUG] executePreToolHooks called for tool: Glob
+[DEBUG] Getting matching hook commands for PreToolUse with query: Glob
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Glob
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Glob
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Read
+[DEBUG] Getting matching hook commands for PreToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Read",
+        "ruleContent": "//home/jofre/.config/**"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "session"
+  }
+]
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'session': ["Read(//home/jofre/.config/**)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: WebSearch
+[DEBUG] Getting matching hook commands for PreToolUse with query: WebSearch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebSearch" (0 before deduplication)
+[DEBUG] Persisting permission update: addRules to source 'localSettings'
+[DEBUG] Persisting 1 allow rule(s) to localSettings
+[DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/claude/.claude/settings.local.json.tmp.8162.1764920663963
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 139 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.dotfiles/config/claude/.claude/settings.local.json.tmp.8162.1764920663963 to /home/jofre/.dotfiles/config/claude/.claude/settings.local.json
+[DEBUG] File /home/jofre/.dotfiles/config/claude/.claude/settings.local.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["WebSearch"]
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Stream started - received first chunk
+[DEBUG] Getting matching hook commands for PostToolUse with query: WebSearch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebSearch" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: WebFetch
+[DEBUG] Getting matching hook commands for PreToolUse with query: WebFetch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebFetch" (0 before deduplication)
+[DEBUG] Persisting permission update: addRules to source 'localSettings'
+[DEBUG] Persisting 1 allow rule(s) to localSettings
+[DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/claude/.claude/settings.local.json.tmp.8162.1764920706852
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 176 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.dotfiles/config/claude/.claude/settings.local.json.tmp.8162.1764920706852 to /home/jofre/.dotfiles/config/claude/.claude/settings.local.json
+[DEBUG] File /home/jofre/.dotfiles/config/claude/.claude/settings.local.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["WebFetch(domain:github.com)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Stream started - received first chunk
+[DEBUG] Getting matching hook commands for PostToolUse with query: WebFetch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebFetch" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: WebSearch
+[DEBUG] Getting matching hook commands for PreToolUse with query: WebSearch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebSearch" (0 before deduplication)
+[DEBUG] Stream started - received first chunk
+[DEBUG] Getting matching hook commands for PostToolUse with query: WebSearch
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "WebSearch" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Bash
+[DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Read",
+        "ruleContent": "//home/jofre/**"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "session"
+  }
+]
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'session': ["Read(//home/jofre/**)"]
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Read
+[DEBUG] Getting matching hook commands for PreToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Edit
+[DEBUG] Getting matching hook commands for PreToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] Permission suggestions for Edit: [
+  {
+    "type": "setMode",
+    "mode": "acceptEdits",
+    "destination": "session"
+  },
+  {
+    "type": "addDirectories",
+    "directories": [
+      "/home/jofre"
+    ],
+    "destination": "session"
+  }
+]
+[DEBUG] Getting matching hook commands for Notification with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Applying permission update: Setting mode to 'acceptEdits'
+[DEBUG] Applying permission update: Adding 1 directory with destination 'session': ["/home/jofre"]
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] FileHistory: Tracked file modification for /home/jofre/.claude.json
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764920811265
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45773 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764920811265 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Getting matching hook commands for PostToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764920823399
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45796 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764920823399 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Getting matching hook commands for Stop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764920823416
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45833 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764920823416 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Getting matching hook commands for SessionEnd with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Cleaned up session snapshot: /home/jofre/.claude/shell-snapshots/snapshot-bash-1764917249588-c7d4xn.sh
+[DEBUG] LSP server manager shut down successfully
+[DEBUG] FileHistory: Making snapshot for message 0cac2db7-b71d-47b7-953b-ac020f8e4df9
+[DEBUG] FileHistory: Added snapshot for 0cac2db7-b71d-47b7-953b-ac020f8e4df9, tracking 2 files
+[DEBUG] Rendering user message with 1 content blocks
+[DEBUG] Block 0: <command-name>/exit</command-name>
+            <command-message>exit</command-message>
+            <...
+[DEBUG] UserCommandMessage rendering: "exit" (args: "none")
+[DEBUG] isSkillFormat: false, prefix: "/"
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764920864585
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 45853 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764920864585 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.8162.1764920864589
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 46319 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.8162.1764920864589 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically

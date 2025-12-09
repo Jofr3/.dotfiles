@@ -1,0 +1,12 @@
+;;; -*- coding: utf-8; mode: lisp-data -*-
+(("/home/jofre/.dotfiles/config/emacs/"
+  (dired-filename . "/home/jofre/.dotfiles/config/emacs/init.el"))
+ ("/home/jofre/.dotfiles/config/claude/debug/latest" . 5008)
+ ("/home/jofre/.dotfiles/" (dired-filename . "/home/jofre/.dotfiles/.git"))
+ ("/home/jofre/.dotfiles/config/emacs/init.el" . 4955)
+ ("/home/jofre/.dotfiles/config/nix/flake.lock" . 1770)
+ ("/home/jofre/.dotfiles/config/nix/"
+  (dired-filename . "/home/jofre/.dotfiles/config/nix/home"))
+ ("/home/jofre/.dotfiles/config/nix/home/"
+  (dired-filename . "/home/jofre/.dotfiles/config/nix/home/jofre.nix"))
+ ("/home/jofre/.dotfiles/config/nix/home/jofre.nix" . 834))

@@ -1,0 +1,1 @@
+- My operating system of choice for working is NixOS

@@ -6,6 +6,7 @@
   "Discord": "discord",
   "Displays": "wdisplays",
   "Eye of gnome": "eog",
+  "Emacs": "emacsclient -c",
   "Nautilus": "nautilus",
   "Firefox": "firefox",
   "Google chrome": "google-chrome-stable",

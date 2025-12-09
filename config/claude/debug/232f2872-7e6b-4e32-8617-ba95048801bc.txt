@@ -1,0 +1,56 @@
+[DEBUG] Getting matching hook commands for SessionStart with query: clear
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "clear" (0 before deduplication)
+[DEBUG] FileHistory: Added snapshot for 9289a049-cfe8-47c3-9818-c9e66181ef60, tracking 0 files
+[DEBUG] Rendering user message with 1 content blocks
+[DEBUG] Block 0: <command-name>/clear</command-name>
+            <command-message>clear</command-message>
+           ...
+[DEBUG] UserCommandMessage rendering: "clear" (args: "none")
+[DEBUG] isSkillFormat: false, prefix: "/"
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.18372.1764922801566
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47106 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.18372.1764922801566 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] FileHistory: Making snapshot for message 4ae179a8-a0f4-4107-b71f-2180be859af5
+[DEBUG] FileHistory: Added snapshot for 4ae179a8-a0f4-4107-b71f-2180be859af5, tracking 0 files
+[DEBUG] Rendering user message with 1 content blocks
+[DEBUG] Block 0: <command-name>/context</command-name>
+            <command-message>context</command-message>
+       ...
+[DEBUG] UserCommandMessage rendering: "context" (args: "none")
+[DEBUG] isSkillFormat: false, prefix: "/"
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.18372.1764922808554
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47125 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.18372.1764922808554 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.18372.1764922822703
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47145 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.18372.1764922822703 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] UserCommandMessage rendering: "usage" (args: "none")
+[DEBUG] isSkillFormat: false, prefix: "/"
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.18372.1764922822738
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47167 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.18372.1764922822738 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] Getting matching hook commands for SessionEnd with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)

@@ -24,7 +24,7 @@
     },
     "neovim": {
       "type": "local",
-      "command": [ "npx",  "-y", "mcp-neovim-server" ],
+      "command": [ "bunx",  "-y", "mcp-neovim-server" ],
       "environment": {
         "ALLOW_SHELL_COMMANDS": "true",
         "NVIM_SOCKET_PATH": "/tmp/nvim"
@@ -32,11 +32,15 @@
     },
     "browsermcp": {
       "type": "local",
-      "command": [ "npx", "-y", "@browsermcp/mcp@latest"]
+      "command": [ "bunx", "-y", "@browsermcp/mcp@latest"]
     },
     "dbhub": {
       "type": "local",
-      "command": [ "npx", "@bytebase/dbhub", "--config=/home/jofre/.config/opencode/databases.toml" ]
+      "command": [ "bunx", "@bytebase/dbhub", "--config=/home/jofre/.config/opencode/databases.toml" ]
+    },
+    "bruno": {
+      "type": "local",
+      "command": [ "bunx", "-y", "bruno-mcp-server" ]
     }
   },
   "tools": {

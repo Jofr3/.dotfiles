@@ -1,0 +1,1 @@
+/home/jofre/.config/emacs/straight/repos/evil-collection/modes/macrostep/evil-collection-macrostep.el

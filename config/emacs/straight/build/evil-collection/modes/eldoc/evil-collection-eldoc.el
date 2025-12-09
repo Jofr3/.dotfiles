@@ -1,0 +1,1 @@
+/home/jofre/.config/emacs/straight/repos/evil-collection/modes/eldoc/evil-collection-eldoc.el

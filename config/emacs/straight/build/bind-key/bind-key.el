@@ -1,0 +1,1 @@
+/home/jofre/.config/emacs/straight/repos/bind-key/bind-key.el

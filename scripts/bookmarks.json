@@ -118,6 +118,15 @@
       "prod": "https://ayudas.asetconsultoria.com/",
       "gitlab": "https://gitlab.com/lasevaweb_group/asetconsultoria.com/ayudas-asetconsultoria-com"
     },
+    "mydocumentium": {
+      "prod": "https://mydocumentium.com/",
+      "gitlab": "https://gitlab.com/lasevaweb_group/mydocumentium.com/mydocumentium.com"
+    },
+    "mydocumentium api": {
+      "dev": "https://devapi896623.mydocumentium.com/api/documentation",
+      "prod": "https://api896623.mydocumentium.com/api/documentation",
+      "gitlab": "https://gitlab.com/lasevaweb_group/mydocumentium.com/api.mydocumentium.com"
+    },
     "fontawesome": "https://fontawesome.com/icons",
     "translate": "https://translate.google.com/?sl=ca&tl=en&op=translate",
     "wikimedia": "https://www.wikimedia.org",

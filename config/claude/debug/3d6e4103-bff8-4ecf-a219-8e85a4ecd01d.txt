@@ -1,0 +1,201 @@
+[DEBUG] Watching for changes in setting files /home/jofre/.claude/settings.json, /home/jofre/.claude/settings.json...
+[ERROR] Failed to save config with lock: Error: ENOENT: no such file or directory, lstat '/home/jofre/.claude.json'
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917196124
+[DEBUG] Setting permissions for new file: 600
+[DEBUG] Temp file written successfully, size: 103 bytes
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917196124 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] [LSP MANAGER] initializeLspServerManager() called
+[DEBUG] [LSP MANAGER] Created manager instance, state=pending
+[DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+[DEBUG] [LSP SERVER MANAGER] initialize() called
+[DEBUG] [LSP SERVER MANAGER] Calling getAllLspServers()
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917196152
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 183 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917196152 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917196158
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 220 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917196158 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'userSettings': ["Read:**/*"]
+[DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'projectSettings': ["Read:**/*"]
+[DEBUG] Found 0 plugins (0 enabled, 0 disabled)
+[DEBUG] Total LSP servers loaded: 0
+[DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+[DEBUG] LSP manager initialized with 0 servers
+[DEBUG] LSP server manager initialized successfully
+[DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+[DEBUG] Loading skills from directories: managed=/etc/claude-code/.claude/skills, user=/home/jofre/.claude/skills, project=/home/jofre/.claude/skills
+[DEBUG] >>>>> getPluginSkills CALLED <<<<<
+[DEBUG] Creating shell snapshot for bash (/home/jofre/.nix-profile/bin/bash)
+[DEBUG] Looking for shell config file: /home/jofre/.bashrc
+[DEBUG] Snapshots directory: /home/jofre/.claude/shell-snapshots
+[DEBUG] Creating snapshot at: /home/jofre/.claude/shell-snapshots/snapshot-bash-1764917196251-ypbg0n.sh
+[DEBUG] Shell binary exists: true
+[DEBUG] Execution timeout: 10000ms
+[DEBUG] Writing to temp file: /home/jofre/.claude/todos/3d6e4103-bff8-4ecf-a219-8e85a4ecd01d-agent-3d6e4103-bff8-4ecf-a219-8e85a4ecd01d.json.tmp.7463.1764917196255
+[DEBUG] Temp file written successfully, size: 2 bytes
+[DEBUG] Renaming /home/jofre/.claude/todos/3d6e4103-bff8-4ecf-a219-8e85a4ecd01d-agent-3d6e4103-bff8-4ecf-a219-8e85a4ecd01d.json.tmp.7463.1764917196255 to /home/jofre/.claude/todos/3d6e4103-bff8-4ecf-a219-8e85a4ecd01d-agent-3d6e4103-bff8-4ecf-a219-8e85a4ecd01d.json
+[DEBUG] File /home/jofre/.claude/todos/3d6e4103-bff8-4ecf-a219-8e85a4ecd01d-agent-3d6e4103-bff8-4ecf-a219-8e85a4ecd01d.json written atomically
+[DEBUG] getPluginSkills: Processing 0 enabled plugins
+[DEBUG] Total plugin skills loaded: 0
+[DEBUG] Total plugin commands loaded: 0
+[DEBUG] Registered 0 hooks from 0 plugins
+[DEBUG] Loaded 0 unique skills (managed: 0, user: 0, project: 0, duplicates removed: 0)
+[DEBUG] getSkillsIfEnabled returning: 0 skill dir commands, 0 plugin skills
+[DEBUG] Total plugin agents loaded: 0
+[DEBUG] Shell snapshot created successfully (2349 bytes)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917196397
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 42531 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917196397 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917196456
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 42591 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917196456 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917196460
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 42643 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917196460 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[ERROR] AxiosError: AxiosError: Request failed with status code 401
+    at WT (file:///nix/store/fmr69jrc2va9d83wg4hs9bnp1gj7flab-claude-code-2.0.35/lib/node_modules/@anthropic-ai/claude-code/cli.js:51:1136)
+    at IncomingMessage.<anonymous> (file:///nix/store/fmr69jrc2va9d83wg4hs9bnp1gj7flab-claude-code-2.0.35/lib/node_modules/@anthropic-ai/claude-code/cli.js:56:9845)
+    at IncomingMessage.emit (node:events:531:35)
+    at IncomingMessage.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at pGA.request (file:///nix/store/fmr69jrc2va9d83wg4hs9bnp1gj7flab-claude-code-2.0.35/lib/node_modules/@anthropic-ai/claude-code/cli.js:58:2129)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Zt2 (file:///nix/store/fmr69jrc2va9d83wg4hs9bnp1gj7flab-claude-code-2.0.35/lib/node_modules/@anthropic-ai/claude-code/cli.js:3782:7804)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917197666
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 42643 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917197666 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917197671
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 42643 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917197671 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Telemetry flushed successfully
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917203925
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 42643 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917203925 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917203927
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 42643 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917203927 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917204182
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 42916 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917204182 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917204430
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43039 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917204430 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917204758
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43100 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917204758 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Skipping Notification hook execution - workspace trust not accepted
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917208339
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43171 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917208339 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917209842
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43202 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917209842 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917209845
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43222 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917209845 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Skipping SessionStart:startup hook execution - workspace trust not accepted
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917209893
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43222 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917209893 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917209896
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43258 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917209896 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917209898
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43694 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917209898 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] AutoUpdaterWrapper: Installation type: unknown
+[DEBUG] performStartupChecks called
+[DEBUG] Trust not accepted for current directory - skipping plugin installations
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917210133
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43799 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917210133 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Loaded plugins - Enabled: 0, Disabled: 0, Commands: 0, Agents: 0, Errors: 0
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917210236
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43799 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917210236 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917210307
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 43975 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917210307 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.7463.1764917212282
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 44019 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.7463.1764917212282 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Skipping SubagentStop hook execution - workspace trust not accepted
+[DEBUG] Skipping SubagentStop hook execution - workspace trust not accepted
+[DEBUG] Detected change to /home/jofre/.claude/settings.json
+[DEBUG] Replacing all allow rules for destination 'userSettings' with 1 rule(s): ["Read:**/*"]
+[DEBUG] Replacing all allow rules for destination 'projectSettings' with 1 rule(s): ["Read:**/*"]
+[DEBUG] Detected change to /home/jofre/.claude/settings.json
+[DEBUG] Replacing all allow rules for destination 'userSettings' with 5 rule(s): ["Read:**/*","Edit:**/*","Write:**/*","Bash:**/*","NotebookEdit:**/*"]
+[DEBUG] Replacing all allow rules for destination 'projectSettings' with 5 rule(s): ["Read:**/*","Edit:**/*","Write:**/*","Bash:**/*","NotebookEdit:**/*"]

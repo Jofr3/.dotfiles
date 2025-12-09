@@ -1,0 +1,218 @@
+;;; init.el --- Emacs Configuration -*- lexical-binding: t -*-
+
+;;; Commentary:
+;; Basic Emacs configuration
+
+;;; Code:
+
+;; UI improvements
+(setq inhibit-startup-message t)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+(setq ring-bell-function 'ignore)
+
+;; Line numbers
+(global-display-line-numbers-mode 1)
+(setq display-line-numbers-type 'relative)
+
+;; Disable line numbers for some modes
+(dolist (mode '(org-mode-hook
+                term-mode-hook
+                shell-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+;; Font settings
+(set-face-attribute 'default nil :height 120)
+
+;; Better scrolling
+(setq scroll-margin 8
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1)
+
+;; Show matching parentheses
+(show-paren-mode 1)
+
+;; Highlight current line
+(global-hl-line-mode 1)
+
+;; Better backup settings
+(setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups")))
+      delete-old-versions t
+      kept-new-versions 6
+      kept-old-versions 2
+      version-control t)
+
+;; Sane defaults
+(setq-default
+ indent-tabs-mode nil
+ tab-width 2
+ fill-column 80
+ truncate-lines t)
+
+;; Disable line wrapping globally
+(setq-default truncate-lines t)
+(setq truncate-partial-width-windows nil)
+
+;; Disable truncation indicators (arrows)
+(set-display-table-slot standard-display-table 'truncation ?\s)
+
+;; Enable useful commands
+(put 'narrow-to-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+
+;; Recent files
+(recentf-mode 1)
+(setq recentf-max-menu-items 25
+      recentf-max-saved-items 25)
+
+;; Save place in files
+(save-place-mode 1)
+
+;; Auto-refresh changed files
+(global-auto-revert-mode 1)
+(setq global-auto-revert-non-file-buffers t)
+
+;; Better minibuffer completion
+(icomplete-mode 1)
+(fido-vertical-mode 1)
+
+;; UTF-8 encoding
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+
+;; Bootstrap straight.el
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+;; Install use-package via straight.el
+(straight-use-package 'use-package)
+
+;; Configure use-package to use straight.el by default
+(setq straight-use-package-by-default t)
+
+;; Evil mode for vim keybindings (optional - comment out if you don't want vim keybindings)
+(use-package evil
+  :init
+  (setq evil-want-C-u-scroll t
+        evil-want-keybinding nil)
+  :config
+  (evil-mode 1))
+
+;; Evil collection for better evil support
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+
+;; Restart Emacs from within Emacs
+(use-package restart-emacs)
+
+;; Completion framework
+(use-package vertico
+  :init
+  (vertico-mode))
+
+(use-package marginalia
+  :init
+  (marginalia-mode))
+
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
+;; Theme
+(setq custom-safe-themes t)
+(use-package autothemer)
+(straight-use-package
+ '(rose-pine-emacs
+   :host github
+   :repo "thongpv87/rose-pine-emacs"
+   :branch "master"))
+(load-theme 'rose-pine-moon t)
+
+;; Programming enhancements
+(use-package company
+  :config
+  (global-company-mode))
+
+(use-package magit)
+
+(use-package projectile
+  :config
+  (projectile-mode +1)
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
+
+;; LSP support
+(use-package lsp-mode
+  :hook ((typescript-mode . lsp)
+         (javascript-mode . lsp)
+         (lua-mode . lsp)
+         (nix-mode . lsp))
+  :commands lsp)
+
+(use-package lsp-ui :commands lsp-ui-mode)
+
+;; Syntax checking
+(use-package flycheck
+  :init (global-flycheck-mode))
+
+;; Language modes
+(use-package nix-mode
+  :mode "\\.nix\\'")
+
+(use-package markdown-mode
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown"))
+
+(use-package lua-mode)
+(use-package typescript-mode)
+
+;; Custom keybindings
+(global-set-key (kbd "C-c r") 'recentf-open-files)
+(global-set-key (kbd "C-c g") 'magit-status)
+(global-set-key (kbd "M-f") 'projectile-find-file)
+(global-set-key (kbd "C-c d") 'dired)
+
+;; Window navigation with Alt+hjkl
+(global-set-key (kbd "M-h") 'windmove-left)
+(global-set-key (kbd "M-j") 'windmove-down)
+(global-set-key (kbd "M-k") 'windmove-up)
+(global-set-key (kbd "M-l") 'windmove-right)
+
+;; Window resizing with Alt+Shift+hjkl
+(global-set-key (kbd "M-H") 'shrink-window-horizontally)
+(global-set-key (kbd "M-J") 'enlarge-window)
+(global-set-key (kbd "M-K") 'shrink-window)
+(global-set-key (kbd "M-L") 'enlarge-window-horizontally)
+
+(provide 'init)
+;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

@@ -1,0 +1,1 @@
+/home/jofre/.config/emacs/straight/repos/seq/.github/PULL_REQUEST_TEMPLATE.md

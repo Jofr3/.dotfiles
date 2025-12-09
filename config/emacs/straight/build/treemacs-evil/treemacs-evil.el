@@ -1,0 +1,1 @@
+/home/jofre/.config/emacs/straight/repos/treemacs/src/extra/treemacs-evil.el

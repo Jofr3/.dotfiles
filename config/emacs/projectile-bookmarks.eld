@@ -1,1 +1,1 @@
-("~/.dotfiles/" "~/.dotfiles/config/emacs/./")
+("~/.dotfiles/config/emacs/" "~/.dotfiles/" "~/.dotfiles/config/emacs/./")

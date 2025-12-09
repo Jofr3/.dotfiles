@@ -1,0 +1,337 @@
+[DEBUG] Getting matching hook commands for SessionStart with query: clear
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "clear" (0 before deduplication)
+[DEBUG] FileHistory: Added snapshot for a17f03e2-f3ee-4c45-b044-f44bbbf9a41e, tracking 0 files
+[DEBUG] Rendering user message with 1 content blocks
+[DEBUG] Block 0: <command-name>/clear</command-name>
+            <command-message>clear</command-message>
+           ...
+[DEBUG] UserCommandMessage rendering: "clear" (args: "none")
+[DEBUG] isSkillFormat: false, prefix: "/"
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765264781380
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47283 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765264781380 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude/settings.json.tmp.30408.1765264783713
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 185 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude/settings.json.tmp.30408.1765264783713 to /home/jofre/.claude/settings.json
+[DEBUG] File /home/jofre/.claude/settings.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude/settings.json.tmp.30408.1765264784486
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 184 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude/settings.json.tmp.30408.1765264784486 to /home/jofre/.claude/settings.json
+[DEBUG] File /home/jofre/.claude/settings.json written atomically
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] FileHistory: Making snapshot for message 9a71d5a1-cc31-45b2-815e-8fdabbf80795
+[DEBUG] FileHistory: Added snapshot for 9a71d5a1-cc31-45b2-815e-8fdabbf80795, tracking 0 files
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Grep
+[DEBUG] Getting matching hook commands for PreToolUse with query: Grep
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+[DEBUG] executePreToolHooks called for tool: Read
+[DEBUG] Getting matching hook commands for PreToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Grep
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Edit
+[DEBUG] Getting matching hook commands for PreToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] FileHistory: Tracked file modification for /home/jofre/.dotfiles/config/emacs/init.el
+[DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/emacs/init.el.tmp.30408.1765264831520
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 9249 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.dotfiles/config/emacs/init.el.tmp.30408.1765264831520 to /home/jofre/.dotfiles/config/emacs/init.el
+[DEBUG] File /home/jofre/.dotfiles/config/emacs/init.el written atomically
+[DEBUG] Getting matching hook commands for PostToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765264841762
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47283 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765264841762 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Getting matching hook commands for Stop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765264841779
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47283 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765264841779 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] FileHistory: Making snapshot for message 0c5d27cf-d607-4ce2-95fa-554ce4569ec2
+[DEBUG] FileHistory: Added snapshot for 0c5d27cf-d607-4ce2-95fa-554ce4569ec2, tracking 1 files
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Edit
+[DEBUG] Getting matching hook commands for PreToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/emacs/init.el.tmp.30408.1765264890169
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 9198 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.dotfiles/config/emacs/init.el.tmp.30408.1765264890169 to /home/jofre/.dotfiles/config/emacs/init.el
+[DEBUG] File /home/jofre/.dotfiles/config/emacs/init.el written atomically
+[DEBUG] Getting matching hook commands for PostToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765264894730
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47283 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765264894730 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Getting matching hook commands for Stop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765264894745
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47283 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765264894745 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] FileHistory: Making snapshot for message 09b1154d-20bf-4ed3-b7e5-18d0cafe0c55
+[DEBUG] FileHistory: Added snapshot for 09b1154d-20bf-4ed3-b7e5-18d0cafe0c55, tracking 1 files
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Edit
+[DEBUG] Getting matching hook commands for PreToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/emacs/init.el.tmp.30408.1765264992215
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 9198 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.dotfiles/config/emacs/init.el.tmp.30408.1765264992215 to /home/jofre/.dotfiles/config/emacs/init.el
+[DEBUG] File /home/jofre/.dotfiles/config/emacs/init.el written atomically
+[DEBUG] Getting matching hook commands for PostToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765264998206
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47283 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765264998206 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Getting matching hook commands for Stop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765264998221
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47283 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765264998221 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] FileHistory: Making snapshot for message fb584247-8116-4eee-aa2c-8b57492e38fd
+[DEBUG] FileHistory: Added snapshot for fb584247-8116-4eee-aa2c-8b57492e38fd, tracking 1 files
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Grep
+[DEBUG] Getting matching hook commands for PreToolUse with query: Grep
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+[DEBUG] executePreToolHooks called for tool: Read
+[DEBUG] Getting matching hook commands for PreToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Read
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+[DEBUG] Getting matching hook commands for PostToolUse with query: Grep
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Grep" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Edit
+[DEBUG] Getting matching hook commands for PreToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/emacs/init.el.tmp.30408.1765265202809
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 9358 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.dotfiles/config/emacs/init.el.tmp.30408.1765265202809 to /home/jofre/.dotfiles/config/emacs/init.el
+[DEBUG] File /home/jofre/.dotfiles/config/emacs/init.el written atomically
+[DEBUG] Getting matching hook commands for PostToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] executePreToolHooks called for tool: Edit
+[DEBUG] Getting matching hook commands for PreToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/emacs/init.el.tmp.30408.1765265213294
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 9407 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.dotfiles/config/emacs/init.el.tmp.30408.1765265213294 to /home/jofre/.dotfiles/config/emacs/init.el
+[DEBUG] File /home/jofre/.dotfiles/config/emacs/init.el written atomically
+[DEBUG] Getting matching hook commands for PostToolUse with query: Edit
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "Edit" (0 before deduplication)
+[DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+[DEBUG] LSP Diagnostics: Checking registry - 0 pending
+[DEBUG] LSP Diagnostics: Returning 0 diagnostic set(s) for delivery
+[DEBUG] Hooks: getAsyncHookResponseAttachments called
+[DEBUG] Hooks: checkForNewResponses called
+[DEBUG] Hooks: Found 0 total hooks in registry
+[DEBUG] Hooks: checkForNewResponses returning 0 responses
+[DEBUG] Skills and commands included in Skill tool:
+[DEBUG] Slash commands included in SlashCommand tool:
+[DEBUG] Stream started - received first chunk
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765265221014
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47350 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765265221014 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765265221026
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47350 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765265221026 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Getting matching hook commands for Stop with query: undefined
+[DEBUG] Found 0 hook matchers in settings
+[DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765265221041
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47350 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765265221041 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765265286595
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47350 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765265286595 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.30408.1765265290392
+[DEBUG] Preserving file permissions: 100600
+[DEBUG] Temp file written successfully, size: 47350 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/jofre/.claude.json.tmp.30408.1765265290392 to /home/jofre/.claude.json
+[DEBUG] File /home/jofre/.claude.json written atomically

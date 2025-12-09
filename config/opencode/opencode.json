@@ -46,7 +46,8 @@
   "tools": {
     "nixos_*": false,
     "neovim_*": false,
-    "chrome_*": false
+    "chrome_*": false,
+    "bruno_*": false
   },
   "agent": {
     "nixos": {
@@ -69,6 +70,13 @@
       "tools": {
         "neovim_*": true
       }
+    },
+    "bruno": {
+      "description": "Proactively assist with API testing, HTTP requests, and Bruno collection management. Auto-invoked when user mentions API testing, REST endpoints, HTTP requests, Bruno collections, running requests, testing APIs, or validating endpoints. Use this agent to discover collections, list requests, run API tests, validate responses, and manage Bruno environments.",
+      "mode": "subagent",
+      "tools": {
+        "bruno_*": true
+      }
     }
   },
   "command": {
@@ -87,6 +95,18 @@
     "vim-edit": {
       "description": "Open a file in Neovim and optionally navigate to a specific location",
       "template": "Use the neovim agent to open the file specified by the user in Neovim. If a line number or function name was mentioned, navigate to that location. Report whether the operation succeeded."
+    },
+    "bruno-discover": {
+      "description": "Discover Bruno collections in the current directory or project",
+      "template": "Use the bruno agent to discover all Bruno collections in the current directory or specified path. List the collections found and show their request counts."
+    },
+    "bruno-run": {
+      "description": "Run a specific Bruno request or entire collection",
+      "template": "Use the bruno agent to run the specified Bruno request or collection. Show the response status, headers, and body. Report any errors or failures."
+    },
+    "bruno-test": {
+      "description": "Run all tests in a Bruno collection and report results",
+      "template": "Use the bruno agent to run all requests in the specified Bruno collection. Report the test results, including pass/fail status, response times, and any errors encountered."
     }
   }
 }

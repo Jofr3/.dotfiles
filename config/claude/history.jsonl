@@ -45,3 +45,26 @@
 {"display":"sorry i ment to say upload a document, do this curl -X 'POST' \\\n  'https://devapi896623.mydocumentium.com/api/v1/login?email=api-jofre%40mydocumentium.com&password=api-jofre' \\\n  -H 'accept: application/json' \\\n  -H 'X-CSRF-TOKEN: ' \\\n  -d ''","pastedContents":{},"timestamp":1764923164012,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}
 {"display":"yes but change the file for a local one get a random pdf from my downloads folder","pastedContents":{},"timestamp":1764923528148,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}
 {"display":"continu","pastedContents":{},"timestamp":1764923791094,"project":"/home/jofre/lsw/mydocumentium_api","sessionId":"f720c434-b1c9-4ff3-b527-0861c6adcd87"}
+{"display":"remove icons from treemacs plugin","pastedContents":{},"timestamp":1765263531401,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"/login ","pastedContents":{},"timestamp":1765263551531,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"/login ","pastedContents":{},"timestamp":1765263551531,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"/login ","pastedContents":{},"timestamp":1765263551531,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"remove icons from treemacs plugin","pastedContents":{},"timestamp":1765263581160,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"well its not working","pastedContents":{},"timestamp":1765263647170,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"remove the line overflow indicator (no wrap) on the right of the window","pastedContents":{},"timestamp":1765263764929,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"still apearing","pastedContents":{},"timestamp":1765263839871,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"in the status line, remove all the unsececari stuff, keep the file name and git and project name","pastedContents":{},"timestamp":1765263933435,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"show the project anme and git branch in the right side of the status line, also show only branch name (not Git:main)","pastedContents":{},"timestamp":1765264054812,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"git branch not visible","pastedContents":{},"timestamp":1765264119533,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"still not showing","pastedContents":{},"timestamp":1765264192195,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"d2fd37f9-5351-40d8-a6de-40369ba88040"}
+{"display":"/clear ","pastedContents":{},"timestamp":1765264588355,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"750cb2ba-d8b5-4461-83b6-727db3f3ed49"}
+{"display":"/clear ","pastedContents":{},"timestamp":1765264588356,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"750cb2ba-d8b5-4461-83b6-727db3f3ed49"}
+{"display":"/clear ","pastedContents":{},"timestamp":1765264588356,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"750cb2ba-d8b5-4461-83b6-727db3f3ed49"}
+{"display":"set treemacs indent to 2 spaces, and remove number line","pastedContents":{},"timestamp":1765264640958,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"750cb2ba-d8b5-4461-83b6-727db3f3ed49"}
+{"display":"/clear ","pastedContents":{},"timestamp":1765264781382,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"3cf4db15-56b9-4a8d-ac71-fa18079de655"}
+{"display":"/clear ","pastedContents":{},"timestamp":1765264781382,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"3cf4db15-56b9-4a8d-ac71-fa18079de655"}
+{"display":"/clear ","pastedContents":{},"timestamp":1765264781382,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"3cf4db15-56b9-4a8d-ac71-fa18079de655"}
+{"display":"remove sing column lsp error indicators","pastedContents":{},"timestamp":1765264841780,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"3cf4db15-56b9-4a8d-ac71-fa18079de655"}
+{"display":"remove cursor line","pastedContents":{},"timestamp":1765264894747,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"3cf4db15-56b9-4a8d-ac71-fa18079de655"}
+{"display":"change font size to 11","pastedContents":{},"timestamp":1765264998222,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"3cf4db15-56b9-4a8d-ac71-fa18079de655"}
+{"display":"when editing a markdown file, all keybinds stop working","pastedContents":{},"timestamp":1765265221043,"project":"/home/jofre/.dotfiles/config/emacs","sessionId":"3cf4db15-56b9-4a8d-ac71-fa18079de655"}

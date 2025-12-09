@@ -24,7 +24,7 @@
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 ;; Font settings
-(set-face-attribute 'default nil :height 120)
+(set-face-attribute 'default nil :height 100)
 
 ;; Better scrolling
 (setq scroll-margin 8
@@ -34,8 +34,26 @@
 ;; Show matching parentheses
 (show-paren-mode 1)
 
-;; Highlight current line
-(global-hl-line-mode 1)
+;; Simplified mode-line (status line) - filename on left, project and git on right
+(setq-default mode-line-format
+              '((:eval
+                 (let* ((left (concat
+                               ;; Buffer name/filename
+                               (propertize (buffer-name) 'face 'mode-line-buffer-id)
+                               ;; Modified indicator
+                               (when (buffer-modified-p) " *")))
+                        (right (concat
+                                ;; Project name
+                                (when (and (bound-and-true-p projectile-mode)
+                                           (projectile-project-p))
+                                  (propertize (concat "[" (projectile-project-name) "]")
+                                              'face 'font-lock-constant-face))))
+                        (padding (max 0 (- (window-total-width)
+                                          (length left)
+                                          (length right)))))
+                   (concat left
+                           (make-string padding ?\s)
+                           right)))))
 
 ;; Better backup settings
 (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups")))
@@ -55,8 +73,18 @@
 (setq-default truncate-lines t)
 (setq truncate-partial-width-windows nil)
 
-;; Disable truncation indicators (arrows)
+;; Disable truncation indicators completely
+(setq-default fringe-indicator-alist
+              (delq (assq 'truncation fringe-indicator-alist)
+                    (copy-alist fringe-indicator-alist)))
+(setq-default fringe-indicator-alist
+              (cons '(truncation nil nil) fringe-indicator-alist))
+
+;; Also disable in display table
+(unless standard-display-table
+  (setq standard-display-table (make-display-table)))
 (set-display-table-slot standard-display-table 'truncation ?\s)
+(set-display-table-slot standard-display-table 'wrap ?\s)
 
 ;; Enable useful commands
 (put 'narrow-to-region 'disabled nil)
@@ -75,9 +103,15 @@
 (global-auto-revert-mode 1)
 (setq global-auto-revert-non-file-buffers t)
 
+;; Enable version control mode for git branch info
+(setq vc-follow-symlinks t)
+(add-hook 'find-file-hook 'vc-refresh-state)
+(add-hook 'after-save-hook 'vc-refresh-state)
+
 ;; Better minibuffer completion
-(icomplete-mode 1)
-(fido-vertical-mode 1)
+;; Disabled in favor of vertico
+;; (icomplete-mode 1)
+;; (fido-vertical-mode 1)
 
 ;; UTF-8 encoding
 (prefer-coding-system 'utf-8)
@@ -119,12 +153,12 @@
   :config
   (evil-collection-init))
 
-;; Restart Emacs from within Emacs
-(use-package restart-emacs)
-
 ;; Completion framework
 (use-package vertico
   :init
+  (fido-vertical-mode -1)
+  (fido-mode -1)
+  (icomplete-mode -1)
   (vertico-mode))
 
 (use-package marginalia
@@ -156,6 +190,15 @@
 (use-package projectile
   :config
   (projectile-mode +1)
+  (setq projectile-completion-system 'default
+        projectile-git-submodule-command nil
+        projectile-enable-caching t
+        projectile-indexing-method 'alien
+        projectile-ignored-projects '("~/.emacs.d/straight/repos/" "~/.dotfiles/config/emacs/straight/")
+        projectile-globally-ignored-directories
+        (append '("straight" "elpa" "eln-cache" ".cache" "auto-save-list" "backups" "transient")
+                projectile-globally-ignored-directories)
+        projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o" ".eln"))
   :bind-keymap
   ("C-c p" . projectile-command-map))
 
@@ -165,13 +208,23 @@
          (javascript-mode . lsp)
          (lua-mode . lsp)
          (nix-mode . lsp))
-  :commands lsp)
+  :commands lsp
+  :config
+  ;; Disable LSP fringe indicators
+  (setq lsp-ui-sideline-show-diagnostics nil))
 
-(use-package lsp-ui :commands lsp-ui-mode)
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :config
+  ;; Disable fringe indicators
+  (setq lsp-ui-sideline-enable nil))
 
 ;; Syntax checking
 (use-package flycheck
-  :init (global-flycheck-mode))
+  :init (global-flycheck-mode)
+  :config
+  ;; Disable fringe indicators for errors
+  (setq flycheck-indication-mode nil))
 
 ;; Language modes
 (use-package nix-mode
@@ -179,16 +232,57 @@
 
 (use-package markdown-mode
   :mode ("README\\.md\\'" . gfm-mode)
-  :init (setq markdown-command "multimarkdown"))
+  :init (setq markdown-command "multimarkdown")
+  :hook (markdown-mode . evil-normalize-keymaps)
+  :config
+  ;; Ensure evil-collection bindings are loaded for markdown
+  (when (fboundp 'evil-collection-require)
+    (evil-collection-require 'markdown-mode)))
 
 (use-package lua-mode)
 (use-package typescript-mode)
 
+;; File tree sidebar
+(use-package treemacs
+  :config
+  ;; Force text-only mode (no icons)
+  (setq treemacs-no-png-images t)
+  (setq treemacs-width 30
+        treemacs-indentation 1
+        treemacs-follow-mode t
+        treemacs-filewatch-mode t
+        treemacs-fringe-indicator-mode 'always-show
+        treemacs-git-mode 'simple
+        treemacs-show-hidden-files t
+        treemacs-indent-guide-style 'line)
+  ;; Use default ASCII theme (no icons)
+  (treemacs-load-theme "Default")
+  ;; Disable line numbers in treemacs
+  (add-hook 'treemacs-mode-hook (lambda () (display-line-numbers-mode 0)))
+  ;; Add toggle keybind to treemacs-mode-map
+  (define-key treemacs-mode-map (kbd "M-n") #'treemacs)
+  :bind
+  (("M-n" . treemacs)
+   ("C-c f" . treemacs-find-file)))
+
+;; Treemacs integration with Evil
+(use-package treemacs-evil
+  :after (treemacs evil))
+
+;; Treemacs integration with Projectile
+(use-package treemacs-projectile
+  :after (treemacs projectile))
+
+;; Treemacs integration with Magit
+(use-package treemacs-magit
+  :after (treemacs magit))
+
 ;; Custom keybindings
-(global-set-key (kbd "C-c r") 'recentf-open-files)
-(global-set-key (kbd "C-c g") 'magit-status)
+(global-set-key (kbd "M-o") 'dired)
+
+(global-set-key (kbd "C-c a") 'projectile-add-known-project)
+(global-set-key (kbd "M-p") 'projectile-switch-project)
 (global-set-key (kbd "M-f") 'projectile-find-file)
-(global-set-key (kbd "C-c d") 'dired)
 
 ;; Window navigation with Alt+hjkl
 (global-set-key (kbd "M-h") 'windmove-left)

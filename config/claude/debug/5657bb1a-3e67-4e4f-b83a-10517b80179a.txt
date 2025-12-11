@@ -1,0 +1,210 @@
+2025-12-11T17:44:11.832Z [DEBUG] Watching for changes in setting files /home/jofre/.claude/settings.json, /home/jofre/.claude/settings.json...
+2025-12-11T17:44:11.883Z [DEBUG] [LSP MANAGER] initializeLspServerManager() called
+2025-12-11T17:44:11.883Z [DEBUG] [LSP MANAGER] Created manager instance, state=pending
+2025-12-11T17:44:11.883Z [DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+2025-12-11T17:44:11.884Z [DEBUG] [LSP SERVER MANAGER] initialize() called
+2025-12-11T17:44:11.884Z [DEBUG] [LSP SERVER MANAGER] Calling getAllLspServers()
+2025-12-11T17:44:11.895Z [DEBUG] Found 0 plugins (0 enabled, 0 disabled)
+2025-12-11T17:44:11.897Z [DEBUG] Total LSP servers loaded: 0
+2025-12-11T17:44:11.897Z [DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+2025-12-11T17:44:11.897Z [DEBUG] LSP manager initialized with 0 servers
+2025-12-11T17:44:11.897Z [DEBUG] LSP server manager initialized successfully
+2025-12-11T17:44:11.897Z [DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+2025-12-11T17:44:11.914Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (9.2ms): ldd /bin/ls 2>/dev/null
+2025-12-11T17:44:11.921Z [DEBUG] Loading skills from directories: managed=/etc/claude-code/.claude/skills, user=/home/jofre/.claude/skills, project=[]
+2025-12-11T17:44:11.921Z [DEBUG] >>>>> getPluginSkills CALLED <<<<<
+2025-12-11T17:44:11.946Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (19.7ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T17:44:11.948Z [ERROR] Failed to load installed_plugins.json: [
+  {
+    "validation": "regex",
+    "code": "invalid_string",
+    "message": "Plugin ID must be in format: plugin@marketplace",
+    "path": [
+      "plugins",
+      "context7"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "version"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "installedAt"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "installPath"
+    ],
+    "message": "Required"
+  }
+]. Starting with empty state.
+2025-12-11T17:44:11.960Z [ERROR] ZodError: ZodError: [
+  {
+    "validation": "regex",
+    "code": "invalid_string",
+    "message": "Plugin ID must be in format: plugin@marketplace",
+    "path": [
+      "plugins",
+      "context7"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "version"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "installedAt"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "installPath"
+    ],
+    "message": "Required"
+  }
+]
+    at get error (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:77:27070)
+    at QJ.parse (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:77:20339)
+    at GM2 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2776:19596)
+    at z95 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2776:23819)
+    at $M (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2776:23850)
+    at Object.isRelevant (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2779:105)
+    at file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2776:28563
+    at Array.map (<anonymous>)
+    at B31 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2776:28552)
+    at z51 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4652:6132)
+2025-12-11T17:44:11.961Z [DEBUG] Official marketplace auto-install already attempted, skipping
+2025-12-11T17:44:12.001Z [DEBUG] Creating shell snapshot for bash (/home/jofre/.nix-profile/bin/bash)
+2025-12-11T17:44:12.001Z [DEBUG] Looking for shell config file: /home/jofre/.bashrc
+2025-12-11T17:44:12.001Z [DEBUG] Snapshots directory: /home/jofre/.claude/shell-snapshots
+2025-12-11T17:44:12.002Z [DEBUG] Creating snapshot at: /home/jofre/.claude/shell-snapshots/snapshot-bash-1765475052001-w0mefx.sh
+2025-12-11T17:44:12.002Z [DEBUG] Shell binary exists: true
+2025-12-11T17:44:12.002Z [DEBUG] Execution timeout: 10000ms
+2025-12-11T17:44:12.006Z [DEBUG] Writing to temp file: /home/jofre/.claude/todos/5657bb1a-3e67-4e4f-b83a-10517b80179a-agent-5657bb1a-3e67-4e4f-b83a-10517b80179a.json.tmp.35333.1765475052006
+2025-12-11T17:44:12.012Z [DEBUG] [SLOW OPERATION DETECTED] fs.writeFileSync (5.5ms)
+2025-12-11T17:44:12.012Z [DEBUG] Temp file written successfully, size: 2 bytes
+2025-12-11T17:44:12.012Z [DEBUG] Renaming /home/jofre/.claude/todos/5657bb1a-3e67-4e4f-b83a-10517b80179a-agent-5657bb1a-3e67-4e4f-b83a-10517b80179a.json.tmp.35333.1765475052006 to /home/jofre/.claude/todos/5657bb1a-3e67-4e4f-b83a-10517b80179a-agent-5657bb1a-3e67-4e4f-b83a-10517b80179a.json
+2025-12-11T17:44:12.012Z [DEBUG] File /home/jofre/.claude/todos/5657bb1a-3e67-4e4f-b83a-10517b80179a-agent-5657bb1a-3e67-4e4f-b83a-10517b80179a.json written atomically
+2025-12-11T17:44:12.018Z [DEBUG] getPluginSkills: Processing 0 enabled plugins
+2025-12-11T17:44:12.018Z [DEBUG] Total plugin skills loaded: 0
+2025-12-11T17:44:12.019Z [DEBUG] Total plugin commands loaded: 0
+2025-12-11T17:44:12.019Z [DEBUG] Registered 0 hooks from 0 plugins
+2025-12-11T17:44:12.020Z [DEBUG] Loaded 0 unique skills (managed: 0, user: 0, project: 0, duplicates removed: 0)
+2025-12-11T17:44:12.021Z [DEBUG] getSkills returning: 0 skill dir commands, 0 plugin skills
+2025-12-11T17:44:12.025Z [DEBUG] Total plugin agents loaded: 0
+2025-12-11T17:44:12.042Z [DEBUG] Git remote URL: null
+2025-12-11T17:44:12.042Z [DEBUG] No git remote URL found
+2025-12-11T17:44:12.042Z [DEBUG] Not in a GitHub repository, skipping path mapping update
+2025-12-11T17:44:12.045Z [DEBUG] Shell snapshot created successfully (2508 bytes)
+2025-12-11T17:44:12.241Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.35333.1765475052241
+2025-12-11T17:44:12.241Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T17:44:12.242Z [DEBUG] Temp file written successfully, size: 51267 bytes
+2025-12-11T17:44:12.243Z [DEBUG] Applied original permissions to temp file
+2025-12-11T17:44:12.243Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.35333.1765475052241 to /home/jofre/.claude.json
+2025-12-11T17:44:12.243Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T17:44:13.826Z [DEBUG] Loaded 0 installed plugins from V2 file at /home/jofre/.claude/plugins/installed_plugins_v2.json
+2025-12-11T17:44:13.826Z [DEBUG] Initialized versioned plugins system with 0 plugins
+2025-12-11T17:44:13.830Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.35333.1765475053830
+2025-12-11T17:44:13.830Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T17:44:13.831Z [DEBUG] Temp file written successfully, size: 51267 bytes
+2025-12-11T17:44:13.831Z [DEBUG] Applied original permissions to temp file
+2025-12-11T17:44:13.831Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.35333.1765475053830 to /home/jofre/.claude.json
+2025-12-11T17:44:13.832Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T17:44:13.838Z [DEBUG] Skipping SessionStart:startup hook execution - workspace trust not accepted
+2025-12-11T17:44:13.855Z [DEBUG] Skills and commands included in Skill tool:
+2025-12-11T17:44:13.855Z [DEBUG] Slash commands included in SlashCommand tool:
+2025-12-11T17:44:13.903Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.35333.1765475053903
+2025-12-11T17:44:13.903Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T17:44:13.905Z [DEBUG] Temp file written successfully, size: 51194 bytes
+2025-12-11T17:44:13.905Z [DEBUG] Applied original permissions to temp file
+2025-12-11T17:44:13.905Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.35333.1765475053903 to /home/jofre/.claude.json
+2025-12-11T17:44:13.905Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T17:44:13.926Z [DEBUG] performStartupChecks called
+2025-12-11T17:44:13.927Z [DEBUG] Trust not accepted for current directory - skipping plugin installations
+2025-12-11T17:44:13.944Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.35333.1765475053944
+2025-12-11T17:44:13.944Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T17:44:13.948Z [DEBUG] Temp file written successfully, size: 51267 bytes
+2025-12-11T17:44:13.948Z [DEBUG] Applied original permissions to temp file
+2025-12-11T17:44:13.948Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.35333.1765475053944 to /home/jofre/.claude.json
+2025-12-11T17:44:13.948Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T17:44:13.951Z [DEBUG] Loaded plugins - Enabled: 0, Disabled: 0, Commands: 0, Agents: 0, Errors: 0
+2025-12-11T17:44:13.964Z [DEBUG] Skipping SubagentStart:Explore hook execution - workspace trust not accepted
+2025-12-11T17:44:13.974Z [DEBUG] Skipping SubagentStart:Plan hook execution - workspace trust not accepted
+2025-12-11T17:44:14.002Z [DEBUG] Summarizing all 6 messages (~0 tokens)
+2025-12-11T17:44:14.015Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.35333.1765475054015
+2025-12-11T17:44:14.015Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T17:44:14.016Z [DEBUG] Temp file written successfully, size: 51267 bytes
+2025-12-11T17:44:14.016Z [DEBUG] Applied original permissions to temp file
+2025-12-11T17:44:14.016Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.35333.1765475054015 to /home/jofre/.claude.json
+2025-12-11T17:44:14.016Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T17:44:14.046Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T17:44:14.626Z [DEBUG] Stream started - received first chunk
+2025-12-11T17:44:14.818Z [DEBUG] Stream started - received first chunk
+2025-12-11T17:44:15.235Z [DEBUG] Stream started - received first chunk
+2025-12-11T17:44:15.395Z [DEBUG] FileHistory: Added snapshot for 60ef3268-1053-4daa-8775-d3e3facb375f, tracking 0 files
+2025-12-11T17:44:15.400Z [DEBUG] UserCommandMessage rendering: "mcp" (args: "none")
+2025-12-11T17:44:15.400Z [DEBUG] isSkillFormat: false, prefix: "/"
+2025-12-11T17:44:15.472Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (21.3ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T17:44:15.498Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (21.3ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T17:44:15.526Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T17:44:16.305Z [DEBUG] Skipping SubagentStop hook execution - workspace trust not accepted
+2025-12-11T17:44:19.314Z [DEBUG] Skipping SubagentStop hook execution - workspace trust not accepted
+2025-12-11T17:44:34.005Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-11T17:44:34.005Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-11T17:44:34.006Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-11T17:44:34.006Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-11T17:44:34.015Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T17:44:34.015Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T17:44:34.028Z [DEBUG] Skipping UserPromptSubmit hook execution - workspace trust not accepted
+2025-12-11T17:44:34.031Z [DEBUG] FileHistory: Making snapshot for message 0e76fea9-fedd-48ce-83df-500f126a26fe
+2025-12-11T17:44:34.031Z [DEBUG] FileHistory: Added snapshot for 0e76fea9-fedd-48ce-83df-500f126a26fe, tracking 0 files
+2025-12-11T17:44:34.059Z [DEBUG] Total plugin output styles loaded: 0
+2025-12-11T17:44:35.517Z [DEBUG] Stream started - received first chunk
+2025-12-11T17:44:35.645Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.35333.1765475075645
+2025-12-11T17:44:35.645Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T17:44:35.646Z [DEBUG] Temp file written successfully, size: 51267 bytes
+2025-12-11T17:44:35.646Z [DEBUG] Applied original permissions to temp file
+2025-12-11T17:44:35.646Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.35333.1765475075645 to /home/jofre/.claude.json
+2025-12-11T17:44:35.646Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T17:44:35.756Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T17:44:36.442Z [DEBUG] Stream started - received first chunk
+2025-12-11T17:44:37.519Z [DEBUG] Skipping SessionEnd:prompt_input_exit hook execution - workspace trust not accepted

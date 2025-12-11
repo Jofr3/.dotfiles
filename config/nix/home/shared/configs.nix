@@ -17,6 +17,6 @@ in {
     emacs.source = "${dotfiles}/config/emacs";
   };
 
-  home.file.".claude.json".source = "${dotfiles}/config/claude/claude.json";
+  home.file.".claude".source = "${dotfiles}/config/claude";
 }
 

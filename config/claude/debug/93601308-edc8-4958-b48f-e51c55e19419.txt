@@ -1,0 +1,922 @@
+2025-12-11T21:04:30.488Z [DEBUG] Watching for changes in setting files /home/jofre/.claude/settings.json...
+2025-12-11T21:04:30.538Z [DEBUG] [LSP MANAGER] initializeLspServerManager() called
+2025-12-11T21:04:30.538Z [DEBUG] [LSP MANAGER] Created manager instance, state=pending
+2025-12-11T21:04:30.538Z [DEBUG] [LSP MANAGER] Starting async initialization (generation 1)
+2025-12-11T21:04:30.538Z [DEBUG] [LSP SERVER MANAGER] initialize() called
+2025-12-11T21:04:30.538Z [DEBUG] [LSP SERVER MANAGER] Calling getAllLspServers()
+2025-12-11T21:04:30.549Z [DEBUG] Found 0 plugins (0 enabled, 0 disabled)
+2025-12-11T21:04:30.551Z [DEBUG] Total LSP servers loaded: 0
+2025-12-11T21:04:30.551Z [DEBUG] [LSP SERVER MANAGER] getAllLspServers returned 0 server(s)
+2025-12-11T21:04:30.551Z [DEBUG] LSP manager initialized with 0 servers
+2025-12-11T21:04:30.551Z [DEBUG] LSP server manager initialized successfully
+2025-12-11T21:04:30.551Z [DEBUG] LSP notification handlers registered successfully for all 0 server(s)
+2025-12-11T21:04:30.567Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (8.7ms): ldd /bin/ls 2>/dev/null
+2025-12-11T21:04:30.574Z [DEBUG] Loading skills from directories: managed=/etc/claude-code/.claude/skills, user=/home/jofre/.claude/skills, project=[]
+2025-12-11T21:04:30.574Z [DEBUG] >>>>> getPluginSkills CALLED <<<<<
+2025-12-11T21:04:30.599Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (19.4ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:04:30.601Z [ERROR] Failed to load installed_plugins.json: [
+  {
+    "validation": "regex",
+    "code": "invalid_string",
+    "message": "Plugin ID must be in format: plugin@marketplace",
+    "path": [
+      "plugins",
+      "context7"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "version"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "installedAt"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "installPath"
+    ],
+    "message": "Required"
+  }
+]. Starting with empty state.
+2025-12-11T21:04:30.613Z [ERROR] ZodError: ZodError: [
+  {
+    "validation": "regex",
+    "code": "invalid_string",
+    "message": "Plugin ID must be in format: plugin@marketplace",
+    "path": [
+      "plugins",
+      "context7"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "version"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "installedAt"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "plugins",
+      "context7",
+      "installPath"
+    ],
+    "message": "Required"
+  }
+]
+    at get error (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:77:27070)
+    at QJ.parse (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:77:20339)
+    at GM2 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2776:19596)
+    at z95 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2776:23819)
+    at $M (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2776:23850)
+    at Object.isRelevant (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2779:105)
+    at file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2776:28563
+    at Array.map (<anonymous>)
+    at B31 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2776:28552)
+    at z51 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4652:6132)
+2025-12-11T21:04:30.613Z [DEBUG] Official marketplace auto-install already attempted, skipping
+2025-12-11T21:04:30.652Z [DEBUG] Creating shell snapshot for bash (/home/jofre/.nix-profile/bin/bash)
+2025-12-11T21:04:30.652Z [DEBUG] Looking for shell config file: /home/jofre/.bashrc
+2025-12-11T21:04:30.652Z [DEBUG] Snapshots directory: /home/jofre/.claude/shell-snapshots
+2025-12-11T21:04:30.653Z [DEBUG] Creating snapshot at: /home/jofre/.claude/shell-snapshots/snapshot-bash-1765487070652-0ezvsb.sh
+2025-12-11T21:04:30.653Z [DEBUG] Shell binary exists: true
+2025-12-11T21:04:30.653Z [DEBUG] Execution timeout: 10000ms
+2025-12-11T21:04:30.656Z [DEBUG] Writing to temp file: /home/jofre/.claude/todos/93601308-edc8-4958-b48f-e51c55e19419-agent-93601308-edc8-4958-b48f-e51c55e19419.json.tmp.43569.1765487070656
+2025-12-11T21:04:30.662Z [DEBUG] [SLOW OPERATION DETECTED] fs.writeFileSync (5.5ms)
+2025-12-11T21:04:30.662Z [DEBUG] Temp file written successfully, size: 2 bytes
+2025-12-11T21:04:30.662Z [DEBUG] Renaming /home/jofre/.claude/todos/93601308-edc8-4958-b48f-e51c55e19419-agent-93601308-edc8-4958-b48f-e51c55e19419.json.tmp.43569.1765487070656 to /home/jofre/.claude/todos/93601308-edc8-4958-b48f-e51c55e19419-agent-93601308-edc8-4958-b48f-e51c55e19419.json
+2025-12-11T21:04:30.662Z [DEBUG] File /home/jofre/.claude/todos/93601308-edc8-4958-b48f-e51c55e19419-agent-93601308-edc8-4958-b48f-e51c55e19419.json written atomically
+2025-12-11T21:04:30.668Z [DEBUG] getPluginSkills: Processing 0 enabled plugins
+2025-12-11T21:04:30.668Z [DEBUG] Total plugin skills loaded: 0
+2025-12-11T21:04:30.668Z [DEBUG] Total plugin commands loaded: 0
+2025-12-11T21:04:30.668Z [DEBUG] Registered 0 hooks from 0 plugins
+2025-12-11T21:04:30.676Z [DEBUG] Loaded 0 unique skills (managed: 0, user: 0, project: 0, duplicates removed: 0)
+2025-12-11T21:04:30.678Z [DEBUG] getSkills returning: 0 skill dir commands, 0 plugin skills
+2025-12-11T21:04:30.682Z [DEBUG] Total plugin agents loaded: 0
+2025-12-11T21:04:30.701Z [DEBUG] Git remote URL: git@github.com:Jofr3/.dotfiles.git
+2025-12-11T21:04:30.702Z [DEBUG] Could not parse repository from: git@github.com:Jofr3/.dotfiles.git
+2025-12-11T21:04:30.702Z [DEBUG] Parsed repository: null from URL: git@github.com:Jofr3/.dotfiles.git
+2025-12-11T21:04:30.702Z [DEBUG] Not in a GitHub repository, skipping path mapping update
+2025-12-11T21:04:30.718Z [DEBUG] Ripgrep first use test: PASSED (mode=builtin, path=/tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/x64-linux/rg)
+2025-12-11T21:04:30.730Z [DEBUG] Shell snapshot created successfully (2720 bytes)
+2025-12-11T21:04:30.964Z [ERROR] AxiosError: AxiosError: Request failed with status code 403
+    at Kj (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:187:1137)
+    at Unzip.<anonymous> (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:188:9852)
+    at Unzip.emit (node:events:531:35)
+    at Unzip.emit (node:domain:489:12)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at XKA.request (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:190:2130)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async t_B (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1009:47184)
+2025-12-11T21:04:30.976Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487070976
+2025-12-11T21:04:30.976Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:04:30.977Z [DEBUG] Temp file written successfully, size: 53054 bytes
+2025-12-11T21:04:30.977Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:04:30.977Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487070976 to /home/jofre/.claude.json
+2025-12-11T21:04:30.977Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:04:30.999Z [DEBUG] Failed to fetch Grove notice config: AxiosError: Request failed with status code 403
+2025-12-11T21:04:31.019Z [DEBUG] Loaded 0 installed plugins from V2 file at /home/jofre/.claude/plugins/installed_plugins_v2.json
+2025-12-11T21:04:31.019Z [DEBUG] Initialized versioned plugins system with 0 plugins
+2025-12-11T21:04:31.023Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487071023
+2025-12-11T21:04:31.024Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:04:31.025Z [DEBUG] Temp file written successfully, size: 53054 bytes
+2025-12-11T21:04:31.025Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:04:31.025Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487071023 to /home/jofre/.claude.json
+2025-12-11T21:04:31.025Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:04:31.031Z [DEBUG] Getting matching hook commands for SessionStart with query: startup
+2025-12-11T21:04:31.031Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:04:31.031Z [DEBUG] Matched 0 unique hooks for query "startup" (0 before deduplication)
+2025-12-11T21:04:31.047Z [DEBUG] Skills and commands included in Skill tool:
+2025-12-11T21:04:31.047Z [DEBUG] Slash commands included in SlashCommand tool:
+2025-12-11T21:04:31.105Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487071105
+2025-12-11T21:04:31.105Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:04:31.106Z [DEBUG] Temp file written successfully, size: 52981 bytes
+2025-12-11T21:04:31.106Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:04:31.106Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487071105 to /home/jofre/.claude.json
+2025-12-11T21:04:31.107Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:04:31.125Z [DEBUG] performStartupChecks called
+2025-12-11T21:04:31.125Z [DEBUG] Starting background plugin installations
+2025-12-11T21:04:31.126Z [DEBUG] performBackgroundPluginInstallations called
+2025-12-11T21:04:31.143Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487071143
+2025-12-11T21:04:31.143Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:04:31.144Z [DEBUG] Temp file written successfully, size: 53054 bytes
+2025-12-11T21:04:31.144Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:04:31.144Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487071143 to /home/jofre/.claude.json
+2025-12-11T21:04:31.144Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:04:31.149Z [DEBUG] Setting installation status: 0 marketplaces, 0 installable plugins, 0 uninstallable plugins
+2025-12-11T21:04:31.152Z [DEBUG] Loaded plugins - Enabled: 0, Disabled: 0, Commands: 0, Agents: 0, Errors: 0
+2025-12-11T21:04:31.168Z [DEBUG] Getting matching hook commands for SubagentStart with query: Explore
+2025-12-11T21:04:31.168Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:04:31.168Z [DEBUG] Matched 0 unique hooks for query "Explore" (0 before deduplication)
+2025-12-11T21:04:31.175Z [DEBUG] Getting matching hook commands for SubagentStart with query: Plan
+2025-12-11T21:04:31.175Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:04:31.175Z [DEBUG] Matched 0 unique hooks for query "Plan" (0 before deduplication)
+2025-12-11T21:04:31.197Z [DEBUG] Summarizing all 3 messages (~0 tokens)
+2025-12-11T21:04:31.212Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487071212
+2025-12-11T21:04:31.212Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:04:31.213Z [DEBUG] Temp file written successfully, size: 53054 bytes
+2025-12-11T21:04:31.213Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:04:31.213Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487071212 to /home/jofre/.claude.json
+2025-12-11T21:04:31.213Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:04:31.254Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T21:04:31.265Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487071265
+2025-12-11T21:04:31.265Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:04:31.266Z [DEBUG] Temp file written successfully, size: 53054 bytes
+2025-12-11T21:04:31.266Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:04:31.266Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487071265 to /home/jofre/.claude.json
+2025-12-11T21:04:31.266Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:04:31.403Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aViaKSAHsa8kiXWGpZ"}
+    at B9.generate (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:122:10448)
+    at MR.makeStatusError (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:2195)
+    at MR.makeRequest (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:5419)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1411:3503
+    at async file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1411:2262
+    at async oc3 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1410:354)
+    at async mxB (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1411:2195)
+    at async xLA (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2082:52)
+    at async kQ1 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:2082:261)
+2025-12-11T21:04:31.498Z [ERROR] Error streaming, falling back to non-streaming mode: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aViufHcE22HjgBWAcT"}
+2025-12-11T21:04:31.532Z [ERROR] Error streaming, falling back to non-streaming mode: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVijVcYAB1JbxiR3oY"}
+2025-12-11T21:04:31.701Z [ERROR] Error streaming, falling back to non-streaming mode: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVjCGwAjAEMpxbp2yj"}
+2025-12-11T21:04:31.800Z [ERROR] Error in non-streaming fallback: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVjqE27N9fzpxgtouQ"}
+2025-12-11T21:04:31.802Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVjqE27N9fzpxgtouQ"}
+    at B9.generate (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:122:10448)
+    at MR.makeStatusError (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:2195)
+    at MR.makeRequest (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:5419)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async dsA.model (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:11283)
+    at async dsA (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1009:34744)
+    at async mg2 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:11437)
+    at async file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:3622
+    at async An1 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1411:2037)
+    at async Hb (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:3593)
+2025-12-11T21:04:31.878Z [ERROR] Error in non-streaming fallback: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVk4cmkgJjEMdgPW5F"}
+2025-12-11T21:04:31.878Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVk4cmkgJjEMdgPW5F"}
+    at B9.generate (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:122:10448)
+    at MR.makeStatusError (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:2195)
+    at MR.makeRequest (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:5419)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async dsA.model (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:11283)
+    at async dsA (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1009:34744)
+    at async mg2 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:11437)
+    at async file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:3864
+    at async An1 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1411:2037)
+    at async TZA (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:3834)
+2025-12-11T21:04:31.893Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2025-12-11T21:04:31.893Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:04:31.893Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2025-12-11T21:04:32.095Z [ERROR] Error in non-streaming fallback: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVm77tKyN8TUK7dcMi"}
+2025-12-11T21:04:32.095Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVm77tKyN8TUK7dcMi"}
+    at B9.generate (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:122:10448)
+    at MR.makeStatusError (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:2195)
+    at MR.makeRequest (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:5419)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async dsA.model (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:11283)
+    at async dsA (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1009:34744)
+    at async mg2 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:11437)
+    at async file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:3864
+    at async An1 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1411:2037)
+    at async TZA (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:3834)
+2025-12-11T21:04:32.103Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2025-12-11T21:04:32.103Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:04:32.103Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2025-12-11T21:04:32.170Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T21:04:32.335Z [DEBUG] FileHistory: Added snapshot for be565d02-c441-4728-9a91-ae45f910da98, tracking 0 files
+2025-12-11T21:04:32.379Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (20.4ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:04:32.408Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (22.2ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:04:32.638Z [ERROR] Error streaming, falling back to non-streaming mode: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVoh9XHRDDqFku9e55"}
+2025-12-11T21:04:32.823Z [ERROR] Error in non-streaming fallback: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVpewfMLUG2RpLD7ej"}
+2025-12-11T21:04:32.824Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aVpewfMLUG2RpLD7ej"}
+    at B9.generate (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:122:10448)
+    at MR.makeStatusError (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:2195)
+    at MR.makeRequest (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:5419)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async dsA.model (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:11283)
+    at async dsA (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1009:34744)
+    at async mg2 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:11437)
+    at async file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:3622
+    at async An1 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1411:2037)
+    at async Hb (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:3593)
+2025-12-11T21:04:32.830Z [ERROR] SyntaxError: SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+    at JSON.parse (<anonymous>)
+    at file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:60:693
+    at B (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:8:6526)
+    at exB (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1412:3248)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-12-11T21:04:34.650Z [DEBUG] FileHistory: Making snapshot for message c04bda7c-f082-4793-b09f-3abf0829d2da
+2025-12-11T21:04:34.650Z [DEBUG] FileHistory: Added snapshot for c04bda7c-f082-4793-b09f-3abf0829d2da, tracking 0 files
+2025-12-11T21:04:34.652Z [DEBUG] UserCommandMessage rendering: "mcp" (args: "none")
+2025-12-11T21:04:34.652Z [DEBUG] isSkillFormat: false, prefix: "/"
+2025-12-11T21:04:34.702Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (21.2ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:04:34.728Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (21.4ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:04:34.772Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T21:04:35.889Z [ERROR] Error: Error: 1P event logging: 62 events failed to export
+    at y_1.queueFailedEvents (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:329:39606)
+    at y_1.doExport (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:329:38705)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-12-11T21:04:35.891Z [ERROR] Error: Error: {"stack":"Error: Failed to export 62 events\n    at y_1.doExport (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:329:38795)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","message":"Failed to export 62 events","name":"Error"}
+    at kf1.error (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:831:35476)
+    at sR1.error (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:328:55165)
+    at file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:328:86513
+    at TR6 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:328:87059)
+    at file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:329:20014
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-12-11T21:04:42.493Z [DEBUG] Metadata string for init:
+2025-12-11T21:04:42.493Z [DEBUG] <command-message>init is analyzing your codebase…</command-message>
+<command-name>/init</command-name>
+2025-12-11T21:04:42.493Z [DEBUG] command-message tags in metadata: 1
+2025-12-11T21:04:42.526Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-11T21:04:42.526Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-11T21:04:42.527Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-11T21:04:42.527Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-11T21:04:42.536Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:04:42.536Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:04:42.547Z [DEBUG] processPromptSlashCommand creating 3 messages for init
+2025-12-11T21:04:42.547Z [DEBUG] Message 1: <command-message>init is analyzing your codebase…</command-message>
+<command-name>/init</command-name>
+2025-12-11T21:04:42.547Z [DEBUG] Message 2 [META]: [{"type":"text","text":"Please analyze this codebase and create a CLAUDE.md file, which will be given to future instances of Claude Code to operate in this repository.\n\nWhat to add:\n1. Commands tha
+2025-12-11T21:04:42.547Z [DEBUG] Message 3: [ATTACHMENT]
+2025-12-11T21:04:42.556Z [DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+2025-12-11T21:04:42.556Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:04:42.556Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2025-12-11T21:04:42.556Z [DEBUG] FileHistory: Making snapshot for message 164deadd-8730-405f-b025-e0c1068238fe
+2025-12-11T21:04:42.556Z [DEBUG] FileHistory: Added snapshot for 164deadd-8730-405f-b025-e0c1068238fe, tracking 0 files
+2025-12-11T21:04:42.558Z [DEBUG] UserCommandMessage rendering: "init is analyzing your codebase…" (args: "none")
+2025-12-11T21:04:42.558Z [DEBUG] isSkillFormat: false, prefix: "/"
+2025-12-11T21:04:42.576Z [DEBUG] Total plugin output styles loaded: 0
+2025-12-11T21:04:42.628Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T21:04:43.130Z [ERROR] Error streaming, falling back to non-streaming mode: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aWaHGqSb5kKVL8EhCD"}
+2025-12-11T21:04:43.372Z [ERROR] Error in non-streaming fallback: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aWbWwRGARmYXu4Ewo4"}
+2025-12-11T21:04:43.372Z [ERROR] Error: Error: 403 {"type":"error","error":{"type":"permission_error","message":"OAuth token has been revoked. Please obtain a new token."},"request_id":"req_011CW1aWbWwRGARmYXu4Ewo4"}
+    at B9.generate (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:122:10448)
+    at MR.makeStatusError (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:2195)
+    at MR.makeRequest (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:860:5419)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async dsA.model (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:11283)
+    at async dsA (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1009:34744)
+    at async mg2 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:11437)
+    at async file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:3864
+    at async An1 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1411:2037)
+    at async TZA (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:4026:3834)
+2025-12-11T21:04:43.395Z [DEBUG] Getting matching hook commands for Stop with query: undefined
+2025-12-11T21:04:43.395Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:04:43.395Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2025-12-11T21:04:43.419Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (20.2ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:04:43.444Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (20.3ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:04:47.689Z [ERROR] Error: Error: 1P event logging: 17 events failed to export
+    at y_1.queueFailedEvents (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:329:39606)
+    at y_1.doExport (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:329:38705)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-12-11T21:04:47.689Z [ERROR] Error: Error: {"stack":"Error: Failed to export 17 events\n    at y_1.doExport (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:329:38795)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","message":"Failed to export 17 events","name":"Error"}
+    at kf1.error (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:831:35476)
+    at sR1.error (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:328:55165)
+    at file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:328:86513
+    at TR6 (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:328:87059)
+    at file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:329:20014
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-12-11T21:04:52.284Z [DEBUG] Telemetry flushed successfully
+2025-12-11T21:04:52.286Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487092286
+2025-12-11T21:04:52.286Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:04:52.290Z [DEBUG] Temp file written successfully, size: 53054 bytes
+2025-12-11T21:04:52.290Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:04:52.290Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487092286 to /home/jofre/.claude.json
+2025-12-11T21:04:52.290Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:04:52.292Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487092292
+2025-12-11T21:04:52.292Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:04:52.293Z [DEBUG] Temp file written successfully, size: 52678 bytes
+2025-12-11T21:04:52.293Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:04:52.293Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487092292 to /home/jofre/.claude.json
+2025-12-11T21:04:52.294Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:04:52.496Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487092496
+2025-12-11T21:04:52.496Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:04:52.498Z [DEBUG] Temp file written successfully, size: 52931 bytes
+2025-12-11T21:04:52.498Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:04:52.498Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487092496 to /home/jofre/.claude.json
+2025-12-11T21:04:52.499Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:04:52.897Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487092897
+2025-12-11T21:04:52.897Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:04:52.901Z [DEBUG] Temp file written successfully, size: 53054 bytes
+2025-12-11T21:04:52.901Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:04:52.901Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487092897 to /home/jofre/.claude.json
+2025-12-11T21:04:52.901Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:04:52.905Z [DEBUG] Getting matching hook commands for Notification with query: auth_success
+2025-12-11T21:04:52.905Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:04:52.905Z [DEBUG] Matched 0 unique hooks for query "auth_success" (0 before deduplication)
+2025-12-11T21:04:53.073Z [DEBUG] Metrics opt-out API response: enabled=true, vcsLinking=false
+2025-12-11T21:05:30.139Z [DEBUG] Programmatic settings change notification for policySettings
+2025-12-11T21:05:30.139Z [DEBUG] Plugin hooks: reloading due to policySettings change
+2025-12-11T21:05:30.144Z [DEBUG] Settings changed from policySettings, updating AppState
+2025-12-11T21:05:30.151Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487130151
+2025-12-11T21:05:30.151Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:05:30.153Z [DEBUG] Temp file written successfully, size: 53125 bytes
+2025-12-11T21:05:30.153Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:05:30.153Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487130151 to /home/jofre/.claude.json
+2025-12-11T21:05:30.153Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:05:30.155Z [DEBUG] Found 0 plugins (0 enabled, 0 disabled)
+2025-12-11T21:05:30.156Z [DEBUG] Registered 0 hooks from 0 plugins
+2025-12-11T21:05:30.160Z [DEBUG] FileHistory: Making snapshot for message 464baaaa-cd7b-4685-9f87-a5e986386d16
+2025-12-11T21:05:30.160Z [DEBUG] FileHistory: Added snapshot for 464baaaa-cd7b-4685-9f87-a5e986386d16, tracking 0 files
+2025-12-11T21:05:30.161Z [DEBUG] UserCommandMessage rendering: "login" (args: "none")
+2025-12-11T21:05:30.161Z [DEBUG] isSkillFormat: false, prefix: "/"
+2025-12-11T21:05:30.216Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (26.1ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:05:30.249Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (27.1ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:05:30.295Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T21:05:31.238Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-11T21:05:31.238Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-11T21:05:31.238Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-11T21:05:31.238Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-11T21:05:31.253Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:05:31.253Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:05:31.265Z [DEBUG] Getting matching hook commands for UserPromptSubmit with query: undefined
+2025-12-11T21:05:31.265Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:31.265Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2025-12-11T21:05:31.266Z [DEBUG] FileHistory: Making snapshot for message 46a14049-baae-4fe8-b96e-2d3c63a194ff
+2025-12-11T21:05:31.266Z [DEBUG] FileHistory: Added snapshot for 46a14049-baae-4fe8-b96e-2d3c63a194ff, tracking 0 files
+2025-12-11T21:05:32.158Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:33.059Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:44.388Z [DEBUG] executePreToolHooks called for tool: Task
+2025-12-11T21:05:44.389Z [DEBUG] executePreToolHooks called for tool: Glob
+2025-12-11T21:05:44.389Z [DEBUG] executePreToolHooks called for tool: Glob
+2025-12-11T21:05:44.389Z [DEBUG] executePreToolHooks called for tool: Glob
+2025-12-11T21:05:44.389Z [DEBUG] executePreToolHooks called for tool: Glob
+2025-12-11T21:05:44.406Z [DEBUG] Getting matching hook commands for PreToolUse with query: Task
+2025-12-11T21:05:44.406Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:44.406Z [DEBUG] Matched 0 unique hooks for query "Task" (0 before deduplication)
+2025-12-11T21:05:44.406Z [DEBUG] Getting matching hook commands for PreToolUse with query: Glob
+2025-12-11T21:05:44.406Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:44.406Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2025-12-11T21:05:44.406Z [DEBUG] Getting matching hook commands for PreToolUse with query: Glob
+2025-12-11T21:05:44.406Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:44.406Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2025-12-11T21:05:44.406Z [DEBUG] Getting matching hook commands for PreToolUse with query: Glob
+2025-12-11T21:05:44.406Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:44.406Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2025-12-11T21:05:44.406Z [DEBUG] Getting matching hook commands for PreToolUse with query: Glob
+2025-12-11T21:05:44.406Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:44.406Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2025-12-11T21:05:44.481Z [DEBUG] Getting matching hook commands for SubagentStart with query: Explore
+2025-12-11T21:05:44.481Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:44.481Z [DEBUG] Matched 0 unique hooks for query "Explore" (0 before deduplication)
+2025-12-11T21:05:44.514Z [DEBUG] Getting matching hook commands for PostToolUse with query: Glob
+2025-12-11T21:05:44.514Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:44.514Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2025-12-11T21:05:44.537Z [DEBUG] Getting matching hook commands for PostToolUse with query: Glob
+2025-12-11T21:05:44.537Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:44.537Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2025-12-11T21:05:44.537Z [DEBUG] Getting matching hook commands for PostToolUse with query: Glob
+2025-12-11T21:05:44.537Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:44.537Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2025-12-11T21:05:44.537Z [DEBUG] Getting matching hook commands for PostToolUse with query: Glob
+2025-12-11T21:05:44.537Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:44.537Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2025-12-11T21:05:45.824Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:46.988Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:05:46.999Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:05:46.999Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:46.999Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:47.025Z [DEBUG] tree-sitter: WASM files not found
+2025-12-11T21:05:47.088Z [DEBUG] No session environment scripts found
+2025-12-11T21:05:47.118Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:05:47.118Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:47.118Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:47.140Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:05:47.140Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:05:47.777Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:48.376Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:49.216Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:05:49.231Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:05:49.231Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:49.231Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:49.335Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:05:49.335Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:49.335Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:49.358Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:05:49.358Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:05:50.228Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:50.855Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:52.698Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:05:52.698Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:05:52.709Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:05:52.709Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:52.709Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:52.709Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:05:52.709Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:52.709Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:52.709Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:05:52.709Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:05:52.720Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:05:52.720Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:52.720Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:52.720Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:05:52.720Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:52.720Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:52.807Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:05:52.807Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:52.807Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:52.807Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:05:52.807Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:52.807Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:52.821Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:05:52.821Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:52.821Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:52.821Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:05:52.821Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:52.821Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:52.916Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:05:52.916Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:05:53.444Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:53.700Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:54.080Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:55.542Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:05:55.562Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:05:55.562Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:55.562Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:55.562Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:05:55.562Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:05:55.562Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:05:55.572Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:05:55.572Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:55.572Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:55.572Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:05:55.572Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:55.572Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:55.572Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:05:55.572Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:55.572Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:55.649Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:05:55.649Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:55.649Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:55.649Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:05:55.649Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:55.649Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:55.649Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:05:55.649Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:55.649Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:55.663Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:05:55.663Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:55.663Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:55.745Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:05:55.745Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:05:56.416Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:57.248Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:58.998Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:05:58.998Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:05:58.998Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:05:59.009Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:05:59.009Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:59.009Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:59.009Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:05:59.009Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:59.009Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:59.009Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:05:59.009Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:59.009Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:59.009Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:05:59.018Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:05:59.018Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:59.018Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:59.080Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:05:59.080Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:59.080Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:05:59.130Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:05:59.130Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:59.130Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:59.178Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:05:59.178Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:59.178Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:59.194Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:05:59.194Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:05:59.194Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:05:59.231Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:05:59.231Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:05:59.883Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:05:59.906Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:00.899Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:01.315Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:03.423Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:03.423Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:03.423Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:03.423Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:03.434Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:03.434Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:03.434Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:03.434Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:03.434Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:03.434Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:03.434Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:03.434Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:03.434Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:03.434Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:03.434Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:03.434Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:03.556Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:03.556Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:03.556Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:03.576Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:03.576Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:03.576Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:03.576Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:03.576Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:03.576Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:03.576Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:03.576Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:03.576Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:03.659Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:06:03.659Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:06:04.104Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:04.259Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:04.353Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:04.401Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:05.103Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:07.528Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:07.528Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:07.528Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:07.547Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:07.547Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:07.547Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:07.547Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:07.547Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:07.547Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:07.547Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:07.547Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:07.547Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:07.547Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:06:07.557Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:06:07.557Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:07.557Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:06:07.664Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:06:07.664Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:07.664Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:06:07.684Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:07.684Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:07.684Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:07.684Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:07.684Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:07.684Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:07.684Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:07.684Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:07.684Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:07.773Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:06:07.773Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:06:08.206Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:08.207Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:08.332Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:09.543Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:11.963Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:11.973Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:11.973Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:11.973Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:11.973Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:06:11.974Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:06:11.983Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:06:11.983Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:11.983Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:06:11.983Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:06:11.983Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:11.983Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:06:12.070Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:06:12.070Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:12.070Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:06:12.070Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:06:12.070Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:12.070Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:06:12.087Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:12.087Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:12.087Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:12.156Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:06:12.157Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:06:12.713Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:14.931Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:17.658Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:17.658Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:17.669Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:17.669Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:17.669Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:17.669Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:17.669Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:17.669Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:17.758Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:17.758Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:17.758Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:17.812Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:17.812Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:17.812Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:17.835Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:17.853Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:17.853Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:17.853Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:18.373Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:18.712Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:18.920Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:18.943Z [DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "du:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+2025-12-11T21:06:18.982Z [DEBUG] executePermissionRequestHooks called for tool: Bash
+2025-12-11T21:06:18.998Z [DEBUG] Getting matching hook commands for PermissionRequest with query: Bash
+2025-12-11T21:06:18.998Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:18.998Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:24.989Z [DEBUG] Getting matching hook commands for Notification with query: permission_prompt
+2025-12-11T21:06:24.989Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:24.989Z [DEBUG] Matched 0 unique hooks for query "permission_prompt" (0 before deduplication)
+2025-12-11T21:06:26.717Z [DEBUG] Persisting permission update: addRules to source 'localSettings'
+2025-12-11T21:06:26.717Z [DEBUG] Persisting 1 allow rule(s) to localSettings
+2025-12-11T21:06:26.718Z [DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/claude/.claude/settings.local.json.tmp.43569.1765487186718
+2025-12-11T21:06:26.732Z [DEBUG] [SLOW OPERATION DETECTED] fs.writeFileSync (14.2ms)
+2025-12-11T21:06:26.732Z [DEBUG] Temp file written successfully, size: 67 bytes
+2025-12-11T21:06:26.732Z [DEBUG] Renaming /home/jofre/.dotfiles/config/claude/.claude/settings.local.json.tmp.43569.1765487186718 to /home/jofre/.dotfiles/config/claude/.claude/settings.local.json
+2025-12-11T21:06:26.732Z [DEBUG] File /home/jofre/.dotfiles/config/claude/.claude/settings.local.json written atomically
+2025-12-11T21:06:26.739Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(du:*)"]
+2025-12-11T21:06:26.821Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:26.821Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:26.821Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:26.877Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:06:26.877Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:06:26.906Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T21:06:27.511Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:27.598Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:30.153Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:30.153Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:30.153Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:30.171Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:30.171Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:30.171Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:30.171Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:30.171Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:30.171Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:30.171Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:30.171Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:30.171Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:30.300Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:30.300Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:30.300Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:30.337Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:30.337Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:30.337Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:30.881Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:31.135Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:31.211Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:31.330Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:31.444Z [DEBUG] Permission suggestions for Bash: [
+  {
+    "type": "addRules",
+    "rules": [
+      {
+        "toolName": "Bash",
+        "ruleContent": "jq:*"
+      }
+    ],
+    "behavior": "allow",
+    "destination": "localSettings"
+  }
+]
+2025-12-11T21:06:31.482Z [DEBUG] executePermissionRequestHooks called for tool: Bash
+2025-12-11T21:06:31.497Z [DEBUG] Getting matching hook commands for PermissionRequest with query: Bash
+2025-12-11T21:06:31.497Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:31.497Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:33.170Z [DEBUG] Persisting permission update: addRules to source 'localSettings'
+2025-12-11T21:06:33.170Z [DEBUG] Persisting 1 allow rule(s) to localSettings
+2025-12-11T21:06:33.172Z [DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/claude/.claude/settings.local.json.tmp.43569.1765487193172
+2025-12-11T21:06:33.172Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:06:33.178Z [DEBUG] [SLOW OPERATION DETECTED] fs.writeFileSync (5.8ms)
+2025-12-11T21:06:33.178Z [DEBUG] Temp file written successfully, size: 87 bytes
+2025-12-11T21:06:33.178Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:06:33.178Z [DEBUG] Renaming /home/jofre/.dotfiles/config/claude/.claude/settings.local.json.tmp.43569.1765487193172 to /home/jofre/.dotfiles/config/claude/.claude/settings.local.json
+2025-12-11T21:06:33.178Z [DEBUG] File /home/jofre/.dotfiles/config/claude/.claude/settings.local.json written atomically
+2025-12-11T21:06:33.186Z [DEBUG] Applying permission update: Adding 1 allow rule(s) to destination 'localSettings': ["Bash(jq:*)"]
+2025-12-11T21:06:33.256Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:33.256Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:33.256Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:33.301Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:06:33.301Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:06:33.345Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T21:06:33.974Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:34.852Z [ERROR] MaxFileReadTokenExceededError: MaxFileReadTokenExceededError: File content (85041 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+    at FyB (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1422:10569)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.call (file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1431:963)
+    at async file:///tmp/bunx-1000-@anthropic-ai/claude-code@latest/node_modules/@anthropic-ai/claude-code/cli.js:1625:1463
+2025-12-11T21:06:35.135Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:37.070Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:37.070Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:37.070Z [DEBUG] executePreToolHooks called for tool: Bash
+2025-12-11T21:06:37.081Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:37.081Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:37.081Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:37.081Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:37.081Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:37.081Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:37.081Z [DEBUG] Getting matching hook commands for PreToolUse with query: Bash
+2025-12-11T21:06:37.081Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:37.081Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:37.201Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:37.201Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:37.201Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:37.261Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:37.261Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:37.261Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:37.281Z [DEBUG] Getting matching hook commands for PostToolUse with query: Bash
+2025-12-11T21:06:37.281Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:37.281Z [DEBUG] Matched 0 unique hooks for query "Bash" (0 before deduplication)
+2025-12-11T21:06:37.325Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:06:37.325Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:06:37.881Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:37.995Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:38.190Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:38.342Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:06:58.099Z [DEBUG] Getting matching hook commands for SubagentStop with query: undefined
+2025-12-11T21:06:58.099Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:58.099Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2025-12-11T21:06:58.130Z [DEBUG] Getting matching hook commands for PostToolUse with query: Task
+2025-12-11T21:06:58.130Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:06:58.130Z [DEBUG] Matched 0 unique hooks for query "Task" (0 before deduplication)
+2025-12-11T21:06:58.163Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-11T21:06:58.163Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-11T21:06:58.163Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-11T21:06:58.163Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-11T21:06:58.176Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:06:58.176Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:07:00.356Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:07:06.019Z [DEBUG] executePreToolHooks called for tool: Glob
+2025-12-11T21:07:06.040Z [DEBUG] Getting matching hook commands for PreToolUse with query: Glob
+2025-12-11T21:07:06.040Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:06.040Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2025-12-11T21:07:06.040Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:07:06.041Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:07:06.041Z [DEBUG] executePreToolHooks called for tool: Read
+2025-12-11T21:07:06.052Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:07:06.052Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:06.052Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:07:06.052Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:07:06.052Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:06.052Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:07:06.052Z [DEBUG] Getting matching hook commands for PreToolUse with query: Read
+2025-12-11T21:07:06.052Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:06.052Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:07:06.162Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:07:06.162Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:06.162Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:07:06.162Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:07:06.162Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:06.162Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:07:06.162Z [DEBUG] Getting matching hook commands for PostToolUse with query: Read
+2025-12-11T21:07:06.162Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:06.162Z [DEBUG] Matched 0 unique hooks for query "Read" (0 before deduplication)
+2025-12-11T21:07:06.179Z [DEBUG] Getting matching hook commands for PostToolUse with query: Glob
+2025-12-11T21:07:06.179Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:06.179Z [DEBUG] Matched 0 unique hooks for query "Glob" (0 before deduplication)
+2025-12-11T21:07:06.215Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-11T21:07:06.215Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-11T21:07:06.215Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-11T21:07:06.215Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-11T21:07:06.239Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:07:06.239Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:07:08.649Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:07:34.014Z [DEBUG] executePreToolHooks called for tool: Write
+2025-12-11T21:07:34.026Z [DEBUG] Getting matching hook commands for PreToolUse with query: Write
+2025-12-11T21:07:34.026Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:34.026Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2025-12-11T21:07:34.052Z [DEBUG] Permission suggestions for Write: [
+  {
+    "type": "setMode",
+    "mode": "acceptEdits",
+    "destination": "session"
+  }
+]
+2025-12-11T21:07:34.198Z [DEBUG] executePermissionRequestHooks called for tool: Write
+2025-12-11T21:07:34.249Z [DEBUG] Getting matching hook commands for PermissionRequest with query: Write
+2025-12-11T21:07:34.249Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:34.249Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2025-12-11T21:07:40.213Z [DEBUG] Getting matching hook commands for Notification with query: permission_prompt
+2025-12-11T21:07:40.213Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:07:40.213Z [DEBUG] Matched 0 unique hooks for query "permission_prompt" (0 before deduplication)
+2025-12-11T21:17:03.098Z [DEBUG] Applying permission update: Setting mode to 'acceptEdits'
+2025-12-11T21:17:03.115Z [DEBUG] FileHistory: Tracked file modification for /home/jofre/.dotfiles/config/claude/CLAUDE.md
+2025-12-11T21:17:03.146Z [DEBUG] Writing to temp file: /home/jofre/.dotfiles/config/claude/CLAUDE.md.tmp.43569.1765487823146
+2025-12-11T21:17:03.149Z [DEBUG] Temp file written successfully, size: 3180 bytes
+2025-12-11T21:17:03.149Z [DEBUG] Renaming /home/jofre/.dotfiles/config/claude/CLAUDE.md.tmp.43569.1765487823146 to /home/jofre/.dotfiles/config/claude/CLAUDE.md
+2025-12-11T21:17:03.149Z [DEBUG] File /home/jofre/.dotfiles/config/claude/CLAUDE.md written atomically
+2025-12-11T21:17:03.172Z [DEBUG] Getting matching hook commands for PostToolUse with query: Write
+2025-12-11T21:17:03.172Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:17:03.172Z [DEBUG] Matched 0 unique hooks for query "Write" (0 before deduplication)
+2025-12-11T21:17:03.210Z [DEBUG] LSP Diagnostics: getLSPDiagnosticAttachments called
+2025-12-11T21:17:03.210Z [DEBUG] LSP Diagnostics: Checking registry - 0 pending
+2025-12-11T21:17:03.210Z [DEBUG] Hooks: Found 0 total hooks in registry
+2025-12-11T21:17:03.210Z [DEBUG] Hooks: checkForNewResponses returning 0 responses
+2025-12-11T21:17:03.233Z [DEBUG] [TeammateMailbox] getTeammateMailboxAttachments called: envAgentName=undefined, isTeamLead=false, resolved agentName=undefined, teamName=undefined
+2025-12-11T21:17:03.233Z [DEBUG] [TeammateMailbox] Not checking inbox - not a teammate or team lead
+2025-12-11T21:17:03.292Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T21:17:05.131Z [DEBUG] Stream started - received first chunk
+2025-12-11T21:17:10.974Z [DEBUG] Getting matching hook commands for Stop with query: undefined
+2025-12-11T21:17:10.974Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:17:10.974Z [DEBUG] Matched 0 unique hooks for query "no match query" (0 before deduplication)
+2025-12-11T21:17:11.005Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (26.1ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:17:11.038Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (26.2ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:17:39.177Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown
+2025-12-11T21:17:39.576Z [DEBUG] Getting matching hook commands for SessionEnd with query: prompt_input_exit
+2025-12-11T21:17:39.576Z [DEBUG] Found 0 hook matchers in settings
+2025-12-11T21:17:39.576Z [DEBUG] Matched 0 unique hooks for query "prompt_input_exit" (0 before deduplication)
+2025-12-11T21:17:39.581Z [DEBUG] Cleaned up session snapshot: /home/jofre/.claude/shell-snapshots/snapshot-bash-1765487070652-0ezvsb.sh
+2025-12-11T21:17:39.581Z [DEBUG] LSP server manager shut down successfully
+2025-12-11T21:17:39.588Z [DEBUG] FileHistory: Making snapshot for message 66c12bea-92fa-4c5d-8c37-f3b28421211b
+2025-12-11T21:17:39.590Z [DEBUG] FileHistory: Added snapshot for 66c12bea-92fa-4c5d-8c37-f3b28421211b, tracking 1 files
+2025-12-11T21:17:39.593Z [DEBUG] UserCommandMessage rendering: "exit" (args: "none")
+2025-12-11T21:17:39.593Z [DEBUG] isSkillFormat: false, prefix: "/"
+2025-12-11T21:17:39.616Z [DEBUG] Writing to temp file: /home/jofre/.claude.json.tmp.43569.1765487859616
+2025-12-11T21:17:39.616Z [DEBUG] Preserving file permissions: 100600
+2025-12-11T21:17:39.618Z [DEBUG] Temp file written successfully, size: 53174 bytes
+2025-12-11T21:17:39.618Z [DEBUG] Applied original permissions to temp file
+2025-12-11T21:17:39.618Z [DEBUG] Renaming /home/jofre/.claude.json.tmp.43569.1765487859616 to /home/jofre/.claude.json
+2025-12-11T21:17:39.618Z [DEBUG] File /home/jofre/.claude.json written atomically
+2025-12-11T21:17:39.654Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (28.3ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:17:39.686Z [DEBUG] [SLOW OPERATION DETECTED] execSyncWithDefaults (26.8ms): ps aux | grep -E "code|cursor|windsurf|idea|pycharm|webstorm|phpstorm|rubymine|clion|goland|rider|da
+2025-12-11T21:17:39.735Z [DEBUG] AutoUpdaterWrapper: Installation type: unknown

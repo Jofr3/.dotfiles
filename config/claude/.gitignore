@@ -1,0 +1,18 @@
+# Session data and conversation histories
+debug/
+projects/
+todos/
+session-env/
+shell-snapshots/
+file-history/
+
+# Analytics and telemetry
+statsig/
+telemetry/
+
+# Command history
+history.jsonl
+
+# Local settings (machine-specific or sensitive)
+settings.local.json
+.credentials.json

@@ -30,6 +30,7 @@ alias n="nvim"
 alias ff="fastfetch"
 alias b="btop"
 alias op="opencode"
+alias cc="bunx -y @anthropic-ai/claude-code"
 
 alias ..="cd .."
 

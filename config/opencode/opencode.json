@@ -43,12 +43,7 @@
       "command": [ "bunx", "-y", "bruno-mcp-server" ]
     }
   },
-  "tools": {
-    "nixos_*": false,
-    "neovim_*": false,
-    "chrome_*": false,
-    "bruno_*": false
-  },
+
   "agent": {
     "nixos": {
       "description": "Proactively help with NixOS system configuration, package management, and troubleshooting. Auto-invoked when user mentions NixOS options, system packages, configuration errors, rebuilding the system, or needs help finding NixOS settings. Search options and packages, suggest configurations, and help debug NixOS build issues.",

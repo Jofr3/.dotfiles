@@ -46,3 +46,9 @@ id = "dev_mydocumentium_com"
 dsn = "mysql://dev_mydocumentium_com:dwXCDf3Nh%23%2AHtdD2j%40puJuAeZ4Ls%21%2A%5EF@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/dev.mydocumentium.com"
 readonly = false
 max_rows = 1000
+
+[[sources]]
+id = "dev88323_tacprod"
+dsn = "mysql://dev88323_tacprod:f%2AMhWBKp%2333xGzhG@tacprod-new.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/dev88323_tacprod"
+readonly = true
+max_rows = 1000

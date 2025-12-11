@@ -7,7 +7,6 @@
   (dired-filename . "/home/jofre/.dotfiles/keybinds.md"))
  ("/home/jofre/.dotfiles/config/emacs/"
   (dired-filename . "/home/jofre/.dotfiles/config/emacs/init.el"))
- ("/home/jofre/.dotfiles/config/claude/debug/latest" . 5008)
  ("/home/jofre/.dotfiles/config/nix/flake.lock" . 1770)
  ("/home/jofre/.dotfiles/config/nix/"
   (dired-filename . "/home/jofre/.dotfiles/config/nix/home"))

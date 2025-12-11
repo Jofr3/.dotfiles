@@ -1,14 +1,28 @@
 {
-  "numStartups": 2,
+  "numStartups": 5,
   "installMethod": "unknown",
   "autoUpdates": true,
   "tipsHistory": {
-    "new-user-warmup": 1,
+    "new-user-warmup": 5,
     "plan-mode-for-complex-tasks": 1,
     "terminal-setup": 2,
     "memory-command": 2,
     "theme-command": 2,
-    "status-line": 2
+    "status-line": 2,
+    "stickers-command": 3,
+    "prompt-queue": 3,
+    "enter-to-steer-in-relatime": 4,
+    "todo-list": 4,
+    "ide-upsell-external-terminal": 4,
+    "# for memory": 4,
+    "install-github-app": 4,
+    "drag-and-drop-images": 4,
+    "double-esc-code-restore": 4,
+    "continue": 5,
+    "shift-tab": 5,
+    "image-paste": 5,
+    "tab-toggle-thinking": 5,
+    "ultrathink-keyword": 5
   },
   "cachedStatsigGates": {
     "tengu_log_1p_events": false,
@@ -22,6 +36,40 @@
     "tengu-top-of-feed-tip": {
       "tip": "",
       "color": ""
+    }
+  },
+  "mcpServers": {
+    "cloudflare-documentation": {
+      "command": "bunx",
+      "args": [
+        "mcp-remote",
+        "https://docs.mcp.cloudflare.com/mcp"
+      ]
+    },
+    "cloudflare-workers": {
+      "command": "bunx",
+      "args": [
+        "mcp-remote",
+        "https://builds.mcp.cloudflare.com/mcp"
+      ]
+    },
+    "cloudflare-bindings": {
+      "command": "bunx",
+      "args": [
+        "mcp-remote",
+        "https://bindings.mcp.cloudflare.com/mcp"
+      ]
+    },
+    "mysql-mcp-server": {
+      "command": "npx",
+      "args": [
+        "yukihito/mysql-mcp-server@latest",
+        "--host", "localhost",
+        "--port", "3306",
+        "--name", "your_username",
+        "--password", "your_password",
+        "--database", "your_database"
+      ]
     }
   },
   "userID": "918c7566839ef575490d5a685757192532c2330ff8b17b0e547556aa9684187f",
@@ -46,28 +94,36 @@
         "version": null,
         "packageManager": null
       },
-      "lastAPIDurationWithoutRetries": 4506,
+      "lastAPIDurationWithoutRetries": 7518,
       "lastModelUsage": {
         "claude-haiku-4-5-20251001": {
-          "inputTokens": 907,
-          "outputTokens": 218,
+          "inputTokens": 728,
+          "outputTokens": 142,
           "cacheReadInputTokens": 0,
           "cacheCreationInputTokens": 0,
           "webSearchRequests": 0,
-          "costUSD": 0.0019969999999999996
+          "costUSD": 0.001438
+        },
+        "claude-sonnet-4-5-20250929": {
+          "inputTokens": 858,
+          "outputTokens": 142,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.004704
         }
       },
-      "lastCost": 0.0019969999999999996,
-      "lastAPIDuration": 4508,
+      "lastCost": 0.006142,
+      "lastAPIDuration": 7522,
       "lastToolDuration": 0,
-      "lastDuration": 15737,
+      "lastDuration": 487927,
       "lastLinesAdded": 0,
       "lastLinesRemoved": 0,
-      "lastTotalInputTokens": 907,
-      "lastTotalOutputTokens": 218,
+      "lastTotalInputTokens": 1586,
+      "lastTotalOutputTokens": 284,
       "lastTotalCacheCreationInputTokens": 0,
       "lastTotalCacheReadInputTokens": 0,
-      "lastSessionId": "811a5db3-dedd-4ac8-90f9-bdd96820bfcc"
+      "lastSessionId": "cf8799ee-c290-4315-898f-f225559bc110"
     }
   },
   "firstStartTime": "2025-12-11T13:25:54.616Z",

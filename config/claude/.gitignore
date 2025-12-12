@@ -5,6 +5,7 @@ todos/
 session-env/
 shell-snapshots/
 file-history/
+.claude/
 
 # Analytics and telemetry
 statsig/

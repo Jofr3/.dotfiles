@@ -23,7 +23,13 @@
   fonts.packages = with pkgs; [ nerd-fonts.fira-code ];
 
   # minimal system packages (user packages go in home-manager)
-  environment.systemPackages = with pkgs; [ home-manager git vim kitty ];
+  environment.systemPackages = with pkgs; [
+    home-manager
+    git
+    vim
+    kitty
+    playwright-driver.browsers
+  ];
 
   # programs
   programs = {
@@ -116,7 +122,11 @@
   };
 
   # wayland
-  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
+    PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true";
+  };
 
   xdg.portal = {
     enable = true;

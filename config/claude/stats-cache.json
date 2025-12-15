@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "lastComputedDate": "2025-12-14",
+  "dailyActivity": [
+    {
+      "date": "2025-12-11",
+      "messageCount": 490,
+      "sessionCount": 35,
+      "toolCallCount": 90
+    },
+    {
+      "date": "2025-12-13",
+      "messageCount": 380,
+      "sessionCount": 11,
+      "toolCallCount": 86
+    }
+  ],
+  "dailyModelTokens": [
+    {
+      "date": "2025-12-11",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 34246
+      }
+    },
+    {
+      "date": "2025-12-13",
+      "tokensByModel": {
+        "claude-sonnet-4-5-20250929": 35660
+      }
+    }
+  ],
+  "modelUsage": {
+    "claude-sonnet-4-5-20250929": {
+      "inputTokens": 21600,
+      "outputTokens": 48306,
+      "cacheReadInputTokens": 11199856,
+      "cacheCreationInputTokens": 1727784,
+      "webSearchRequests": 0,
+      "costUSD": 0,
+      "contextWindow": 0
+    }
+  },
+  "totalSessions": 46,
+  "totalMessages": 870,
+  "longestSession": {
+    "sessionId": "69952824-c321-47c9-b865-89ea964385db",
+    "duration": 2998774,
+    "messageCount": 56,
+    "timestamp": "2025-12-11T21:56:37.963Z"
+  },
+  "firstSessionDate": "2025-12-11T17:15:20.741Z",
+  "hourCounts": {
+    "12": 2,
+    "13": 6,
+    "14": 1,
+    "18": 10,
+    "19": 8,
+    "20": 2,
+    "22": 16,
+    "23": 1
+  }
+}

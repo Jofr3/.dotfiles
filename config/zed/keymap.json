@@ -1,0 +1,51 @@
+[
+  {
+    "bindings": {
+      "alt-q": "pane::CloseActiveItem"
+    }
+  },
+  {
+    "bindings": {
+      "alt-n": "workspace::ToggleLeftDock",
+      "alt-c": "workspace::ToggleRightDock",
+      "alt-t": "terminal_panel::Toggle"
+    }
+  },
+  {
+    "bindings": {
+      "alt-p": "projects::OpenRecent",
+      "alt-o": "workspace::Open",
+      "alt-f": "file_finder::Toggle",
+      "alt-x": "command_palette::Toggle"
+    }
+  },
+  {
+    "bindings": {
+      "alt-h": "workspace::ActivatePaneLeft",
+      "alt-j": "workspace::ActivatePaneDown",
+      "alt-k": "workspace::ActivatePaneUp",
+      "alt-l": "workspace::ActivatePaneRight"
+    }
+  },
+  {
+    "bindings": {
+      "alt-H": "vim::ResizePaneLeft",
+      "alt-J": "vim::ResizePaneDown",
+      "alt-K": "vim::ResizePaneUp",
+      "alt-L": "vim::ResizePaneRight"
+    }
+  },
+  {
+    "bindings": {
+      "alt-ctrl-h": "workspace::SwapPaneLeft",
+      "alt-ctrl-j": "workspace::SwapPaneDown",
+      "alt-ctrl-k": "workspace::SwapPaneUp",
+      "alt-ctrl-l": "workspace::SwapPaneRight"
+    }
+  },
+  {
+    "bindings": {
+      "alt-b": "tab_switcher::Toggle"
+    }
+  }
+]

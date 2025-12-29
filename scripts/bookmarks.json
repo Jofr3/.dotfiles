@@ -127,6 +127,10 @@
       "prod": "https://api896623.mydocumentium.com/api/documentation",
       "gitlab": "https://gitlab.com/lasevaweb_group/mydocumentium.com/api.mydocumentium.com"
     },
+    "exportbdns": {
+      "prod": "https://exportbdns.cat/admin",
+      "gitlab": "https://gitlab.com/lasevaweb_group/projectes-propis/exportbdns1/exportbdns"
+    },
     "fontawesome": "https://fontawesome.com/icons",
     "translate": "https://translate.google.com/?sl=ca&tl=en&op=translate",
     "wikimedia": "https://www.wikimedia.org",

@@ -15,13 +15,7 @@ return {
 			},
 		},
 		sources = {
-			default = { "lsp", "path", "buffer", "dadbod" },
-			per_filetype = {
-				sql = { "dadbod", "buffer" },
-			},
-			providers = {
-				dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink" },
-			},
+			default = { "lsp", "path", "buffer", },
 			min_keyword_length = 1,
 		},
 		fuzzy = {

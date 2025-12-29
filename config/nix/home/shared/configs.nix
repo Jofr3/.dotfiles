@@ -3,6 +3,7 @@ let dotfiles = config.lib.file.mkOutOfStoreSymlink "/home/jofre/.dotfiles";
 in {
   xdg.configFile = {
     git.source = "${dotfiles}/config/git";
+    zed.source = "${dotfiles}/config/zed";
     foot.source = "${dotfiles}/config/foot";
     fish.source = "${dotfiles}/config/fish";
     tofi.source = "${dotfiles}/config/tofi";

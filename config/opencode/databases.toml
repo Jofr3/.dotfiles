@@ -20,7 +20,7 @@ max_rows = 1000
 [[sources]]
 id = "ccosona"
 dsn = "mysql://ccosona:6YwpR3y%3F3%5DBt94u@lasevaweb-dbs.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/ccosona"
-readonly = true
+readonly = false
 max_rows = 1000
 
 [[sources]]

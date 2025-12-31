@@ -13,6 +13,9 @@
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
+  # ES8336 codec - use legacy HDA driver instead of SOF (workaround for Huawei laptops)
+  boot.kernelParams = [ "snd_intel_dspcfg.dsp_driver=1" ];
+
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/065acd1d-16a3-486f-85ce-521e4f777e90";
       fsType = "ext4";
@@ -35,4 +38,7 @@
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  # Intel SOF firmware for Tiger Lake audio
+  hardware.firmware = [ pkgs.sof-firmware ];
 }

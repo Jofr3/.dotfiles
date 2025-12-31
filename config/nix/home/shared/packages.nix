@@ -25,6 +25,7 @@
     zellij
     zoxide
     claude-code
+    pulseaudio
 
     # editors
     neovim

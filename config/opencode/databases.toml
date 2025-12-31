@@ -1,8 +1,8 @@
-[[sources]]
-id = "vic_fires"
-dsn = "mysql://vic_fires_u:Uz6sCpr4BJBonEDfzwfNb9rqkXF2BF26@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/vic_fires"
-readonly = true
-max_rows = 1000
+# [[sources]]
+# id = "vic_fires"
+# dsn = "mysql://vic_fires_u:Uz6sCpr4BJBonEDfzwfNb9rqkXF2BF26@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/vic_fires"
+# readonly = true
+# max_rows = 1000
 
 # Commented out - local network database not always accessible
 # [[sources]]
@@ -11,44 +11,48 @@ max_rows = 1000
 # readonly = true
 # max_rows = 1000
 
+# [[sources]]
+# id = "ayudas_asetconsultoria"
+# dsn = "mysql://ayudas_asetconsultoria_com:MG%25LAJ%24H977KDhD%23FLbqEhvyqkfVQY3C@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/ayudas.asetconsultoria.com"
+# readonly = false
+# max_rows = 1000
+#
+# [[sources]]
+# id = "ccosona"
+# dsn = "mysql://ccosona:6YwpR3y%3F3%5DBt94u@lasevaweb-dbs.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/ccosona"
+# readonly = false
+# max_rows = 1000
+#
+# [[sources]]
+# id = "produccio_gardentona_com"
+# dsn = "mysql://produccio_gardentona_com:ekP5z4OVl%24F%25u%25A6%2537S@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/produccio_gardentona_com"
+# readonly = true
+# max_rows = 1000
+#
+# [[sources]]
+# id = "virtualtargecopy"
+# dsn = "mysql://admintargecopy:0d5M6i1x%2A@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/virtualtargecopy"
+# readonly = true
+# max_rows = 1000
+#
+# [[sources]]
+# id = "visat"
+# dsn = "mysql://myvisat80:sDKDdvO3@visat.cat:3306/dbvisat2016"
+# readonly = true
+# max_rows = 1000
+#
+# [[sources]]
+# id = "dev_mydocumentium_com"
+# dsn = "mysql://dev_mydocumentium_com:dwXCDf3Nh%23%2AHtdD2j%40puJuAeZ4Ls%21%2A%5EF@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/dev.mydocumentium.com"
+# readonly = false
+# max_rows = 1000
+#
+# [[sources]]
+# id = "dev88323_tacprod"
+# dsn = "mysql://dev88323_tacprod:f%2AMhWBKp%2333xGzhG@tacprod-new.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/dev88323_tacprod"
+# readonly = true
+# max_rows = 1000
+#
 [[sources]]
-id = "ayudas_asetconsultoria"
-dsn = "mysql://ayudas_asetconsultoria_com:MG%25LAJ%24H977KDhD%23FLbqEhvyqkfVQY3C@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/ayudas.asetconsultoria.com"
-readonly = false
-max_rows = 1000
-
-[[sources]]
-id = "ccosona"
-dsn = "mysql://ccosona:6YwpR3y%3F3%5DBt94u@lasevaweb-dbs.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/ccosona"
-readonly = false
-max_rows = 1000
-
-[[sources]]
-id = "produccio_gardentona_com"
-dsn = "mysql://produccio_gardentona_com:ekP5z4OVl%24F%25u%25A6%2537S@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/produccio_gardentona_com"
-readonly = true
-max_rows = 1000
-
-[[sources]]
-id = "virtualtargecopy"
-dsn = "mysql://admintargecopy:0d5M6i1x%2A@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/virtualtargecopy"
-readonly = true
-max_rows = 1000
-
-[[sources]]
-id = "visat"
-dsn = "mysql://myvisat80:sDKDdvO3@visat.cat:3306/dbvisat2016"
-readonly = true
-max_rows = 1000
-
-[[sources]]
-id = "dev_mydocumentium_com"
-dsn = "mysql://dev_mydocumentium_com:dwXCDf3Nh%23%2AHtdD2j%40puJuAeZ4Ls%21%2A%5EF@lasevawebdatabases.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/dev.mydocumentium.com"
-readonly = false
-max_rows = 1000
-
-[[sources]]
-id = "dev88323_tacprod"
-dsn = "mysql://dev88323_tacprod:f%2AMhWBKp%2333xGzhG@tacprod-new.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/dev88323_tacprod"
-readonly = true
-max_rows = 1000
+id = "tacprod_tacosona"
+dsn = "mysql://tacprod_tacosona:2RjHSG2gL7s4HHjHTfwEtawPWe7u4uguK5pEVqeobfWdfuLgS8y4iFAJ5f2yGMpi@tacprod-new.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/tacprod_tacosona"

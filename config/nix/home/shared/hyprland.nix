@@ -78,7 +78,7 @@ in {
         "$mod, D, workspace, 4"
         "$mod, F, workspace, 5"
         "$mod, I, workspace, 6"
-        "$mod, V, workspace, 7"
+        "$mod, E, workspace, 7"
 
         # move to workspace
         "$mod SHIFT, W, movetoworkspace, 1"
@@ -87,7 +87,7 @@ in {
         "$mod SHIFT, D, movetoworkspace, 4"
         "$mod SHIFT, F, movetoworkspace, 5"
         "$mod SHIFT, I, movetoworkspace, 6"
-        "$mod SHIFT, V, movetoworkspace, 7"
+        "$mod SHIFT, E, movetoworkspace, 7"
 
         # groups (tabs)
         "$mod, Tab, changegroupactive, f"
@@ -100,6 +100,7 @@ in {
         "group set, class:.*"
         "group deny, class:^(launcher)$"
         "group deny, class:^(footclient)$"
+        "group deny, class:^(code)$"
 
         # App launcher
         "float, class:^(launcher)$"

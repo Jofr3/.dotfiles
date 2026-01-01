@@ -105,7 +105,7 @@ in {
         # App launcher
         "float, class:^(launcher)$"
         "center, class:^(launcher)$"
-        "size 600 400, class:^(launcher)$"
+        "size 300 400, class:^(launcher)$"
         "rounding 10, class:^(launcher)$"
         "pin, class:^(launcher)$"
 
@@ -132,6 +132,7 @@ in {
         "5, monitor:eDP-1"
         "6, monitor:eDP-1"
         "7, monitor:eDP-1"
+        "8, monitor:eDP-1"
       ];
 
       exec-once = [

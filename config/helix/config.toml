@@ -1,0 +1,34 @@
+theme = "rose_pine_moon"
+
+[editor]
+line-number = "relative"
+middle-click-paste = false
+continue-comments = false
+completion-timeout = 5
+completion-trigger-len = 1
+completion-replace = true
+auto-info = false
+
+[editor.cursor-shape]
+insert = "bar"
+
+[keys.normal]
+"A-h" = "jump_view_left"
+"A-j" = "jump_view_down"
+"A-k" = "jump_view_up"
+"A-l" = "jump_view_right"
+"A-C-h" = "swap_view_left"
+"A-C-j" = "swap_view_down"
+"A-C-k" = "swap_view_up"
+"A-C-l" = "swap_view_right"
+"A-f" = "file_picker"
+"A-b" = "buffer_picker"
+"A-c" = "changed_file_picker"
+"A-d" = "workspace_symbol_picker"
+
+[keys.normal.g]
+d = "goto_definition"
+t = "goto_type_definition"
+r = "goto_reference"
+i = "goto_implementation"
+

@@ -63,6 +63,7 @@
     wl-color-picker
     wtype
     xdg-desktop-portal-hyprland
+    hyprpicker 
 
     # vpn
     openconnect
@@ -77,13 +78,12 @@
     bun
 
     # languages & runtimes
-    cargo
     gccgo
     lua
     luajitPackages.luarocks
     mysql80
     nodejs_22
-    rustc
+    rustup
     sqlite
     zig
 

@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/lsp-mode/lsp-ido.el

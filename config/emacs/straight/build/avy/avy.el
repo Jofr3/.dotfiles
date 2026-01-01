@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/avy/avy.el

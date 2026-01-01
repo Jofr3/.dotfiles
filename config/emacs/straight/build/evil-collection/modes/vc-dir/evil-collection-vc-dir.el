@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/evil-collection/modes/vc-dir/evil-collection-vc-dir.el

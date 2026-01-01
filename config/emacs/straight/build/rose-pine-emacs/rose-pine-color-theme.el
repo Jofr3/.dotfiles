@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/rose-pine-emacs/rose-pine-color-theme.el

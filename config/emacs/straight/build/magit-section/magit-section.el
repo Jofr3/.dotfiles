@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/magit/lisp/magit-section.el

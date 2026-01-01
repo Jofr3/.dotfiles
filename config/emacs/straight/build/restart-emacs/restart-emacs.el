@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/restart-emacs/restart-emacs.el

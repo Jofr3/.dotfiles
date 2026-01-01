@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/vertico/extensions/vertico-sort.el

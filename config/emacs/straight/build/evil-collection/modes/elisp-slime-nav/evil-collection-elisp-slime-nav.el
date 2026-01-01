@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/evil-collection/modes/elisp-slime-nav/evil-collection-elisp-slime-nav.el

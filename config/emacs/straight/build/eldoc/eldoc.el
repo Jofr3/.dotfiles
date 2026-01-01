@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/eldoc/eldoc.el

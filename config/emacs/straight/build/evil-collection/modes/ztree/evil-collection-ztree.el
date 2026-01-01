@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/evil-collection/modes/ztree/evil-collection-ztree.el

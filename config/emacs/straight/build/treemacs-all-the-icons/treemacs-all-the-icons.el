@@ -1,1 +1,0 @@
-/home/jofre/.config/emacs/straight/repos/treemacs/src/extra/treemacs-all-the-icons.el

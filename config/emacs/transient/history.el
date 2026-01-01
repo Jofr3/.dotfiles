@@ -1,1 +1,0 @@
-((magit-branch nil))

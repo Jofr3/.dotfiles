@@ -21,7 +21,7 @@ vim.opt.inccommand = "split"
 
 vim.opt.breakindent = true
 
-vim.opt.statusline = " %{expand('%:~:.')} %m"
+vim.opt.statusline = " %{expand('%:~:.')} %m%=%{get(b:,'gitsigns_head','')} "
 
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
@@ -49,8 +49,6 @@ vim.opt.lazyredraw = true
 vim.opt.shadafile = "NONE"
 
 vim.diagnostic.config({ virtual_text = false, signs = false })
-
-vim.opt.switchbuf = "vsplit"
 
 -- temp
 -- vim.opt.laststatus = 3

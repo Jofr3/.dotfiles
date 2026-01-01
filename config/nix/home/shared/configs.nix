@@ -16,7 +16,6 @@ in {
     wezterm.source = "${dotfiles}/config/wezterm";
     opencode.source = "${dotfiles}/config/opencode";
     qutebrowser.source = "${dotfiles}/config/qutebrowser";
-    emacs.source = "${dotfiles}/config/emacs";
   };
 
   home.file.".claude".source = "${dotfiles}/config/claude";

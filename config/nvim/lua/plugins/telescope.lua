@@ -41,9 +41,6 @@ return {
         },
         layout_config = { width = 190, height = 45 },
       },
-      extensions = {
-        advanced_git_search = { diff_plugin = "diffview" },
-      },
     }
   end,
   keys = function()

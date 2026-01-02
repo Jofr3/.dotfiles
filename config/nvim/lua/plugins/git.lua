@@ -93,18 +93,5 @@ return {
         },
       }
     end
-  },
-  {
-    "aaronhallaert/advanced-git-search.nvim",
-    cmd = { "AdvancedGitSearch" },
-    enabled = true,
-    lazy = false,
-    config = function()
-      local telescope = require("telescope")
-      telescope.load_extension("advanced_git_search")
-    end
-
-    -- { name = "Git file history", cmd = "AdvancedGitSearch diff_commit_file" },
-    -- { name = "Git line history", cmd = "AdvancedGitSearch diff_commit_line" },
-  },
+  }
 }

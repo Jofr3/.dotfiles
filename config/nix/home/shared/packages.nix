@@ -26,6 +26,7 @@
     zoxide
     claude-code
     pulseaudio
+    direnv
 
     # editors
     neovim

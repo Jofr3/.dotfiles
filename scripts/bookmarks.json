@@ -137,6 +137,7 @@
     "dictionary": "https://www.wiktionary.org",
     "books": "https://play.google.com/books",
     "ibkr": "https://www.interactivebrokers.ie",
-    "cloudflare": "https://dash.cloudflare.com/927931aaff4b96d6cfd468f8e7ed6cf7/workers-and-pages"
+    "cloudflare": "https://dash.cloudflare.com/927931aaff4b96d6cfd468f8e7ed6cf7/workers-and-pages",
+    "notes": "https://app.simplenote.com"
   }
 }

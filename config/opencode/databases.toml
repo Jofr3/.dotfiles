@@ -5,11 +5,9 @@
 # max_rows = 1000
 
 # Commented out - local network database not always accessible
-# [[sources]]
-# id = "ateinsa"
-# dsn = "sqlserver://web:Intranet-2020@192.168.1.26/master"
-# readonly = true
-# max_rows = 1000
+[[sources]]
+id = "ateinsa"
+dsn = "sqlserver://web:Intranet-2020@192.168.1.26:1433?database=master&trustServerCertificate=true"
 
 # [[sources]]
 # id = "ayudas_asetconsultoria"
@@ -52,7 +50,12 @@
 # dsn = "mysql://dev88323_tacprod:f%2AMhWBKp%2333xGzhG@tacprod-new.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/dev88323_tacprod"
 # readonly = true
 # max_rows = 1000
-#
-[[sources]]
-id = "tacprod_tacosona"
-dsn = "mysql://tacprod_tacosona:2RjHSG2gL7s4HHjHTfwEtawPWe7u4uguK5pEVqeobfWdfuLgS8y4iFAJ5f2yGMpi@tacprod-new.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/tacprod_tacosona"
+
+# [[sources]]
+# id = "tacprod_tacosona"
+# dsn = "mysql://tacprod_tacosona:2RjHSG2gL7s4HHjHTfwEtawPWe7u4uguK5pEVqeobfWdfuLgS8y4iFAJ5f2yGMpi@tacprod-new.caczfioe6no3.eu-west-3.rds.amazonaws.com:3306/tacprod_tacosona"
+
+# [[tools]]
+# name = "ateinsa"
+# source = "ateinsa"
+# readonly = true

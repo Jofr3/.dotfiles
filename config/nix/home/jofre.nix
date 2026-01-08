@@ -31,14 +31,13 @@
     };
   };
 
-  services = {
-    syncthing.enable = true;
-    emacs = {
-      enable = true;
-      client.enable = true;
-      startWithUserSession = "graphical";
-    };
-  };
+  # services = {
+  #   emacs = {
+  #     enable = true;
+  #     client.enable = true;
+  #     startWithUserSession = "graphical";
+  #   };
+  # };
 
   systemd.user.startServices = "sd-switch";
 }

@@ -3,7 +3,7 @@ return {
   enabled = true,
   lazy = false,
   init = function ()
-    vim.lsp.enable({ "lua_ls", "nil_ls", "ts_ls", "angularls", "html", "cssls" })
+    vim.lsp.enable({ "lua_ls", "nil_ls", "ts_ls", "angularls", "html", "cssls", "markdown_oxide" })
   end,
   keys = {
     { "<leader>lf", function() vim.lsp.buf.format() end, desc = "Format buffer with LSP" },

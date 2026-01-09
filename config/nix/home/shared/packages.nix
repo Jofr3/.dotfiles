@@ -92,6 +92,7 @@
     angular-language-server
     lua-language-server
     markdown-oxide
+    marksman
     nil
     typescript-language-server
     typos-lsp

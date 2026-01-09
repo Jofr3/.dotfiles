@@ -8,6 +8,7 @@ file-history/
 .claude/
 cache/
 plugins/
+chrome/
 
 # Analytics and telemetry
 statsig/

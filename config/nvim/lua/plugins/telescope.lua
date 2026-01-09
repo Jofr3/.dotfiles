@@ -11,7 +11,9 @@ return {
     local actions = require("telescope.actions")
     return {
       defaults = {
+        hidden = true,
         file_ignore_patterns = {
+          "%.git/",
           "^storage/",
           "^public/",
           "^public_html/",
@@ -28,10 +30,9 @@ return {
         mappings = {
           n = {
             ["q"] = actions.close,
-            ["<C-d>"] = actions.delete_buffer,
           },
           i = {
-            ["<A-c>"] = actions.close,
+            ["<A-c>"] = actions.delete_buffer,
             ["<A-v>"] = actions.select_vertical,
             ["<A-x>"] = actions.select_horizontal,
             ["<A-q>"] = actions.smart_send_to_qflist,
@@ -40,6 +41,13 @@ return {
           },
         },
         layout_config = { width = 190, height = 45 },
+      },
+      pickers = {
+        find_files = {
+          hidden = true,
+          no_ignore = true,
+          no_ignore_parent = true,
+        },
       },
     }
   end,

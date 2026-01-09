@@ -4,8 +4,5 @@
     "command": "/home/jofre/.claude/statusline.sh",
     "padding": 0
   },
-  "alwaysThinkingEnabled": true,
-  "enabledPlugins": {
-    "lua-lsp@claude-plugins-official": true
-  }
+  "alwaysThinkingEnabled": true
 }

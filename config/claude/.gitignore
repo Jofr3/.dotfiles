@@ -6,6 +6,8 @@ session-env/
 shell-snapshots/
 file-history/
 .claude/
+cache/
+plugins/
 
 # Analytics and telemetry
 statsig/
@@ -17,3 +19,4 @@ history.jsonl
 # Local settings (machine-specific or sensitive)
 settings.local.json
 .credentials.json
+stats-cache.json

@@ -9,6 +9,7 @@ file-history/
 cache/
 plugins/
 chrome/
+logs/
 
 # Analytics and telemetry
 statsig/

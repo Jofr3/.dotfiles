@@ -4,16 +4,6 @@
       "command": "bunx",
       "args": ["-y", "@upstash/context7-mcp", "--api-key", "ctx7sk-57a11e2f-1ae9-4b8c-93c5-e911c0ceacc0"]
     },
-    "mysql-mcp-server": {
-      "command": "bunx",
-      "args": [ "-y", "@yukihito/mysql-mcp-server@latest",
-        "--host", "localhost",
-        "--port", "3306",
-        "--name", "your_username",
-        "--password", "your_password",
-        "--database", "your_database"
-      ]
-    },
     "git-mcp-server": {
       "command": "bunx",
       "args": ["-y", "@cyanheads/git-mcp-server@latest"],
@@ -21,10 +11,6 @@
         "MCP_TRANSPORT_TYPE": "stdio",
         "MCP_LOG_LEVEL": "info"
       }
-    },
-    "browsermcp": {
-      "command": "npx",
-      "args": ["-y", "@browsermcp/mcp@latest"]
     }
   }
 }

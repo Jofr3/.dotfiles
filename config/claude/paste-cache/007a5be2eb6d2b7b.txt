@@ -1,0 +1,102 @@
+Sending prompt to AI: You are a task scheduling assistant. Your ONLY job is to output valid JSON - no explanations, no markdown, no extra text.
+
+TODAY'S DATE: 2026-01-19
+DATE RANGE: 2026-01-19 to 2026-02-02 (next 14 days)
+
+TASKS TO SCHEDULE:
+[
+  {
+    "id": "a4f9d2f9-55c9-4fb7-b984-91beb0a85614",
+    "title": "take out the trash",
+    "description": null,
+    "completed": false,
+    "due_date": null,
+    "priority": "normal",
+    "duration": 10,
+    "is_recurring": true,
+    "recurring_days": [
+      6
+    ]
+  }
+]
+
+EXISTING EVENTS (already scheduled in the next 14 days):
+[]
+
+INSTRUCTIONS:
+1. ANALYZE EXISTING EVENTS:
+   - Check which tasks already have events scheduled
+   - Identify time conflicts in existing events
+   - Find events for tasks that have been completed (completed: true) - these should be DELETED
+   - Find events that need rescheduling (wrong time, conflicts, etc.)
+
+2. OPERATIONS YOU CAN PERFORM:
+   - "create": Schedule a new event for a task
+   - "delete": Remove an existing event (e.g., task was completed, conflict, duplicate)
+   - "update": Modify an existing event (change date/time)
+
+3. ONE-SHOT TASKS (is_recurring: false):
+   - Create ONLY ONE event per task (if not already scheduled)
+   - If task already has an event, don't create another unless you delete the old one first
+   - If due_date is provided and not empty, schedule ON that exact date
+   - If due_date is empty/null, schedule based on priority
+
+4. RECURRING TASKS (is_recurring: true):
+   - Create multiple instances based on recurring_days [0=Sunday, 1=Monday, etc.]
+   - Check existing events to avoid duplicates
+   - Example: recurring_days="[1,3,5]" means Monday, Wednesday, Friday
+
+5. PRIORITY affects scheduling urgency (for tasks without due_date):
+   - "high": Schedule within 1-3 days
+   - "normal": Schedule within a week
+   - "low": Schedule later in the 14-day window
+   - "none": Schedule flexibly
+
+6. DURATION (in minutes) determines event length:
+   - If duration provided: end_time = start_time + duration
+   - If no duration: use 30-60 minutes default
+   - Example: duration=45, start_time="09:00" → end_time="09:45"
+
+7. SCHEDULING RULES:
+   - Working hours: 09:00-18:00
+   - NO overlapping events (check existing events!)
+   - Space tasks reasonably throughout the day
+   - If a task is completed, DELETE its future events
+
+OUTPUT FORMAT - Return ONLY this JSON array with operations:
+[
+  {"operation":"create","task_id":"string","date":"YYYY-MM-DD","start_time":"HH:MM","end_time":"HH:MM"},
+  {"operation":"delete","event_id":"string"},
+  {"operation":"update","event_id":"string","date":"YYYY-MM-DD","start_time":"HH:MM","end_time":"HH:MM"}
+]
+
+IMPORTANT:
+- Your response must be ONLY the JSON array above
+- No explanations, no markdown code blocks, no additional text
+- Start with [ and end with ]
+- For "create": include task_id, date, start_time, end_time
+- For "delete": include event_id only
+- For "update": include event_id and any fields to update (date, start_time, end_time)
+AI Response: {
+  response: '[\n' +
+    '  {"operation":"create","task_id":"a4f9d2f9-55c9-4fb7-b984-91beb0a85614","date":"2026-01-26","start_time":"09:00","end_time":"09:10"},\n' +
+    '  {"operation":"create","task_id":"a4f9d2f9-55c9-4fb7-b984-91beb0a85614","date":"2026-02-02","start_time":"09:00","end_time":"09:10"}\n' +
+    ']',
+  usage: { prompt_tokens: 869, completion_tokens: 118, total_tokens: 987 }
+}
+Successfully parsed operations from AI response: [
+  {
+    operation: 'create',
+    task_id: 'a4f9d2f9-55c9-4fb7-b984-91beb0a85614',
+    date: '2026-01-26',
+    start_time: '09:00',
+    end_time: '09:10'
+  },
+  {
+    operation: 'create',
+    task_id: 'a4f9d2f9-55c9-4fb7-b984-91beb0a85614',
+    date: '2026-02-02',
+    start_time: '09:00',
+    end_time: '09:10'
+  }
+]

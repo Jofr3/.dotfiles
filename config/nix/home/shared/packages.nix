@@ -16,7 +16,6 @@
     lazygit
     lsof
     nix-prefetch-github
-    opencode
     ripgrep
     rsync
     tmux

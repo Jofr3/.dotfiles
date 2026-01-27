@@ -1,0 +1,23 @@
+[wrangler:info] OPTIONS /api/ai/schedule 204 No Content (6ms)
+Calling AI with tasks: 1
+✘ [ERROR] AI call failed: InferenceUpstreamError [AiError]: 9015: invalid prompt: failed to parse prompt: unknown variant `json_object`, expected `json_schema` at line 1 column 1031
+
+      at Ai._parseError (cloudflare-internal:ai-api:209:24)
+      at async Ai.run (cloudflare-internal:ai-api:187:19)
+      at null.<anonymous> (async
+  file:///home/jofre/projects/chronos/apps/backend/.wrangler/tmp/dev-qNIsyp/index.js:8893:20)
+      at async dispatch
+  (file:///home/jofre/projects/chronos/node_modules/.bun/hono@4.10.6/node_modules/hono/dist/compose.js:22:17)
+      at async authMiddleware
+  (file:///home/jofre/projects/chronos/apps/backend/src/middleware/auth.ts:23:3)
+      at async dispatch
+  (file:///home/jofre/projects/chronos/node_modules/.bun/hono@4.10.6/node_modules/hono/dist/compose.js:22:17)
+      at async cors2
+  (file:///home/jofre/projects/chronos/node_modules/.bun/hono@4.10.6/node_modules/hono/dist/middleware/cors/index.js:79:5)
+      at async dispatch
+  (file:///home/jofre/projects/chronos/node_modules/.bun/hono@4.10.6/node_modules/hono/dist/compose.js:22:17)
+      at null.<anonymous> (async
+  file:///home/jofre/projects/chronos/apps/backend/.wrangler/tmp/dev-qNIsyp/index.js:877:25)
+      at async jsonError
+  (file:///home/jofre/projects/chronos/node_modules/.bun/wrangler@4.50.0/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts:22:10)
+

@@ -108,7 +108,8 @@
     },
     "beques": {
       "gitlab": "https://gitlab.com/lasevaweb_group/ccosona/beques.ccosona.cat",
-      "dev": "https://dev-beques.ccosona.cat"
+      "dev": "https://dev-beques.ccosona.cat",
+      "prod": "https://beques.ccosona.cat"
     },
     "renovacions": {
       "gitlab": "https://gitlab.com/lasevaweb_group/ccosona/renovacions.ccosona.cat",
@@ -130,6 +131,9 @@
     "exportbdns": {
       "prod": "https://exportbdns.cat/admin",
       "gitlab": "https://gitlab.com/lasevaweb_group/projectes-propis/exportbdns1/exportbdns"
+    },
+    "ccbergueda": {
+      "prod": "https://ss.ccbergueda.cat"
     },
     "fontawesome": "https://fontawesome.com/icons",
     "translate": "https://translate.google.com/?sl=ca&tl=en&op=translate",

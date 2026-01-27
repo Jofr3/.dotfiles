@@ -95,26 +95,21 @@ in {
 
       bindm = [ "$mod, mouse:272, movewindow" "$mod, mouse:273, resizewindow" ];
 
-      windowrulev2 = [
-        # Auto-group all windows
-        "group set, class:.*"
-        "group deny, class:^(launcher)$"
-        "group deny, class:^(footclient)$"
-        "group deny, class:^(code)$"
+      windowrule = [
+        # Group deny rules (auto_group = true handles the rest)
+        "group deny, match:class launcher"
+        "group deny, match:class footclient"
+        "group deny, match:class code"
 
         # App launcher
-        "float, class:^(launcher)$"
-        "center, class:^(launcher)$"
-        "size 300 400, class:^(launcher)$"
-        "rounding 10, class:^(launcher)$"
-        "pin, class:^(launcher)$"
+        "float on, center on, pin on, size 300 400, rounding 10, match:class launcher"
 
         # Workspace assignments
-        "workspace 1, class:^(firefox)$"
-        "workspace 2, class:^(chromium-browser)$"
-        "workspace 3, class:^(thunderbird)$"
-        "workspace 4, class:^(DBeaver)$"
-        "workspace 7, class:^(code)$"
+        "workspace 1, match:class firefox"
+        "workspace 2, match:class chromium-browser"
+        "workspace 3, match:class thunderbird"
+        "workspace 4, match:class DBeaver"
+        "workspace 7, match:class code"
       ];
 
       env = [ "XCURSOR_SIZE,24" "HYPRCURSOR_SIZE,24" "QT_CURSOR_SIZE,24" ];

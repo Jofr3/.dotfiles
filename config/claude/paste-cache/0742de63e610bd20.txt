@@ -1,0 +1,22 @@
+Invalid Certification Documents Report
+Query: certific.dbo.docum_empcerti where maquetadorcerti_valid is NULL or <> 'S'
+
+
+Warning: mssql_query(): message: Invalid column name 'apartat'. (severity 16) in /var/www/html/check_invalid_certifications.php on line 48
+
+Warning: mssql_query(): General SQL Server error: Check messages from the SQL Server (severity 16) in /var/www/html/check_invalid_certifications.php on line 48
+
+Warning: mssql_query(): message: Invalid column name 'num_linia'. (severity 16) in /var/www/html/check_invalid_certifications.php on line 48
+
+Warning: mssql_query(): General SQL Server error: Check messages from the SQL Server (severity 16) in /var/www/html/check_invalid_certifications.php on line 48
+
+Warning: mssql_query(): message: Invalid column name 'text_literal'. (severity 16) in /var/www/html/check_invalid_certifications.php on line 48
+
+Warning: mssql_query(): General SQL Server error: Check messages from the SQL Server (severity 16) in /var/www/html/check_invalid_certifications.php on line 48
+
+Warning: mssql_query(): message: Invalid column name 'num_linia'. (severity 16) in /var/www/html/check_invalid_certifications.php on line 48
+
+Warning: mssql_query(): General SQL Server error: Check messages from the SQL Server (severity 16) in /var/www/html/check_invalid_certifications.php on line 48
+
+Warning: mssql_query(): Query failed in /var/www/html/check_invalid_certifications.php on line 48
+Error executing query: Invalid column name 'num_linia'.

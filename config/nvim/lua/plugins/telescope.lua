@@ -1,11 +1,10 @@
 return {
   "nvim-telescope/telescope.nvim",
-  enabled = true,
+  enabled = false,
   lazy = true,
   tag = "0.1.8",
   dependencies = {
     "nvim-lua/plenary.nvim",
-    "debugloop/telescope-undo.nvim",
   },
   opts = function()
     local actions = require("telescope.actions")

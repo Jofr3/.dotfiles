@@ -24,9 +24,9 @@ return {
     }
   end,
   keys    = function()
-    local builtin = require("telescope.builtin")
-    return {
-      { mode = "n", "<A-f>", builtin.buffers },
-    }
+    -- local builtin = require("telescope.builtin")
+    -- return {
+    --   { mode = "n", "<A-f>", builtin.buffers },
+    -- }
   end
 }

@@ -1,0 +1,46 @@
+✘ [ERROR] JSON parse error: SyntaxError: Unexpected token '`', "```
+
+  {
+    "e"... is not valid JSON
+      at [object Object]
+      at null.<anonymous> (file:///home/jofre/projects/chronos/apps/backend/src/routes/ai.ts:133:21)
+      at async dispatch
+  (file:///home/jofre/projects/chronos/node_modules/.bun/hono@4.10.6/node_modules/hono/dist/compose.js:22:17)
+      at async authMiddleware
+  (file:///home/jofre/projects/chronos/apps/backend/src/middleware/auth.ts:23:3)
+      at async dispatch
+  (file:///home/jofre/projects/chronos/node_modules/.bun/hono@4.10.6/node_modules/hono/dist/compose.js:22:17)
+      at async cors2
+  (file:///home/jofre/projects/chronos/node_modules/.bun/hono@4.10.6/node_modules/hono/dist/middleware/cors/index.js:79:5)
+      at async dispatch
+  (file:///home/jofre/projects/chronos/node_modules/.bun/hono@4.10.6/node_modules/hono/dist/compose.js:22:17)
+      at null.<anonymous> (async
+  file:///home/jofre/projects/chronos/apps/backend/.wrangler/tmp/dev-fRePlN/index.js:877:25)
+      at async jsonError
+  (file:///home/jofre/projects/chronos/node_modules/.bun/wrangler@4.50.0/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts:22:10)
+      at async drainBody
+  (file:///home/jofre/projects/chronos/node_modules/.bun/wrangler@4.50.0/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts:5:10)
+  Response: {
+    response: '```\n' +
+      '{\n' +
+      '  "events": [\n' +
+      '    {\n' +
+      '      "task_id": "2b4e2db4-9397-4cca-9bf8-13c8fe3e08cc",\n' +
+      '      "event_id": "4cc54b35-658b-4f0e-9418-9f7832c42cd8",\n' +
+      '      "date": "2026-01-27",\n' +
+      '      "start_time": "10:15",\n' +
+      '      "end_time": "11:05"\n' +
+      '    },\n' +
+      '    {\n' +
+      '      "task_id": "73d2d9c8-6c25-43aa-a30d-3bada8b14d4a",\n' +
+      '      "event_id": null,\n' +
+      '      "date": "2026-01-27",\n' +
+      '      "start_time": "09:00",\n' +
+      '      "end_time": "09:30"\n' +
+      '    }\n' +
+      '  ]\n' +
+      '}\n' +
+      '```',
+    usage: { prompt_tokens: 650, completion_tokens: 191, total_tokens:
+  841 }
+  }

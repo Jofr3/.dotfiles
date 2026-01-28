@@ -3,7 +3,7 @@ return {
   enabled = true,
   lazy = false,
   init = function()
-    vim.lsp.enable({ "lua_ls", "nil_ls", "ts_ls", "angularls", "html", "cssls", "markdown_oxide" })
+    vim.lsp.enable({ "lua_ls", "nil_ls", "ts_ls", "angularls", "html", "cssls", "marksman" })
   end,
   keys = {
     -- Navigation

@@ -14,6 +14,10 @@ return {
         hidden = true,
         file_ignore_patterns = {
           "%.git/",
+          "%.wrangler/",
+          "%.vscode/",
+          "%.vite/",
+          "dist/",
           "^storage/",
           "^public/",
           "^public_html/",

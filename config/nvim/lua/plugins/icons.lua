@@ -1,12 +1,12 @@
 return {
   {
     "nvim-tree/nvim-web-devicons",
-    enabled = true,
+    enabled = false,
     lazy = false,
   },
   {
     "nvim-mini/mini.icons",
-    enabled = false,
+    enabled = true,
     lazy = false,
   }
 }

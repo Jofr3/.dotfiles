@@ -81,7 +81,7 @@
   };
 
   # virtualization
-  virtualisation.docker.enable = true;
+  # virtualisation.docker.enable = true;
 
   # localization
   time.timeZone = "Europe/Madrid";

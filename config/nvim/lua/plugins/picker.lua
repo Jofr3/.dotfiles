@@ -38,7 +38,7 @@ return {
         show_delay = 0,
         sources = {
           files = {
-            hidden = true,
+            -- hidden = true,
             layout = default_layout,
           },
           buffers = {
@@ -48,13 +48,43 @@ return {
             auto_close = true,
             layout = default_layout,
           },
+          commands = {
+            layout = default_layout,
+          },
           grep = {
             layout = preview_layout,
           },
           undo = {
             layout = preview_layout,
+          },
+          git_status = {
+            layout = preview_layout,
+            win = {
+              input = {
+                keys = {
+                  ["<A-s>"] = { "git_stage", mode = { "i", "n" } },
+                  ["<A-r>"] = { "git_restore", mode = { "i", "n" } },
+                }
+              }
+            }
           }
         },
+        win = {
+          input = {
+            keys = {
+              ["<A-q>"] = { "cancel", mode = { "i", "n" } },
+              ["<A-k>"] = { "list_up", mode = { "i", "n" } },
+              ["<A-j>"] = { "list_down", mode = { "i", "n" } },
+              ["<A-i>"] = { "toggle_hidden", mode = { "i", "n" } },
+              ["<A-p>"] = { "toggle_preview", mode = { "i", "n" } },
+              ["<A-l>"] = { "qflist", mode = { "i", "n" } },
+              ["<A-c>"] = { "edit_split", mode = { "i", "n" } },
+              ["<A-v>"] = { "edit_vsplit", mode = { "i", "n" } },
+              ["<C-u>"] = { "preview_scroll_up", mode = { "i", "n" } },
+              ["<C-d>"] = { "preview_scroll_down", mode = { "i", "n" } },
+            }
+          }
+        }
       }
     }
   end,
@@ -66,7 +96,9 @@ return {
       { mode = "n", "<A-g>",          snacks.picker.grep },
       { mode = "n", "<A-m>",          snacks.picker.explorer },
       { mode = "n", "<A-u>",          snacks.picker.undo },
+      { mode = "n", "<A-x>",          snacks.picker.commands },
       { mode = "n", "<space><space>", snacks.picker.resume },
+      { mode = "n", "<A-d>",          snacks.picker.git_status },
     }
   end
 }

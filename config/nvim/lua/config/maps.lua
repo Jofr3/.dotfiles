@@ -5,7 +5,7 @@ vim.keymap.set("n", "q", "<nop>")
 vim.keymap.set("n", "Q", "<nop>")
 
 vim.keymap.set("n", "<A-v>", "<cmd>vnew<cr>")
-vim.keymap.set("n", "<A-x>", "<cmd>new<cr>")
+vim.keymap.set("n", "<A-c>", "<cmd>new<cr>")
 
 
 vim.keymap.set("n", "[q", "<cmd>cnext<cr>")

@@ -49,5 +49,5 @@ alias lt="exa --tree --level=4 --icons --group-directories-first"
 alias grep="grep --color='auto'"
 
 # Keybinds
-bind \eo super-cd
+bind \ef super-cd
 bind \es "~/.dotfiles/scripts/tmux-sessionizer.sh"

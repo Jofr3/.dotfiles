@@ -38,7 +38,7 @@ return {
         show_delay = 0,
         sources = {
           files = {
-            hidden = true,
+            -- hidden = true,
             layout = default_layout,
           },
           buffers = {
@@ -55,6 +55,22 @@ return {
             layout = preview_layout,
           }
         },
+        win = {
+          input = {
+            keys = {
+              ["<A-q>"] = { "cancel", mode = { "i", "n" } },
+              ["<A-k>"] = { "list_up", mode = { "i", "n" } },
+              ["<A-j>"] = { "list_down", mode = { "i", "n" } },
+              ["<A-i>"] = { "toggle_hidden", mode = { "i", "n" } },
+              ["<A-p>"] = { "toggle_preview", mode = { "i", "n" } },
+              ["<A-l>"] = { "qflist", mode = { "i", "n" } },
+              ["<A-x>"] = { "edit_split", mode = { "i", "n" } },
+              ["<A-v>"] = { "edit_vsplit", mode = { "i", "n" } },
+              ["<A-u>"] = { "preview_scroll_up", mode = { "i", "n" } },
+              ["<A-d>"] = { "preview_scroll_down", mode = { "i", "n" } },
+            }
+          }
+        }
       }
     }
   end,

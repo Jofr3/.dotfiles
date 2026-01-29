@@ -38,7 +38,6 @@
       xwayland.enable = true;
     };
     fish.enable = true;
-    adb.enable = true;
     ssh.startAgent = true;
     nix-ld = {
       enable = true;

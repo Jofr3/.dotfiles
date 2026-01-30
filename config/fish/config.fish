@@ -1,7 +1,7 @@
 # Settings
 set -g fish_greeting
 set -U fish_prompt_pwd_dir_length 0
-set -g fish_history_ignore "exit" "ls" "history" "clear" "ff" "nvim" "nr" "hr" "op"
+set -g fish_history_ignore "exit" "ls" "history" "clear" "ff" "nvim" "nr" "hr" "cc" "hr" "nr" "cd"
 set -g fish_autosuggestion_enabled 0
 
 # Prompt

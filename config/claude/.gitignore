@@ -2,6 +2,7 @@
 debug/
 projects/
 todos/
+tasks/
 session-env/
 shell-snapshots/
 file-history/

@@ -17,7 +17,6 @@ set -x EDITOR nvim
 set -x SHELL (which fish)
 # Do in nixos config
 set -x XDG_CONFIG_HOME "/home/jofre/.config"
-set -x PATH $PATH "$HOME/.dotfiles/config/tofi/scripts/"
 set -Ux FZF_DEFAULT_OPTS "
 	--color=fg:#908caa,bg:#232136,hl:#ea9a97
 	--color=fg+:#e0def4,bg+:#393552,hl+:#ea9a97

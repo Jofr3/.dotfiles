@@ -1,64 +1,7 @@
 return {
-	"Jofr3/sftp.nvim",
-	enabled = true,
-	lazy = false,
-	opts = {
-		projects = {
-			{
-				local_path = "/home/jofre/lsw/myclientum",
-				host = "myclientum",
-				remote_path = "/dev.myclientum.com",
-			},
-			{
-				local_path = "/home/jofre/lsw/tacprod",
-				host = "tacprod",
-				remote_path = "/dev.tacprod.cat",
-			},
-			{
-				local_path = "/home/jofre/lsw/gestio_mancoplana",
-				host = "gestio_mancoplana",
-				remote_path = "/gestio.mancoplana.cat",
-			},
-			{
-				local_path = "/home/jofre/lsw/memoria_mancoplana",
-				host = "memoria_mancoplana",
-				remote_path = "/pam.mancoplana.cat",
-			},
-			{
-				local_path = "/home/jofre/lsw/gardentona",
-				host = "garden_tona",
-				remote_path = "/devgarden.lasevaweb.com",
-			},
-			{
-				local_path = "/home/jofre/lsw/vicfires",
-				host = "vicfires",
-				remote_path = "/dev.vicfires.cat",
-			},
-			{
-				local_path = "/home/jofre/lsw/vivelloc",
-				host = "vivelloc",
-				remote_path = "/ous.vivelloc.cat",
-			},
-			{
-				local_path = "/home/jofre/lsw/ateinsa",
-				host = "ateinsa",
-				remote_path = "/var/www/html",
-			},
-			{
-				local_path = "/home/jofre/lsw/beques",
-				host = "beques",
-				remote_path = "/dev-beques.ccosona.cat",
-			},
-			{
-				local_path = "/home/jofre/lsw/renovacions",
-				host = "renovacions",
-				remote_path = "/dev.renovacions.ccosona.cat",
-			},
-			{
-				local_path = "/home/jofre/lsw/ayudas",
-				host = "ayudas",
-				remote_path = "/ayudas.asetconsultoria.com",
-			},
-		},
-	},
+  dir = "/home/jofre/projects/sftp.nvim",
+  -- "Jofr3/sftp.nvim",
+  enabled = true,
+  lazy = false,
+  opts = {},
 }

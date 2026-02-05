@@ -41,16 +41,18 @@ get_command_info() {
 run_command() {
     local name="$1"
     local info=$(get_command_info "$name")
-    
+
     local command=$(echo "$info" | jq -r '.command')
     local terminal=$(echo "$info" | jq -r '.terminal // false')
     local hold=$(echo "$info" | jq -r '.hold // false')
-    
+    local app_id=$(echo "$info" | jq -r '."app-id" // empty')
+    [[ -z "$app_id" ]] && app_id="launcher"
+
     if [[ "$terminal" == "true" ]]; then
         if [[ "$hold" == "true" ]]; then
-            foot --app-id="launcher" bash -c 'eval "$1"; echo -e "\n\nPress any key to close..."; read -n 1' _ "$command" &
+            foot --app-id="$app_id" bash -c 'eval "$1"; echo -e "\n\nPress any key to close..."; read -n 1' _ "$command" &
         else
-            foot --app-id="launcher" bash -c 'eval "$1"' _ "$command" &
+            foot --app-id="$app_id" bash -c 'eval "$1"' _ "$command" &
         fi
     else
         setsid -f bash -c "$command" >/dev/null 2>&1

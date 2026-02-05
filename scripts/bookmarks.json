@@ -104,7 +104,8 @@
     },
     "ateinsa": {
       "gitlab": "https://gitlab.com/lasevaweb_ateinsa/APPSERVER",
-      "dev": "https://dev.ateinsa.com"
+      "dev": "https://dev.ateinsa.com",
+      "dev2": "https://dev2.ateinsa.com"
     },
     "beques": {
       "gitlab": "https://gitlab.com/lasevaweb_group/ccosona/beques.ccosona.cat",

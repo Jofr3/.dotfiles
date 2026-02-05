@@ -8,7 +8,8 @@
     "vpn ateinsa": {
       "command": "sudo openfortivpn mail.ateinsa.com:10443 --username=jscaricaciottoli --trusted-cert e2f07f1955c5f81a26c7542c6616104c55cf5eaf81147aacccfd7a4aef019737 -p '1234567j$'",
       "terminal": true,
-      "hold": false
+      "hold": false,
+      "app-id": "none"
     },
     "system resources": {
       "command": "btop",

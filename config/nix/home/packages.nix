@@ -55,6 +55,7 @@
     grim
     hyprpicker
     slurp
+    swaybg
     tofi
     wl-clipboard
     wl-color-picker

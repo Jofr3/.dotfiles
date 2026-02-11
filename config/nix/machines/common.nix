@@ -37,6 +37,7 @@
       xwayland.enable = true;
       withUWSM = false;
     };
+    niri.enable = true;
     fish.enable = true;
     ssh.startAgent = true;
     nix-ld = {
@@ -47,6 +48,9 @@
       ];
     };
   };
+
+  # Disable GNOME's SSH agent (pulled in by niri) to avoid conflict with programs.ssh.startAgent
+  services.gnome.gcr-ssh-agent.enable = false;
 
   # users
   users = {

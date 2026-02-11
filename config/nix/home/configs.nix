@@ -14,6 +14,7 @@ in {
     btop.source = "${dotfiles}/config/btop";
     helix.source = "${dotfiles}/config/helix";
     kitty.source = "${dotfiles}/config/kitty";
+    niri.source = "${dotfiles}/config/niri";
     zellij.source = "${dotfiles}/config/zellij";
     wezterm.source = "${dotfiles}/config/wezterm";
     opencode.source = "${dotfiles}/config/opencode";

@@ -145,6 +145,7 @@
     "cloudflare": "https://dash.cloudflare.com/927931aaff4b96d6cfd468f8e7ed6cf7/workers-and-pages",
     "notes": "https://app.simplenote.com",
     "5173": "http://localhost:5173",
-    "drizzle": "https://local.drizzle.studio"
+    "drizzle": "https://local.drizzle.studio",
+    "chronos": "https://rurisk.com"
   }
 }

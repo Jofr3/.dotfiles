@@ -27,7 +27,6 @@
     home-manager
     git
     vim
-    kitty
     playwright-driver.browsers
   ];
 
@@ -36,6 +35,7 @@
     hyprland = {
       enable = true;
       xwayland.enable = true;
+      withUWSM = false;
     };
     fish.enable = true;
     ssh.startAgent = true;
@@ -79,9 +79,6 @@
     '';
   };
 
-  # virtualization
-  # virtualisation.docker.enable = true;
-
   # localization
   time.timeZone = "Europe/Madrid";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -100,7 +97,6 @@
       };
     };
     dbus.enable = true;
-    # flatpak.enable = true;
   };
 
   # audio
@@ -142,8 +138,6 @@
   stylix = {
     enable = true;
     image = ../theme/wallpaper.jpg;
-    # base16Scheme = ../theme/gruvbox.yml;
-    # base16Scheme = "${pkgs.base16-schemes}/share/themes/tokyo-night-moon.yaml";
     base16Scheme = "${pkgs.base16-schemes}/share/themes/rose-pine-moon.yaml";
     cursor = {
       package = pkgs.vanilla-dmz;

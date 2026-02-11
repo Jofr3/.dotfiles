@@ -19,7 +19,7 @@ home-manager switch --flake /home/jofre/.dotfiles/config/nix/.#jofre@nixos
 nix flake update /home/jofre/.dotfiles/config/nix/
 
 # Format nix files
-nixfmt-classic <file.nix>
+nixfmt <file.nix>
 ```
 
 Fish shell aliases: `nr` (nixos rebuild), `hr` (home-manager rebuild), `nd` (nix develop)
@@ -44,24 +44,24 @@ Fish shell aliases: `nr` (nixos rebuild), `hr` (home-manager rebuild), `nd` (nix
 ### NixOS Configuration (`config/nix/`)
 
 **Flake outputs:**
-- `nixos` - Personal machine with NVIDIA GPU (`nixos/personal/`)
-- `nixos-lsw` - Work machine with Intel graphics (`nixos/work/`)
-- `jofre@nixos` - Home Manager user configuration
+- `nixos` - Personal machine with NVIDIA GPU (`machines/personal/`)
+- `nixos-lsw` - Work machine with Intel graphics (`machines/work/`)
 
 **Key directories:**
-- `nixos/configuration.nix` - Shared base system config
-- `nixos/personal/` and `nixos/work/` - Hardware-specific modules
-- `home/shared/` - Modular Home Manager configs:
+- `machines/common.nix` - Shared base system config
+- `machines/personal/` and `machines/work/` - Hardware-specific modules
+- `home/` - Home Manager modules:
+  - `default.nix` - Entry point (user prefs, GTK, MIME, FZF theme)
   - `packages.nix` - All user packages
   - `hyprland.nix` - Window manager keybindings
   - `configs.nix` - Symlinks dotfiles to `~/.config/`
-  - `stylix.nix` - Theme settings
+  - `ssh.nix` - SSH hosts
 
 ### Dotfile Management
 
 Home Manager uses `mkOutOfStoreSymlink` to link configs from this repo to `~/.config/`. Adding a new application config:
 1. Create config in `config/<app>/`
-2. Add symlink in `home/shared/configs.nix`
+2. Add symlink in `home/configs.nix`
 3. Run `hr` to apply
 
 ### Neovim (`config/nvim/`)

@@ -1,16 +1,20 @@
-{ config, lib, ... }:
+{ config, lib, hostId, ... }:
 let
   dotfiles = config.home.homeDirectory + "/.dotfiles";
   wallpaper = dotfiles + "/config/nix/theme/wallpaper.jpg";
+  isPersonal = hostId == "9f0dfe7d";
 in {
   services.hyprpaper = {
     enable = true;
     settings = {
       preload = [ wallpaper ];
-      wallpaper = [
-        "HDMI-A-1,${wallpaper}"
-        "eDP-1,${wallpaper}"
-      ];
+      wallpaper =
+        if isPersonal then [
+          "HDMI-A-1,${wallpaper}"
+          "eDP-1,${wallpaper}"
+        ] else [
+          "eDP-1,${wallpaper}"
+        ];
       splash = false;
       ipc = true;
     };
@@ -96,15 +100,15 @@ in {
       bindm = [ "$mod, mouse:272, movewindow" "$mod, mouse:273, resizewindow" ];
 
       windowrule = [
-        # Group deny rules (auto_group = true handles the rest)
+        # group deny rules (auto_group = true handles the rest)
         "group deny, match:class launcher"
         "group deny, match:class footclient"
         "group deny, match:class code"
 
-        # App launcher
+        # app launcher
         "float on, center on, pin on, size 300 400, rounding 10, match:class launcher"
 
-        # Workspace assignments
+        # workspace assignments
         "workspace 1, match:class firefox"
         "workspace 2, match:class chromium-browser"
         "workspace 3, match:class thunderbird"
@@ -114,12 +118,14 @@ in {
 
       env = [ "XCURSOR_SIZE,24" "HYPRCURSOR_SIZE,24" "QT_CURSOR_SIZE,24" ];
 
-      monitor = [
+      monitor = if isPersonal then [
         "HDMI-A-1, preferred, 0x0, 1"
         "eDP-1, 1920x1080@60, 0x1080, 1"
+      ] else [
+        "eDP-1, preferred, auto, 1"
       ];
 
-      workspace = [
+      workspace = lib.optionals isPersonal [
         "1, monitor:eDP-1"
         "2, monitor:HDMI-A-1"
         "3, monitor:eDP-1"

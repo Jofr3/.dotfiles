@@ -1,13 +1,10 @@
 { pkgs, ... }: {
-  nixpkgs.config = {
-    allowUnfree = true;
-    allowInsecure = true;
-  };
-
   home.packages = with pkgs; [
     # cli tools
     btop
     brightnessctl
+    claude-code
+    direnv
     eza
     fastfetch
     fd
@@ -16,6 +13,7 @@
     lazygit
     lsof
     nix-prefetch-github
+    pulseaudio
     ripgrep
     rsync
     tmux
@@ -23,9 +21,6 @@
     wget
     zellij
     zoxide
-    claude-code
-    pulseaudio
-    direnv
 
     # editors
     neovim
@@ -50,6 +45,7 @@
     libreoffice
     nautilus
     overskride
+    postman
     thunderbird
     wdisplays
     zathura
@@ -57,25 +53,28 @@
     # wayland utilities
     cliphist
     grim
+    hyprpicker
     slurp
     tofi
     wl-clipboard
     wl-color-picker
     wtype
     xdg-desktop-portal-hyprland
-    hyprpicker 
 
     # vpn
     openconnect
     openfortivpn
 
     # development tools
+    bruno-cli
+    bun
     docker
     docker-compose
     git
     gnumake
     ninja
-    bun
+    sshpass
+    uv
 
     # languages & runtimes
     gccgo
@@ -99,7 +98,7 @@
 
     # formatters
     blade-formatter
-    nixfmt-classic
+    nixfmt
     php83Packages.php-cs-fixer
     stylua
   ];

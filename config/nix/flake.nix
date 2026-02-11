@@ -13,38 +13,46 @@
       url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
-    # sudo nixos-rebuild switch --flake .#nixos
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs; };
-      modules = [
-        ./nixos/configuration.nix
-        ./nixos/personal/hardware-nvidia.nix
-        ./nixos/personal/graphics-nvidia.nix
-        { networking.hostName = "nixos"; }
-      ];
-    };
-
-    # sudo nixos-rebuild switch --flake .#nixos-lsw
-    nixosConfigurations.nixos-lsw = nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs; };
-      modules = [
-        ./nixos/configuration.nix
-        ./nixos/work/hardware-intel.nix
-        ./nixos/work/graphics-intel.nix
-        { networking.hostName = "nixos-lsw"; }
-      ];
-    };
-
-    # home-manager switch --flake .#jofre@nixos
-    homeConfigurations."jofre@nixos" =
-      home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = { inherit inputs; };
-        modules = [ ./home/jofre.nix ];
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+    let
+      mkHost = { hostName, hostId, hardware }:
+        nixpkgs.lib.nixosSystem {
+          specialArgs = { inherit inputs hostId; };
+          modules = [
+            ./machines/common.nix
+            home-manager.nixosModules.home-manager
+            {
+              networking.hostName = hostName;
+              networking.hostId = hostId;
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = { inherit inputs hostId; };
+              home-manager.users.jofre = import ./home;
+            }
+          ] ++ hardware;
+        };
+    in
+    {
+      # sudo nixos-rebuild switch --flake .#nixos
+      nixosConfigurations.nixos = mkHost {
+        hostName = "nixos";
+        hostId = "9f0dfe7d";
+        hardware = [
+          ./machines/personal/hardware.nix
+          ./machines/personal/graphics.nix
+        ];
       };
-  };
+
+      # sudo nixos-rebuild switch --flake .#nixos-lsw
+      nixosConfigurations.nixos-lsw = mkHost {
+        hostName = "nixos-lsw";
+        hostId = "CHANGEME0"; # run: head -c 8 /etc/machine-id
+        hardware = [
+          ./machines/work/hardware.nix
+          ./machines/work/graphics.nix
+        ];
+      };
+    };
 }

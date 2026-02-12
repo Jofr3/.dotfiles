@@ -16,6 +16,19 @@ selected=$(cat "$FIFO")
 rm "$FIFO"
 
 if [ -n "$selected" ]; then
-  command=$(jq -r --arg app "$selected" '.[$app]' "$APPS_JSON")
+  entry=$(jq -c --arg app "$selected" '.[$app]' "$APPS_JSON")
+
+  if echo "$entry" | jq -e 'type == "object"' >/dev/null 2>&1; then
+    command=$(echo "$entry" | jq -r '.command')
+    workspace=$(echo "$entry" | jq -r '.workspace // empty')
+  else
+    command=$(echo "$entry" | jq -r '.')
+    workspace=""
+  fi
+
+  if [ -n "$workspace" ]; then
+    niri msg action focus-workspace "$workspace"
+  fi
+
   setsid -f /bin/sh -c "$command" >/dev/null 2>&1
 fi

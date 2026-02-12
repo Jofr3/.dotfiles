@@ -3,7 +3,6 @@
 // Startup
 spawn-at-startup "foot" "--server"
 spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
-// spawn-at-startup "swaybg" "-i" "/home/jofre/.dotfiles/config/nix/theme/wallpaper.jpg" "-m" "fill"
 
 prefer-no-csd
 
@@ -37,11 +36,10 @@ input {
 
     touchpad {
         tap
-        natural-scroll
     }
 }
 
-// Monitors - niri ignores disconnected outputs
+// Monitors
 output "HDMI-A-1" {
     mode "1920x1080"
     position x=0 y=0
@@ -76,17 +74,16 @@ layout {
 }
 
 animations {
-    off
+    // off
 }
 
-// Named workspaces (W/H/M/D/F/I/E)
-workspace "web"
-workspace "browse"
+// Named workspaces
 workspace "mail"
-workspace "dev"
-workspace "files"
-workspace "info"
-workspace "edit"
+workspace "chrome"
+workspace "editor"
+workspace "claude"
+workspace "database"
+workspace "terminal"
 
 // Window rules
 window-rule {
@@ -95,28 +92,33 @@ window-rule {
 }
 
 window-rule {
-    match app-id="firefox"
-    open-on-workspace "web"
-}
-
-window-rule {
-    match app-id="chromium-browser"
-    open-on-workspace "browse"
-}
-
-window-rule {
     match app-id="thunderbird"
     open-on-workspace "mail"
 }
 
 window-rule {
-    match app-id="DBeaver"
-    open-on-workspace "dev"
+    match app-id="google-chrome"
+    open-on-workspace "chrome"
 }
 
 window-rule {
-    match app-id="code"
-    open-on-workspace "edit"
+    match app-id="editor"
+    open-on-workspace "editor"
+}
+
+window-rule {
+    match app-id="claude"
+    open-on-workspace "claude"
+}
+
+window-rule {
+    match app-id="DBeaver"
+    open-on-workspace "database"
+}
+
+window-rule {
+    match app-id="terminal"
+    open-on-workspace "terminal"
 }
 
 // Keybindings
@@ -124,50 +126,43 @@ binds {
     // Window management
     Mod+Q { close-window; }
 
-    // Launchers
-    Mod+Return { spawn "footclient"; }
-    Mod+O { spawn "bash" "/home/jofre/.dotfiles/scripts/apps-launcher.sh"; }
-    Mod+K { spawn "bash" "/home/jofre/.dotfiles/scripts/bookmarks-launcher.sh"; }
-    Mod+P { spawn "bash" "/home/jofre/.dotfiles/scripts/passwords-launcher.sh"; }
-    Mod+X { spawn "bash" "/home/jofre/.dotfiles/scripts/commands-launcher.sh"; }
-    Mod+C { spawn "bash" "/home/jofre/.dotfiles/scripts/clipboard-launcher.sh"; }
+    // Workspaces
+    Mod+M { focus-workspace "mail"; }
+    Mod+W { focus-workspace "chrome"; }
+    Mod+E { focus-workspace "editor"; }
+    Mod+C { focus-workspace "claude"; }
+    Mod+D { focus-workspace "database"; }
+    Mod+I { focus-workspace "terminal"; }
 
-    // Credentials
-    Mod+A { spawn "bash" "-c" "wtype -M alt $(cat /tmp/username) -m alt"; }
-    Mod+S { spawn "bash" "-c" "wtype -M alt $(cat /tmp/password) -m alt"; }
+    // Overview
+    Mod+Space { toggle-overview; }
 
-    // Column/window navigation
-    Mod+J { focus-column-left; }
+    // Focus by index
+    Mod+1 { focus-column 1; }
+    Mod+2 { focus-column 2; }
+    Mod+3 { focus-column 3; }
+    Mod+4 { focus-column 4; }
+    Mod+5 { focus-column 5; }
+
+    // Focus
+    Mod+H { focus-column-left; }
     Mod+L { focus-column-right; }
-    Mod+Shift+J { move-column-left; }
-    Mod+Shift+L { move-column-right; }
+    Mod+J { focus-workspace-down; }
+    Mod+K { focus-workspace-up; }
 
-    // Window focus within column
-    Mod+Shift+K { focus-window-down; }
-    Mod+Shift+I { focus-window-up; }
+    // Movement
+    Mod+Shift+H { move-column-left; }
+    Mod+Shift+L { move-column-right; }
+    Mod+Shift+J { move-window-to-workspace-down; }
+    Mod+Shift+K { move-window-to-workspace-up; }
 
     // Resize
-    Mod+Minus { set-column-width "-10%"; }
-    Mod+Equal { set-column-width "+10%"; }
+    Mod+Ctrl+H { set-column-width "-10%"; }
+    Mod+Ctrl+L { set-column-width "+10%"; }
 
     // Fullscreen / maximize
-    Mod+Shift+F { fullscreen-window; }
-    Mod+Shift+M { maximize-column; }
-
-    // Workspaces
-    Mod+W { focus-workspace "web"; }
-    Mod+H { focus-workspace "browse"; }
-    Mod+M { focus-workspace "mail"; }
-    Mod+D { focus-workspace "dev"; }
-    Mod+F { focus-workspace "files"; }
-    Mod+I { focus-workspace "info"; }
-    Mod+E { focus-workspace "edit"; }
-
-    // Move window to workspace
-    Mod+Shift+W { move-window-to-workspace "web"; }
-    Mod+Shift+H { move-window-to-workspace "browse"; }
-    Mod+Shift+D { move-window-to-workspace "dev"; }
-    Mod+Shift+E { move-window-to-workspace "edit"; }
+    // Mod+F { fullscreen-window; }
+    Mod+F { maximize-column; }
 
     // Brightness
     Mod+Left { spawn "brightnessctl" "set" "5%-"; }
@@ -177,15 +172,12 @@ binds {
     Mod+Up { spawn "pactl" "set-sink-volume" "@DEFAULT_SINK@" "+5%"; }
     Mod+Down { spawn "pactl" "set-sink-volume" "@DEFAULT_SINK@" "-5%"; }
 
-    // Screenshots
-    Print { screenshot; }
-    Ctrl+Print { screenshot-screen; }
-    Alt+Print { screenshot-window; }
-
-    // Help
+    // Help menu
     Mod+Shift+Slash { show-hotkey-overlay; }
 
-    // Mouse
-    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
-    Mod+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+    // Launchers
+    Mod+Return { spawn "footclient" "--app-id=terminal" "-e" "tmux"; }
+    Mod+O { spawn "bash" "/home/jofre/.dotfiles/scripts/apps-launcher.sh"; }
+    Mod+U { spawn "bash" "/home/jofre/.dotfiles/scripts/bookmarks-launcher.sh"; }
+    Mod+X { spawn "bash" "/home/jofre/.dotfiles/scripts/commands-launcher.sh"; }
 }

@@ -1,7 +1,7 @@
 {
   "Bluetooth": "overskride",
   "Calculator": "gnome-calculator",
-  "Chromium": "chromium --remote-debugging-port=9222",
+  "Chromium": { "command": "chromium", "workspace": "chrome" },
   "Dbeaver": "dbeaver",
   "Discord": "discord",
   "Displays": "wdisplays",
@@ -9,15 +9,17 @@
   "Emacs": "emacsclient -c",
   "Nautilus": "nautilus",
   "Firefox": "firefox",
-  "Google chrome": "google-chrome-stable",
+  "Google chrome": { "command": "google-chrome-stable", "workspace": "chrome" },
   "Kitty": "kitty",
   "Papers": "papers",
   "Qutebrowser": "qutebrowser",
   "Text editor": "gnome-text-editor",
-  "Thunderbird": "thunderbird",
+  "Thunderbird": { "command": "thunderbird", "workspace": "mail" },
   "VSCode": "code",
   "Vivaldi": "vivaldi",
   "Wezterm": "wezterm",
   "Zed": "zeditor",
-  "Postman": "postman"
+  "Postman": "postman",
+  "Editor": { "command": "footclient --app-id=editor", "workspace": "editor" },
+  "Claude": { "command": "footclient --app-id=claude", "workspace": "claude" }
 }

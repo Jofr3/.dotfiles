@@ -24,7 +24,7 @@
             ./machines/common.nix
             home-manager.nixosModules.home-manager
             {
-              networking.hostName = hostName;
+              networking.hostName = "nixos";
               networking.hostId = hostId;
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
@@ -37,7 +37,6 @@
     {
       # sudo nixos-rebuild switch --flake .#nixos
       nixosConfigurations.nixos = mkHost {
-        hostName = "nixos";
         hostId = "9f0dfe7d";
         hardware = [
           ./machines/personal/hardware.nix
@@ -47,8 +46,7 @@
 
       # sudo nixos-rebuild switch --flake .#nixos-lsw
       nixosConfigurations.nixos-lsw = mkHost {
-        hostName = "nixos-lsw";
-        hostId = "CHANGEME0"; # run: head -c 8 /etc/machine-id
+        hostId = "27e15669";
         hardware = [
           ./machines/work/hardware.nix
           ./machines/work/graphics.nix

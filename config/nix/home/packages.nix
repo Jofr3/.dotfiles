@@ -23,6 +23,7 @@
     zoxide
 
     # editors
+    emacs-pgtk
     neovim
     vscode
 
@@ -102,5 +103,9 @@
     nixfmt
     php83Packages.php-cs-fixer
     stylua
+
+    # temporary
+    vtsls
+    intelephense
   ];
 }

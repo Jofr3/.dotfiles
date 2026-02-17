@@ -29,7 +29,8 @@ alias n="nvim"
 alias ff="fastfetch"
 alias b="btop"
 alias op="opencode"
-# alias cc="bunx -y @anthropic-ai/claude-code --chrome"
+alias bcc="bunx @anthropic-ai/claude-code --chrome"
+alias bcx="bunx @openai/codex@latest"
 alias cc="claude"
 
 alias ..="cd .."
@@ -46,6 +47,8 @@ alias hr="home-manager switch --flake /home/jofre/.dotfiles/config/nix/.#jofre@n
 alias ls="exa --icons --group-directories-first"
 alias lt="exa --tree --level=4 --icons --group-directories-first"
 alias grep="grep --color='auto'"
+
+alias vpn-ateinsa="sudo openfortivpn mail.ateinsa.com:10443 --username=jscaricaciottoli --trusted-cert e2f07f1955c5f81a26c7542c6616104c55cf5eaf81147aacccfd7a4aef019737 -p '1234567j\$'"
 
 # Keybinds
 bind \ef super-cd

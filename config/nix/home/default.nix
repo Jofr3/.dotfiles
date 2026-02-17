@@ -26,6 +26,11 @@
   programs.home-manager.enable = true;
   programs.bash.enable = true;
 
+  services.emacs = {
+    enable = true;
+    package = pkgs.emacs-pgtk;
+  };
+
   stylix.enable = true;
 
   gtk = {

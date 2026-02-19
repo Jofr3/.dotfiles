@@ -107,5 +107,6 @@
     # temporary
     vtsls
     intelephense
+    opencode
   ];
 }

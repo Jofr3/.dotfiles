@@ -87,6 +87,7 @@
     rustup
     sqlite
     zig
+    php
 
     # lsp servers
     angular-language-server

@@ -15,6 +15,7 @@ paste-cache/
 image-cache/
 plans/
 ide/
+backups/
 
 # Analytics and telemetry
 statsig/

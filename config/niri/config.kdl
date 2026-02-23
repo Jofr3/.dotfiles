@@ -40,10 +40,17 @@ input {
     }
 }
 
+gestures {
+    hot-corners {
+        off
+    }
+}
+
 // Monitors
 output "HDMI-A-1" {
     mode "1920x1080"
     position x=0 y=0
+    focus-at-startup
 }
 
 output "eDP-1" {
@@ -54,7 +61,7 @@ output "eDP-1" {
 layout {
     gaps 0
 
-    center-focused-column "never"
+    center-focused-column "always"
 
     default-column-width { proportion 1.0; }
 
@@ -79,12 +86,24 @@ animations {
 }
 
 // Named workspaces
-workspace "mail"
-workspace "chrome"
-workspace "editor"
-workspace "claude"
-workspace "database"
-workspace "terminal"
+workspace "mail" {
+    open-on-output "HDMI-A-1"
+}
+workspace "chrome" {
+    open-on-output "HDMI-A-1"
+}
+workspace "editor" {
+    open-on-output "HDMI-A-1"
+}
+workspace "claude" {
+    open-on-output "HDMI-A-1"
+}
+workspace "database" {
+    open-on-output "HDMI-A-1"
+}
+workspace "terminal" {
+    open-on-output "HDMI-A-1"
+}
 
 // Window rules
 window-rule {

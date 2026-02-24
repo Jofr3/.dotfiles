@@ -1,0 +1,52 @@
+{
+  "defaultAction": "allow",
+  "rules": [
+    {
+      "tool": "bash",
+      "match": "rm\\s+(-rf|--recursive)",
+      "action": "confirm",
+      "label": "Recursive delete"
+    },
+    {
+      "tool": "bash",
+      "match": "\\bgit\\s+push\\s+.*--force",
+      "action": "block",
+      "label": "Force push"
+    },
+    {
+      "tool": "write",
+      "match": "\\.env$",
+      "field": "path",
+      "action": "block",
+      "label": "Write to .env"
+    },
+    {
+      "tool": "edit",
+      "match": "\\.env$",
+      "field": "path",
+      "action": "block",
+      "label": "Edit .env"
+    },
+    {
+      "tool": "read",
+      "match": "\\.(pem|key)$|\\.ssh/|credentials",
+      "field": "path",
+      "action": "confirm",
+      "label": "Read sensitive file"
+    },
+    {
+      "tool": "mysql_query",
+      "match": "\\b(DROP|TRUNCATE|DELETE)\\b",
+      "field": "query",
+      "action": "confirm",
+      "label": "Destructive MySQL query (DROP/TRUNCATE/DELETE)"
+    },
+    {
+      "tool": "mysql_query",
+      "match": "\\b(INSERT|UPDATE|REPLACE|ALTER|CREATE|RENAME)\\b",
+      "field": "query",
+      "action": "confirm",
+      "label": "MySQL write operation"
+    }
+  ]
+}

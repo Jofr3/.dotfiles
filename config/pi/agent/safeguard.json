@@ -47,6 +47,13 @@
       "field": "query",
       "action": "confirm",
       "label": "MySQL write operation"
+    },
+    {
+      "tool": "sqlserver_query",
+      "match": "\\b(DROP|TRUNCATE|DELETE)\\b",
+      "field": "query",
+      "action": "confirm",
+      "label": "Destructive SQL Server query (DROP/TRUNCATE/DELETE)"
     }
   ]
 }

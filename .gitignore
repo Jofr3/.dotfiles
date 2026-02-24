@@ -1,1 +1,3 @@
 scripts/passwords.json
+config/pi/agent/auth.json
+config/pi/agent/sessions/

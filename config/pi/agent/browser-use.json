@@ -1,0 +1,9 @@
+{
+  "llmProvider": "anthropic",
+  "llmModel": "claude-sonnet-4-20250514",
+  "headless": true,
+  "useVision": true,
+  "maxSteps": 25,
+  "useCloud": false,
+  "pythonPath": "/home/jofre/.pi/agent/extensions/browser-use/.venv/bin/python3"
+}

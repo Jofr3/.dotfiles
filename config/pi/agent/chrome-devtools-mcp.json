@@ -1,0 +1,11 @@
+{
+  "headless": false,
+  "slim": false,
+  "noUsageStatistics": true,
+  "noPerformanceCrux": true,
+  "channel": "stable",
+  "isolated": false,
+  "npxPath": "npx",
+  "executablePath": "/etc/profiles/per-user/jofre/bin/google-chrome-stable",
+  "extraArgs": []
+}

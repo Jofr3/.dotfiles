@@ -32,6 +32,7 @@ alias b="btop"
 alias op="opencode"
 alias bcc="bunx @anthropic-ai/claude-code"
 alias bcx="bunx @openai/codex@latest"
+alias pi="bunx @mariozechner/pi-coding-agent"
 alias cc="claude"
 
 alias ..="cd .."

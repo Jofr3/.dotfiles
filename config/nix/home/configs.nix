@@ -22,4 +22,5 @@ in {
   };
 
   home.file.".claude".source = "${dotfiles}/config/claude";
+  home.file.".pi".source = "${dotfiles}/config/pi";
 }

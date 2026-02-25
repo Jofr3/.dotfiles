@@ -82,12 +82,14 @@
     gccgo
     lua
     luajitPackages.luarocks
+    sqlcmd
     mysql80
     nodejs_22
     rustup
     sqlite
     zig
     php
+    python315
 
     # lsp servers
     angular-language-server

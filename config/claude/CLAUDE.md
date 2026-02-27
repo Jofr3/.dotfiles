@@ -79,6 +79,10 @@ The status line script (`statusline.sh`) receives JSON via stdin with this struc
 
 The script should output a single line string to be displayed in the CLI.
 
+## Agent Teams
+
+- **Use agent teams proactively** — Spawn TeamCreate + Task agents whenever the work benefits from parallelism (e.g., multi-file changes, research + implementation, frontend + backend). Don't wait for the user to ask; prefer teams for non-trivial tasks.
+
 ## Auto-Upload via SFTP
 
 When a project has a `.vscode/sftp.json` file, **always automatically upload edited files** to the remote server using the `/sftp-push` skill after making changes. Do not wait for the user to ask.

@@ -22,5 +22,6 @@
   "Postman": "postman",
   "Editor": { "command": "footclient --app-id=editor -e fish -c 'super-edit; exec fish'", "workspace": "editor" },
   "Claude": { "command": "footclient --app-id=claude -e fish -c 'super-claude; exec fish'", "workspace": "claude" },
-  "Codex": { "command": "footclient --app-id=claude -e fish -c 'super-codex; exec fish'", "workspace": "claude" }
+  "Codex": { "command": "footclient --app-id=claude -e fish -c 'super-codex; exec fish'", "workspace": "claude" },
+  "Pi": { "command": "footclient --app-id=claude -e fish -c 'super-pi; exec fish'", "workspace": "claude" }
 }

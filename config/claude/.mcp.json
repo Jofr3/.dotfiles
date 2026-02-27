@@ -3,14 +3,6 @@
     "context7": {
       "command": "bunx",
       "args": ["-y", "@upstash/context7-mcp", "--api-key", "ctx7sk-57a11e2f-1ae9-4b8c-93c5-e911c0ceacc0"]
-    },
-    "git-mcp-server": {
-      "command": "bunx",
-      "args": ["-y", "@cyanheads/git-mcp-server@latest"],
-      "env": {
-        "MCP_TRANSPORT_TYPE": "stdio",
-        "MCP_LOG_LEVEL": "info"
-      }
     }
   }
 }

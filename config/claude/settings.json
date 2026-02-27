@@ -5,13 +5,10 @@
   },
   "permissions": {
     "allow": [
-      "Bash(wc:*)",
+      "Bash(*)",
+      "Read(*)",
       "mcp__dbhub__search_objects",
-      "mcp__dbhub__execute_sql",
-      "Bash(ls:*)",
-      "Bash(find:*)",
-      "Bash(grep:*)",
-      "Bash(xargs sed:*)"
+      "mcp__dbhub__execute_sql"
     ],
     "defaultMode": "acceptEdits"
   },
@@ -23,5 +20,38 @@
   "alwaysThinkingEnabled": true,
   "enabledPlugins": {
     "frontend-design@claude-code-plugins": true
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "touch /tmp/.sftp_marker_claude_bash"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/jofre/.claude/hooks/sftp-sync.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/jofre/.claude/hooks/sftp-sync.sh"
+          }
+        ]
+      }
+    ]
   }
 }

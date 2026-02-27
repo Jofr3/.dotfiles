@@ -79,6 +79,15 @@ The status line script (`statusline.sh`) receives JSON via stdin with this struc
 
 The script should output a single line string to be displayed in the CLI.
 
+## Auto-Upload via SFTP
+
+When a project has a `.vscode/sftp.json` file, **always automatically upload edited files** to the remote server using the `/sftp-push` skill after making changes. Do not wait for the user to ask.
+
+## Proactive MCP Usage
+
+- **dbhub**: Automatically query the database when needed to understand schema, check data, or debug issues. No explicit user request required.
+- **context7**: Automatically fetch library/framework documentation when working with packages. No explicit user request required.
+
 ## Session Organization
 
 Each Claude Code session generates:

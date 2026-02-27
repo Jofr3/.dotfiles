@@ -1,4 +1,4 @@
-function super-claude
+function super-pi
     set -l selected_dir (
         begin
             fd --type d --max-depth 1 --min-depth 1 . ~/lsw/ ~/projects/ ~/.dotfiles/config/
@@ -11,5 +11,5 @@ function super-claude
         end | string replace -- "$HOME" "~" | fzf
     )
     
-    test -n "$selected_dir" && cd (string replace '~' "$HOME" "$selected_dir") && commandline -f repaint && bcc
+    test -n "$selected_dir" && cd (string replace '~' "$HOME" "$selected_dir") && commandline -f repaint && bpi
 end

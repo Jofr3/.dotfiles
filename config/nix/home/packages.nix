@@ -50,6 +50,7 @@
     thunderbird
     wdisplays
     zathura
+    pinta
 
     # wayland utilities
     cliphist

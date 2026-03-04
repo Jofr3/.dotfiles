@@ -7,6 +7,7 @@
     "allow": [
       "Bash(*)",
       "Read(*)",
+      "Fetch(*)",
       "mcp__dbhub__search_objects",
       "mcp__dbhub__execute_sql"
     ],

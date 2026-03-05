@@ -21,6 +21,7 @@
     wget
     zellij
     zoxide
+    sox
 
     # editors
     emacs-pgtk

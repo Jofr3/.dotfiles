@@ -52,8 +52,17 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "frontend-design@claude-code-plugins": true
+    "document-skills@anthropic-agent-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    }
   },
   "alwaysThinkingEnabled": true,
+  "voiceEnabled": true,
   "effortLevel": "high"
 }

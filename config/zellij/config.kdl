@@ -19,14 +19,6 @@ keybinds clear-defaults=true {
         bind "Alt d" { HalfPageScrollDown; }
         bind "Alt u" { HalfPageScrollUp; }
 
-        bind "Alt f" {
-            LaunchOrFocusPlugin "session-manager" {
-                floating true
-                move_to_focused_tab true
-            }
-            SwitchToMode "normal"
-        }
-
         bind "Alt Shift h" { MoveTab "left"; }
         bind "Alt Shift l" { MoveTab "right"; }
 
@@ -35,13 +27,9 @@ keybinds clear-defaults=true {
 }
 
 plugins {
-    bar location="file:/home/jofre/.config/zellij/plugins/bar.wasm"
-
-    session-manager location="zellij:session-manager"
 }
 
 load_plugins {
-    "file:/home/jofre/.config/zellij/plugins/bar.wasm"
 }
  
 simplified_ui true

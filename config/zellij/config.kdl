@@ -1,51 +1,54 @@
 keybinds clear-defaults=true {
     normal {
-        bind "Alt 1" { GoToTab 1; }
-        bind "Alt 2" { GoToTab 2; }
-        bind "Alt 3" { GoToTab 3; }
-        bind "Alt 4" { GoToTab 4; }
-        bind "Alt 5" { GoToTab 5; }
-        bind "Alt 6" { GoToTab 6; }
-        bind "Alt 7" { GoToTab 7; }
-        bind "Alt 8" { GoToTab 8; }
-        bind "Alt 9" { GoToTab 9; }
+        bind "Super 1" { GoToTab 1; }
+        bind "Super 2" { GoToTab 2; }
+        bind "Super 3" { GoToTab 3; }
+        bind "Super 4" { GoToTab 4; }
+        bind "Super 5" { GoToTab 5; }
+        bind "Super 6" { GoToTab 6; }
+        bind "Super 7" { GoToTab 7; }
+        bind "Super 8" { GoToTab 8; }
+        bind "Super 9" { GoToTab 9; }
 
-        bind "Alt Enter" { NewTab; }
-        bind "Alt c" { CloseTab; }
+        bind "Super Enter" { NewTab; }
+        bind "Super q" { CloseFocus; }
 
-        bind "Alt j" { ScrollDown; }
-        bind "Alt k" { ScrollUp; }
+        bind "Super d" { HalfPageScrollDown; }
+        bind "Super u" { HalfPageScrollUp; }
 
-        bind "Alt d" { HalfPageScrollDown; }
-        bind "Alt u" { HalfPageScrollUp; }
+        bind "Super Left" { MoveTab "left"; }
+        bind "Super Right" { MoveTab "right"; }
 
-        bind "Alt f" {
-            LaunchOrFocusPlugin "session-manager" {
-                floating true
-                move_to_focused_tab true
-            }
-            SwitchToMode "normal"
-        }
+        bind "Super v" { NewPane "Right"; }
+        bind "Super c" { NewPane "Down"; }
+          
+        bind "Super h" { MoveFocus "Left"; }
+        bind "Super j" { MoveFocus "Down"; }
+        bind "Super k" { MoveFocus "Up"; }
+        bind "Super l" { MoveFocus "Right"; }
 
-        bind "Alt Shift h" { MoveTab "left"; }
-        bind "Alt Shift l" { MoveTab "right"; }
+        bind "Super Shift h" { Resize "Left"; }
+        bind "Super Shift j" { Resize "Down"; }
+        bind "Super Shift k" { Resize "Up"; }
+        bind "Super Shift l" { Resize "Right"; }
 
-        bind "Alt q" { Detach; }
+        bind "Super Ctrl h" { MovePane "Left"; }
+        bind "Super Ctrl j" { MovePane "Down"; }
+        bind "Super Ctrl k" { MovePane "Up"; }
+        bind "Super Ctrl l" { MovePane "Right"; }
+
+        bind "Super Shift q" { Detach; }
     }
 }
 
 plugins {
-    bar location="file:/home/jofre/.config/zellij/plugins/bar.wasm"
-
-    session-manager location="zellij:session-manager"
 }
 
 load_plugins {
-    "file:/home/jofre/.config/zellij/plugins/bar.wasm"
 }
  
 simplified_ui true
-theme "gruvbox-dark"
+theme "rose-pine-moon"
 default_mode "normal"
 default_shell "fish"
 pane_frames false

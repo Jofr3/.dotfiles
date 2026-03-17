@@ -64,5 +64,6 @@
     }
   },
   "alwaysThinkingEnabled": true,
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "effortLevel": "high"
 }

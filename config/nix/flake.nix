@@ -13,15 +13,21 @@
       url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, sops-nix, ... }@inputs:
     let
       mkHost = { hostName, hostId, hardware }:
         nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs hostId; };
           modules = [
             ./machines/common.nix
+            sops-nix.nixosModules.sops
             home-manager.nixosModules.home-manager
             {
               networking.hostName = hostName;

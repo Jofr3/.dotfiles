@@ -3,6 +3,7 @@
     ./configs.nix
     ./hyprland.nix
     ./packages.nix
+    ./sops.nix
     ./ssh.nix
   ];
 

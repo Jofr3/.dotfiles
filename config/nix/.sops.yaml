@@ -1,0 +1,7 @@
+keys:
+  - &jofre age12wc82encjxm5sc5l3nez93ewtr5kujz7p79gc2wj5yquk4460ems7ds7up
+creation_rules:
+  - path_regex: secrets/.*\.yaml$
+    key_groups:
+      - age:
+          - *jofre

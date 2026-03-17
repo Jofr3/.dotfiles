@@ -16,6 +16,8 @@
     pulseaudio
     ripgrep
     rsync
+    sops
+    ssh-to-age
     tmux
     unzip
     wget

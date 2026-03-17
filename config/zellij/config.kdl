@@ -21,7 +21,7 @@ keybinds clear-defaults=true {
 
         bind "Super v" { NewPane "Right"; }
         bind "Super c" { NewPane "Down"; }
-          
+
         bind "Super h" { MoveFocus "Left"; }
         bind "Super j" { MoveFocus "Down"; }
         bind "Super k" { MoveFocus "Up"; }

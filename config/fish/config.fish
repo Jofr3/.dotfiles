@@ -33,6 +33,7 @@ alias op="opencode"
 alias bcc="bunx @anthropic-ai/claude-code"
 alias bcx="bunx @openai/codex@latest"
 alias bpi="bunx @mariozechner/pi-coding-agent"
+alias bgi="bunx @google/gemini-cli"
 alias cc="claude"
 
 alias ..="cd .."

@@ -9,7 +9,8 @@
       "Read(*)",
       "Fetch(*)",
       "mcp__dbhub__search_objects",
-      "mcp__dbhub__execute_sql"
+      "mcp__dbhub__execute_sql",
+      "mcp__pencil"
     ],
     "defaultMode": "acceptEdits"
   },
@@ -63,6 +64,5 @@
     }
   },
   "alwaysThinkingEnabled": true,
-  "voiceEnabled": true,
-  "effortLevel": "high"
+  "voiceEnabled": true
 }

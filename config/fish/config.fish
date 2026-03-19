@@ -53,7 +53,7 @@ alias grep="grep --color='auto'"
 
 alias secrets="cd ~/.dotfiles/config/nix && SOPS_AGE_KEY=(ssh-to-age -private-key -i ~/.ssh/sops) sops secrets/secrets.yaml && cd -"
 
-alias vpn-ateinsa="sudo openfortivpn mail.ateinsa.com:10443 --username=jscaricaciottoli --trusted-cert e2f07f1955c5f81a26c7542c6616104c55cf5eaf81147aacccfd7a4aef019737 -p '1234567j\$'"
+alias vpn-ateinsa="sudo openfortivpn mail.ateinsa.com:10443 --username=jscaricaciottoli --trusted-cert 99d778754041593273a81f14ba1241a5ec9c665891f1ec9517bc07e1a571d4f9 -p '1234567j\$'"
 
 # Keybinds
 bind \ef super-cd

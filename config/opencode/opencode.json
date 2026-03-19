@@ -6,7 +6,7 @@
   "mcp": {
     "pencil": {
       "command": [
-        "/home/jofre/.vscode/extensions/highagency.pencildev-0.6.30/out/mcp-server-linux-x64",
+        "/home/jofre/.vscode/extensions/highagency.pencildev-0.6.32/out/mcp-server-linux-x64",
         "--app",
         "visual_studio_code"
       ],

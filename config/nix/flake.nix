@@ -34,6 +34,7 @@
               networking.hostId = hostId;
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "bak";
               home-manager.extraSpecialArgs = { inherit inputs hostId; };
               home-manager.users.jofre = import ./home;
             }
@@ -58,6 +59,16 @@
         hardware = [
           ./machines/work/hardware.nix
           ./machines/work/graphics.nix
+        ];
+      };
+
+      # sudo nixos-rebuild switch --flake .#nixos-pc
+      nixosConfigurations.nixos-pc = mkHost {
+        hostName = "nixos-pc";
+        hostId = "6707fc68";
+        hardware = [
+          ./machines/desktop/hardware.nix
+          ./machines/desktop/graphics.nix
         ];
       };
     };

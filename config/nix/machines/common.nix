@@ -10,9 +10,9 @@
     networkmanager.enable = true;
     firewall.enable = false;
     extraHosts = ''
-      # 127.0.0.1 youtube.com
-      # 127.0.0.1 www.youtube.com
-      # 127.0.0.1 m.youtube.com
+      127.0.0.1 youtube.com
+      127.0.0.1 www.youtube.com
+      127.0.0.1 m.youtube.com
     '';
   };
 
@@ -155,6 +155,23 @@
       size = 24;
     };
     polarity = "dark";
+  };
+
+  # auto shutdown at 21:30 on Mon-Thu
+  systemd.services.auto-shutdown = {
+    description = "Automatic shutdown at 9:30 PM (weekdays except Friday)";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.systemd}/bin/shutdown now";
+    };
+  };
+
+  systemd.timers.auto-shutdown = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "Mon,Tue,Wed,Thu *-*-* 21:30:00";
+      Persistent = false;
+    };
   };
 
   system.stateVersion = "25.05";

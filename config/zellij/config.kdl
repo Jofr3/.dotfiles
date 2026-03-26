@@ -65,3 +65,4 @@ copy_command "wl-copy"
 session_name "default"
 attach_to_session true
 show_startup_tips false
+session_serialization false

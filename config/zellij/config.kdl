@@ -38,15 +38,24 @@ keybinds clear-defaults=true {
         bind "Super Ctrl l" { MovePane "Right"; }
 
         bind "Super Shift q" { Detach; }
+
+        bind "Super f" {
+            LaunchOrFocusPlugin "sessionizer" {
+                floating true
+                move_to_focused_tab true
+                root_dirs "/home/jofre/projects;/home/jofre/lsw;/home/jofre/.dotfiles/config"
+                folders "/home/jofre;home/jofre/.dotfiles;/home/jofre/.dotfiles"
+            }
+        }
     }
 }
 
 plugins {
+    sessionizer location="file:~/.config/zellij/plugins/zellij-sessionizer.wasm"
 }
 
-load_plugins {
-}
- 
+layout_dir "/home/jofre/.config/zellij/layouts"
+default_layout "/home/jofre/.config/zellij/layouts/default.kdl"
 simplified_ui true
 theme "rose-pine-moon"
 default_mode "normal"

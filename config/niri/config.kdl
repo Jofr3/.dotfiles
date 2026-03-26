@@ -92,16 +92,10 @@ workspace "mail" {
 workspace "chrome" {
     open-on-output "HDMI-A-1"
 }
-workspace "editor" {
-    open-on-output "HDMI-A-1"
-}
-workspace "claude" {
+workspace "terminal" {
     open-on-output "HDMI-A-1"
 }
 workspace "database" {
-    open-on-output "HDMI-A-1"
-}
-workspace "terminal" {
     open-on-output "HDMI-A-1"
 }
 
@@ -124,23 +118,13 @@ window-rule {
 }
 
 window-rule {
-    match app-id="editor"
-    open-on-workspace "editor"
-}
-
-window-rule {
-    match app-id="claude"
-    open-on-workspace "claude"
+    match app-id="terminal"
+    open-on-workspace "terminal"
 }
 
 window-rule {
     match app-id="DBeaver"
     open-on-workspace "database"
-}
-
-window-rule {
-    match app-id="terminal"
-    open-on-workspace "terminal"
 }
 
 // Keybindings
@@ -151,10 +135,8 @@ binds {
     // Workspaces
     ISO_Level5_Shift+M { focus-workspace "mail"; }
     ISO_Level5_Shift+W { focus-workspace "chrome"; }
-    ISO_Level5_Shift+E { focus-workspace "editor"; }
-    ISO_Level5_Shift+C { focus-workspace "claude"; }
-    ISO_Level5_Shift+D { focus-workspace "database"; }
     ISO_Level5_Shift+I { focus-workspace "terminal"; }
+    ISO_Level5_Shift+D { focus-workspace "database"; }
 
     // Overview
     ISO_Level5_Shift+Space { toggle-overview; }

@@ -76,7 +76,7 @@
     uv
 
     # languages & runtimes
-    gccgo
+    go
     lua
     luajitPackages.luarocks
     sqlcmd

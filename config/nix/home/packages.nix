@@ -21,19 +21,15 @@
     tmux
     unzip
     wget
-    zellij
-    zoxide
     sox
 
     # editors
-    emacs-pgtk
     neovim
     vscode
 
     # terminals
     foot
     kitty
-    wezterm
 
     # browsers
     chromium
@@ -45,7 +41,6 @@
     discord
     eog
     gnome-calculator
-    gnome-text-editor
     libreoffice
     nautilus
     overskride
@@ -61,7 +56,6 @@
     hyprpicker
     slurp
     swaybg
-    tofi
     wl-clipboard
     wl-color-picker
     wtype
@@ -72,7 +66,6 @@
     openfortivpn
 
     # development tools
-    bruno-cli
     bun
     docker
     docker-compose

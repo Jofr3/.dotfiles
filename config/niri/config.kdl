@@ -29,7 +29,7 @@ input {
     keyboard {
         xkb {
             layout "us,ca"
-            options "lv5:caps_switch"
+            options "caps:escape"
         }
         repeat-delay 250
         repeat-rate 30
@@ -48,13 +48,13 @@ gestures {
 
 // Monitors
 output "HDMI-A-1" {
-    mode "1920x1080@144.000"
+    mode "1920x1080"
     position x=0 y=0
     focus-at-startup
 }
 
 output "eDP-1" {
-    mode "1920x1080@60.000"
+    mode "1920x1080"
     position x=0 y=1080
 }
 
@@ -130,58 +130,58 @@ window-rule {
 // Keybindings
 binds {
     // Window management
-    ISO_Level5_Shift+Q { close-window; }
+    Super+Q { close-window; }
 
     // Workspaces
-    ISO_Level5_Shift+M { focus-workspace "mail"; }
-    ISO_Level5_Shift+W { focus-workspace "chrome"; }
-    ISO_Level5_Shift+I { focus-workspace "terminal"; }
-    ISO_Level5_Shift+D { focus-workspace "database"; }
+    Super+M { focus-workspace "mail"; }
+    Super+W { focus-workspace "chrome"; }
+    Super+I { focus-workspace "terminal"; }
+    Super+D { focus-workspace "database"; }
 
     // Overview
-    ISO_Level5_Shift+Space { toggle-overview; }
+    Super+Space { toggle-overview; }
 
     // Focus by index
-    ISO_Level5_Shift+1 { focus-column 1; }
-    ISO_Level5_Shift+2 { focus-column 2; }
-    ISO_Level5_Shift+3 { focus-column 3; }
-    ISO_Level5_Shift+4 { focus-column 4; }
-    ISO_Level5_Shift+5 { focus-column 5; }
+    Super+1 { focus-column 1; }
+    Super+2 { focus-column 2; }
+    Super+3 { focus-column 3; }
+    Super+4 { focus-column 4; }
+    Super+5 { focus-column 5; }
 
     // Focus
-    ISO_Level5_Shift+H { focus-column-left; }
-    ISO_Level5_Shift+L { focus-column-right; }
-    ISO_Level5_Shift+J { focus-workspace-down; }
-    ISO_Level5_Shift+K { focus-workspace-up; }
+    Super+H { focus-column-left; }
+    Super+L { focus-column-right; }
+    Super+J { focus-workspace-down; }
+    Super+K { focus-workspace-up; }
 
     // Movement
-    ISO_Level5_Shift+Shift+H { move-column-left; }
-    ISO_Level5_Shift+Shift+L { move-column-right; }
-    ISO_Level5_Shift+Shift+J { move-window-to-workspace-down; }
-    ISO_Level5_Shift+Shift+K { move-window-to-workspace-up; }
+    Super+Shift+H { move-column-left; }
+    Super+Shift+L { move-column-right; }
+    Super+Shift+J { move-window-to-workspace-down; }
+    Super+Shift+K { move-window-to-workspace-up; }
 
     // Resize
-    ISO_Level5_Shift+Ctrl+H { set-column-width "-10%"; }
-    ISO_Level5_Shift+Ctrl+L { set-column-width "+10%"; }
+    Super+Ctrl+H { set-column-width "-10%"; }
+    Super+Ctrl+L { set-column-width "+10%"; }
 
     // Fullscreen / maximize
-    // ISO_Level5_Shift+F { fullscreen-window; }
-    ISO_Level5_Shift+F { maximize-column; }
+    // Super+F { fullscreen-window; }
+    Super+F { maximize-column; }
 
     // Brightness
-    ISO_Level5_Shift+Left { spawn "brightnessctl" "set" "5%-"; }
-    ISO_Level5_Shift+Right { spawn "brightnessctl" "set" "+5%"; }
+    Super+Left { spawn "brightnessctl" "set" "5%-"; }
+    Super+Right { spawn "brightnessctl" "set" "+5%"; }
 
     // Volume
-    ISO_Level5_Shift+Up { spawn "pactl" "set-sink-volume" "@DEFAULT_SINK@" "+5%"; }
-    ISO_Level5_Shift+Down { spawn "pactl" "set-sink-volume" "@DEFAULT_SINK@" "-5%"; }
+    Super+Up { spawn "pactl" "set-sink-volume" "@DEFAULT_SINK@" "+5%"; }
+    Super+Down { spawn "pactl" "set-sink-volume" "@DEFAULT_SINK@" "-5%"; }
 
     // Help menu
-    ISO_Level5_Shift+Shift+Slash { show-hotkey-overlay; }
+    Super+Shift+Slash { show-hotkey-overlay; }
 
     // Launchers
-    ISO_Level5_Shift+Return { spawn "footclient" "--app-id=terminal"; }
-    ISO_Level5_Shift+O { spawn "bash" "/home/jofre/.dotfiles/scripts/apps-launcher.sh"; }
-    ISO_Level5_Shift+U { spawn "bash" "/home/jofre/.dotfiles/scripts/bookmarks-launcher.sh"; }
-    ISO_Level5_Shift+X { spawn "bash" "/home/jofre/.dotfiles/scripts/commands-launcher.sh"; }
+    Super+Return { spawn "footclient" "--app-id=terminal"; }
+    Super+O { spawn "bash" "/home/jofre/.dotfiles/scripts/apps-launcher.sh"; }
+    Super+U { spawn "bash" "/home/jofre/.dotfiles/scripts/bookmarks-launcher.sh"; }
+    Super+X { spawn "bash" "/home/jofre/.dotfiles/scripts/commands-launcher.sh"; }
 }

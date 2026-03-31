@@ -59,10 +59,10 @@ alias vpn-ateinsa="sudo openfortivpn mail.ateinsa.com:10443 --username=jscaricac
 bind \ef super-cd
 bind \es "~/.dotfiles/scripts/tmux-sessionizer.sh"
 
-# Auto-start zellij
+# Auto-start tmux
 if status is-interactive
-and not set -q ZELLIJ
+and not set -q TMUX
 and not set -q VSCODE_INJECTION
-and command -v zellij >/dev/null 2>&1
-    exec zellij attach --create home-jofre
+and command -v tmux >/dev/null 2>&1
+    exec tmux new-session -A -s jofre -c /home/jofre/
 end

@@ -22,10 +22,26 @@
 
   outputs = { self, nixpkgs, home-manager, sops-nix, ... }@inputs:
     let
+      cursorOverlay = final: prev: {
+        code-cursor = prev.code-cursor.overrideAttrs (old: rec {
+          version = "3.0.12";
+          src = prev.appimageTools.extract {
+            pname = "cursor";
+            inherit version;
+            src = prev.fetchurl {
+              url = "https://downloads.cursor.com/production/a80ff7dfcaa45d7750f6e30be457261379c29b06/linux/x64/Cursor-3.0.12-x86_64.AppImage";
+              hash = "sha256-dUAF18h48nzLW+pjcAGeY0c7jZVbwD/3ceczZXxKJv0=";
+            };
+          };
+          sourceRoot = "cursor-${version}-extracted/usr/share/cursor";
+        });
+      };
+
       mkHost = { hostName, hostId, hardware }:
         nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs hostId; };
           modules = [
+            { nixpkgs.overlays = [ cursorOverlay ]; }
             ./machines/common.nix
             sops-nix.nixosModules.sops
             home-manager.nixosModules.home-manager

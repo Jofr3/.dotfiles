@@ -24,6 +24,7 @@
     sox
 
     # editors
+    code-cursor
     neovim
     vscode
 

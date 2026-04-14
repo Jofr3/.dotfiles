@@ -42,13 +42,19 @@ vim.opt.scrolloff = 10
 
 vim.opt.termguicolors = true
 
-vim.opt.clipboard = "unnamedplus"
+vim.schedule(function()
+  vim.opt.clipboard = "unnamedplus"
+end)
 
-vim.opt.lazyredraw = true
+vim.o.winborder = "single"
 
 vim.opt.shadafile = "NONE"
 
-vim.diagnostic.config({ virtual_text = false, signs = false })
+vim.diagnostic.config({
+  virtual_text = false,
+  virtual_lines = { current_line = true },
+  signs = false,
+})
 
 -- temp
 -- vim.opt.laststatus = 3

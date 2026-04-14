@@ -1,7 +1,7 @@
 {
   "commands": {
     "vpn lsw": {
-      "command": "echo 'YgH8m6jfaEFwkneAZVKbkE@gdCZGg3Q&' | sudo openconnect -b vpn.lasevaweb.com:8443 --user='jofre' --passwd-on-stdin",
+      "command": "echo 'YgH8m6jfaEFwkneAZVKbkE@gdCZGg3Q&' | sudo openconnect -b vpn.lasevaweb.com:8443 --user='jofre' --passwd-on-stdin --servercert pin-sha256:cGU0g04m3BDL6L7+9BoPcB51tsKns3pO4pP0vdBacfc=", 
       "terminal": true,
       "hold": false
     },

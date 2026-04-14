@@ -1,13 +1,4 @@
-return {
-  {
-    "nvim-tree/nvim-web-devicons",
-    enabled = false,
-    lazy = false,
-  },
-  {
-    "nvim-mini/mini.icons",
-    enabled = true,
-    lazy = false,
-    opts = {}
-  }
-}
+-- nvim-web-devicons (disabled fallback)
+-- require("nvim-web-devicons").setup({})
+
+require("mini.icons").setup({})

@@ -3,7 +3,7 @@
 
   sops = {
     defaultSopsFile = ../secrets/secrets.yaml;
-    age.sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/sops" ];
+    age.sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/keys/sops" ];
 
     secrets.DBEE_CONNECTIONS = { };
   };

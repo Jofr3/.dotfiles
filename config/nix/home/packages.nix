@@ -70,10 +70,12 @@
     bun
     docker
     docker-compose
+    gcc
     git
     gnumake
     ninja
     sshpass
+    tree-sitter
     uv
 
     # languages & runtimes

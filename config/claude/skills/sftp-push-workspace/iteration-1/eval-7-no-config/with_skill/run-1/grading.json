@@ -1,0 +1,24 @@
+{
+  "summary": {
+    "passed": 2,
+    "total": 3,
+    "pass_rate": 0.6666666666666666
+  },
+  "expectations": [
+    {
+      "text": "no_cmd_lines",
+      "passed": false,
+      "evidence": "lines were generated because there is no configuration from which to derive a host, user, port, remote path, or authentication method."
+    },
+    {
+      "text": "reports_no_config",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "stops_cleanly",
+      "passed": true,
+      "evidence": ""
+    }
+  ]
+}

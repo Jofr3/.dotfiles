@@ -1,0 +1,23 @@
+[
+  {"query": "just edited the index.php in my renovacions project (the one with the ec2 sftp config) and need the change live — the file added a new header comment", "should_trigger": true},
+  {"query": "deleted old/deprecated_v1.js from /home/jofre/lsw/renovacions/custom_js/ — need that gone from the dev server too", "should_trigger": true},
+  {"query": "ok i added a new variable to the db connection logic — i just edited custom_js/formulari_renovacio.js — can you push that up? project has a .vscode/sftp.json", "should_trigger": true},
+  {"query": "push src/components/Header.tsx to staging, the .vscode/sftp.json points to our staging vps", "should_trigger": true},
+  {"query": "created a new file public/style-updates.css, project has an sftp config in .vscode/ — get it to the remote", "should_trigger": true},
+  {"query": "just rm'd three old migration files in db/migrations/, mirror that on the dev server please (yes it's an sftp auto-upload project)", "should_trigger": true},
+  {"query": "upload the edited ajax/save_form.php to the remote — normal dev deploy, sftp config is set up", "should_trigger": true},
+  {"query": "wrote some changes to layout.blade.php in my /home/dev/larapp project, it's got a sftp.json for the dev box, sync em over", "should_trigger": true},
+  {"query": "ok i made edits across 5 files in wp-content/themes/ourtheme — bases.css, single.php, functions.php, header.php, archive.php — send them all to staging via the sftp config", "should_trigger": true},
+  {"query": "renamed custom_js/some_old_file.php to custom_js/some_new_file.php in the project, need the remote to reflect the rename (delete old, upload new) — .vscode/sftp.json is there", "should_trigger": true},
+
+  {"query": "push my current branch to github origin please, it's called feat/new-api-endpoint", "should_trigger": false},
+  {"query": "set up SSH key-based auth on my ubuntu server ec2-13-36-114-143, I'm tired of passwords", "should_trigger": false},
+  {"query": "need to deploy this Next.js app to vercel — main is up to date, just trigger prod deploy", "should_trigger": false},
+  {"query": "sync my obsidian vault across my laptop and desktop with syncthing, they're drifting apart", "should_trigger": false},
+  {"query": "scp a 4GB dataset.csv from my workstation to the compute box (10.0.0.42:/data/) — one-off transfer, not a project", "should_trigger": false},
+  {"query": "my git pre-commit hook is failing because it tries to run prettier and the project doesn't have prettier installed — fix the hook", "should_trigger": false},
+  {"query": "write a Dockerfile for this go service so I can push the image to our internal harbor registry", "should_trigger": false},
+  {"query": "the ssh connection to our prod db keeps dropping every 2 minutes — debug the ServerAliveInterval config in ~/.ssh/config", "should_trigger": false},
+  {"query": "rsync -avz /home/jofre/photos/ to the nas (nas.local:/volume1/photos/) but exclude *.raw files", "should_trigger": false},
+  {"query": "refactor this javascript function to use async/await instead of promise chains — it's in /home/jofre/project/api.js", "should_trigger": false}
+]

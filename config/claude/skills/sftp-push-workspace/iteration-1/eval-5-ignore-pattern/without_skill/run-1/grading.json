@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "passed": 3,
+    "total": 4,
+    "pass_rate": 0.75
+  },
+  "expectations": [
+    {
+      "text": "uploads_main_js",
+      "passed": false,
+      "evidence": ""
+    },
+    {
+      "text": "skips_node_modules",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "silent_skip",
+      "passed": true,
+      "evidence": "N/A \u2014 qualitative"
+    },
+    {
+      "text": "summary_shows_one_file",
+      "passed": true,
+      "evidence": ""
+    }
+  ]
+}

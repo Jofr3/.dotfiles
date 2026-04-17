@@ -1,0 +1,10 @@
+{
+  "eval_id": 7,
+  "eval_name": "no-config",
+  "prompt": "No .vscode/sftp.json exists. Edited src/foo.js. Sync. DRY RUN.",
+  "assertions": [
+    {"name": "no_cmd_lines", "text": "Response contains NO CMD: lines (skill did not invent a remote target)"},
+    {"name": "reports_no_config", "text": "Response explicitly states that no SFTP config was found"},
+    {"name": "stops_cleanly", "text": "Response does not attempt any upload — no scp, ssh, curl, sftp commands anywhere"}
+  ]
+}

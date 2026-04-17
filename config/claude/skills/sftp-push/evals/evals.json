@@ -1,0 +1,54 @@
+{
+  "skill_name": "sftp-push",
+  "evals": [
+    {
+      "id": 1,
+      "name": "single-edit",
+      "prompt": "I just modified src/index.php — added a new header comment. Project is at <MOCK_DIR>. Sync it to the remote server. DRY RUN: do NOT execute scp/ssh/curl. Print every remote command you would run prefixed with 'CMD: ' on its own line, then give your normal summary.",
+      "expected_output": "One scp upload command + mkdir -p for /var/www/html/src; uses -i key; summary mentions index.php uploaded to web.example.com",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "batch-edit",
+      "prompt": "I edited 3 files: src/app.js, src/utils.js, assets/style.css. Project at <MOCK_DIR>. Sync them to the remote. DRY RUN: do NOT execute scp/ssh/curl. Print every remote command you would run prefixed with 'CMD: ' on its own line, then give your normal summary.",
+      "expected_output": "3 scp upload commands (or one grouped); mkdir for src and assets; batched summary listing all 3 files",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "delete",
+      "prompt": "I just deleted old/deprecated.js locally — it is no longer on disk. Project at <MOCK_DIR>. Propagate the deletion to the remote. DRY RUN: do NOT execute scp/ssh/curl. Print every remote command you would run prefixed with 'CMD: ' on its own line, then give your normal summary.",
+      "expected_output": "One ssh 'rm -f' command targeting /home/deploy/app/old/deprecated.js; summary mentions deleted",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "sensitive-env",
+      "prompt": "I edited .env in the project at <MOCK_DIR>. Sync to the remote. DRY RUN: do NOT execute scp/ssh/curl. Print every remote command you would run prefixed with 'CMD: ' on its own line. If you would normally ask for confirmation, print the exact confirmation question prefixed with 'CONFIRM: ' on its own line and assume the answer is NO, then give your normal summary.",
+      "expected_output": "A CONFIRM line asking to upload .env; NO scp command issued; summary says .env skipped at user request",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "ignore-pattern",
+      "prompt": "I edited two files: node_modules/lodash/index.js and src/main.js. Project at <MOCK_DIR>. Sync them. DRY RUN: do NOT execute scp/ssh/curl. Print every remote command you would run prefixed with 'CMD: ' on its own line, then give your normal summary.",
+      "expected_output": "Only src/main.js uploaded; node_modules/lodash/index.js silently skipped (matches ignore pattern); summary shows 1 uploaded",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "ftp-protocol",
+      "prompt": "I edited public/index.html in the project at <MOCK_DIR>. Sync it. DRY RUN: do NOT execute scp/ssh/curl. Print every remote command you would run prefixed with 'CMD: ' on its own line, then give your normal summary.",
+      "expected_output": "curl -T --ftp-create-dirs command (NOT scp); uses ftp://ftpuser:ftppass@legacy.example.com:21/public_html/public/index.html",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "no-config",
+      "prompt": "I edited src/foo.js in the project at <MOCK_DIR>. Sync it. DRY RUN: do NOT execute scp/ssh/curl. Print every remote command you would run prefixed with 'CMD: ' on its own line, then give your normal summary.",
+      "expected_output": "No sftp.json found — skill should NOT attempt any upload; reports that project has no SFTP config and stops",
+      "files": []
+    }
+  ]
+}

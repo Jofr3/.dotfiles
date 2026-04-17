@@ -1,0 +1,34 @@
+{
+  "summary": {
+    "passed": 5,
+    "total": 5,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "issues_ssh_rm",
+      "passed": true,
+      "evidence": "ssh -i ~/.ssh/id_rsa -p 22 -o StrictHostKeyChecking=accept-new deploy@dev.example.com 'rm -f /home/deploy/app/old/deprecated.js'"
+    },
+    {
+      "text": "correct_remote_path",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "no_scp_upload",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "uses_private_key_flag",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "summary_reports_deletion",
+      "passed": true,
+      "evidence": ""
+    }
+  ]
+}

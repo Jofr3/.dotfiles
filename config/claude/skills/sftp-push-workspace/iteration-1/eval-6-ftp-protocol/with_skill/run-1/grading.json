@@ -1,0 +1,34 @@
+{
+  "summary": {
+    "passed": 5,
+    "total": 5,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "uses_curl_ftp",
+      "passed": true,
+      "evidence": "curl -T /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-6-ftp-protocol/public/index.html --ftp-create-dirs \"ftp://ftpuser:ftppass@legacy.example.com:21/public_html/public/index.html\""
+    },
+    {
+      "text": "includes_credentials_in_url_or_flag",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "correct_remote_path",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "creates_dirs",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "no_scp_or_ssh",
+      "passed": true,
+      "evidence": ""
+    }
+  ]
+}

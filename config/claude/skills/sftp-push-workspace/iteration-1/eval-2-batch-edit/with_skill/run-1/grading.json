@@ -1,0 +1,34 @@
+{
+  "summary": {
+    "passed": 5,
+    "total": 5,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "uploads_all_three_files",
+      "passed": true,
+      "evidence": "ssh -p 22 -i ~/.ssh/id_rsa deploy@staging.example.com \"mkdir -p /srv/app/src\"; scp -P 22 -i ~/.ssh/id_rsa /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-2-batch-edit/src/app.js deploy@staging.example.com:/srv/app/src/app.js; ssh -p 22 -i ~/.ssh/id_rsa deploy@staging.example.com \"mkdir -p /srv/app/src\"; scp -P 22 -i ~/.ssh/id_rsa /home/jofre/.dotfiles/config/claude/skills"
+    },
+    {
+      "text": "correct_remote_paths",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "creates_both_remote_dirs",
+      "passed": true,
+      "evidence": "ssh -p 22 -i ~/.ssh/id_rsa deploy@staging.example.com \"mkdir -p /srv/app/src\"; ssh -p 22 -i ~/.ssh/id_rsa deploy@staging.example.com \"mkdir -p /srv/app/src\"; ssh -p 22 -i ~/.ssh/id_rsa deploy@staging.example.com \"mkdir -p /srv/app/assets\""
+    },
+    {
+      "text": "uses_private_key_flag",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "summary_lists_three_files",
+      "passed": true,
+      "evidence": ""
+    }
+  ]
+}

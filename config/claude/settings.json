@@ -17,15 +17,6 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "touch /tmp/.sftp_marker_claude_bash"
-          }
-        ]
-      },
-      {
         "matcher": "Write|Edit",
         "hooks": [
           {
@@ -67,24 +58,6 @@
       }
     ],
     "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/home/jofre/.claude/hooks/sftp-sync.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/home/jofre/.claude/hooks/sftp-sync.sh"
-          }
-        ]
-      },
       {
         "matcher": "Bash|Edit|Write|MultiEdit|Agent|Task",
         "hooks": [
@@ -149,5 +122,6 @@
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "tui": "fullscreen"
 }

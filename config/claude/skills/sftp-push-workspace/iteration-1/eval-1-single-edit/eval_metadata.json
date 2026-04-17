@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "single-edit",
+  "prompt": "I just modified src/index.php — sync it. DRY RUN, print CMD: lines.",
+  "assertions": [
+    {"name": "issues_scp_upload_for_index_php", "text": "Response contains a CMD line with scp uploading src/index.php to /var/www/html/src/index.php"},
+    {"name": "uses_private_key_flag", "text": "scp/ssh command uses -i ~/.ssh/id_rsa"},
+    {"name": "creates_remote_dir", "text": "Includes ssh mkdir -p for /var/www/html/src before scp"},
+    {"name": "correct_host_user", "text": "Uses deploy@web.example.com as target"},
+    {"name": "summary_mentions_upload", "text": "Summary clearly states index.php was uploaded (not just planned)"}
+  ]
+}

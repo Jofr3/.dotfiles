@@ -180,7 +180,8 @@ binds {
     Super+Shift+Slash { show-hotkey-overlay; }
 
     // Launchers
-    Super+Return { spawn "footclient" "--app-id=terminal"; }
+    // Super+Return { spawn "footclient" "--app-id=terminal"; }
+    Super+Return { spawn "kitty" "--app-id=terminal"; }
     Super+O { spawn "bash" "/home/jofre/.dotfiles/scripts/apps-launcher.sh"; }
     Super+U { spawn "bash" "/home/jofre/.dotfiles/scripts/bookmarks-launcher.sh"; }
     Super+X { spawn "bash" "/home/jofre/.dotfiles/scripts/commands-launcher.sh"; }

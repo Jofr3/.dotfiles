@@ -1,0 +1,34 @@
+{
+  "summary": {
+    "passed": 4,
+    "total": 5,
+    "pass_rate": 0.8
+  },
+  "expectations": [
+    {
+      "text": "issues_scp_upload_for_index_php",
+      "passed": true,
+      "evidence": "scp -i ~/.ssh/id_rsa -P 22 /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-1-single-edit/src/index.php deploy@web.example.com:/var/www/html/src/index.php"
+    },
+    {
+      "text": "uses_private_key_flag",
+      "passed": true,
+      "evidence": "scp -i ~/.ssh/id_rsa -P 22 /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-1-single-edit/src/index.php deploy@web.example.com:/var/www/html/src/index.php"
+    },
+    {
+      "text": "creates_remote_dir",
+      "passed": false,
+      "evidence": ""
+    },
+    {
+      "text": "correct_host_user",
+      "passed": true,
+      "evidence": "scp -i ~/.ssh/id_rsa -P 22 /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-1-single-edit/src/index.php deploy@web.example.com:/var/www/html/src/index.php"
+    },
+    {
+      "text": "summary_mentions_upload",
+      "passed": true,
+      "evidence": ""
+    }
+  ]
+}

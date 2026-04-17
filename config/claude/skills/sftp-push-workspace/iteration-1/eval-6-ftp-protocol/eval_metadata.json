@@ -1,0 +1,12 @@
+{
+  "eval_id": 6,
+  "eval_name": "ftp-protocol",
+  "prompt": "Config uses protocol=ftp. Edited public/index.html. Sync. DRY RUN.",
+  "assertions": [
+    {"name": "uses_curl_ftp", "text": "Response contains a CMD line using curl (or lftp) with an ftp:// URL — NOT scp/sftp/ssh"},
+    {"name": "includes_credentials_in_url_or_flag", "text": "FTP command supplies ftpuser and ftppass (either in ftp://user:pass@ URL or via --user/credentials flag)"},
+    {"name": "correct_remote_path", "text": "Target is /public_html/public/index.html (remotePath + relative path preserved)"},
+    {"name": "creates_dirs", "text": "Uses --ftp-create-dirs or equivalent to ensure remote directory exists"},
+    {"name": "no_scp_or_ssh", "text": "Response does NOT contain any scp or ssh command"}
+  ]
+}

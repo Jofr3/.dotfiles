@@ -1,0 +1,24 @@
+{
+  "summary": {
+    "passed": 2,
+    "total": 3,
+    "pass_rate": 0.6666666666666666
+  },
+  "expectations": [
+    {
+      "text": "no_cmd_lines",
+      "passed": false,
+      "evidence": "lines to print \u2014 I did not reach a point where any remote command would be run.)"
+    },
+    {
+      "text": "reports_no_config",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "stops_cleanly",
+      "passed": true,
+      "evidence": ""
+    }
+  ]
+}

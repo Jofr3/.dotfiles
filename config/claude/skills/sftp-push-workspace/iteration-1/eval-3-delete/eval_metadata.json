@@ -1,0 +1,12 @@
+{
+  "eval_id": 3,
+  "eval_name": "delete",
+  "prompt": "Local file old/deprecated.js deleted. Propagate to remote. DRY RUN.",
+  "assertions": [
+    {"name": "issues_ssh_rm", "text": "Response contains a CMD line with ssh running rm -f against the correct remote path"},
+    {"name": "correct_remote_path", "text": "Remote path is /home/deploy/app/old/deprecated.js"},
+    {"name": "no_scp_upload", "text": "Response does NOT contain any scp command for deprecated.js"},
+    {"name": "uses_private_key_flag", "text": "ssh command uses -i ~/.ssh/id_rsa"},
+    {"name": "summary_reports_deletion", "text": "Summary mentions the file was deleted on the remote"}
+  ]
+}

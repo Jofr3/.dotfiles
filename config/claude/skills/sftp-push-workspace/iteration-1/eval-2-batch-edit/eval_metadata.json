@@ -1,0 +1,12 @@
+{
+  "eval_id": 2,
+  "eval_name": "batch-edit",
+  "prompt": "3 files edited: src/app.js, src/utils.js, assets/style.css. Sync them. DRY RUN.",
+  "assertions": [
+    {"name": "uploads_all_three_files", "text": "Response contains CMD lines that would upload app.js, utils.js, and style.css (each file path present at least once)"},
+    {"name": "correct_remote_paths", "text": "Remote paths map to /srv/app/src/app.js, /srv/app/src/utils.js, /srv/app/assets/style.css"},
+    {"name": "creates_both_remote_dirs", "text": "Ensures /srv/app/src and /srv/app/assets exist (via mkdir -p, either inline or separate ssh call)"},
+    {"name": "uses_private_key_flag", "text": "All scp calls include -i ~/.ssh/id_rsa"},
+    {"name": "summary_lists_three_files", "text": "Final summary lists all 3 uploaded files"}
+  ]
+}

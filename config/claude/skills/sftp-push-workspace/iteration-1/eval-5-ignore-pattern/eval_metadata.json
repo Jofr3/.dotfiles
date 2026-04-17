@@ -1,0 +1,11 @@
+{
+  "eval_id": 5,
+  "eval_name": "ignore-pattern",
+  "prompt": "Edited node_modules/lodash/index.js + src/main.js. Sync. DRY RUN.",
+  "assertions": [
+    {"name": "uploads_main_js", "text": "Response contains a CMD line uploading src/main.js to /var/www/site/src/main.js"},
+    {"name": "skips_node_modules", "text": "Response does NOT contain any CMD line uploading node_modules/lodash/index.js"},
+    {"name": "silent_skip", "text": "node_modules file is either not mentioned in the summary at all, or mentioned only briefly as skipped without noise/warning"},
+    {"name": "summary_shows_one_file", "text": "Summary indicates 1 file uploaded (not 2)"}
+  ]
+}

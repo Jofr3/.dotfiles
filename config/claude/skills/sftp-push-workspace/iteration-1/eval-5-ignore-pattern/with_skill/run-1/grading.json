@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "passed": 4,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "uploads_main_js",
+      "passed": true,
+      "evidence": "scp -i ~/.ssh/id_rsa -P 22 /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-5-ignore-pattern/src/main.js deploy@server.example.com:/var/www/site/src/main.js"
+    },
+    {
+      "text": "skips_node_modules",
+      "passed": true,
+      "evidence": ""
+    },
+    {
+      "text": "silent_skip",
+      "passed": true,
+      "evidence": "N/A \u2014 qualitative"
+    },
+    {
+      "text": "summary_shows_one_file",
+      "passed": true,
+      "evidence": ""
+    }
+  ]
+}

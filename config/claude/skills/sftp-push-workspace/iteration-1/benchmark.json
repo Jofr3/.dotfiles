@@ -1,0 +1,631 @@
+{
+  "metadata": {
+    "skill_name": "sftp-push",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-04-17T06:23:08Z",
+    "evals_run": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 67.8,
+        "tokens": 24414,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "issues_scp_upload_for_index_php",
+          "passed": true,
+          "evidence": "scp -P 22 -i ~/.ssh/id_rsa /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-1-single-edit/src/index.php deploy@web.example.com:/var/www/html/src/index.php"
+        },
+        {
+          "text": "uses_private_key_flag",
+          "passed": true,
+          "evidence": "ssh -p 22 -i ~/.ssh/id_rsa deploy@web.example.com \"mkdir -p /var/www/html/src\"; scp -P 22 -i ~/.ssh/id_rsa /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-1-single-edit/src/index.php deploy@web.example.com:/var/www/html/src/index.php"
+        },
+        {
+          "text": "creates_remote_dir",
+          "passed": true,
+          "evidence": "ssh -p 22 -i ~/.ssh/id_rsa deploy@web.example.com \"mkdir -p /var/www/html/src\""
+        },
+        {
+          "text": "correct_host_user",
+          "passed": true,
+          "evidence": "ssh -p 22 -i ~/.ssh/id_rsa deploy@web.example.com \"mkdir -p /var/www/html/src\"; scp -P 22 -i ~/.ssh/id_rsa /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-1-single-edit/src/index.php deploy@web.example.com:/var/www/html/src/index.php"
+        },
+        {
+          "text": "summary_mentions_upload",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 67.3,
+        "tokens": 25576,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "uploads_all_three_files",
+          "passed": true,
+          "evidence": "ssh -p 22 -i ~/.ssh/id_rsa deploy@staging.example.com \"mkdir -p /srv/app/src\"; scp -P 22 -i ~/.ssh/id_rsa /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-2-batch-edit/src/app.js deploy@staging.example.com:/srv/app/src/app.js; ssh -p 22 -i ~/.ssh/id_rsa deploy@staging.example.com \"mkdir -p /srv/app/src\"; scp -P 22 -i ~/.ssh/id_rsa /home/jofre/.dotfiles/config/claude/skills"
+        },
+        {
+          "text": "correct_remote_paths",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "creates_both_remote_dirs",
+          "passed": true,
+          "evidence": "ssh -p 22 -i ~/.ssh/id_rsa deploy@staging.example.com \"mkdir -p /srv/app/src\"; ssh -p 22 -i ~/.ssh/id_rsa deploy@staging.example.com \"mkdir -p /srv/app/src\"; ssh -p 22 -i ~/.ssh/id_rsa deploy@staging.example.com \"mkdir -p /srv/app/assets\""
+        },
+        {
+          "text": "uses_private_key_flag",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "summary_lists_three_files",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 52.9,
+        "tokens": 23964,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "issues_ssh_rm",
+          "passed": true,
+          "evidence": "ssh -i ~/.ssh/id_rsa -p 22 deploy@dev.example.com \"rm -f /home/deploy/app/old/deprecated.js\""
+        },
+        {
+          "text": "correct_remote_path",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "no_scp_upload",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "uses_private_key_flag",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "summary_reports_deletion",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 49.8,
+        "tokens": 25167,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "asks_confirmation",
+          "passed": true,
+          "evidence": "This file may contain secrets \u2014 upload `.env` to remote prod.example.com:/var/www/app/.env?"
+        },
+        {
+          "text": "confirm_mentions_env_or_sensitive",
+          "passed": true,
+          "evidence": "This file may contain secrets \u2014 upload `.env` to remote prod.example.com:/var/www/app/.env?"
+        },
+        {
+          "text": "no_upload_command_issued",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "summary_says_skipped",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 42.5,
+        "tokens": 24412,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "uploads_main_js",
+          "passed": true,
+          "evidence": "scp -i ~/.ssh/id_rsa -P 22 /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-5-ignore-pattern/src/main.js deploy@server.example.com:/var/www/site/src/main.js"
+        },
+        {
+          "text": "skips_node_modules",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "silent_skip",
+          "passed": true,
+          "evidence": "N/A \u2014 qualitative"
+        },
+        {
+          "text": "summary_shows_one_file",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 38.1,
+        "tokens": 25072,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "uses_curl_ftp",
+          "passed": true,
+          "evidence": "curl -T /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-6-ftp-protocol/public/index.html --ftp-create-dirs \"ftp://ftpuser:ftppass@legacy.example.com:21/public_html/public/index.html\""
+        },
+        {
+          "text": "includes_credentials_in_url_or_flag",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "correct_remote_path",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "creates_dirs",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "no_scp_or_ssh",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6666666666666666,
+        "passed": 2,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 33.8,
+        "tokens": 24606,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "no_cmd_lines",
+          "passed": false,
+          "evidence": "lines were generated because there is no configuration from which to derive a host, user, port, remote path, or authentication method."
+        },
+        {
+          "text": "reports_no_config",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "stops_cleanly",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 66.1,
+        "tokens": 22045,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "issues_scp_upload_for_index_php",
+          "passed": true,
+          "evidence": "scp -i ~/.ssh/id_rsa -P 22 /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-1-single-edit/src/index.php deploy@web.example.com:/var/www/html/src/index.php"
+        },
+        {
+          "text": "uses_private_key_flag",
+          "passed": true,
+          "evidence": "scp -i ~/.ssh/id_rsa -P 22 /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-1-single-edit/src/index.php deploy@web.example.com:/var/www/html/src/index.php"
+        },
+        {
+          "text": "creates_remote_dir",
+          "passed": false,
+          "evidence": ""
+        },
+        {
+          "text": "correct_host_user",
+          "passed": true,
+          "evidence": "scp -i ~/.ssh/id_rsa -P 22 /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-1-single-edit/src/index.php deploy@web.example.com:/var/www/html/src/index.php"
+        },
+        {
+          "text": "summary_mentions_upload",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 61.9,
+        "tokens": 23553,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "uploads_all_three_files",
+          "passed": true,
+          "evidence": "ssh -i ~/.ssh/id_rsa -p 22 -o StrictHostKeyChecking=accept-new deploy@staging.example.com \"mkdir -p /srv/app/src /srv/app/assets\"; scp -i ~/.ssh/id_rsa -P 22 /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-2-batch-edit/src/app.js deploy@staging.example.com:/srv/app/src/app.js; scp -i ~/.ssh/id_rsa -P 22 /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/"
+        },
+        {
+          "text": "correct_remote_paths",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "creates_both_remote_dirs",
+          "passed": true,
+          "evidence": "ssh -i ~/.ssh/id_rsa -p 22 -o StrictHostKeyChecking=accept-new deploy@staging.example.com \"mkdir -p /srv/app/src /srv/app/assets\""
+        },
+        {
+          "text": "uses_private_key_flag",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "summary_lists_three_files",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 53.1,
+        "tokens": 23136,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "issues_ssh_rm",
+          "passed": true,
+          "evidence": "ssh -i ~/.ssh/id_rsa -p 22 -o StrictHostKeyChecking=accept-new deploy@dev.example.com 'rm -f /home/deploy/app/old/deprecated.js'"
+        },
+        {
+          "text": "correct_remote_path",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "no_scp_upload",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "uses_private_key_flag",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "summary_reports_deletion",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 49.0,
+        "tokens": 23280,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "asks_confirmation",
+          "passed": true,
+          "evidence": "The file `.env` contains sensitive secrets (DB_PASSWORD, API_KEY) and the target is a production server (prod.example.com:/var/www/app). Are you sure you want to upload this `.env` file to production?"
+        },
+        {
+          "text": "confirm_mentions_env_or_sensitive",
+          "passed": true,
+          "evidence": "The file `.env` contains sensitive secrets (DB_PASSWORD, API_KEY) and the target is a production server (prod.example.com:/var/www/app). Are you sure you want to upload this `.env` file to production?"
+        },
+        {
+          "text": "no_upload_command_issued",
+          "passed": false,
+          "evidence": "sftp -i ~/.ssh/id_rsa -P 22 -o StrictHostKeyChecking=accept-new deploy@prod.example.com <<< $'put /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-4-sensitive-env/.env /var/www/app/.env\\nquit'"
+        },
+        {
+          "text": "summary_says_skipped",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 42.4,
+        "tokens": 23212,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "uploads_main_js",
+          "passed": false,
+          "evidence": ""
+        },
+        {
+          "text": "skips_node_modules",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "silent_skip",
+          "passed": true,
+          "evidence": "N/A \u2014 qualitative"
+        },
+        {
+          "text": "summary_shows_one_file",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 37.5,
+        "tokens": 22773,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "uses_curl_ftp",
+          "passed": true,
+          "evidence": "curl -T /home/jofre/.dotfiles/config/claude/skills/sftp-push-workspace/mocks/eval-6-ftp-protocol/public/index.html --user 'ftpuser:ftppass' --ftp-create-dirs ftp://legacy.example.com:21/public_html/public/index.html; lftp -u 'ftpuser,ftppass' -p 21 legacy.example.com -e 'mkdir -p -f /public_html/pub"
+        },
+        {
+          "text": "includes_credentials_in_url_or_flag",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "correct_remote_path",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "creates_dirs",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "no_scp_or_ssh",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6666666666666666,
+        "passed": 2,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 33.3,
+        "tokens": 22309,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "no_cmd_lines",
+          "passed": false,
+          "evidence": "lines to print \u2014 I did not reach a point where any remote command would be run.)"
+        },
+        {
+          "text": "reports_no_config",
+          "passed": true,
+          "evidence": ""
+        },
+        {
+          "text": "stops_cleanly",
+          "passed": true,
+          "evidence": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.9524,
+        "stddev": 0.126,
+        "min": 0.6667,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 50.3143,
+        "stddev": 13.4424,
+        "min": 33.8,
+        "max": 67.8
+      },
+      "tokens": {
+        "mean": 24744.4286,
+        "stddev": 551.559,
+        "min": 23964,
+        "max": 25576
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.8524,
+        "stddev": 0.1435,
+        "min": 0.6667,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 49.0429,
+        "stddev": 12.2333,
+        "min": 33.3,
+        "max": 66.1
+      },
+      "tokens": {
+        "mean": 22901.1429,
+        "stddev": 550.7986,
+        "min": 22045,
+        "max": 23553
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.10",
+      "time_seconds": "+1.3",
+      "tokens": "+1843"
+    }
+  },
+  "notes": []
+}

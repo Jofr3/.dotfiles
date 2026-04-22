@@ -31,6 +31,16 @@
     # terminals
     foot
     kitty
+    (pkgs.symlinkJoin {
+      name = "warp-terminal-wrapped";
+      paths = [ pkgs.warp-terminal ];
+      nativeBuildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/warp-terminal \
+          --set-default DISPLAY :0
+      '';
+    })
+    xwayland-satellite
 
     # browsers
     chromium
@@ -83,7 +93,7 @@
     lua
     luajitPackages.luarocks
     sqlcmd
-    mysql80
+    mysql84
     nodejs_22
     rustup
     sqlite

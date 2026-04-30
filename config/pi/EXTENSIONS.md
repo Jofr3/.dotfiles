@@ -407,5 +407,7 @@ In `~/projects/pi-mono`:
 
 | File | Purpose |
 |------|---------|
+| `~/.pi/agent/extensions/database.ts` | Unified `database_query` tool for MySQL/MariaDB and SQL Server/MSSQL via `.agent/credentials/database.json` |
+| `~/.pi/agent/extensions/push.ts` | `/push` command that generates Conventional Commit messages, commits, and pushes current git changes; `/ship` merges `staging` into `main`/`master` and pushes |
 | `~/.pi/agent/extensions/safeguard.ts` | Configurable policy engine for tool call interception |
 | `~/.pi/agent/safeguard.json` | Safeguard rules config (block/confirm/allow with regex matching) |

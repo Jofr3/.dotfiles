@@ -24,28 +24,16 @@
     sox
 
     # editors
-    code-cursor
     neovim
     vscode
 
     # terminals
     foot
     kitty
-    (pkgs.symlinkJoin {
-      name = "warp-terminal-wrapped";
-      paths = [ pkgs.warp-terminal ];
-      nativeBuildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/warp-terminal \
-          --set-default DISPLAY :0
-      '';
-    })
-    xwayland-satellite
 
     # browsers
     chromium
     google-chrome
-    firefox
 
     # apps
     dbeaver-bin
@@ -71,6 +59,7 @@
     wl-color-picker
     wtype
     xdg-desktop-portal-hyprland
+    xwayland-satellite
 
     # vpn
     openconnect
@@ -85,7 +74,6 @@
     gnumake
     ninja
     sshpass
-    tree-sitter
     uv
 
     # languages & runtimes
@@ -120,6 +108,5 @@
     # temporary
     vtsls
     intelephense
-    opencode
   ];
 }

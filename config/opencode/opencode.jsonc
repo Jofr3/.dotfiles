@@ -12,5 +12,11 @@
     "question": "allow",
     "webfetch": "allow",
     "todowrite": "allow"
+  },
+  "mcp": {
+    "gitnexus": {
+      "type": "local",
+      "command": ["npx", "-y", "gitnexus", "mcp"]
+    }
   }
 }

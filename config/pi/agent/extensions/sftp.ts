@@ -1,5 +1,5 @@
 /**
- * SFTP Sync Extension
+ * SFTP Extension
  *
  * Automatically uploads files to a remote server after write/edit/bash tool calls.
  * Reads connection config from .vscode/sftp.json in the project directory.

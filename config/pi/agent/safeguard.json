@@ -28,32 +28,18 @@
       "label": "Edit .env"
     },
     {
-      "tool": "read",
-      "match": "\\.(pem|key)$|\\.ssh/|credentials",
-      "field": "path",
-      "action": "confirm",
-      "label": "Read sensitive file"
-    },
-    {
-      "tool": "mysql_query",
+      "tool": "database_query",
       "match": "\\b(DROP|TRUNCATE|DELETE)\\b",
       "field": "query",
       "action": "confirm",
-      "label": "Destructive MySQL query (DROP/TRUNCATE/DELETE)"
+      "label": "Destructive database query (DROP/TRUNCATE/DELETE)"
     },
     {
-      "tool": "mysql_query",
-      "match": "\\b(INSERT|UPDATE|REPLACE|ALTER|CREATE|RENAME)\\b",
+      "tool": "database_query",
+      "match": "\\b(INSERT|UPDATE|REPLACE|ALTER|CREATE|RENAME|MERGE)\\b",
       "field": "query",
       "action": "confirm",
-      "label": "MySQL write operation"
-    },
-    {
-      "tool": "sqlserver_query",
-      "match": "\\b(DROP|TRUNCATE|DELETE)\\b",
-      "field": "query",
-      "action": "confirm",
-      "label": "Destructive SQL Server query (DROP/TRUNCATE/DELETE)"
+      "label": "Database write operation"
     }
   ]
 }

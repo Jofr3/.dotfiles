@@ -1,5 +1,5 @@
 ---
-name: sftp-sync
+name: sftp
 description: Automatic SFTP/FTP file sync for remote projects. Files are uploaded to the remote server immediately after every write/edit, so browser automation and manual inspection always see the latest changes. Use when working on projects deployed via SFTP/FTP with a .vscode/sftp.json config.
 ---
 

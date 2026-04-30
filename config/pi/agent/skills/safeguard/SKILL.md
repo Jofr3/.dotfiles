@@ -37,7 +37,7 @@ Rules live in `~/.pi/agent/safeguard.json`. The config is hot-reloaded — edits
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `tool` | yes | Tool name to match (`bash`, `write`, `edit`, `read`, `grep`, `find`, `ls`, `mysql_query`, or `*` for all) |
+| `tool` | yes | Tool name to match (`bash`, `write`, `edit`, `read`, `grep`, `find`, `ls`, `database_query`, or `*` for all) |
 | `match` | yes | Regex pattern (case-insensitive) tested against the tool input field |
 | `field` | no | Which input field to test. Defaults: `bash`→`command`, `read/write/edit`→`path`, `grep/find`→`pattern`. Use `*` to match against the full JSON input |
 | `action` | yes | `allow` (skip remaining rules), `block` (deny), or `confirm` (prompt user) |

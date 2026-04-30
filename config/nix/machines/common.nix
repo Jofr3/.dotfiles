@@ -57,6 +57,9 @@
   # Disable GNOME's SSH agent (pulled in by niri) to avoid conflict with programs.ssh.startAgent
   services.gnome.gcr-ssh-agent.enable = false;
 
+  # docker
+  virtualisation.docker.enable = true;
+
   # users
   users = {
     users.jofre = {

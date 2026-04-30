@@ -55,6 +55,17 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/jofre/.claude/hooks/gitnexus/gitnexus-hook.cjs\"",
+            "timeout": 10,
+            "statusMessage": "Enriching with GitNexus graph context..."
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -75,6 +86,17 @@
             "type": "command",
             "command": "bash /home/jofre/.claude/hooks/gsd-phase-boundary.sh",
             "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/jofre/.claude/hooks/gitnexus/gitnexus-hook.cjs\"",
+            "timeout": 10,
+            "statusMessage": "Checking GitNexus index freshness..."
           }
         ]
       }

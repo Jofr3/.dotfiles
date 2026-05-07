@@ -22,6 +22,7 @@
     unzip
     wget
     sox
+    agent-browser
 
     # editors
     neovim

@@ -29,6 +29,7 @@ See [EXTENSIONS.md](./EXTENSIONS.md) for the complete extension authoring guide 
 
 ### Local Extensions
 
+- `agent/extensions/agent-browser.ts` — Browser automation wrapper for the `agent-browser` CLI. Tools: `agent_browser_open`, `agent_browser_snapshot`, `agent_browser_run`, `agent_browser_screenshot`, `agent_browser_eval`, `agent_browser_batch`. Commands: `/browser`, `/browser-close`, `/browser-doctor`.
 - `agent/extensions/database.ts` — Unified database tool (`database_query`) for MySQL/MariaDB and SQL Server/MSSQL. Reads `.agent/credentials/database.json`; the config `type` selects the database engine. Command: `/database`.
 - `agent/extensions/push.ts` — `/push` command that stages current git changes, generates a Conventional Commit message from session context or staged diff for fresh sessions, commits, and pushes. Also provides `/ship` to merge `staging` into `main`/`master` and push.
 - `agent/extensions/safeguard.ts` — Configurable policy engine that intercepts tool calls against rules in `agent/safeguard.json` (block, confirm, or allow based on regex matching). Commands: `/safeguard`, `/safeguard-add`, `/safeguard-remove`.

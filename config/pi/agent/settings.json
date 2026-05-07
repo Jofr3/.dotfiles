@@ -1,8 +1,9 @@
 {
-  "lastChangelogVersion": "0.70.6",
+  "lastChangelogVersion": "0.73.0",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
   "hideThinkingBlock": true,
   "defaultThinkingLevel": "xhigh",
-  "theme": "rose-pine-moon"
+  "theme": "rose-pine-moon",
+  "enableInstallTelemetry": false
 }

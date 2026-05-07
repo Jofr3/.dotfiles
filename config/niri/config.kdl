@@ -177,6 +177,9 @@ binds {
     Super+Up { spawn "pactl" "set-sink-volume" "@DEFAULT_SINK@" "+5%"; }
     Super+Down { spawn "pactl" "set-sink-volume" "@DEFAULT_SINK@" "-5%"; }
 
+    // Screenshot
+    Super+S { spawn-sh "mkdir -p \"$HOME/Documents/screenshots\" && grim -g \"$(slurp)\" - | tee \"$HOME/Documents/screenshots/$(date +%Y%m%d-%H%M%S).png\" | wl-copy --type image/png"; }
+
     // Help menu
     Super+Shift+Slash { show-hotkey-overlay; }
 

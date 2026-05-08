@@ -1,9 +1,11 @@
 {
-  "lastChangelogVersion": "0.73.0",
+  "lastChangelogVersion": "0.73.1",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
   "hideThinkingBlock": true,
   "defaultThinkingLevel": "xhigh",
   "theme": "rose-pine-moon",
-  "enableInstallTelemetry": false
+  "enableInstallTelemetry": false,
+  "npmCommand": ["env", "NPM_CONFIG_PREFIX=/home/jofre/.local/share/npm", "npm"],
+  "packages": ["npm:pi-total-recall"]
 }

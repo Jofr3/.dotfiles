@@ -7,5 +7,5 @@
   "theme": "rose-pine-moon",
   "enableInstallTelemetry": false,
   "npmCommand": ["env", "NPM_CONFIG_PREFIX=/home/jofre/.local/share/npm", "npm"],
-  "packages": ["npm:pi-total-recall"]
+  "packages": ["npm:pi-total-recall", "npm:pi-subagents"]
 }

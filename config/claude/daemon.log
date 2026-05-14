@@ -1,0 +1,80 @@
+[2026-05-12T12:39:21.941Z] [supervisor] ─── daemon start ─── version=2.1.139 pid=114247 origin=transient
+[2026-05-12T12:39:21.961Z] [supervisor] auth: scheduling proactive refresh in 11845s
+[2026-05-12T12:39:21.962Z] [supervisor] auth: scheduling proactive refresh in 11845s
+[2026-05-12T12:39:21.963Z] [supervisor] workers=0
+[2026-05-12T12:39:22.724Z] [bg] bg spare spawned host pid=114270
+[2026-05-12T12:39:27.106Z] [bg] bg: low memory — skipping spare dispatch 42b0812f
+[2026-05-12T12:39:32.123Z] [bg] bg: low memory — skipping spare dispatch 42b0812f
+[2026-05-12T12:39:37.150Z] [bg] bg: low memory — skipping spare dispatch 42b0812f
+[2026-05-12T12:42:21.980Z] [bg] bg spare spawned host pid=115270
+[2026-05-12T12:45:21.984Z] [bg] bg spare spawned host pid=115925
+[2026-05-12T12:47:21.984Z] [bg] bg spare spawned host pid=116359
+[2026-05-12T12:55:22.006Z] [bg] bg spare spawned host pid=118424
+[2026-05-13T05:43:50.972Z] [supervisor] ─── daemon start ─── version=2.1.140 pid=7686 origin=transient
+[2026-05-13T05:43:50.992Z] [supervisor] auth: scheduling proactive refresh in 5s
+[2026-05-13T05:43:51.319Z] [supervisor] auth: scheduling proactive refresh in 28560s
+[2026-05-13T05:43:51.321Z] [supervisor] workers=0
+[2026-05-13T05:43:51.329Z] [bg] bg orphan-spare reap: 1
+[2026-05-13T05:43:51.434Z] [bg] bg spare spawned host pid=7719
+[2026-05-13T05:43:56.460Z] [bg] bg claimed-spare 8110a7ff (spare)
+[2026-05-13T05:43:56.464Z] [bg] bg spare spawned host pid=7747
+[2026-05-13T05:43:56.492Z] [bg] bg settled 8110a7ff (killed)
+[2026-05-13T05:44:01.484Z] [supervisor] idle 5s with no clients — exiting
+[2026-05-13T05:44:01.485Z] [supervisor] shutting down
+[2026-05-13T05:47:19.458Z] [supervisor] ─── daemon start ─── version=2.1.140 pid=8900 origin=transient
+[2026-05-13T05:47:19.476Z] [supervisor] auth: scheduling proactive refresh in 28352s
+[2026-05-13T05:47:19.477Z] [supervisor] auth: scheduling proactive refresh in 28352s
+[2026-05-13T05:47:19.478Z] [supervisor] workers=0
+[2026-05-13T05:47:19.609Z] [bg] bg spare spawned host pid=8931
+[2026-05-13T05:47:19.616Z] [bg] bg claimed-spare 9d94dd2e (spare)
+[2026-05-13T05:47:19.619Z] [bg] bg spare spawned host pid=8933
+[2026-05-13T05:47:23.550Z] [bg] bg settled 9d94dd2e (killed)
+[2026-05-13T05:47:28.550Z] [supervisor] idle 5s with no clients — exiting
+[2026-05-13T05:47:28.551Z] [supervisor] shutting down
+[2026-05-13T05:50:01.830Z] [supervisor] ─── daemon start ─── version=2.1.140 pid=11558 origin=transient
+[2026-05-13T05:50:01.850Z] [supervisor] auth: scheduling proactive refresh in 28189s
+[2026-05-13T05:50:01.850Z] [supervisor] auth: scheduling proactive refresh in 28189s
+[2026-05-13T05:50:01.852Z] [supervisor] workers=0
+[2026-05-13T05:50:01.977Z] [bg] bg spare spawned host pid=11583
+[2026-05-13T05:50:01.987Z] [bg] bg claimed-spare c8c3e127 (spare)
+[2026-05-13T05:50:01.991Z] [bg] bg spare spawned host pid=11585
+[2026-05-13T05:50:56.645Z] [bg] bg claimed-spare 6a3a57b3 (spare)
+[2026-05-13T05:50:56.650Z] [bg] bg spare spawned host pid=12004
+[2026-05-13T05:54:40.566Z] [bg] bg claimed-spare 539d4d82 (spare)
+[2026-05-13T05:54:40.578Z] [bg] bg spare spawned host pid=13494
+[2026-05-13T05:54:50.769Z] [bg] bg settled 539d4d82 (killed)
+[2026-05-13T05:54:55.405Z] [bg] bg claimed-spare 92a0c748 (spare)
+[2026-05-13T05:54:55.407Z] [bg] bg spare spawned host pid=14247
+[2026-05-13T05:55:20.370Z] [bg] bg claimed-spare 146325aa (fleet)
+[2026-05-13T05:55:20.375Z] [bg] bg spare spawned host pid=15065
+[2026-05-13T05:55:23.247Z] [bg] bg settled 92a0c748 (killed)
+[2026-05-13T05:55:27.054Z] [bg] bg claimed-spare cd418e22 (spare)
+[2026-05-13T05:55:27.057Z] [bg] bg spare spawned host pid=15253
+[2026-05-13T05:55:30.449Z] [bg] bg settled 146325aa (killed)
+[2026-05-13T05:56:09.072Z] [bg] bg claimed-spare f4b8156a (spare)
+[2026-05-13T05:56:09.075Z] [bg] bg spare spawned host pid=16137
+[2026-05-13T06:04:13.685Z] [bg] bg claimed-spare d1e28004 (spare)
+[2026-05-13T06:04:13.712Z] [bg] bg spare spawned host pid=19843
+[2026-05-13T06:04:21.913Z] [bg] bg settled d1e28004 (killed)
+[2026-05-13T06:08:46.405Z] [bg] bg claimed-spare 60d2d298 (spare)
+[2026-05-13T06:08:46.413Z] [bg] bg spare spawned host pid=21637
+[2026-05-13T06:09:02.391Z] [bg] bg settled f4b8156a (killed)
+[2026-05-13T06:15:39.951Z] [bg] bg claimed-spare f0868079 (fleet)
+[2026-05-13T06:15:39.959Z] [bg] bg spare spawned host pid=24049
+[2026-05-13T06:18:01.962Z] [bg] bg settled 6a3a57b3 (done)
+[2026-05-13T06:18:01.963Z] [bg] bg settled f0868079 (done)
+[2026-05-13T06:18:01.977Z] [bg] bg settled 60d2d298 (done)
+[2026-05-13T06:18:01.986Z] [bg] bg settled cd418e22 (done)
+[2026-05-13T06:19:01.910Z] [bg] bg spare spawned host pid=25359
+[2026-05-13T06:21:49.053Z] [bg] bg claimed-spare 49baf4e1 (spare)
+[2026-05-13T06:21:49.063Z] [bg] bg spare spawned host pid=26767
+[2026-05-13T06:21:54.184Z] [bg] bg claimed-spare f0868079 (fleet)
+[2026-05-13T06:21:54.188Z] [bg] bg spare spawned host pid=26881
+[2026-05-13T06:22:02.595Z] [bg] bg claimed-spare cd418e22 (fleet)
+[2026-05-13T06:22:02.598Z] [bg] bg spare spawned host pid=27005
+[2026-05-13T06:46:55.460Z] [bg] bg settled c8c3e127 (killed)
+[2026-05-13T06:51:08.783Z] [bg] bg settled 49baf4e1 (killed)
+[2026-05-13T07:49:02.132Z] [bg] bg settled f0868079 (done)
+[2026-05-13T07:52:02.131Z] [bg] bg settled cd418e22 (done)
+[2026-05-13T07:52:07.137Z] [supervisor] idle 5s with no clients — exiting
+[2026-05-13T07:52:07.138Z] [supervisor] shutting down

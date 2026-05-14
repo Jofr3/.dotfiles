@@ -1,0 +1,22 @@
+[2026-05-12T16:30:07.133Z] [supervisor] ─── daemon start ─── version=2.1.139 pid=4243 origin=transient
+[2026-05-12T16:30:07.155Z] [supervisor] auth: scheduling proactive refresh in 28256s
+[2026-05-12T16:30:07.159Z] [supervisor] auth: scheduling proactive refresh in 28256s
+[2026-05-12T16:30:07.161Z] [supervisor] workers=0
+[2026-05-12T16:30:07.283Z] [bg] bg spawned 35bd25b1 (spare)
+[2026-05-12T16:30:07.297Z] [bg] bg spare spawned host pid=4273
+[2026-05-12T16:30:15.807Z] [bg] bg claimed-spare 976e7f39 (spare)
+[2026-05-12T16:30:15.811Z] [bg] bg spare spawned host pid=4433
+[2026-05-12T16:34:14.515Z] [bg] bg settled 976e7f39 (killed)
+[2026-05-12T16:34:21.773Z] [bg] bg claimed-spare 864b3c44 (spare)
+[2026-05-12T16:34:21.785Z] [bg] bg spare spawned host pid=5736
+[2026-05-12T16:34:24.472Z] [bg] bg settled 35bd25b1 (killed)
+[2026-05-12T16:42:20.893Z] [bg] bg claimed-spare 6de87801 (spare)
+[2026-05-12T16:42:20.900Z] [bg] bg spare spawned host pid=7658
+[2026-05-12T16:43:04.795Z] [bg] bg claimed-spare 327f6458 (spare)
+[2026-05-12T16:43:04.809Z] [bg] bg spare spawned host pid=8142
+[2026-05-12T16:44:26.203Z] [bg] bg claimed-spare 22e5a938 (spare)
+[2026-05-12T16:44:26.207Z] [bg] bg spare spawned host pid=9221
+[2026-05-12T16:44:37.159Z] [bg] bg settled 864b3c44 (killed)
+[2026-05-12T16:46:58.319Z] [bg] bg claimed-spare 77368bbe (spare)
+[2026-05-12T16:46:58.325Z] [bg] bg spare spawned host pid=11199
+[2026-05-12T17:05:46.331Z] [bg] bg settled 77368bbe (killed)

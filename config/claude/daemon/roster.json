@@ -1,0 +1,157 @@
+{
+  "proto": 1,
+  "supervisorPid": 4243,
+  "updatedAt": 1778605546332,
+  "workers": {
+    "6de87801": {
+      "pid": 5736,
+      "procStart": "61000",
+      "sessionId": "6de87801-ba83-4ae3-9074-8dcf6a7a6276",
+      "rendezvousSock": "/tmp/cc-daemon-1000/1ea4607d/rv/6de87801.sock",
+      "ptySock": "/tmp/cc-daemon-1000/1ea4607d/spare/830f5726.pty.sock",
+      "cliVersion": "2.1.139",
+      "startedAt": 1778604140892,
+      "attempt": 1,
+      "cwd": "/home/jofre/projects/luminous_ui",
+      "dispatch": {
+        "proto": 1,
+        "short": "6de87801",
+        "nonce": "e33d3b19",
+        "sessionId": "6de87801-ba83-4ae3-9074-8dcf6a7a6276",
+        "createdAt": 1778604140889,
+        "source": "spare",
+        "cwd": "/home/jofre/projects/luminous_ui",
+        "launch": {
+          "mode": "prompt",
+          "args": [
+            "--session-id",
+            "6de87801-ba83-4ae3-9074-8dcf6a7a6276",
+            "--agent",
+            "claude"
+          ]
+        },
+        "env": {},
+        "isolation": "none",
+        "respawnFlags": [
+          "--agent",
+          "claude"
+        ],
+        "agent": "claude",
+        "seed": {
+          "intent": ""
+        },
+        "cols": 240,
+        "rows": 66
+      },
+      "decModes": [
+        1000,
+        1002,
+        1003,
+        1006,
+        2004,
+        1004,
+        2031
+      ]
+    },
+    "327f6458": {
+      "pid": 7658,
+      "procStart": "108912",
+      "sessionId": "327f6458-f395-427b-838f-3c9ca55d4aec",
+      "rendezvousSock": "/tmp/cc-daemon-1000/1ea4607d/rv/327f6458.sock",
+      "ptySock": "/tmp/cc-daemon-1000/1ea4607d/spare/685e0ad5.pty.sock",
+      "cliVersion": "2.1.139",
+      "startedAt": 1778604184793,
+      "attempt": 1,
+      "cwd": "/home/jofre/projects/luminous_ui",
+      "dispatch": {
+        "proto": 1,
+        "short": "327f6458",
+        "nonce": "9a9be16c",
+        "sessionId": "327f6458-f395-427b-838f-3c9ca55d4aec",
+        "createdAt": 1778604184790,
+        "source": "spare",
+        "cwd": "/home/jofre/projects/luminous_ui",
+        "launch": {
+          "mode": "prompt",
+          "args": [
+            "--session-id",
+            "327f6458-f395-427b-838f-3c9ca55d4aec",
+            "--agent",
+            "claude"
+          ]
+        },
+        "env": {},
+        "isolation": "none",
+        "respawnFlags": [
+          "--agent",
+          "claude"
+        ],
+        "agent": "claude",
+        "seed": {
+          "intent": ""
+        },
+        "cols": 240,
+        "rows": 66
+      },
+      "decModes": [
+        1000,
+        1002,
+        1003,
+        1006,
+        2004,
+        1004,
+        2031
+      ]
+    },
+    "22e5a938": {
+      "pid": 8142,
+      "procStart": "113303",
+      "sessionId": "22e5a938-27b2-46ac-af8d-6077cac09a6b",
+      "rendezvousSock": "/tmp/cc-daemon-1000/1ea4607d/rv/22e5a938.sock",
+      "ptySock": "/tmp/cc-daemon-1000/1ea4607d/spare/0884b55c.pty.sock",
+      "cliVersion": "2.1.139",
+      "startedAt": 1778604266202,
+      "attempt": 1,
+      "cwd": "/home/jofre/projects/luminous_ui",
+      "dispatch": {
+        "proto": 1,
+        "short": "22e5a938",
+        "nonce": "cff83852",
+        "sessionId": "22e5a938-27b2-46ac-af8d-6077cac09a6b",
+        "createdAt": 1778604266197,
+        "source": "spare",
+        "cwd": "/home/jofre/projects/luminous_ui",
+        "launch": {
+          "mode": "prompt",
+          "args": [
+            "--session-id",
+            "22e5a938-27b2-46ac-af8d-6077cac09a6b",
+            "--agent",
+            "claude"
+          ]
+        },
+        "env": {},
+        "isolation": "none",
+        "respawnFlags": [
+          "--agent",
+          "claude"
+        ],
+        "agent": "claude",
+        "seed": {
+          "intent": ""
+        },
+        "cols": 240,
+        "rows": 66
+      },
+      "decModes": [
+        1000,
+        1002,
+        1003,
+        1006,
+        2004,
+        1004,
+        2031
+      ]
+    }
+  }
+}

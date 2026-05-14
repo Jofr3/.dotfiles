@@ -1,0 +1,31 @@
+{
+  "state": "done",
+  "detail": "drag-and-drop wired — Pokémon cards in your hand can be dragged onto your bench (non-Pokémon and other owners' benches show an invalid-drop highlight); kind taxonomy and `DROP_ZONE_ACCEPTS` map are in place for future zones.",
+  "tempo": "idle",
+  "inFlight": {
+    "tasks": 0,
+    "queued": 0,
+    "kinds": []
+  },
+  "output": {
+    "result": "drag-and-drop wired — Pokémon cards in your hand can be dragged onto your bench (non-Pokémon and other owners' benches show an invalid-drop highlight); kind taxonomy and `DROP_ZONE_ACCEPTS` map are in place for future zones."
+  },
+  "children": null,
+  "linkScanOffset": 630091,
+  "linkScanPath": "/home/jofre/.claude/projects/-home-jofre-projects-luminous-ui/22e5a938-27b2-46ac-af8d-6077cac09a6b.jsonl",
+  "template": "claude",
+  "respawnFlags": [],
+  "intent": "implement drag and drop funcionality, for now make it so we can drag hand cards to the bench. Take into account we can only drop pokemon type cards onto the bench so prop for future use cases (items, tools, enegyes, suportes, stadiums, etc)",
+  "sessionId": "22e5a938-27b2-46ac-af8d-6077cac09a6b",
+  "resumeSessionId": "22e5a938-27b2-46ac-af8d-6077cac09a6b",
+  "daemonShort": "22e5a938",
+  "cliVersion": "2.1.139",
+  "cwd": "/home/jofre/projects/luminous_ui",
+  "createdAt": "2026-05-12T16:46:58.303Z",
+  "updatedAt": "2026-05-12T16:54:39.348Z",
+  "firstTerminalAt": "2026-05-12T16:54:38.452Z",
+  "originCwd": "/home/jofre/projects/luminous_ui",
+  "backend": "daemon",
+  "name": "drag drop pokemon bench",
+  "nameSource": "auto"
+}

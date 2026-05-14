@@ -1,0 +1,14 @@
+[
+  {
+    "from": "team-lead",
+    "text": "{\"type\":\"task_assignment\",\"taskId\":\"4\",\"subject\":\"Plan: Controller + routes + console command\",\"description\":\"Create BoeAi/LlistatController, register admin routes, add `php artisan boe-ai:crawl` command and schedule.\",\"assignedBy\":\"team-lead\",\"timestamp\":\"2026-05-13T07:44:14.183Z\"}",
+    "timestamp": "2026-05-13T07:44:14.183Z",
+    "read": false
+  },
+  {
+    "from": "team-lead",
+    "text": "{\"type\":\"task_assignment\",\"taskId\":\"5\",\"subject\":\"Plan: Blade views\",\"description\":\"Create admin/boe-ai/index.blade.php (filters + table + prompt modal trigger) and _table partial.\",\"assignedBy\":\"team-lead\",\"timestamp\":\"2026-05-13T07:44:14.819Z\"}",
+    "timestamp": "2026-05-13T07:44:14.819Z",
+    "read": false
+  }
+]

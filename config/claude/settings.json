@@ -9,124 +9,12 @@
       "Read(*)",
       "Fetch(*)",
       "mcp__dbhub__search_objects",
-      "mcp__dbhub__execute_sql",
-      "mcp__pencil"
+      "mcp__dbhub__execute_sql"
     ],
-    "defaultMode": "acceptEdits"
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/home/jofre/.claude/hooks/gsd-prompt-guard.js\"",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/home/jofre/.claude/hooks/gsd-read-guard.js\"",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/home/jofre/.claude/hooks/gsd-workflow-guard.js\"",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /home/jofre/.claude/hooks/gsd-validate-commit.sh",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Grep|Glob|Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/home/jofre/.claude/hooks/gitnexus/gitnexus-hook.cjs\"",
-            "timeout": 10,
-            "statusMessage": "Enriching with GitNexus graph context..."
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash|Edit|Write|MultiEdit|Agent|Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/home/jofre/.claude/hooks/gsd-context-monitor.js\"",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /home/jofre/.claude/hooks/gsd-phase-boundary.sh",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/home/jofre/.claude/hooks/gitnexus/gitnexus-hook.cjs\"",
-            "timeout": 10,
-            "statusMessage": "Checking GitNexus index freshness..."
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/home/jofre/.claude/hooks/gsd-check-update.js\""
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /home/jofre/.claude/hooks/gsd-session-state.sh"
-          }
-        ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "node \"/home/jofre/.claude/hooks/gsd-statusline.js\""
+    "defaultMode": "auto"
   },
   "enabledPlugins": {
-    "document-skills@anthropic-agent-skills": true,
-    "caveman@caveman": true
+    "document-skills@anthropic-agent-skills": true
   },
   "extraKnownMarketplaces": {
     "anthropic-agent-skills": {
@@ -134,16 +22,11 @@
         "source": "github",
         "repo": "anthropics/skills"
       }
-    },
-    "caveman": {
-      "source": {
-        "source": "github",
-        "repo": "JuliusBrussee/caveman"
-      }
     }
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
+  "tui": "fullscreen",
   "voiceEnabled": true,
-  "tui": "fullscreen"
+  "skipAutoPermissionPrompt": true
 }

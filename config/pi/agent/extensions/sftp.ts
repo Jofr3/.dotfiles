@@ -16,6 +16,7 @@
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { formatSize, truncateTail } from "@mariozechner/pi-coding-agent";
 import { readFileSync, existsSync } from "node:fs";
 import { join, relative, resolve, posix } from "node:path";
 
@@ -120,6 +121,20 @@ function buildFindExcludes(ignore?: string[]): string {
 	return parts.join(" ");
 }
 
+function truncateCommandOutput(output: string): string {
+	const cleaned = output.trim();
+	if (!cleaned) return "no output";
+
+	const truncation = truncateTail(cleaned, { maxLines: 40, maxBytes: 2_000 });
+	if (!truncation.truncated) return cleaned;
+
+	return `${truncation.content.trimEnd()}\n[Output truncated: showing ${truncation.outputLines} of ${truncation.totalLines} lines (${formatSize(truncation.outputBytes)} of ${formatSize(truncation.totalBytes)}).]`;
+}
+
+function commandOutput(result: { stdout: string; stderr: string }): string {
+	return truncateCommandOutput(result.stderr || result.stdout);
+}
+
 export default function (pi: ExtensionAPI) {
 	const cwd = process.cwd();
 	let config: SftpConfig | null = null;
@@ -153,7 +168,7 @@ export default function (pi: ExtensionAPI) {
 					timeout: 15000,
 				});
 				if (mkdirResult.code !== 0) {
-					return { ok: false, error: `mkdir failed: ${mkdirResult.stderr.trim().slice(0, 200)}` };
+					return { ok: false, error: `mkdir failed: ${commandOutput(mkdirResult)}` };
 				}
 
 				// Upload file via scp
@@ -161,7 +176,7 @@ export default function (pi: ExtensionAPI) {
 					timeout: 60000,
 				});
 				if (scpResult.code !== 0) {
-					return { ok: false, error: `scp failed: ${scpResult.stderr.trim().slice(0, 200)}` };
+					return { ok: false, error: `scp failed: ${commandOutput(scpResult)}` };
 				}
 
 				return { ok: true };
@@ -170,7 +185,7 @@ export default function (pi: ExtensionAPI) {
 					timeout: 60000,
 				});
 				if (curlResult.code !== 0) {
-					return { ok: false, error: `curl ftp failed: ${curlResult.stderr.trim().slice(0, 200)}` };
+					return { ok: false, error: `curl ftp failed: ${commandOutput(curlResult)}` };
 				}
 
 				return { ok: true };
@@ -179,7 +194,7 @@ export default function (pi: ExtensionAPI) {
 			return { ok: false, error: `Unsupported protocol: ${config.protocol}` };
 		} catch (e: unknown) {
 			const msg = e instanceof Error ? e.message : String(e);
-			return { ok: false, error: msg.slice(0, 200) };
+			return { ok: false, error: truncateCommandOutput(msg) };
 		}
 	}
 

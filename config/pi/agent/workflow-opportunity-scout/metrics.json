@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "createdAt": "2026-05-15T12:10:23.796Z",
+  "updatedAt": "2026-05-15T12:55:25.198Z",
+  "promptPatterns": {
+    "launcher-scripts-workflow": {
+      "key": "launcher-scripts-workflow",
+      "kind": "skill",
+      "title": "Launcher scripts and JSON menu workflow",
+      "proposedName": "launcher-scripts-workflow",
+      "rationale": "Your launcher scripts use repo-specific JSON files and Hyprland bindings; repeated edits are good candidates for a small skill with examples and gotchas.",
+      "action": "Create a skill covering apps/bookmarks/password launcher JSON schema, script conventions, Hyprland keybindings, and safe handling of private password files.",
+      "tags": [
+        "launchers",
+        "dotfiles"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-15T12:18:35.652Z",
+      "lastSeenAt": "2026-05-15T12:18:35.652Z",
+      "averageConfidence": 0.56,
+      "maxConfidence": 0.56,
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "move the \"no compactar\" /tmp/pi-clipboard-aa114bb6-aa1f-4c57-942a-f23856c6de79.png before the \"compactar option\". Move the \"En cas que se’m concedeixi l’ajut de menjador parcial del 70% estic interessat/da en compactar la beca d’acord amb la clàusula 7a de les bases de la convoc…"
+      ],
+      "minSignals": 3
+    }
+  },
+  "bashCommands": {
+    "cd-lsw-beques": {
+      "key": "cd-lsw-beques",
+      "commandKey": "cd ~/lsw/beques &&",
+      "count": 7,
+      "errors": 2,
+      "totalMs": 280,
+      "maxMs": 62,
+      "firstSeenAt": "2026-05-15T12:28:06.024Z",
+      "lastSeenAt": "2026-05-15T12:30:37.061Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "cd ~/lsw/beques && ls -la | head -80 && find . -maxdepth 2 -type d | head -80",
+        "cd ~/lsw/beques && rg -n \"function\\s+tipus_sols_pot_solicitar_alumne|tipus_sols_pot_solicitar_alumne\" funcions.php funcions.utility.php auxiliars -S",
+        "cd ~/lsw/beques && php -r '$_GET=[\"id_municipi_alumne\"=>45,\"id_curs_escolar\"=>19,\"id_escola\"=>62,\"id_nivell_curs\"=>12,\"from\"=>2,\"escola_anterior\"=>-1,\"id_alumne_r\"=>\"\",\"id_zona_municipi\"=>\"\"]; include \"auxiliars/get_ajudes_disponibles.php\";'",
+        "cd ~/lsw/beques && ls -d vendor 2>/dev/null || echo no vendor && ls -la public | head",
+        "cd ~/lsw/beques && find . -maxdepth 3 -path '*/.vscode/sftp.json' -o -path './.vscode/sftp.json' -print && git status --short",
+        "cd ~/lsw/beques && rg -n \"Seva|Brull|Can Garriga|Taradell|R8\" funcions.utility.php"
+      ]
+    },
+    "cd-home-jofre-lsw-renovacions": {
+      "key": "cd-home-jofre-lsw-renovacions",
+      "commandKey": "cd /home/jofre/lsw/renovacions &&",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 78,
+      "maxMs": 78,
+      "firstSeenAt": "2026-05-15T12:28:17.733Z",
+      "lastSeenAt": "2026-05-15T12:28:17.733Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "cd /home/jofre/lsw/renovacions && rg -n \"load-ajudes-disponibles|loadAjudesDisponibles|ajudes_disponibles|taxa|transport|ltaxa\" routes app resources -S"
+      ]
+    },
+    "cd-lsw-beques-auxiliars": {
+      "key": "cd-lsw-beques-auxiliars",
+      "commandKey": "cd ~/lsw/beques/auxiliars &&",
+      "count": 2,
+      "errors": 2,
+      "totalMs": 101,
+      "maxMs": 51,
+      "firstSeenAt": "2026-05-15T12:28:58.072Z",
+      "lastSeenAt": "2026-05-15T12:29:07.713Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "cd ~/lsw/beques/auxiliars && php -r '$_GET=[\"id_municipi_alumne\"=>45,\"id_curs_escolar\"=>19,\"id_escola\"=>62,\"id_nivell_curs\"=>12,\"from\"=>2,\"escola_anterior\"=>-1,\"id_alumne_r\"=>\"\",\"id_zona_municipi\"=>\"\"]; include \"get_ajudes_disponibles.php\";'",
+        "cd ~/lsw/beques/auxiliars && php -d include_path=/home/jofre/lsw/beques:. -r '$_GET=[\"id_municipi_alumne\"=>45,\"id_curs_escolar\"=>19,\"id_escola\"=>62,\"id_nivell_curs\"=>12,\"from\"=>2,\"escola_anterior\"=>-1,\"id_alumne\"=>\"\",\"id_alumne_r\"=>\"\",\"id_zona_municipi\"=>\"\"]; include \"get_ajudes…"
+      ]
+    },
+    "curl-ss-http-dev-beques-ccosona-cat-auxiliars-get-ajudes-disponi": {
+      "key": "curl-ss-http-dev-beques-ccosona-cat-auxiliars-get-ajudes-disponi",
+      "commandKey": "curl -sS 'http://dev-beques.ccosona.cat/auxiliars/get_ajudes_disponibles.php?id_municipi_alumne=45&id_curs_escolar=19&id_escola=62&id_nivell_curs=12&es_crae=0&from=2&escola_anterior=-1&id_alumne_r=100197'",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 156,
+      "maxMs": 156,
+      "firstSeenAt": "2026-05-15T12:30:07.455Z",
+      "lastSeenAt": "2026-05-15T12:30:07.455Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "curl -sS 'http://dev-beques.ccosona.cat/auxiliars/get_ajudes_disponibles.php?id_municipi_alumne=45&id_curs_escolar=19&id_escola=62&id_nivell_curs=12&es_crae=0&from=2&escola_anterior=-1&id_alumne_r=100197' | head -c 500"
+      ]
+    },
+    "curl-ssl-https-dev-beques-ccosona-cat-auxiliars-get-ajudes-dispo": {
+      "key": "curl-ssl-https-dev-beques-ccosona-cat-auxiliars-get-ajudes-dispo",
+      "commandKey": "curl -sSL 'https://dev-beques.ccosona.cat/auxiliars/get_ajudes_disponibles.php?id_municipi_alumne=45&id_curs_escolar=19&id_escola=62&id_nivell_curs=12&es_crae=0&from=2&escola_anterior=-1&id_alumne_r=100197'",
+      "count": 2,
+      "errors": 0,
+      "totalMs": 400,
+      "maxMs": 226,
+      "firstSeenAt": "2026-05-15T12:30:12.756Z",
+      "lastSeenAt": "2026-05-15T12:31:39.982Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "curl -sSL 'https://dev-beques.ccosona.cat/auxiliars/get_ajudes_disponibles.php?id_municipi_alumne=45&id_curs_escolar=19&id_escola=62&id_nivell_curs=12&es_crae=0&from=2&escola_anterior=-1&id_alumne_r=100197' | head -c 1000"
+      ]
+    },
+    "scp-i-home-jofre-ssh-keys-jofre-key-pem": {
+      "key": "scp-i-home-jofre-ssh-keys-jofre-key-pem",
+      "commandKey": "scp -i /home/jofre/.ssh/keys/jofre_key.pem",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 1701,
+      "maxMs": 1701,
+      "firstSeenAt": "2026-05-15T12:31:34.666Z",
+      "lastSeenAt": "2026-05-15T12:31:34.666Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "scp -i /home/jofre/.ssh/keys/jofre_key.pem -P 22 /home/jofre/lsw/beques/funcions.utility.php dev-beques_ccosona_cat@13.36.114.143:/dev-beques.ccosona.cat/funcions.utility.php"
+      ]
+    },
+    "php-l-home-jofre-lsw-beques-funcions-utility-php": {
+      "key": "php-l-home-jofre-lsw-beques-funcions-utility-php",
+      "commandKey": "php -l /home/jofre/lsw/beques/funcions.utility.php",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 74,
+      "maxMs": 74,
+      "firstSeenAt": "2026-05-15T12:31:55.468Z",
+      "lastSeenAt": "2026-05-15T12:31:55.468Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "php -l /home/jofre/lsw/beques/funcions.utility.php"
+      ]
+    },
+    "curl-ss-x": {
+      "key": "curl-ss-x",
+      "commandKey": "curl -sS -X",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 166,
+      "maxMs": 166,
+      "firstSeenAt": "2026-05-15T12:32:02.033Z",
+      "lastSeenAt": "2026-05-15T12:32:02.033Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "curl -sS -X POST 'https://dev.ajutsescolars.ccosona.cat/load-ajudes-disponibles' \\ -H 'Content-Type: application/x-www-form-urlencoded' \\ --data 'escola_id=62&id_municipi=45&id_curs=19&nivell_curs=12&_token=kMCcAdqgtrD9FQkyDWv21nXKI98TFkq7pdOPZDe8&tipus_formulari=2&UUID_ALUMNE=7…"
+      ]
+    }
+  },
+  "toolSequences": {
+    "bash-cd-lsw-beques-database-query-bash-cd-lsw-beques-database-qu": {
+      "key": "bash-cd-lsw-beques-database-query-bash-cd-lsw-beques-database-qu",
+      "sequence": [
+        "bash:cd ~/lsw/beques &&",
+        "database_query",
+        "bash:cd ~/lsw/beques &&",
+        "database_query",
+        "bash:cd ~/lsw/beques &&"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-15T12:32:17.855Z",
+      "lastSeenAt": "2026-05-15T12:32:17.855Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "https://dev.ajutsescolars.ccosona.cat/load-ajudes-disponibles with values: escola_id=62&id_municipi=45&id_curs=19&nivell_curs=12&_token=kMCcAdqgtrD9FQkyDWv21nXKI98TFkq7pdOPZDe8&tipus_formulari=2&UUID_ALUMNE=73a18e6a-11ce-11ef-9c59-0eb0f410e092&id_escola_primaria=&nif_alumne=&ida…"
+      ]
+    }
+  },
+  "toolProblems": {
+    "bash-error": {
+      "key": "bash-error",
+      "toolName": "bash",
+      "problemType": "error",
+      "count": 6,
+      "firstSeenAt": "2026-05-15T12:11:19.069Z",
+      "lastSeenAt": "2026-05-15T12:29:07.713Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "resources/views/iniciRenovacio.blade.php:15: <link rel=\"shortcut icon\" href=\"{{asset('icon.ico')}}\" /> resources/views/iniciRenovacio.blade.php:18: <link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css\" resources/views/iniciRenovac…",
+        "rg: public: No such file or directory (os error 2) resources/views/solicituds/pdfSolicitud.blade.php:694: <p style=\"padding-bottom: 0px !important; margin-bottom: 0px !important;\"><b>COMPACTACIÓ AJUT DE MENJADOR</b></p> resources/views/solicituds/pdfSolicitud.blade.php:699: <img…",
+        "rg: routes: No such file or directory (os error 2) rg: resources: No such file or directory (os error 2) app/synchronize/sync.php:30: $justificacions_transport = $_POST['transport']['justificacions']; app/synchronize/sync.php:31: $coordenades = $_POST['transport']['coordenades']…",
+        "Warning: include_once(../connexio.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/auxiliars/get_ajudes_disponibles.php on line 7 Warning: include_once(): Failed opening '../connexio.php' for inclusion (include_path='.:/nix/store/m13fg5a8bfmzh5x6m…",
+        "Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='.:/nix/store/m13fg5a8bfmzh5x6mch5g2r2n1b582iw-php-8.…",
+        "Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='/home/jofre/lsw/beques:.') in /home/jofre/lsw/beques…"
+      ],
+      "lastMessage": "Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='/home/jofre/lsw/beques:.') in /home/jofre/lsw/beques/connexio.php:3 Stack trace: #0 /home/jofre/lsw/beques/auxiliars/get_ajudes_disponibles.php(7): include_once() #1 Command line code(1): include('/home/jofre/lsw...') #2 {main} thrown in /home/jofre/lsw/beques/connexio.ph…"
+    }
+  },
+  "suggestions": {
+    "bash:cd-lsw-beques": {
+      "key": "bash:cd-lsw-beques",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-15T12:32:17.862Z",
+      "lastSuggestedAt": "2026-05-15T12:32:45.435Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-16T12:32:45.435Z"
+    }
+  }
+}

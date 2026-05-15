@@ -410,4 +410,6 @@ In `~/projects/pi-mono`:
 | `~/.pi/agent/extensions/database.ts` | Unified `database_query` tool for MySQL/MariaDB and SQL Server/MSSQL via `.agent/credentials/database.json` |
 | `~/.pi/agent/extensions/push.ts` | `/push` command that generates Conventional Commit messages, commits, and pushes current git changes; `/ship` merges `staging` into `main`/`master` and pushes |
 | `~/.pi/agent/extensions/safeguard.ts` | Configurable policy engine for tool call interception |
+| `~/.pi/agent/extensions/skill-extension-improver.ts` | Continuous background monitor for Pi skills/extensions; prompts the user when it decides an upgrade/update is worthwhile |
+| `~/.pi/agent/extensions/workflow-opportunity-scout.ts` | Background workflow telemetry monitor that suggests creating new skills/extensions from repeated work, friction, command patterns, and tool chains. Command: `/workflow-scout` |
 | `~/.pi/agent/safeguard.json` | Safeguard rules config (block/confirm/allow with regex matching) |

@@ -10,6 +10,8 @@ This is the runtime configuration and data directory for the `pi` agent CLI tool
 
 - `agent/auth.json` — OAuth credentials (refresh/access tokens) for Anthropic API authentication. **Sensitive — never commit to version control.**
 - `agent/settings.json` — Agent settings (e.g., last seen changelog version).
+- `agent/extensions/` — Global Pi extensions auto-loaded for every session.
+- `agent/skills/` — Global Pi skills advertised to the agent and loadable on demand.
 - `agent/sessions/` — Per-project session data, organized by encoded project path (e.g., `--home-jofre-projects-chronos--/`).
 
 ## Source Code
@@ -33,6 +35,8 @@ See [EXTENSIONS.md](./EXTENSIONS.md) for the complete extension authoring guide 
 - `agent/extensions/database.ts` — Unified database tool (`database_query`) for MySQL/MariaDB and SQL Server/MSSQL. Reads `.agent/credentials/database.json`; the config `type` selects the database engine. Command: `/database`.
 - `agent/extensions/push.ts` — `/push` command that stages current git changes, generates a Conventional Commit message from session context or staged diff for fresh sessions, commits, and pushes. Also provides `/ship` to merge `staging` into `main`/`master` and push.
 - `agent/extensions/safeguard.ts` — Configurable policy engine that intercepts tool calls against rules in `agent/safeguard.json` (block, confirm, or allow based on regex matching). Commands: `/safeguard`, `/safeguard-add`, `/safeguard-remove`.
+- `agent/extensions/skill-extension-improver.ts` — Continuous background monitor for Pi skills/extensions. Writes reports/metrics to `~/.pi/agent/skill-extension-improver/` and prompts the user when it decides an upgrade/update is worthwhile.
+- `agent/extensions/workflow-opportunity-scout.ts` — Background workflow telemetry monitor that suggests creating new skills/extensions when repeated work or friction indicates a useful automation opportunity. Command: `/workflow-scout`.
 
 ## Important Notes
 

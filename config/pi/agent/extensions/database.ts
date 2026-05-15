@@ -7,9 +7,18 @@
  * database engine (`mysql`, `mariadb`, `sqlserver`, or `mssql`).
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import {
+	DEFAULT_MAX_BYTES,
+	DEFAULT_MAX_LINES,
+	formatSize,
+	truncateHead,
+	truncateTail,
+	type ExtensionAPI,
+	type TruncationResult,
+} from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { readFileSync, existsSync } from "fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
 import { dirname, join } from "path";
 
 type DatabaseEngine = "mysql" | "sqlserver";
@@ -40,8 +49,48 @@ interface LoadConfigResult {
 	error?: string;
 }
 
+interface TruncatedOutput {
+	text: string;
+	truncation?: TruncationResult;
+	fullOutputPath?: string;
+}
+
 const CONFIG_RELATIVE_PATH = ".agent/credentials/database.json";
 const MAX_ROWS = 200;
+
+function truncateForModel(text: string, mode: "head" | "tail" = "head"): TruncatedOutput {
+	const truncation = (mode === "tail" ? truncateTail : truncateHead)(text, {
+		maxLines: DEFAULT_MAX_LINES,
+		maxBytes: DEFAULT_MAX_BYTES,
+	});
+
+	if (!truncation.truncated) return { text: truncation.content };
+
+	let fullOutputPath: string | undefined;
+	try {
+		const tempDir = mkdtempSync(join(tmpdir(), "pi-database-"));
+		fullOutputPath = join(tempDir, "output.txt");
+		writeFileSync(fullOutputPath, text, "utf8");
+	} catch {
+		fullOutputPath = undefined;
+	}
+
+	let result = truncation.content;
+	result += `\n\n[Output truncated: showing ${mode === "tail" ? "last" : "first"} ${truncation.outputLines} of ${truncation.totalLines} lines`;
+	result += ` (${formatSize(truncation.outputBytes)} of ${formatSize(truncation.totalBytes)}).`;
+	result += fullOutputPath
+		? ` Full output saved to: ${fullOutputPath}]`
+		: " Full output could not be saved.]";
+
+	return { text: result, truncation, fullOutputPath };
+}
+
+function truncationDetails(output: TruncatedOutput) {
+	return {
+		...(output.truncation ? { truncation: output.truncation } : {}),
+		...(output.fullOutputPath ? { fullOutputPath: output.fullOutputPath } : {}),
+	};
+}
 
 function findConfigPath(cwd: string): string | null {
 	let dir = cwd;
@@ -244,7 +293,7 @@ export default function (pi: ExtensionAPI) {
 			"Execute a SQL query against the project's configured database. " +
 			"Supports MySQL/MariaDB and SQL Server/MSSQL based on the `type` field in .agent/credentials/database.json. " +
 			"Supports SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, and other SQL statements. " +
-			"For SELECT queries results are returned as a formatted table; for write operations the CLI output is returned.",
+			`For SELECT queries results are returned as a formatted table; for write operations the CLI output is returned. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)} (whichever is hit first); if truncated, full output is saved to a temp file.`,
 		promptSnippet:
 			"Execute SQL against the project database configured in .agent/credentials/database.json (`type` selects MySQL/MariaDB or SQL Server/MSSQL)",
 		promptGuidelines: [
@@ -285,13 +334,15 @@ export default function (pi: ExtensionAPI) {
 				if (result.code !== 0) {
 					const errMsg =
 						result.stderr.trim() || result.stdout.trim() || `${command} exited with code ${result.code}`;
+					const output = truncateForModel(errMsg, "tail");
 					return {
-						content: [{ type: "text", text: `${config.type} error: ${errMsg}` }],
+						content: [{ type: "text", text: `${config.type} error: ${output.text}` }],
 						details: {
 							error: true,
 							code: result.code,
 							databaseType: config.type,
 							configPath: loaded.path,
+							...truncationDetails(output),
 						},
 						isError: true,
 					};
@@ -302,19 +353,27 @@ export default function (pi: ExtensionAPI) {
 						? formatSqlServerOutput(result.stdout)
 						: formatMysqlOutput(result.stdout)
 					: "Query executed successfully.";
+				const output = truncateForModel(text, "head");
 
 				return {
-					content: [{ type: "text", text }],
+					content: [{ type: "text", text: output.text }],
 					details: {
 						success: true,
 						databaseType: config.type,
 						configPath: loaded.path,
+						...truncationDetails(output),
 					},
 				};
 			} catch (err: any) {
+				const output = truncateForModel(`Failed to execute ${command}: ${err.message}`, "tail");
 				return {
-					content: [{ type: "text", text: `Failed to execute ${command}: ${err.message}` }],
-					details: { error: true, databaseType: config.type, configPath: loaded.path },
+					content: [{ type: "text", text: output.text }],
+					details: {
+						error: true,
+						databaseType: config.type,
+						configPath: loaded.path,
+						...truncationDetails(output),
+					},
 					isError: true,
 				};
 			}

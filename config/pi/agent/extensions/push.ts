@@ -11,12 +11,17 @@
 
 import { complete, type Message } from "@mariozechner/pi-ai";
 import type { ExtensionAPI, SessionEntry } from "@mariozechner/pi-coding-agent";
-import { convertToLlm, serializeConversation } from "@mariozechner/pi-coding-agent";
+import {
+	convertToLlm,
+	formatSize,
+	serializeConversation,
+	truncateHead,
+	truncateTail,
+} from "@mariozechner/pi-coding-agent";
 import { mkdtempSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 
-const MAX_DIFF_CHARS = 80_000;
 const MAX_CONTEXT_CHARS = 60_000;
 
 const CONVENTIONAL_TYPES = [
@@ -63,14 +68,29 @@ interface GitSnapshot {
 	diff: string;
 }
 
-function truncateEnd(text: string, maxChars: number): string {
-	if (text.length <= maxChars) return text;
-	return `${text.slice(0, maxChars)}\n\n[truncated: ${text.length - maxChars} more characters omitted]`;
-}
-
 function truncateStart(text: string, maxChars: number): string {
 	if (text.length <= maxChars) return text;
 	return `[truncated: ${text.length - maxChars} earlier characters omitted]\n\n${text.slice(-maxChars)}`;
+}
+
+type CommandOutputTruncationMode = "head" | "tail";
+
+function truncateCommandOutput(text: string, mode: CommandOutputTruncationMode = "tail"): string {
+	const output = text.trim();
+	if (!output) return "";
+
+	const truncation = mode === "head" ? truncateHead(output) : truncateTail(output);
+	if (!truncation.truncated) return output;
+
+	const shownPosition = mode === "head" ? "first" : "last";
+	const omittedLines = truncation.totalLines - truncation.outputLines;
+	const omittedBytes = truncation.totalBytes - truncation.outputBytes;
+
+	return `${truncation.content.trimEnd()}\n\n[Output truncated: showing ${shownPosition} ${truncation.outputLines} of ${truncation.totalLines} lines (${formatSize(truncation.outputBytes)} of ${formatSize(truncation.totalBytes)}). ${omittedLines} lines (${formatSize(omittedBytes)}) omitted.]`;
+}
+
+function commandOutput(result: { stdout: string; stderr: string }): string {
+	return truncateCommandOutput(result.stderr || result.stdout);
 }
 
 function getConversationContext(ctx: any): ConversationContext {
@@ -186,13 +206,13 @@ function fallbackCommitMessage(snapshot: GitSnapshot, conversation: string): str
 }
 
 function buildGenerationPrompt(snapshot: GitSnapshot, context: ConversationContext, extraInstructions: string): string {
-	const shared = `## Git status\n\n\`\`\`\n${snapshot.status.trim()}\n\`\`\`\n\n## Changed files\n\n\`\`\`\n${snapshot.nameStatus.trim()}\n\`\`\`\n\n## Diff stat\n\n\`\`\`\n${snapshot.stat.trim()}\n\`\`\``;
+	const shared = `## Git status\n\n\`\`\`\n${truncateCommandOutput(snapshot.status, "head")}\n\`\`\`\n\n## Changed files\n\n\`\`\`\n${truncateCommandOutput(snapshot.nameStatus, "head")}\n\`\`\`\n\n## Diff stat\n\n\`\`\`\n${truncateCommandOutput(snapshot.stat, "head")}\n\`\`\``;
 	const instructions = extraInstructions.trim()
 		? `\n\n## User-provided commit instructions\n\n${extraInstructions.trim()}`
 		: "";
 
 	if (context.fresh) {
-		return `${shared}\n\n## Staged diff to analyze\n\n\`\`\`diff\n${truncateEnd(snapshot.diff, MAX_DIFF_CHARS)}\n\`\`\`${instructions}\n\nAnalyze the diff and produce the best Conventional Commit message.`;
+		return `${shared}\n\n## Staged diff to analyze\n\n\`\`\`diff\n${truncateCommandOutput(snapshot.diff, "head")}\n\`\`\`${instructions}\n\nAnalyze the diff and produce the best Conventional Commit message.`;
 	}
 
 	return `${shared}\n\n## Conversation context\n\n${context.text}${instructions}\n\nUse the conversation context as the primary source for the commit message. Use the git status and diff stat only to verify the changed area and scope. Produce the best Conventional Commit message.`;
@@ -340,7 +360,7 @@ async function checkoutTargetBranch(
 		: await git(pi, cwd, ["checkout", "--track", `origin/${targetBranch}`]);
 
 	if (checkout.code !== 0) {
-		return { ok: false, error: checkout.stderr.trim() || checkout.stdout.trim() };
+		return { ok: false, error: commandOutput(checkout) };
 	}
 
 	return { ok: true };
@@ -377,7 +397,7 @@ export default function (pi: ExtensionAPI) {
 
 			const statusBefore = await git(pi, repoRoot, ["status", "--porcelain=v1"]);
 			if (statusBefore.code !== 0) {
-				ctx.ui.notify(`git status failed: ${statusBefore.stderr.trim()}`, "error");
+				ctx.ui.notify(`git status failed: ${commandOutput(statusBefore)}`, "error");
 				return;
 			}
 			if (!statusBefore.stdout.trim()) {
@@ -388,7 +408,7 @@ export default function (pi: ExtensionAPI) {
 			ctx.ui.notify("Staging changes...", "info");
 			const add = await git(pi, repoRoot, ["add", "-A"]);
 			if (add.code !== 0) {
-				ctx.ui.notify(`git add failed: ${add.stderr.trim() || add.stdout.trim()}`, "error");
+				ctx.ui.notify(`git add failed: ${commandOutput(add)}`, "error");
 				return;
 			}
 
@@ -431,7 +451,7 @@ export default function (pi: ExtensionAPI) {
 
 				const confirmed = await ctx.ui.confirm(
 					"Commit and push?",
-					`${commitMessage}\n\n${stat.stdout.trim()}`,
+					`${commitMessage}\n\n${truncateCommandOutput(stat.stdout, "head")}`,
 				);
 				if (!confirmed) {
 					ctx.ui.notify("Cancelled — changes remain staged", "info");
@@ -445,7 +465,7 @@ export default function (pi: ExtensionAPI) {
 				writeFileSync(messagePath, `${commitMessage.trim()}\n`, "utf-8");
 				const commit = await git(pi, repoRoot, ["commit", "-F", messagePath]);
 				if (commit.code !== 0) {
-					ctx.ui.notify(`Commit failed: ${commit.stderr.trim() || commit.stdout.trim()}`, "error");
+					ctx.ui.notify(`Commit failed: ${commandOutput(commit)}`, "error");
 					return;
 				}
 			} finally {
@@ -457,7 +477,7 @@ export default function (pi: ExtensionAPI) {
 			const pushArgs = upstream.code === 0 ? ["push"] : ["push", "-u", "origin", "HEAD"];
 			const push = await git(pi, repoRoot, pushArgs);
 			if (push.code !== 0) {
-				ctx.ui.notify(`Push failed: ${push.stderr.trim() || push.stdout.trim()}`, "error");
+				ctx.ui.notify(`Push failed: ${commandOutput(push)}`, "error");
 				return;
 			}
 
@@ -479,7 +499,7 @@ export default function (pi: ExtensionAPI) {
 
 			const workingTree = await git(pi, repoRoot, ["status", "--porcelain=v1"]);
 			if (workingTree.code !== 0) {
-				ctx.ui.notify(`git status failed: ${workingTree.stderr.trim()}`, "error");
+				ctx.ui.notify(`git status failed: ${commandOutput(workingTree)}`, "error");
 				return;
 			}
 			if (workingTree.stdout.trim()) {
@@ -500,7 +520,7 @@ export default function (pi: ExtensionAPI) {
 			ctx.ui.notify("Fetching origin...", "info");
 			const fetch = await git(pi, repoRoot, ["fetch", "--prune", "origin"]);
 			if (fetch.code !== 0) {
-				ctx.ui.notify(`git fetch failed: ${fetch.stderr.trim() || fetch.stdout.trim()}`, "error");
+				ctx.ui.notify(`git fetch failed: ${commandOutput(fetch)}`, "error");
 				return;
 			}
 
@@ -540,7 +560,7 @@ export default function (pi: ExtensionAPI) {
 			ctx.ui.notify(`Updating ${targetBranch}...`, "info");
 			const pull = await pullCurrentBranch(pi, repoRoot, targetBranch);
 			if (pull.code !== 0) {
-				ctx.ui.notify(`Could not fast-forward ${targetBranch}: ${pull.stderr.trim() || pull.stdout.trim()}`, "error");
+				ctx.ui.notify(`Could not fast-forward ${targetBranch}: ${commandOutput(pull)}`, "error");
 				return;
 			}
 
@@ -548,7 +568,7 @@ export default function (pi: ExtensionAPI) {
 			const merge = await git(pi, repoRoot, ["merge", "--no-edit", sourceRef]);
 			if (merge.code !== 0) {
 				ctx.ui.notify(
-					`Merge failed. Resolve conflicts on '${targetBranch}', then commit/push manually.\n${merge.stderr.trim() || merge.stdout.trim()}`,
+					`Merge failed. Resolve conflicts on '${targetBranch}', then commit/push manually.\n${commandOutput(merge)}`,
 					"error",
 				);
 				return;
@@ -564,7 +584,7 @@ export default function (pi: ExtensionAPI) {
 			const pushArgs = upstream.code === 0 ? ["push"] : ["push", "-u", "origin", targetBranch];
 			const push = await git(pi, repoRoot, pushArgs);
 			if (push.code !== 0) {
-				ctx.ui.notify(`Push failed: ${push.stderr.trim() || push.stdout.trim()}`, "error");
+				ctx.ui.notify(`Push failed: ${commandOutput(push)}`, "error");
 				return;
 			}
 

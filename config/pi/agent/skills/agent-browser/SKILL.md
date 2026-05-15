@@ -43,6 +43,17 @@ agent_browser_snapshot({ interactive: true, compact: true })
 
 Refs (`@e1`, `@e2`, ...) are assigned fresh on every snapshot. They become stale after navigation, submits, modal open/close, dynamic re-render, tab switch, or any other page-changing action. Never guess refs; re-snapshot.
 
+## Search engines and bot mitigation
+
+If a search engine or site returns bot mitigation (CAPTCHA, reCAPTCHA, "unusual traffic", Cloudflare challenge, "I'm not a robot"):
+
+- Do not try to solve or bypass the challenge.
+- Do not repeatedly retry the same blocked workflow.
+- Prefer direct/source-specific URLs, official site search, or public APIs when they satisfy the task.
+- If the user explicitly needs the blocked site, report that manual CAPTCHA completion is required.
+
+Example: for Wikipedia's article of the day, open `https://en.wikipedia.org/wiki/Main_Page` directly and inspect the "From today's featured article" section instead of searching Google.
+
 ## Reading pages
 
 Use snapshots first:

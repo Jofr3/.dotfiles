@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-05-15T08:40:08.430Z",
-  "updatedAt": "2026-05-15T12:55:25.198Z",
+  "updatedAt": "2026-05-15T13:01:59.138Z",
   "tools": {
     "/home/jofre/.pi/agent/extensions/agent-browser.ts::agent_browser_open": {
       "toolName": "agent_browser_open",
@@ -40,24 +40,24 @@
       "toolName": "read",
       "source": "builtin",
       "sourcePath": "<builtin:read>",
-      "calls": 102,
+      "calls": 107,
       "errors": 0,
-      "totalMs": 664,
+      "totalMs": 734,
       "maxMs": 113,
-      "lastMs": 1,
-      "lastUsedAt": "2026-05-15T12:31:47.951Z"
+      "lastMs": 3,
+      "lastUsedAt": "2026-05-15T12:58:20.360Z"
     },
     "<builtin:bash>::bash": {
       "toolName": "bash",
       "source": "builtin",
       "sourcePath": "<builtin:bash>",
-      "calls": 85,
-      "errors": 9,
-      "totalMs": 530939,
+      "calls": 109,
+      "errors": 10,
+      "totalMs": 533021,
       "maxMs": 513410,
-      "lastMs": 166,
-      "lastUsedAt": "2026-05-15T12:32:02.033Z",
-      "lastError": "\nWarning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3\n\nFatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='/home/jofre/lsw/beques:.') in /home/jofre/lsw/beques/connexio.php:3\nStack trace:\n#0 /home/jofre/lsw/beques/auxiliars/get_ajudes_disponibles.php(7): include_once()\n#1 Command line code(1): include('/home/jofre/lsw...')\n#2 {main}\n  thrown in /home/jofre/lsw/beques/connexio"
+      "lastMs": 19,
+      "lastUsedAt": "2026-05-15T13:01:39.036Z",
+      "lastError": "(no output)\n\nCommand exited with code 1"
     },
     "<builtin:edit>::edit": {
       "toolName": "edit",
@@ -86,12 +86,12 @@
       "toolName": "write",
       "source": "builtin",
       "sourcePath": "<builtin:write>",
-      "calls": 1,
+      "calls": 3,
       "errors": 0,
-      "totalMs": 41,
+      "totalMs": 47,
       "maxMs": 41,
-      "lastMs": 41,
-      "lastUsedAt": "2026-05-15T10:11:24.625Z"
+      "lastMs": 4,
+      "lastUsedAt": "2026-05-15T12:59:15.647Z"
     },
     "/home/jofre/.pi/agent/extensions/database.ts::database_query": {
       "toolName": "database_query",
@@ -127,11 +127,20 @@
     "sftp": {
       "name": "sftp",
       "path": "/home/jofre/.pi/agent/skills/sftp/SKILL.md",
+      "loads": 2,
+      "explicitInvocations": 0,
+      "agentRuns": 0,
+      "totalAgentMs": 0,
+      "lastUsedAt": "2026-05-15T12:58:09.302Z"
+    },
+    "database": {
+      "name": "database",
+      "path": "/home/jofre/.pi/agent/skills/database/SKILL.md",
       "loads": 1,
       "explicitInvocations": 0,
       "agentRuns": 0,
       "totalAgentMs": 0,
-      "lastUsedAt": "2026-05-15T12:31:18.623Z"
+      "lastUsedAt": "2026-05-15T12:58:09.302Z"
     }
   }
 }

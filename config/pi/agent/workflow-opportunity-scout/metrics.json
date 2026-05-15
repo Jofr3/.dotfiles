@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-05-15T12:10:23.796Z",
-  "updatedAt": "2026-05-15T12:55:25.198Z",
+  "updatedAt": "2026-05-15T13:01:59.139Z",
   "promptPatterns": {
     "launcher-scripts-workflow": {
       "key": "launcher-scripts-workflow",
@@ -26,6 +26,60 @@
         "move the \"no compactar\" /tmp/pi-clipboard-aa114bb6-aa1f-4c57-942a-f23856c6de79.png before the \"compactar option\". Move the \"En cas que se’m concedeixi l’ajut de menjador parcial del 70% estic interessat/da en compactar la beca d’acord amb la clàusula 7a de les bases de la convoc…"
       ],
       "minSignals": 3
+    },
+    "nix-dotfiles-workflow": {
+      "key": "nix-dotfiles-workflow",
+      "kind": "skill",
+      "title": "NixOS/Home Manager dotfiles workflow",
+      "proposedName": "nix-dotfiles-workflow",
+      "rationale": "Nix and dotfiles changes tend to have repo-specific conventions, rebuild commands, host-specific differences, and theming caveats that are worth loading on demand.",
+      "action": "Create a project or global skill documenting your NixOS flake layout, rebuild commands, machine differences, Stylix/theming workflow, and safe validation steps.",
+      "tags": [
+        "nix",
+        "dotfiles",
+        "home-manager"
+      ],
+      "count": 3,
+      "firstSeenAt": "2026-05-15T12:55:57.038Z",
+      "lastSeenAt": "2026-05-15T13:00:03.132Z",
+      "averageConfidence": 0.5,
+      "maxConfidence": 0.5,
+      "cwdSamples": [
+        "~/.dotfiles"
+      ],
+      "examples": [
+        "resolve merge conflitct",
+        "resolve merge conflitct and push"
+      ],
+      "minSignals": 3
+    },
+    "release-git-workflow": {
+      "key": "release-git-workflow",
+      "kind": "extension",
+      "title": "Release/commit automation workflow",
+      "proposedName": "release-ship-workflow",
+      "rationale": "Repeated commit, push, merge, or release chores are usually best encoded as a command extension with guardrails.",
+      "action": "Create or extend a Pi extension for your release workflow: branch checks, generated commit messages, staging/main merge policy, and push confirmations.",
+      "tags": [
+        "git",
+        "release"
+      ],
+      "count": 3,
+      "firstSeenAt": "2026-05-15T12:55:57.041Z",
+      "lastSeenAt": "2026-05-15T13:00:03.133Z",
+      "averageConfidence": 0.47,
+      "maxConfidence": 0.47,
+      "cwdSamples": [
+        "~/.dotfiles"
+      ],
+      "examples": [
+        "resolve merge conflitct",
+        "resolve merge conflitct and push"
+      ],
+      "minSignals": 4,
+      "skipIfResources": [
+        "push"
+      ]
     }
   },
   "bashCommands": {
@@ -162,6 +216,103 @@
       "examples": [
         "curl -sS -X POST 'https://dev.ajutsescolars.ccosona.cat/load-ajudes-disponibles' \\ -H 'Content-Type: application/x-www-form-urlencoded' \\ --data 'escola_id=62&id_municipi=45&id_curs=19&nivell_curs=12&_token=kMCcAdqgtrD9FQkyDWv21nXKI98TFkq7pdOPZDe8&tipus_formulari=2&UUID_ALUMNE=7…"
       ]
+    },
+    "git-add-config-claude-last-cleanup": {
+      "key": "git-add-config-claude-last-cleanup",
+      "commandKey": "git add config/claude/.last-cleanup",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 28,
+      "maxMs": 28,
+      "firstSeenAt": "2026-05-15T12:56:57.761Z",
+      "lastSeenAt": "2026-05-15T12:56:57.761Z",
+      "cwdSamples": [
+        "~/.dotfiles"
+      ],
+      "examples": [
+        "git add config/claude/.last-cleanup && git status --short && git diff --check"
+      ]
+    },
+    "python-py": {
+      "key": "python-py",
+      "commandKey": "python - <<'PY'",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 37,
+      "maxMs": 37,
+      "firstSeenAt": "2026-05-15T12:59:24.189Z",
+      "lastSeenAt": "2026-05-15T12:59:24.189Z",
+      "cwdSamples": [
+        "~/.dotfiles"
+      ],
+      "examples": [
+        "python - <<'PY' from pathlib import Path p = Path('/home/jofre/.pi/agent/skills/bash-error-recovery-playbook/SKILL.md') text = p.read_text() assert text.startswith('---\\n'), 'missing opening frontmatter' end = text.find('\\n---\\n', 4) assert end != -1, 'missing closing frontmatte…"
+      ]
+    },
+    "git-log-oneline": {
+      "key": "git-log-oneline",
+      "commandKey": "git log --oneline",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 26,
+      "maxMs": 26,
+      "firstSeenAt": "2026-05-15T13:00:33.120Z",
+      "lastSeenAt": "2026-05-15T13:00:33.120Z",
+      "cwdSamples": [
+        "~/.dotfiles"
+      ],
+      "examples": [
+        "git log --oneline --decorate --graph --max-count=12 --all"
+      ]
+    },
+    "git-show-stat": {
+      "key": "git-show-stat",
+      "commandKey": "git show --stat",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 19,
+      "maxMs": 19,
+      "firstSeenAt": "2026-05-15T13:00:46.396Z",
+      "lastSeenAt": "2026-05-15T13:00:46.396Z",
+      "cwdSamples": [
+        "~/.dotfiles"
+      ],
+      "examples": [
+        "git show --stat --oneline --decorate HEAD && echo '--- origin commits' && git log --oneline HEAD..origin/main && echo '--- local commits' && git log --oneline origin/main..HEAD"
+      ]
+    },
+    "git-commit": {
+      "key": "git-commit",
+      "commandKey": "git commit",
+      "count": 2,
+      "errors": 0,
+      "totalMs": 48,
+      "maxMs": 27,
+      "firstSeenAt": "2026-05-15T13:01:14.563Z",
+      "lastSeenAt": "2026-05-15T13:01:25.668Z",
+      "cwdSamples": [
+        "~/.dotfiles"
+      ],
+      "examples": [
+        "git commit --no-edit",
+        "git add config/pi/agent/skills/bash-error-recovery-playbook/SKILL.md && git commit -m \"Add bash error recovery playbook skill\""
+      ]
+    },
+    "git-push": {
+      "key": "git-push",
+      "commandKey": "git push",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 1438,
+      "maxMs": 1438,
+      "firstSeenAt": "2026-05-15T13:01:35.741Z",
+      "lastSeenAt": "2026-05-15T13:01:35.741Z",
+      "cwdSamples": [
+        "~/.dotfiles"
+      ],
+      "examples": [
+        "git push origin main"
+      ]
     }
   },
   "toolSequences": {
@@ -190,21 +341,22 @@
       "key": "bash-error",
       "toolName": "bash",
       "problemType": "error",
-      "count": 6,
+      "count": 7,
       "firstSeenAt": "2026-05-15T12:11:19.069Z",
-      "lastSeenAt": "2026-05-15T12:29:07.713Z",
+      "lastSeenAt": "2026-05-15T12:56:45.045Z",
       "cwdSamples": [
-        "~/lsw/renovacions"
+        "~/lsw/renovacions",
+        "~/.dotfiles"
       ],
       "examples": [
-        "resources/views/iniciRenovacio.blade.php:15: <link rel=\"shortcut icon\" href=\"{{asset('icon.ico')}}\" /> resources/views/iniciRenovacio.blade.php:18: <link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css\" resources/views/iniciRenovac…",
         "rg: public: No such file or directory (os error 2) resources/views/solicituds/pdfSolicitud.blade.php:694: <p style=\"padding-bottom: 0px !important; margin-bottom: 0px !important;\"><b>COMPACTACIÓ AJUT DE MENJADOR</b></p> resources/views/solicituds/pdfSolicitud.blade.php:699: <img…",
         "rg: routes: No such file or directory (os error 2) rg: resources: No such file or directory (os error 2) app/synchronize/sync.php:30: $justificacions_transport = $_POST['transport']['justificacions']; app/synchronize/sync.php:31: $coordenades = $_POST['transport']['coordenades']…",
         "Warning: include_once(../connexio.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/auxiliars/get_ajudes_disponibles.php on line 7 Warning: include_once(): Failed opening '../connexio.php' for inclusion (include_path='.:/nix/store/m13fg5a8bfmzh5x6m…",
         "Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='.:/nix/store/m13fg5a8bfmzh5x6mch5g2r2n1b582iw-php-8.…",
-        "Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='/home/jofre/lsw/beques:.') in /home/jofre/lsw/beques…"
+        "Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='/home/jofre/lsw/beques:.') in /home/jofre/lsw/beques…",
+        "(no output) Command exited with code 1"
       ],
-      "lastMessage": "Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='/home/jofre/lsw/beques:.') in /home/jofre/lsw/beques/connexio.php:3 Stack trace: #0 /home/jofre/lsw/beques/auxiliars/get_ajudes_disponibles.php(7): include_once() #1 Command line code(1): include('/home/jofre/lsw...') #2 {main} thrown in /home/jofre/lsw/beques/connexio.ph…"
+      "lastMessage": "(no output) Command exited with code 1"
     }
   },
   "suggestions": {
@@ -215,6 +367,14 @@
       "lastSuggestedAt": "2026-05-15T12:32:45.435Z",
       "timesShown": 1,
       "snoozedUntil": "2026-05-16T12:32:45.435Z"
+    },
+    "tool-problem:bash-error": {
+      "key": "tool-problem:bash-error",
+      "status": "queued",
+      "firstSuggestedAt": "2026-05-15T12:57:12.905Z",
+      "lastSuggestedAt": "2026-05-15T12:57:52.137Z",
+      "timesShown": 1,
+      "queuedAt": "2026-05-15T12:57:52.137Z"
     }
   }
 }

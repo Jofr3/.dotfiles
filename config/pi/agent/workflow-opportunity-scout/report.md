@@ -1,14 +1,14 @@
 # Workflow Opportunity Scout Report
 
-Generated: 2026-05-15T12:55:12.893Z
-CWD: `/home/jofre/lsw/beques`
+Generated: 2026-05-15T12:57:12.905Z
+CWD: `/home/jofre/.dotfiles`
 Store: `/home/jofre/.pi/agent/workflow-opportunity-scout`
 
 ## Summary
 
 - Active suggestions: 1
-- Prompt patterns tracked: 1
-- Repeated bash command patterns tracked: 8
+- Prompt patterns tracked: 3
+- Repeated bash command patterns tracked: 9
 - Tool sequences tracked: 1
 - Tool problem patterns tracked: 1
 - Known skills/extensions: 12 skills, 8 extensions
@@ -19,22 +19,24 @@ Store: `/home/jofre/.pi/agent/workflow-opportunity-scout`
 
 - Kind: skill
 - Suggested name: `bash-error-recovery-playbook`
-- Confidence: 74% (6 signal(s), source: tool-problem)
+- Confidence: 79% (7 signal(s), source: tool-problem)
 - Target path: `/home/jofre/.pi/agent/skills/bash-error-recovery-playbook/SKILL.md`
 - Why: The bash tool has had repeated error signals. A small playbook can teach the agent recovery steps and prevention tactics.
 - Action: Create a skill with prevention and recovery instructions for bash error cases, including examples from recent failures and when to ask for clarification.
 - Evidence:
-  - resources/views/iniciRenovacio.blade.php:15: <link rel="shortcut icon" href="{{asset('icon.ico')}}" /> resources/views/iniciRenovacio.blade.php:18: <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" resources/views/iniciRenovac…
   - rg: public: No such file or directory (os error 2) resources/views/solicituds/pdfSolicitud.blade.php:694: <p style="padding-bottom: 0px !important; margin-bottom: 0px !important;"><b>COMPACTACIÓ AJUT DE MENJADOR</b></p> resources/views/solicituds/pdfSolicitud.blade.php:699: <img…
   - rg: routes: No such file or directory (os error 2) rg: resources: No such file or directory (os error 2) app/synchronize/sync.php:30: $justificacions_transport = $_POST['transport']['justificacions']; app/synchronize/sync.php:31: $coordenades = $_POST['transport']['coordenades']…
   - Warning: include_once(../connexio.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/auxiliars/get_ajudes_disponibles.php on line 7 Warning: include_once(): Failed opening '../connexio.php' for inclusion (include_path='.:/nix/store/m13fg5a8bfmzh5x6m…
   - Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='.:/nix/store/m13fg5a8bfmzh5x6mch5g2r2n1b582iw-php-8.…
   - Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='/home/jofre/lsw/beques:.') in /home/jofre/lsw/beques…
+  - (no output) Command exited with code 1
 
 ## Prompt Pattern Signals
 
 | Pattern | Kind | Count | Confidence | Proposed name | Last seen |
 | --- | --- | ---: | ---: | --- | --- |
+| NixOS/Home Manager dotfiles workflow | skill | 2 | 50% | `nix-dotfiles-workflow` | 2026-05-15T12:56:26.772Z |
+| Release/commit automation workflow | extension | 2 | 47% | `release-ship-workflow` | 2026-05-15T12:56:26.772Z |
 | Launcher scripts and JSON menu workflow | skill | 1 | 56% | `launcher-scripts-workflow` | 2026-05-15T12:18:35.652Z |
 
 ## Repeated Bash Command Signals
@@ -49,6 +51,7 @@ Store: `/home/jofre/.pi/agent/workflow-opportunity-scout`
 | `scp -i /home/jofre/.ssh/keys/jofre_key.pem` | 1 | 0 | 1.7s | 1.7s | 2026-05-15T12:31:34.666Z |
 | `php -l /home/jofre/lsw/beques/funcions.utility.php` | 1 | 0 | 74ms | 74ms | 2026-05-15T12:31:55.468Z |
 | `curl -sS -X` | 1 | 0 | 166ms | 166ms | 2026-05-15T12:32:02.033Z |
+| `git add config/claude/.last-cleanup` | 1 | 0 | 28ms | 28ms | 2026-05-15T12:56:57.761Z |
 
 ## Known Resources Considered
 

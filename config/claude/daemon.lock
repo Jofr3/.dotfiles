@@ -1,0 +1,14 @@
+{
+  "pid": 4243,
+  "version": "2.1.139",
+  "jsonPath": "/home/jofre/.claude/daemon.json",
+  "logPath": "/home/jofre/.claude/daemon.log",
+  "startedAt": 1778603407135,
+  "origin": "transient",
+  "spawnedBy": {
+    "label": "claude agents",
+    "cwd": "/home/jofre/projects/luminous_ui",
+    "pid": 4222
+  },
+  "procStart": "35513"
+}

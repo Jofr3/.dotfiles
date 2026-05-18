@@ -10,7 +10,7 @@
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Text } from "@mariozechner/pi-tui";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { lstat, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
@@ -33,6 +33,7 @@ const DEFAULT_CONFIG: ScoutConfig = {
 	showPromptWidget: true,
 	suggestSkills: true,
 	suggestExtensions: true,
+	suggestProjectContext: true,
 	minSignalsForSkillSuggestion: 3,
 	minSignalsForExtensionSuggestion: 2,
 	minBashRepeatsForExtension: 3,
@@ -73,8 +74,8 @@ const GENERIC_BASH_COMMANDS = [
 	/^git\s+diff\b/,
 ];
 
-type ResourceKind = "skill" | "extension";
-type SuggestionKind = "skill" | "extension";
+type ResourceKind = "skill" | "extension" | "context";
+type SuggestionKind = "skill" | "extension" | "project-context";
 type Severity = "info" | "medium" | "high";
 
 interface ScoutConfig {
@@ -87,6 +88,7 @@ interface ScoutConfig {
 	showPromptWidget: boolean;
 	suggestSkills: boolean;
 	suggestExtensions: boolean;
+	suggestProjectContext: boolean;
 	minSignalsForSkillSuggestion: number;
 	minSignalsForExtensionSuggestion: number;
 	minBashRepeatsForExtension: number;
@@ -309,6 +311,22 @@ const TASK_PATTERNS: TaskPatternDefinition[] = [
 		tags: ["automation", "extension"],
 	},
 	{
+		key: "project-runtime-context",
+		kind: "project-context",
+		title: "Project runtime and dev-server context",
+		proposedName: "project-runtime-context",
+		rationale: "Repeated runtime/server friction usually means Pi is missing stable project context: how the app is normally run, which terminal/container owns the dev server, URLs/ports, and when the agent should avoid launching duplicate processes.",
+		action: "Update project context (AGENTS.md/CLAUDE.md) or create a project skill with dev-server ownership, URLs/ports, health checks, log locations, start/stop policy, and validation commands. Capture durable project facts instead of fixing only the current session.",
+		regexes: [
+			/\b(dev server|development server|local server|localhost:\d+|port \d+|EADDRINUSE|address already in use|already running|different terminal)\b/i,
+			/\b(npm|pnpm|yarn|bun)\s+(?:run\s+)?(dev|start|serve|preview)\b/i,
+			/\b(vite|next\s+dev|nuxt|astro|webpack-dev-server)\b/i,
+		],
+		minSignals: 2,
+		baseConfidence: 0.52,
+		tags: ["project-context", "runtime", "dev-server"],
+	},
+	{
 		key: "browser-ui-workflow",
 		kind: "skill",
 		title: "Browser/UI testing workflow",
@@ -438,6 +456,29 @@ function formatRelative(path: string, cwd: string): string {
 	if (!path.startsWith("/")) return path;
 	const rel = relative(cwd, path);
 	return rel && !rel.startsWith("..") ? rel : path.replace(HOME, "~");
+}
+
+function projectRootFromCwd(cwd: string): string {
+	let current = resolve(cwd);
+	let nearestPackageRoot: string | undefined;
+	while (true) {
+		if (existsSync(join(current, ".git"))) return current;
+		if (!nearestPackageRoot && existsSync(join(current, "package.json"))) nearestPackageRoot = current;
+		const parent = dirname(current);
+		if (parent === current) return nearestPackageRoot ?? resolve(cwd);
+		current = parent;
+	}
+}
+
+function suggestionKindLabel(kind: SuggestionKind): string {
+	if (kind === "project-context") return "project context update";
+	return kind;
+}
+
+function suggestionIcon(kind: SuggestionKind): string {
+	if (kind === "skill") return "📘";
+	if (kind === "extension") return "🧩";
+	return "🗺️";
 }
 
 function slugify(input: string, fallback = "workflow"): string {
@@ -604,8 +645,20 @@ async function walkSkillDir(dir: string, includeRootMarkdown: boolean, root = di
 	return resources;
 }
 
+async function discoverContextFiles(cwd: string): Promise<ResourceSummary[]> {
+	const resources: ResourceSummary[] = [];
+	for (const ancestor of getAncestorDirs(cwd)) {
+		for (const name of ["AGENTS.md", "CLAUDE.md"]) {
+			const path = join(ancestor, name);
+			if (await pathExists(path)) resources.push({ kind: "context", name, path });
+		}
+	}
+	return resources;
+}
+
 async function discoverResources(cwd: string): Promise<ResourceSummary[]> {
 	const resources: ResourceSummary[] = [];
+	resources.push(...(await discoverContextFiles(cwd)));
 	resources.push(...(await discoverExtensionsInDir(join(PI_AGENT_DIR, "extensions"))));
 	resources.push(...(await walkSkillDir(join(PI_AGENT_DIR, "skills"), true)));
 	resources.push(...(await walkSkillDir(join(HOME, ".agents", "skills"), false)));
@@ -632,7 +685,9 @@ function resourceExists(name: string, resources: ResourceSummary[], aliases: str
 }
 
 function isSuggestionEnabled(kind: SuggestionKind, config: ScoutConfig): boolean {
-	return kind === "skill" ? config.suggestSkills : config.suggestExtensions;
+	if (kind === "skill") return config.suggestSkills;
+	if (kind === "extension") return config.suggestExtensions;
+	return config.suggestProjectContext;
 }
 
 function patternMatched(pattern: TaskPatternDefinition, text: string, cwd: string): { matched: boolean; confidence: number } {
@@ -646,7 +701,9 @@ function patternMatched(pattern: TaskPatternDefinition, text: string, cwd: strin
 
 function minSignalsForPattern(pattern: TaskPatternDefinition, config: ScoutConfig): number {
 	if (pattern.minSignals) return pattern.minSignals;
-	return pattern.kind === "skill" ? config.minSignalsForSkillSuggestion : config.minSignalsForExtensionSuggestion;
+	if (pattern.kind === "skill") return config.minSignalsForSkillSuggestion;
+	if (pattern.kind === "extension") return config.minSignalsForExtensionSuggestion;
+	return Math.max(2, Math.min(config.minSignalsForSkillSuggestion, config.minSignalsForExtensionSuggestion));
 }
 
 function updatePromptPattern(metrics: MetricsStore, pattern: TaskPatternDefinition, text: string, cwd: string, confidence: number, config: ScoutConfig): void {
@@ -702,6 +759,11 @@ function normalizeBashCommand(command: string): string | undefined {
 	if (/\bnixfmt\b/.test(normalized)) return "nixfmt";
 	if (/\b(git)\s+(commit|push|merge|rebase|checkout|switch)\b/.test(normalized)) {
 		return normalized.match(/\bgit\s+(commit|push|merge|rebase|checkout|switch)\b/)?.[0];
+	}
+	const devServerMatch = normalized.match(/\b(npm|pnpm|yarn|bun)\s+(?:run\s+)?(dev|start|serve|preview)\b/);
+	if (devServerMatch?.[0]) return devServerMatch[0];
+	if (/\b(vite|next\s+dev|nuxt\s+dev|astro\s+dev)\b/.test(normalized)) {
+		return normalized.match(/\b(vite|next\s+dev|nuxt\s+dev|astro\s+dev)\b/)?.[0];
 	}
 	if (/\b(npm|pnpm|yarn|bun)\s+(test|run|build|lint|format|check)\b/.test(normalized)) {
 		return normalized.match(/\b(npm|pnpm|yarn|bun)\s+(test|run|build|lint|format|check)\b/)?.[0];
@@ -810,6 +872,32 @@ function suggestionSeverity(confidence: number, count: number): Severity {
 	return "info";
 }
 
+function isDevServerCommand(commandKey: string): boolean {
+	return /\b(npm|pnpm|yarn|bun)\s+(?:run\s+)?(dev|start|serve|preview)\b/i.test(commandKey) ||
+		/\b(vite|next\s+dev|nuxt\s+dev|astro\s+dev)\b/i.test(commandKey);
+}
+
+function textMentionsRuntimeContext(text: string): boolean {
+	return /\b(EADDRINUSE|address already in use|port \d+|already running|dev server|development server|localhost:\d+)\b/i.test(text);
+}
+
+function projectRuntimeContextSuggestion(sourceKey: string, source: WorkflowSuggestion["source"], count: number, evidence: string[], confidence: number, commandOrSequence?: string): WorkflowSuggestion {
+	const subject = commandOrSequence ? ` (${commandOrSequence})` : "";
+	return {
+		key: `project-context:${sourceKey}`,
+		kind: "project-context",
+		severity: suggestionSeverity(confidence, count),
+		title: "Document project runtime/dev-server context",
+		proposedName: "project-runtime-context",
+		rationale: `Runtime/server friction${subject} keeps appearing. This is usually not a new automation tool problem; it means Pi needs stable project context about how the app is normally run and when not to start another server.`,
+		action: "Update AGENTS.md/CLAUDE.md or create a project skill with the normal dev-server owner (external terminal/container), URLs/ports, health-check commands, logs, when to start/stop servers, and validation/test commands.",
+		evidence,
+		confidence,
+		source,
+		count,
+	};
+}
+
 function suggestionFromPromptMetric(metric: PromptPatternMetric, resources: ResourceSummary[], config: ScoutConfig): WorkflowSuggestion | undefined {
 	if (!isSuggestionEnabled(metric.kind, config)) return undefined;
 	if (metric.count < metric.minSignals) return undefined;
@@ -831,6 +919,13 @@ function suggestionFromPromptMetric(metric: PromptPatternMetric, resources: Reso
 }
 
 function suggestionFromBashMetric(metric: BashCommandMetric, resources: ResourceSummary[], config: ScoutConfig): WorkflowSuggestion | undefined {
+	if (isDevServerCommand(metric.commandKey)) {
+		if (!config.suggestProjectContext) return undefined;
+		if (metric.count < 2) return undefined;
+		const confidence = Math.min(0.94, 0.58 + metric.count * 0.08 + (metric.errors > 0 ? 0.08 : 0));
+		return projectRuntimeContextSuggestion(`bash:${metric.key}`, "bash-command", metric.count, metric.examples, confidence, metric.commandKey);
+	}
+
 	if (!config.suggestExtensions) return undefined;
 	if (metric.count < config.minBashRepeatsForExtension) return undefined;
 	if (/^git\s+(commit|push|merge)$/.test(metric.commandKey) && resourceExists("push", resources)) return undefined;
@@ -854,6 +949,14 @@ function suggestionFromBashMetric(metric: BashCommandMetric, resources: Resource
 }
 
 function suggestionFromToolSequenceMetric(metric: ToolSequenceMetric, resources: ResourceSummary[], config: ScoutConfig): WorkflowSuggestion | undefined {
+	const sequenceText = metric.sequence.join(" → ");
+	if (metric.sequence.some((item) => isDevServerCommand(item) || textMentionsRuntimeContext(item))) {
+		if (!config.suggestProjectContext) return undefined;
+		if (metric.count < 2) return undefined;
+		const confidence = Math.min(0.9, 0.54 + metric.count * 0.07);
+		return projectRuntimeContextSuggestion(`sequence:${metric.key}`, "tool-sequence", metric.count, metric.examples, confidence, sequenceText);
+	}
+
 	if (!config.suggestExtensions) return undefined;
 	if (metric.count < config.minToolSequenceRepeats) return undefined;
 	const proposedName = `${slugify(metric.sequence.join("-"), "tool-chain")}-workflow`;
@@ -863,7 +966,7 @@ function suggestionFromToolSequenceMetric(metric: ToolSequenceMetric, resources:
 		key: `sequence:${metric.key}`,
 		kind: "extension",
 		severity: suggestionSeverity(confidence, metric.count),
-		title: `Automate recurring tool chain: ${metric.sequence.join(" → ")}`,
+		title: `Automate recurring tool chain: ${sequenceText}`,
 		proposedName,
 		rationale: `A similar non-trivial tool chain has repeated ${metric.count} time(s). This may be a good fit for a command, wizard, or focused tool that coordinates the steps.`,
 		action: "Create a Pi extension that wraps this recurring tool chain behind a slash command or custom tool, asks for the few required inputs, and records clear results.",
@@ -874,25 +977,14 @@ function suggestionFromToolSequenceMetric(metric: ToolSequenceMetric, resources:
 	};
 }
 
-function suggestionFromToolProblemMetric(metric: ToolProblemMetric, resources: ResourceSummary[], config: ScoutConfig): WorkflowSuggestion | undefined {
-	if (!config.suggestSkills) return undefined;
-	if (metric.count < config.minToolProblemSignals) return undefined;
-	const proposedName = `${slugify(metric.toolName)}-${metric.problemType}-recovery-playbook`;
-	if (resourceExists(proposedName, resources)) return undefined;
-	const confidence = Math.min(0.86, 0.44 + metric.count * 0.05);
-	return {
-		key: `tool-problem:${metric.key}`,
-		kind: "skill",
-		severity: suggestionSeverity(confidence, metric.count),
-		title: `Reduce repeated ${metric.toolName} ${metric.problemType} friction`,
-		proposedName,
-		rationale: `The ${metric.toolName} tool has had repeated ${metric.problemType} signals. A small playbook can teach the agent recovery steps and prevention tactics.`,
-		action: `Create a skill with prevention and recovery instructions for ${metric.toolName} ${metric.problemType} cases, including examples from recent failures and when to ask for clarification.`,
-		evidence: metric.examples.length > 0 ? metric.examples : metric.lastMessage ? [metric.lastMessage] : [],
-		confidence,
-		source: "tool-problem",
-		count: metric.count,
-	};
+function suggestionFromToolProblemMetric(metric: ToolProblemMetric, _resources: ResourceSummary[], config: ScoutConfig): WorkflowSuggestion | undefined {
+	if (!config.suggestProjectContext) return undefined;
+	if (metric.count < 2) return undefined;
+	const evidence = metric.examples.length > 0 ? metric.examples : metric.lastMessage ? [metric.lastMessage] : [];
+	const combined = evidence.join("\n");
+	if (!textMentionsRuntimeContext(combined)) return undefined;
+	const confidence = Math.min(0.88, 0.5 + metric.count * 0.06);
+	return projectRuntimeContextSuggestion(`tool-problem:${metric.key}`, "tool-problem", metric.count, evidence, confidence, `${metric.toolName} ${metric.problemType}`);
 }
 
 function isSnoozed(state: SuggestionState | undefined): boolean {
@@ -942,23 +1034,31 @@ function markSuggestion(metrics: MetricsStore, suggestion: WorkflowSuggestion, p
 	};
 }
 
-function suggestionLocation(kind: SuggestionKind, proposedName: string): string {
+function suggestionLocation(kind: SuggestionKind, proposedName: string, cwd: string): string {
 	if (kind === "skill") return join(PI_AGENT_DIR, "skills", proposedName, "SKILL.md");
-	return join(PI_AGENT_DIR, "extensions", `${proposedName}.ts`);
+	if (kind === "extension") return join(PI_AGENT_DIR, "extensions", `${proposedName}.ts`);
+	return join(projectRootFromCwd(cwd), "AGENTS.md");
+}
+
+function suggestionTargetDescription(suggestion: WorkflowSuggestion, cwd: string): string {
+	const target = formatRelative(suggestionLocation(suggestion.kind, suggestion.proposedName, cwd), cwd);
+	if (suggestion.kind === "project-context") return `${target} (or a project skill under .agents/skills/)`;
+	return target;
 }
 
 function formatSuggestion(suggestion: WorkflowSuggestion, cwd: string): string {
-	const icon = suggestion.kind === "skill" ? "📘" : "🧩";
+	const icon = suggestionIcon(suggestion.kind);
+	const label = suggestionKindLabel(suggestion.kind);
 	const evidence = suggestion.evidence.length > 0
 		? suggestion.evidence.map((item) => `- ${item}`).join("\n")
 		: "- No prompt samples stored; see metrics for counts.";
 	return [
-		`${icon} Workflow opportunity: create a ${suggestion.kind}`,
+		`${icon} Workflow opportunity: ${label}`,
 		"",
 		`Title: ${suggestion.title}`,
 		`Suggested name: ${suggestion.proposedName}`,
 		`Confidence: ${(suggestion.confidence * 100).toFixed(0)}% from ${suggestion.count} signal(s)`,
-		`Target path: ${formatRelative(suggestionLocation(suggestion.kind, suggestion.proposedName), cwd)}`,
+		`Target: ${suggestionTargetDescription(suggestion, cwd)}`,
 		"",
 		"Why this helps:",
 		suggestion.rationale,
@@ -974,9 +1074,9 @@ function formatSuggestion(suggestion: WorkflowSuggestion, cwd: string): string {
 }
 
 function formatSuggestionWidget(suggestion: WorkflowSuggestion): string[] {
-	const icon = suggestion.kind === "skill" ? "📘" : "🧩";
+	const icon = suggestionIcon(suggestion.kind);
 	return [
-		`${icon} Workflow opportunity: create ${suggestion.kind} \`${suggestion.proposedName}\``,
+		`${icon} Workflow opportunity: ${suggestionKindLabel(suggestion.kind)} \`${suggestion.proposedName}\``,
 		`${suggestion.title} — ${(suggestion.confidence * 100).toFixed(0)}% confidence from ${suggestion.count} signal(s)`,
 	];
 }
@@ -996,7 +1096,7 @@ function formatReport(metrics: MetricsStore, resources: ResourceSummary[], sugge
 	lines.push(`- Repeated bash command patterns tracked: ${Object.keys(metrics.bashCommands).length}`);
 	lines.push(`- Tool sequences tracked: ${Object.keys(metrics.toolSequences).length}`);
 	lines.push(`- Tool problem patterns tracked: ${Object.keys(metrics.toolProblems).length}`);
-	lines.push(`- Known skills/extensions: ${resources.filter((resource) => resource.kind === "skill").length} skills, ${resources.filter((resource) => resource.kind === "extension").length} extensions`);
+	lines.push(`- Known resources: ${resources.filter((resource) => resource.kind === "skill").length} skills, ${resources.filter((resource) => resource.kind === "extension").length} extensions, ${resources.filter((resource) => resource.kind === "context").length} context files`);
 	lines.push("");
 
 	lines.push("## Top Suggestions");
@@ -1005,12 +1105,12 @@ function formatReport(metrics: MetricsStore, resources: ResourceSummary[], sugge
 		lines.push("No ready suggestions yet. Keep working; suggestions appear after repeated signals cross configured thresholds.");
 	} else {
 		for (const suggestion of suggestions.slice(0, 10)) {
-			lines.push(`### ${suggestion.kind === "skill" ? "📘" : "🧩"} ${suggestion.title}`);
+			lines.push(`### ${suggestionIcon(suggestion.kind)} ${suggestion.title}`);
 			lines.push("");
-			lines.push(`- Kind: ${suggestion.kind}`);
+			lines.push(`- Kind: ${suggestionKindLabel(suggestion.kind)}`);
 			lines.push(`- Suggested name: \`${suggestion.proposedName}\``);
 			lines.push(`- Confidence: ${(suggestion.confidence * 100).toFixed(0)}% (${suggestion.count} signal(s), source: ${suggestion.source})`);
-			lines.push(`- Target path: \`${suggestionLocation(suggestion.kind, suggestion.proposedName)}\``);
+			lines.push(`- Target: \`${suggestionTargetDescription(suggestion, cwd)}\``);
 			lines.push(`- Why: ${suggestion.rationale}`);
 			lines.push(`- Action: ${suggestion.action}`);
 			if (suggestion.evidence.length > 0) {
@@ -1062,6 +1162,7 @@ function formatReport(metrics: MetricsStore, resources: ResourceSummary[], sugge
 	lines.push("");
 	lines.push("- Prompt samples are redacted and clipped before storage.");
 	lines.push("- Suggestions are heuristic; accept only ideas that match your workflow.");
+	lines.push("- Tool-specific setup/failure fixes are intentionally left to Skill & Extension Improver; this scout favors broader global or project context opportunities.");
 	lines.push("- Accepted prompts queue an agent task; they do not edit files directly.");
 	lines.push("- Configure thresholds in `config.json` or with `/workflow-scout config`.");
 	return truncate(lines.join("\n"));
@@ -1073,21 +1174,22 @@ async function writeReport(metrics: MetricsStore, resources: ResourceSummary[], 
 }
 
 function queueCreationTask(pi: ExtensionAPI, suggestion: WorkflowSuggestion, cwd: string): void {
-	const targetPath = suggestionLocation(suggestion.kind, suggestion.proposedName);
 	const kindInstructions = suggestion.kind === "skill"
 		? "Use the Agent Skills directory structure: a directory named after the skill with SKILL.md frontmatter (`name`, `description`) and concise progressive-disclosure instructions."
-		: "Use the Pi extension pattern: a TypeScript file that default-exports `function (pi: ExtensionAPI)`, guards UI calls with `ctx.hasUI`, truncates large outputs, and cleans up long-lived work on `session_shutdown`.";
+		: suggestion.kind === "extension"
+			? "Use the Pi extension pattern: a TypeScript file that default-exports `function (pi: ExtensionAPI)`, guards UI calls with `ctx.hasUI`, truncates large outputs, and cleans up long-lived work on `session_shutdown`."
+			: "Prefer stable project context over automation: update AGENTS.md/CLAUDE.md if the information should always be loaded, or create a project skill under .agents/skills/ if it is task-specific. Capture durable facts, commands, URLs, ownership, and constraints; do not patch only the current failure.";
 
 	pi.sendUserMessage(
-		`Please create the workflow improvement recommended by Workflow Opportunity Scout.\n\n` +
-		`Kind: ${suggestion.kind}\n` +
+		`Please implement the broader workflow improvement recommended by Workflow Opportunity Scout.\n\n` +
+		`Kind: ${suggestionKindLabel(suggestion.kind)}\n` +
 		`Suggested name: ${suggestion.proposedName}\n` +
-		`Target path: ${formatRelative(targetPath, cwd)}\n\n` +
+		`Target: ${suggestionTargetDescription(suggestion, cwd)}\n\n` +
 		`Why this helps:\n${suggestion.rationale}\n\n` +
 		`Desired change:\n${suggestion.action}\n\n` +
 		`Evidence:\n${suggestion.evidence.map((item) => `- ${item}`).join("\n") || "- See the scout report."}\n\n` +
 		`${kindInstructions}\n\n` +
-		`Before editing, inspect existing skills/extensions to avoid duplicates. Make the smallest useful implementation, validate syntax/formatting if possible, and tell me whether /reload is needed.`,
+		`Before editing, inspect existing project context files, skills, and extensions to avoid duplicates. Think at the project/global workflow level first, make the smallest useful implementation, validate syntax/formatting if possible, and tell me whether /reload is needed.`,
 		{ deliverAs: "followUp" },
 	);
 }
@@ -1150,15 +1252,15 @@ export default function workflowOpportunityScout(pi: ExtensionAPI) {
 		}
 
 		const choice = await ctx.ui.select(
-			`Workflow opportunity detected\n\nCreate ${suggestion.kind}: ${suggestion.proposedName}\n\n${suggestion.title}\n\n${suggestion.rationale}\n\n${suggestion.action}`,
-			["Queue creation task", "Show details", "Snooze", "Disable prompts this session"],
+			`Workflow opportunity detected\n\n${suggestionKindLabel(suggestion.kind)}: ${suggestion.proposedName}\n\n${suggestion.title}\n\n${suggestion.rationale}\n\n${suggestion.action}`,
+			["Queue improvement task", "Show details", "Snooze", "Disable prompts this session"],
 		);
 
-		if (choice === "Queue creation task") {
+		if (choice === "Queue improvement task") {
 			markSuggestion(metrics, suggestion, { status: "queued", queuedAt: nowIso() });
 			saveMetrics(metrics);
 			queueCreationTask(pi, suggestion, ctx.cwd);
-			ctx.ui.notify(`Queued ${suggestion.kind} creation task: ${suggestion.proposedName}`, "info");
+			ctx.ui.notify(`Queued ${suggestionKindLabel(suggestion.kind)} task: ${suggestion.proposedName}`, "info");
 			ctx.ui.setWidget("workflow-opportunity-scout-suggestion", undefined);
 			return;
 		}
@@ -1195,7 +1297,7 @@ export default function workflowOpportunityScout(pi: ExtensionAPI) {
 		let text = theme.fg("accent", theme.bold("💡 Workflow opportunity"));
 		if (suggestion) {
 			const color = suggestion.severity === "high" ? "warning" : suggestion.severity === "medium" ? "toolTitle" : "muted";
-			text += `\n${theme.fg(color, `${suggestion.kind}: ${suggestion.proposedName}`)}`;
+			text += `\n${theme.fg(color, `${suggestionKindLabel(suggestion.kind)}: ${suggestion.proposedName}`)}`;
 			text += `\n${theme.fg("dim", suggestion.title)}`;
 		}
 		if (details?.reportPath) text += `\n${theme.fg("muted", details.reportPath)}`;
@@ -1215,7 +1317,7 @@ export default function workflowOpportunityScout(pi: ExtensionAPI) {
 	});
 
 	pi.registerCommand("workflow-scout", {
-		description: "Show or configure workflow skill/extension suggestions (report, suggest, config, reset)",
+		description: "Show or configure workflow skill/extension/project-context suggestions (report, suggest, config, reset)",
 		getArgumentCompletions: (prefix) => {
 			const items = ["report", "suggest", "config", "status", "reset", "help"];
 			return items

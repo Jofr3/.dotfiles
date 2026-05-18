@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-05-15T12:10:23.796Z",
-  "updatedAt": "2026-05-15T13:01:59.139Z",
+  "updatedAt": "2026-05-18T12:48:10.964Z",
   "promptPatterns": {
     "launcher-scripts-workflow": {
       "key": "launcher-scripts-workflow",
@@ -14,16 +14,18 @@
         "launchers",
         "dotfiles"
       ],
-      "count": 1,
+      "count": 2,
       "firstSeenAt": "2026-05-15T12:18:35.652Z",
-      "lastSeenAt": "2026-05-15T12:18:35.652Z",
+      "lastSeenAt": "2026-05-18T10:13:06.259Z",
       "averageConfidence": 0.56,
       "maxConfidence": 0.56,
       "cwdSamples": [
-        "~/lsw/renovacions"
+        "~/lsw/renovacions",
+        "~/lsw/ateinsa_new"
       ],
       "examples": [
-        "move the \"no compactar\" /tmp/pi-clipboard-aa114bb6-aa1f-4c57-942a-f23856c6de79.png before the \"compactar option\". Move the \"En cas que se’m concedeixi l’ajut de menjador parcial del 70% estic interessat/da en compactar la beca d’acord amb la clàusula 7a de les bases de la convoc…"
+        "move the \"no compactar\" /tmp/pi-clipboard-aa114bb6-aa1f-4c57-942a-f23856c6de79.png before the \"compactar option\". Move the \"En cas que se’m concedeixi l’ajut de menjador parcial del 70% estic interessat/da en compactar la beca d’acord amb la clàusula 7a de les bases de la convoc…",
+        "good. Some empreses have this: /tmp/nix-shell.6WCsq0/pi-clipboard-dddc335b-580b-4823-8092-810971cfb899.png is this normal?"
       ],
       "minSignals": 3
     },
@@ -39,17 +41,19 @@
         "dotfiles",
         "home-manager"
       ],
-      "count": 3,
+      "count": 4,
       "firstSeenAt": "2026-05-15T12:55:57.038Z",
-      "lastSeenAt": "2026-05-15T13:00:03.132Z",
+      "lastSeenAt": "2026-05-18T09:08:28.470Z",
       "averageConfidence": 0.5,
       "maxConfidence": 0.5,
       "cwdSamples": [
-        "~/.dotfiles"
+        "~/.dotfiles",
+        "~/.dotfiles/config/pi"
       ],
       "examples": [
         "resolve merge conflitct",
-        "resolve merge conflitct and push"
+        "resolve merge conflitct and push",
+        "i have a problem with the workflow-opportunity-scout extension: It does not try to look at the bigger picture most of the times, it only looks at the current session issues and tries to bandate a solution. For example in some projects i have not set the database credentials in a…"
       ],
       "minSignals": 3
     },
@@ -79,6 +83,85 @@
       "minSignals": 4,
       "skipIfResources": [
         "push"
+      ]
+    },
+    "pi-skill-extension-authoring": {
+      "key": "pi-skill-extension-authoring",
+      "kind": "skill",
+      "title": "Pi skill/extension authoring playbook",
+      "proposedName": "pi-skill-extension-authoring",
+      "rationale": "You are repeatedly asking Pi to create, modify, or reason about skills/extensions. A dedicated skill can capture the docs to read, file locations, testing steps, and safety rules.",
+      "action": "Create a global skill with a concise authoring checklist for Pi skills/extensions, including docs to read, common extension APIs, validation steps, and when to prefer a skill vs an extension.",
+      "tags": [
+        "pi",
+        "skills",
+        "extensions"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-18T09:08:28.470Z",
+      "lastSeenAt": "2026-05-18T09:08:28.470Z",
+      "averageConfidence": 0.6799999999999999,
+      "maxConfidence": 0.6799999999999999,
+      "cwdSamples": [
+        "~/.dotfiles/config/pi"
+      ],
+      "examples": [
+        "i have a problem with the workflow-opportunity-scout extension: It does not try to look at the bigger picture most of the times, it only looks at the current session issues and tries to bandate a solution. For example in some projects i have not set the database credentials in a…"
+      ],
+      "minSignals": 2
+    },
+    "database-workflow": {
+      "key": "database-workflow",
+      "kind": "skill",
+      "title": "Database inspection/change workflow",
+      "proposedName": "database-change-workflow",
+      "rationale": "Database work often needs project-specific safety rules, schema conventions, backup expectations, and dialect reminders.",
+      "action": "Create a skill with database safety rules, schema-inspection queries, migration conventions, and when to request confirmation for destructive statements.",
+      "tags": [
+        "database"
+      ],
+      "count": 3,
+      "firstSeenAt": "2026-05-18T09:08:28.471Z",
+      "lastSeenAt": "2026-05-18T10:53:46.201Z",
+      "averageConfidence": 0.47,
+      "maxConfidence": 0.47,
+      "cwdSamples": [
+        "~/.dotfiles/config/pi",
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "i have a problem with the workflow-opportunity-scout extension: It does not try to look at the bigger picture most of the times, it only looks at the current session issues and tries to bandate a solution. For example in some projects i have not set the database credentials in a…",
+        "\"SQLSTATE[22007]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]La conversión del tipo de datos nvarchar en datetime produjo un valor fuera de intervalo. (Connection: sqlsrv, SQL: UPDATE usuaris_web_colaboradors_empresa SET data_fi = 2026-05-18 23:59:00 WHERE id = 68090 …"
+      ],
+      "minSignals": 4,
+      "skipIfResources": [
+        "database"
+      ]
+    },
+    "project-debugging-playbook": {
+      "key": "project-debugging-playbook",
+      "kind": "skill",
+      "title": "Project-specific debugging playbook",
+      "proposedName": "project-debugging-playbook",
+      "rationale": "Repeated debugging requests benefit from a skill that captures the project test commands, log locations, tracing strategy, and known failure modes.",
+      "action": "Create a project skill with debug workflow, test commands, common error sources, and when to use code graph/search tools.",
+      "tags": [
+        "debugging"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-18T09:08:28.471Z",
+      "lastSeenAt": "2026-05-18T09:08:28.471Z",
+      "averageConfidence": 0.46,
+      "maxConfidence": 0.46,
+      "cwdSamples": [
+        "~/.dotfiles/config/pi"
+      ],
+      "examples": [
+        "i have a problem with the workflow-opportunity-scout extension: It does not try to look at the bigger picture most of the times, it only looks at the current session issues and tries to bandate a solution. For example in some projects i have not set the database credentials in a…"
+      ],
+      "minSignals": 5,
+      "skipIfResources": [
+        "gitnexus-debugging"
       ]
     }
   },
@@ -236,17 +319,19 @@
     "python-py": {
       "key": "python-py",
       "commandKey": "python - <<'PY'",
-      "count": 1,
+      "count": 2,
       "errors": 0,
-      "totalMs": 37,
-      "maxMs": 37,
+      "totalMs": 92,
+      "maxMs": 55,
       "firstSeenAt": "2026-05-15T12:59:24.189Z",
-      "lastSeenAt": "2026-05-15T12:59:24.189Z",
+      "lastSeenAt": "2026-05-18T07:24:56.750Z",
       "cwdSamples": [
-        "~/.dotfiles"
+        "~/.dotfiles",
+        "~/projects/luminous_ui"
       ],
       "examples": [
-        "python - <<'PY' from pathlib import Path p = Path('/home/jofre/.pi/agent/skills/bash-error-recovery-playbook/SKILL.md') text = p.read_text() assert text.startswith('---\\n'), 'missing opening frontmatter' end = text.find('\\n---\\n', 4) assert end != -1, 'missing closing frontmatte…"
+        "python - <<'PY' from pathlib import Path p = Path('/home/jofre/.pi/agent/skills/bash-error-recovery-playbook/SKILL.md') text = p.read_text() assert text.startswith('---\\n'), 'missing opening frontmatter' end = text.find('\\n---\\n', 4) assert end != -1, 'missing closing frontmatte…",
+        "python - <<'PY' from pathlib import Path p = Path('/home/jofre/.pi/agent/skills/nix-dotfiles-workflow/SKILL.md') text = p.read_text() assert text.startswith('---\\n'), 'missing opening frontmatter' end = text.find('\\n---\\n', 4) assert end != -1, 'missing closing frontmatter' fron…"
       ]
     },
     "git-log-oneline": {
@@ -313,6 +398,360 @@
       "examples": [
         "git push origin main"
       ]
+    },
+    "pwd-rg": {
+      "key": "pwd-rg",
+      "commandKey": "pwd && rg",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 100,
+      "maxMs": 100,
+      "firstSeenAt": "2026-05-18T06:03:34.931Z",
+      "lastSeenAt": "2026-05-18T06:03:34.931Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "pwd && rg -n \"load-ajudes-disponibles|ajudes-disponibles|transport escolar|obligatori|tipus_formulari\" routes app resources -S"
+      ]
+    },
+    "python3-py": {
+      "key": "python3-py",
+      "commandKey": "python3 - <<'PY'",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 445,
+      "maxMs": 445,
+      "firstSeenAt": "2026-05-18T06:04:06.774Z",
+      "lastSeenAt": "2026-05-18T06:04:06.774Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "python3 - <<'PY' import urllib.request url='http://dev-beques.ccosona.cat/auxiliars/get_ajudes_disponibles.php?id_municipi_alumne=45&id_curs_escolar=19&id_escola=62&id_nivell_curs=13&es_crae=0&from=2&escola_anterior=-1' try: data=urllib.request.urlopen(url, timeout=20).read().de…"
+      ]
+    },
+    "set-e": {
+      "key": "set-e",
+      "commandKey": "set -e",
+      "count": 4,
+      "errors": 0,
+      "totalMs": 4036,
+      "maxMs": 1567,
+      "firstSeenAt": "2026-05-18T06:04:36.676Z",
+      "lastSeenAt": "2026-05-18T06:11:51.506Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "set -e jar=$(mktemp) html=$(mktemp) url='https://dev.ajutsescolars.ccosona.cat/nova-solicitud/curs2627' code=$(curl -ksSL -c \"$jar\" -b \"$jar\" -o \"$html\" -w '%{http_code}' \"$url\") echo \"HTTP $code\" python3 - <<'PY' \"$html\" \"$jar\" import re,sys,os html=open(sys.argv[1],encoding='u…",
+        "set -e jar=$(mktemp) html=$(mktemp) # establish laravel cookies curl -ksSL -c \"$jar\" -b \"$jar\" -o \"$html\" 'https://dev.ajutsescolars.ccosona.cat/nova-solicitud/curs2627' xsrf=$(awk '$6==\"XSRF-TOKEN\"{print $7}' \"$jar\" | tail -1) python3 - <<'PY' \"$xsrf\" > /tmp/xsrf_decoded.txt im…",
+        "set -e jar=$(mktemp) html=$(mktemp) curl -ksSL -c \"$jar\" -b \"$jar\" -o \"$html\" 'https://dev.ajutsescolars.ccosona.cat/nova-solicitud/curs2627' xsrf=$(awk '$6==\"XSRF-TOKEN\"{print $7}' \"$jar\" | tail -1) xsrf_dec=$(python3 -c 'import sys,urllib.parse; print(urllib.parse.unquote(sys.…",
+        "set -e python3 - <<'PY' import urllib.request url='http://dev-beques.ccosona.cat/auxiliars/get_ajudes_disponibles.php?id_municipi_alumne=45&id_curs_escolar=19&id_escola=59&id_nivell_curs=12&es_crae=0&from=2&escola_anterior=-1' print(url) data=urllib.request.urlopen(url, timeout=…"
+      ]
+    },
+    "for-z-in": {
+      "key": "for-z-in",
+      "commandKey": "for z in",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 1749,
+      "maxMs": 1749,
+      "firstSeenAt": "2026-05-18T06:13:03.511Z",
+      "lastSeenAt": "2026-05-18T06:13:03.511Z",
+      "cwdSamples": [
+        "~/lsw/renovacions"
+      ],
+      "examples": [
+        "for z in 14 15 12 13 ''; do echo \"--- id_zona_municipi=${z:-empty} ---\" url=\"http://dev-beques.ccosona.cat/auxiliars/get_ajudes_disponibles.php?id_municipi_alumne=45&id_curs_escolar=19&id_escola=59&id_nivell_curs=12&es_crae=0&from=2&escola_anterior=-1\" [ -n \"$z\" ] && url=\"$url&i…"
+      ]
+    },
+    "pwd-ls": {
+      "key": "pwd-ls",
+      "commandKey": "pwd && ls",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 298,
+      "maxMs": 298,
+      "firstSeenAt": "2026-05-18T06:44:47.703Z",
+      "lastSeenAt": "2026-05-18T06:44:47.703Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "pwd && ls"
+      ]
+    },
+    "npm-run": {
+      "key": "npm-run",
+      "commandKey": "npm run",
+      "count": 18,
+      "errors": 0,
+      "totalMs": 31144,
+      "maxMs": 2917,
+      "firstSeenAt": "2026-05-18T06:58:44.873Z",
+      "lastSeenAt": "2026-05-18T07:55:54.956Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "npm run typecheck",
+        "npm run lint",
+        "(npm run dev > /tmp/luminous_ui_v2.log 2>&1 & echo $!)",
+        "npm run build",
+        "npm run typecheck && npm run lint"
+      ]
+    },
+    "readlink-f-pi": {
+      "key": "readlink-f-pi",
+      "commandKey": "readlink -f ~/.pi;",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 23,
+      "maxMs": 23,
+      "firstSeenAt": "2026-05-18T07:23:47.492Z",
+      "lastSeenAt": "2026-05-18T07:23:47.492Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "readlink -f ~/.pi; ls -ld ~/.pi ~/.pi/agent ~/.pi/agent/skills; touch ~/.pi/agent/skills/.write-test 2>&1 || true; rm -f ~/.pi/agent/skills/.write-test 2>/dev/null || true"
+      ]
+    },
+    "git-c-home-jofre-dotfiles": {
+      "key": "git-c-home-jofre-dotfiles",
+      "commandKey": "git -C /home/jofre/.dotfiles",
+      "count": 3,
+      "errors": 0,
+      "totalMs": 68,
+      "maxMs": 27,
+      "firstSeenAt": "2026-05-18T07:25:07.234Z",
+      "lastSeenAt": "2026-05-18T08:37:07.479Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "git -C /home/jofre/.dotfiles status --short -- config/pi/agent/skills/nix-dotfiles-workflow/SKILL.md",
+        "git -C /home/jofre/.dotfiles status --short -- config/pi/agent/extensions/agent-browser.ts",
+        "git -C /home/jofre/.dotfiles diff -- config/pi/agent/extensions/agent-browser.ts | sed -n '1,220p' && git -C /home/jofre/.dotfiles status --short -- config/pi/agent/extensions/agent-browser.ts"
+      ]
+    },
+    "node-node": {
+      "key": "node-node",
+      "commandKey": "node - <<'NODE'",
+      "count": 1,
+      "errors": 1,
+      "totalMs": 290,
+      "maxMs": 290,
+      "firstSeenAt": "2026-05-18T08:27:15.554Z",
+      "lastSeenAt": "2026-05-18T08:27:15.554Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "node - <<'NODE' const { createJiti } = require('jiti'); const jiti = createJiti(process.cwd()); const mod = jiti('/home/jofre/.pi/agent/extensions/agent-browser.ts'); if (typeof mod.default !== 'function') throw new Error('default export is not a function'); console.log('OK: ext…"
+      ]
+    },
+    "node-path-tmp-bunx-1000-mariozechner-pi-coding-agent-latest-node": {
+      "key": "node-path-tmp-bunx-1000-mariozechner-pi-coding-agent-latest-node",
+      "commandKey": "NODE_PATH=/tmp/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules node -",
+      "count": 1,
+      "errors": 1,
+      "totalMs": 306,
+      "maxMs": 306,
+      "firstSeenAt": "2026-05-18T08:28:19.151Z",
+      "lastSeenAt": "2026-05-18T08:28:19.151Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "NODE_PATH=/tmp/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules node - <<'NODE' const { createJiti } = require('/tmp/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules/jiti'); const jiti = createJiti('/tmp/bunx-1000-@mariozechner/pi-coding-agent@latest/valida…"
+      ]
+    },
+    "bunx-bun-mariozechner-pi-coding-agent": {
+      "key": "bunx-bun-mariozechner-pi-coding-agent",
+      "commandKey": "bunx --bun @mariozechner/pi-coding-agent",
+      "count": 3,
+      "errors": 0,
+      "totalMs": 9608,
+      "maxMs": 7009,
+      "firstSeenAt": "2026-05-18T08:29:10.502Z",
+      "lastSeenAt": "2026-05-18T08:36:43.102Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "bunx --bun @mariozechner/pi-coding-agent --help | head -80",
+        "bunx --bun @mariozechner/pi-coding-agent --no-extensions -e /home/jofre/.pi/agent/extensions/agent-browser.ts --list-models >/tmp/pi-extension-validate.out 2>/tmp/pi-extension-validate.err; code=$?; if [ $code -eq 0 ]; then echo 'OK: pi loaded extension for --list-models'; else …"
+      ]
+    },
+    "bun-run": {
+      "key": "bun-run",
+      "commandKey": "bun run",
+      "count": 2,
+      "errors": 0,
+      "totalMs": 4943,
+      "maxMs": 2696,
+      "firstSeenAt": "2026-05-18T08:54:33.163Z",
+      "lastSeenAt": "2026-05-18T08:59:25.754Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "bun run typecheck"
+      ]
+    },
+    "agent-browser-screenshot-help": {
+      "key": "agent-browser-screenshot-help",
+      "commandKey": "agent-browser screenshot --help",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 14,
+      "maxMs": 14,
+      "firstSeenAt": "2026-05-18T08:55:47.329Z",
+      "lastSeenAt": "2026-05-18T08:55:47.329Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "agent-browser screenshot --help | head -200"
+      ]
+    },
+    "pi-help": {
+      "key": "pi-help",
+      "commandKey": "pi --help |",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 646,
+      "maxMs": 646,
+      "firstSeenAt": "2026-05-18T08:55:54.200Z",
+      "lastSeenAt": "2026-05-18T08:55:54.200Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "pi --help | head -160"
+      ]
+    },
+    "pi-offline-no-extensions": {
+      "key": "pi-offline-no-extensions",
+      "commandKey": "pi --offline --no-extensions",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 722,
+      "maxMs": 722,
+      "firstSeenAt": "2026-05-18T08:57:02.775Z",
+      "lastSeenAt": "2026-05-18T08:57:02.775Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "pi --offline --no-extensions -e /home/jofre/.pi/agent/extensions/agent-browser.ts --list-models >/tmp/pi-agent-browser-extension-validate.out 2>/tmp/pi-agent-browser-extension-validate.err; code=$?; echo exit:$code; if [ -s /tmp/pi-agent-browser-extension-validate.err ]; then ec…"
+      ]
+    },
+    "tsc": {
+      "key": "tsc",
+      "commandKey": "tsc",
+      "count": 2,
+      "errors": 2,
+      "totalMs": 1619,
+      "maxMs": 1230,
+      "firstSeenAt": "2026-05-18T08:57:09.118Z",
+      "lastSeenAt": "2026-05-18T08:57:20.381Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "npx tsc --noEmit --skipLibCheck --module NodeNext --moduleResolution NodeNext --target ES2022 --types node /home/jofre/.pi/agent/extensions/agent-browser.ts",
+        "npx tsc --ignoreConfig --noEmit --skipLibCheck --module NodeNext --moduleResolution NodeNext --target ES2022 --types node /home/jofre/.pi/agent/extensions/agent-browser.ts"
+      ]
+    },
+    "pwd-find": {
+      "key": "pwd-find",
+      "commandKey": "pwd && find",
+      "count": 2,
+      "errors": 0,
+      "totalMs": 237,
+      "maxMs": 215,
+      "firstSeenAt": "2026-05-18T09:08:34.108Z",
+      "lastSeenAt": "2026-05-18T10:32:19.496Z",
+      "cwdSamples": [
+        "~/.dotfiles/config/pi",
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "pwd && find agent -maxdepth 3 -type f | sort | sed 's#^#/#' | head -200",
+        "pwd && find docs -maxdepth 3 -type f | sort | head -80 && rg -n \"traspas|traspàs|usuaris|Tancat sense|Tancat\" -S . --glob '!vendor' --glob '!node_modules'"
+      ]
+    },
+    "php-l-app-services-usuari-traspasservice-php": {
+      "key": "php-l-app-services-usuari-traspasservice-php",
+      "commandKey": "php -l app/Services/Usuari/TraspasService.php",
+      "count": 17,
+      "errors": 0,
+      "totalMs": 2581,
+      "maxMs": 520,
+      "firstSeenAt": "2026-05-18T09:13:29.311Z",
+      "lastSeenAt": "2026-05-18T11:02:45.770Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "php -l app/Services/Usuari/TraspasService.php",
+        "php -l app/Services/Usuari/TraspasService.php && php -l app/Http/Controllers/Usuari/TraspasController.php && php -l resources/views/admin/gestio/usuaris/traspas/index.blade.php",
+        "php -l app/Services/Usuari/TraspasService.php && git diff -- app/Services/Usuari/TraspasService.php docs/modules/usuaris.md resources/views/admin/gestio/usuaris/traspas/index.blade.php | sed -n '1,220p'",
+        "php -l app/Services/Usuari/TraspasService.php && git diff -- app/Services/Usuari/TraspasService.php docs/modules/usuaris.md resources/views/admin/gestio/usuaris/traspas/index.blade.php | sed -n '1,260p'",
+        "php -l app/Services/Usuari/TraspasService.php && git diff -- app/Services/Usuari/TraspasService.php docs/modules/usuaris.md | sed -n '1,180p'",
+        "php -l app/Services/Usuari/TraspasService.php && git diff -- app/Services/Usuari/TraspasService.php docs/modules/usuaris.md | sed -n '1,220p'"
+      ]
+    },
+    "php-artisan-tinker": {
+      "key": "php-artisan-tinker",
+      "commandKey": "php artisan tinker",
+      "count": 1,
+      "errors": 1,
+      "totalMs": 79,
+      "maxMs": 79,
+      "firstSeenAt": "2026-05-18T09:13:43.906Z",
+      "lastSeenAt": "2026-05-18T09:13:43.906Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "php artisan tinker --execute='app(App\\\\Services\\\\Usuari\\\\TraspasService::class)->saveEmpreses(194, \"empreses\", \"18/05/2026\", [[\"nif\"=>\"A08001315\", \"colext_id\"=>1, \"subcolext_id\"=>0, \"id_usuari\"=>2104]]);'"
+      ]
+    },
+    "php-l-app-http-controllers-usuari-traspascontroller-php": {
+      "key": "php-l-app-http-controllers-usuari-traspascontroller-php",
+      "commandKey": "php -l app/Http/Controllers/Usuari/TraspasController.php",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 103,
+      "maxMs": 103,
+      "firstSeenAt": "2026-05-18T09:41:08.307Z",
+      "lastSeenAt": "2026-05-18T09:41:08.307Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "php -l app/Http/Controllers/Usuari/TraspasController.php && php -l resources/views/admin/gestio/usuaris/traspas/index.blade.php"
+      ]
+    },
+    "git-reset-hard": {
+      "key": "git-reset-hard",
+      "commandKey": "git reset --hard",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 3389,
+      "maxMs": 3389,
+      "firstSeenAt": "2026-05-18T10:26:46.730Z",
+      "lastSeenAt": "2026-05-18T10:26:46.730Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "git reset --hard HEAD && git status --porcelain=v1"
+      ]
     }
   },
   "toolSequences": {
@@ -334,6 +773,180 @@
       "examples": [
         "https://dev.ajutsescolars.ccosona.cat/load-ajudes-disponibles with values: escola_id=62&id_municipi=45&id_curs=19&nivell_curs=12&_token=kMCcAdqgtrD9FQkyDWv21nXKI98TFkq7pdOPZDe8&tipus_formulari=2&UUID_ALUMNE=73a18e6a-11ce-11ef-9c59-0eb0f410e092&id_escola_primaria=&nif_alumne=&ida…"
       ]
+    },
+    "bash-pwd-ls-database-query-bash-pwd-ls-database-query-bash-pwd-l": {
+      "key": "bash-pwd-ls-database-query-bash-pwd-ls-database-query-bash-pwd-l",
+      "sequence": [
+        "bash:pwd && ls",
+        "database_query",
+        "bash:pwd && ls",
+        "database_query",
+        "bash:pwd && ls"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-18T06:49:56.574Z",
+      "lastSeenAt": "2026-05-18T06:49:56.574Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "/tmp/nix-shell.6WCsq0/pi-clipboard-cde732eb-a058-4ce9-a8c9-d56cb8587bb7.png /tmp/nix-shell.6WCsq0/pi-clipboard-5ee51e69-da0d-469d-afd2-4a46119fa4ee.png"
+      ]
+    },
+    "bash-npm-run-agent-browser-open-agent-browser-snapshot-agent-bro": {
+      "key": "bash-npm-run-agent-browser-open-agent-browser-snapshot-agent-bro",
+      "sequence": [
+        "bash:npm run",
+        "agent_browser_open",
+        "agent_browser_snapshot",
+        "agent_browser_run",
+        "agent_browser_eval",
+        "agent_browser_batch"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-18T07:00:14.474Z",
+      "lastSeenAt": "2026-05-18T07:00:14.474Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "when i drag a card with attached cards, the attached cards do not follow the dragged card around"
+      ]
+    },
+    "bash-npm-run-agent-browser-screenshot-bash-npm-run": {
+      "key": "bash-npm-run-agent-browser-screenshot-bash-npm-run",
+      "sequence": [
+        "bash:npm run",
+        "agent_browser_screenshot",
+        "bash:npm run"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-18T07:04:17.128Z",
+      "lastSeenAt": "2026-05-18T07:04:17.128Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "add a small space between the attached energy cards and the bottom of the card, and add a small space between the tool card and the top of the card. The cut the cards in half (will be hidden behind the pokemon card)"
+      ]
+    },
+    "agent-browser-screenshot-bash-npm-run-agent-browser-screenshot-a": {
+      "key": "agent-browser-screenshot-bash-npm-run-agent-browser-screenshot-a",
+      "sequence": [
+        "agent_browser_screenshot",
+        "bash:npm run",
+        "agent_browser_screenshot",
+        "agent_browser_run",
+        "agent_browser_screenshot",
+        "agent_browser_eval"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-18T07:13:25.610Z",
+      "lastSeenAt": "2026-05-18T07:13:25.610Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "cut the cards so that the end of the attached cards dont poke outside the back of the pokemon card"
+      ]
+    },
+    "bash-npm-run-agent-browser-run-agent-browser-eval-agent-browser": {
+      "key": "bash-npm-run-agent-browser-run-agent-browser-eval-agent-browser",
+      "sequence": [
+        "bash:npm run",
+        "agent_browser_run",
+        "agent_browser_eval",
+        "agent_browser_batch",
+        "agent_browser_screenshot",
+        "agent_browser_run"
+      ],
+      "count": 2,
+      "firstSeenAt": "2026-05-18T07:21:16.034Z",
+      "lastSeenAt": "2026-05-18T07:34:37.818Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "when i press a card it pops, but the attached cards don't, they should pop with it"
+      ]
+    },
+    "bash-npm-run-agent-browser-run-agent-browser-batch-agent-browser": {
+      "key": "bash-npm-run-agent-browser-run-agent-browser-batch-agent-browser",
+      "sequence": [
+        "bash:npm run",
+        "agent_browser_run",
+        "agent_browser_batch",
+        "agent_browser_screenshot",
+        "agent_browser_run",
+        "agent_browser_screenshot"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-18T08:22:05.097Z",
+      "lastSeenAt": "2026-05-18T08:22:05.097Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "that is better but the same problem occurs but with the spacings, the space between the cards that was produced by the attached cards disapear and the card overlap"
+      ]
+    },
+    "database-query-bash-php-l-app-services-usuari-traspasservice-php": {
+      "key": "database-query-bash-php-l-app-services-usuari-traspasservice-php",
+      "sequence": [
+        "database_query",
+        "bash:php -l app/Services/Usuari/TraspasService.php"
+      ],
+      "count": 5,
+      "firstSeenAt": "2026-05-18T09:14:29.677Z",
+      "lastSeenAt": "2026-05-18T10:54:47.571Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "sync does not work correctly",
+        "i still cant remove a user from the empresa",
+        "good. Some empreses have this: /tmp/nix-shell.6WCsq0/pi-clipboard-dddc335b-580b-4823-8092-810971cfb899.png is this normal?",
+        "\"SQLSTATE[22007]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]La conversión del tipo de datos nvarchar en datetime produjo un valor fuera de intervalo. (Connection: sqlsrv, SQL: UPDATE usuaris_web_colaboradors_empresa SET data_fi = 2026-05-18 23:59:00 WHERE id = 68090 …"
+      ]
+    },
+    "bash-php-l-app-services-usuari-traspasservice-php-database-query": {
+      "key": "bash-php-l-app-services-usuari-traspasservice-php-database-query",
+      "sequence": [
+        "bash:php -l app/Services/Usuari/TraspasService.php",
+        "database_query"
+      ],
+      "count": 4,
+      "firstSeenAt": "2026-05-18T09:29:46.350Z",
+      "lastSeenAt": "2026-05-18T11:02:56.656Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "\"SQLSTATE[22007]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]La conversión del tipo de datos nvarchar en datetime produjo un valor fuera de intervalo. (Connection: sqlsrv, SQL: UPDATE usuaris_web_colaboradors_empresa SET data_fi = 2026-05-18 23:59:00 WHERE id = 68090 …",
+        "in the Selector column, select (multi) the current users that bellong to the empresa, and do a sync when saving the changes",
+        "/tmp/nix-shell.6WCsq0/pi-clipboard-c1dedba3-930a-4cfd-91ab-d65ff4ff9c36.png does not edit",
+        "/tmp/nix-shell.6WCsq0/pi-clipboard-803dd73c-f083-4de4-acc7-90e7e8b7d7a7.png when closing a user, it should show in the inactive tab, why does it not?"
+      ]
+    },
+    "bash-pwd-find-agent-browser-open-agent-browser-snapshot-bash-pwd": {
+      "key": "bash-pwd-find-agent-browser-open-agent-browser-snapshot-bash-pwd",
+      "sequence": [
+        "bash:pwd && find",
+        "agent_browser_open",
+        "agent_browser_snapshot",
+        "bash:pwd && find",
+        "agent_browser_open",
+        "agent_browser_snapshot"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-18T10:34:50.427Z",
+      "lastSeenAt": "2026-05-18T10:34:50.427Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "/tmp/nix-shell.6WCsq0/pi-clipboard-9e090efc-677f-4326-b249-f8fef5ce213a.png what is this space in the select here, in gestio/usuaris/traspas page"
+      ]
     }
   },
   "toolProblems": {
@@ -341,22 +954,85 @@
       "key": "bash-error",
       "toolName": "bash",
       "problemType": "error",
-      "count": 7,
+      "count": 13,
       "firstSeenAt": "2026-05-15T12:11:19.069Z",
-      "lastSeenAt": "2026-05-15T12:56:45.045Z",
+      "lastSeenAt": "2026-05-18T09:13:43.906Z",
       "cwdSamples": [
         "~/lsw/renovacions",
-        "~/.dotfiles"
+        "~/.dotfiles",
+        "~/lsw/ateinsa_new",
+        "~/projects/luminous_ui"
       ],
       "examples": [
-        "rg: public: No such file or directory (os error 2) resources/views/solicituds/pdfSolicitud.blade.php:694: <p style=\"padding-bottom: 0px !important; margin-bottom: 0px !important;\"><b>COMPACTACIÓ AJUT DE MENJADOR</b></p> resources/views/solicituds/pdfSolicitud.blade.php:699: <img…",
-        "rg: routes: No such file or directory (os error 2) rg: resources: No such file or directory (os error 2) app/synchronize/sync.php:30: $justificacions_transport = $_POST['transport']['justificacions']; app/synchronize/sync.php:31: $coordenades = $_POST['transport']['coordenades']…",
-        "Warning: include_once(../connexio.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/auxiliars/get_ajudes_disponibles.php on line 7 Warning: include_once(): Failed opening '../connexio.php' for inclusion (include_path='.:/nix/store/m13fg5a8bfmzh5x6m…",
-        "Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='.:/nix/store/m13fg5a8bfmzh5x6mch5g2r2n1b582iw-php-8.…",
-        "Warning: require(vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/beques/connexio.php on line 3 Fatal error: Uncaught Error: Failed opening required 'vendor/autoload.php' (include_path='/home/jofre/lsw/beques:.') in /home/jofre/lsw/beques…",
-        "(no output) Command exited with code 1"
+        "//home/jofre/lsw //home/jofre/lsw/ateinsa_new //home/jofre/lsw/ccbergueda/upload/logo_lsw.png //home/jofre/lsw/ateinsa //home/jofre/lsw/beques/imatges/logo_lsw.jpg /home/jofre/lsw/myproductium/app/Http/routes.php:44: 'dies_traspassats' => 0 /home/jofre/lsw/myproductium/app/Http/…",
+        "/home/jofre/projects/luminous_ui/node_modules/jiti/lib/jiti.cjs:5 throw err; /* ↓ Check stack trace ↓ */ ^ Error: Cannot find module '@mariozechner/pi-coding-agent' Require stack: - /home/jofre/.pi/agent/extensions/agent-browser.ts at Function._resolveFilename (node:internal/mod…",
+        "/tmp/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules/jiti/lib/jiti.cjs:5 throw err; /* ↓ Check stack trace ↓ */ ^ Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: No \"exports\" main defined in /tmp/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules/@mariozechner/pi-cod…",
+        "error TS5112: tsconfig.json is present but will not be loaded if files are specified on commandline. Use '--ignoreConfig' to skip this error. Command exited with code 1",
+        "../../.pi/agent/extensions/agent-browser.ts(15,35): error TS2307: Cannot find module '@mariozechner/pi-coding-agent' or its corresponding type declarations. ../../.pi/agent/extensions/agent-browser.ts(21,8): error TS2307: Cannot find module '@mariozechner/pi-coding-agent' or its…",
+        "Warning: require(/home/jofre/lsw/ateinsa_new/vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/ateinsa_new/artisan on line 10 Fatal error: Uncaught Error: Failed opening required '/home/jofre/lsw/ateinsa_new/vendor/autoload.php' (include_p…"
       ],
-      "lastMessage": "(no output) Command exited with code 1"
+      "lastMessage": "Warning: require(/home/jofre/lsw/ateinsa_new/vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/ateinsa_new/artisan on line 10 Fatal error: Uncaught Error: Failed opening required '/home/jofre/lsw/ateinsa_new/vendor/autoload.php' (include_path='.:/nix/store/m13fg5a8bfmzh5x6mch5g2r2n1b582iw-php-8.4.20/lib/php') in /home/jofre/lsw/ateinsa_new/artisan:10 Stack trace: #0 {main} thrown in /home/jofre/lsw/ateinsa_new/artisan on line 10 Command exited with code 2…"
+    },
+    "read-error": {
+      "key": "read-error",
+      "toolName": "read",
+      "problemType": "error",
+      "count": 1,
+      "firstSeenAt": "2026-05-18T06:46:58.373Z",
+      "lastSeenAt": "2026-05-18T06:46:58.373Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "ENOENT: no such file or directory, access '/home/jofre/lsw/ateinsa_new/app/Http/Middleware/CheckUserType.php'"
+      ],
+      "lastMessage": "ENOENT: no such file or directory, access '/home/jofre/lsw/ateinsa_new/app/Http/Middleware/CheckUserType.php'"
+    },
+    "agent-browser-batch-slow": {
+      "key": "agent-browser-batch-slow",
+      "toolName": "agent_browser_batch",
+      "problemType": "slow",
+      "count": 1,
+      "firstSeenAt": "2026-05-18T07:52:01.391Z",
+      "lastSeenAt": "2026-05-18T07:52:01.391Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "Last run took 35.7s."
+      ],
+      "lastMessage": "Last run took 35.7s."
+    },
+    "agent-browser-screenshot-slow": {
+      "key": "agent-browser-screenshot-slow",
+      "toolName": "agent_browser_screenshot",
+      "problemType": "slow",
+      "count": 4,
+      "firstSeenAt": "2026-05-18T07:52:52.460Z",
+      "lastSeenAt": "2026-05-18T07:57:03.472Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "Last run took 30.2s."
+      ],
+      "lastMessage": "Last run took 30.2s."
+    },
+    "edit-error": {
+      "key": "edit-error",
+      "toolName": "edit",
+      "problemType": "error",
+      "count": 2,
+      "firstSeenAt": "2026-05-18T09:37:06.595Z",
+      "lastSeenAt": "2026-05-18T09:38:30.608Z",
+      "cwdSamples": [
+        "~/lsw/ateinsa_new"
+      ],
+      "examples": [
+        "Could not find the exact text in app/Services/Usuari/TraspasService.php. The old text must match exactly including all whitespace and newlines.",
+        "Found 2 occurrences of the text in app/Http/Controllers/Usuari/TraspasController.php. The text must be unique. Please provide more context to make it unique."
+      ],
+      "lastMessage": "Found 2 occurrences of the text in app/Http/Controllers/Usuari/TraspasController.php. The text must be unique. Please provide more context to make it unique."
     }
   },
   "suggestions": {
@@ -364,9 +1040,9 @@
       "key": "bash:cd-lsw-beques",
       "status": "snoozed",
       "firstSuggestedAt": "2026-05-15T12:32:17.862Z",
-      "lastSuggestedAt": "2026-05-15T12:32:45.435Z",
-      "timesShown": 1,
-      "snoozedUntil": "2026-05-16T12:32:45.435Z"
+      "lastSuggestedAt": "2026-05-18T06:06:58.716Z",
+      "timesShown": 2,
+      "snoozedUntil": "2026-05-19T06:06:58.716Z"
     },
     "tool-problem:bash-error": {
       "key": "tool-problem:bash-error",
@@ -375,6 +1051,78 @@
       "lastSuggestedAt": "2026-05-15T12:57:52.137Z",
       "timesShown": 1,
       "queuedAt": "2026-05-15T12:57:52.137Z"
+    },
+    "bash:set-e": {
+      "key": "bash:set-e",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-18T06:49:56.584Z",
+      "lastSuggestedAt": "2026-05-18T06:50:43.259Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-19T06:50:43.259Z"
+    },
+    "bash:npm-run": {
+      "key": "bash:npm-run",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-18T07:00:14.489Z",
+      "lastSuggestedAt": "2026-05-18T07:00:26.026Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-19T07:00:26.026Z"
+    },
+    "prompt:nix-dotfiles-workflow": {
+      "key": "prompt:nix-dotfiles-workflow",
+      "status": "queued",
+      "firstSuggestedAt": "2026-05-18T07:21:16.041Z",
+      "lastSuggestedAt": "2026-05-18T07:21:34.908Z",
+      "timesShown": 1,
+      "queuedAt": "2026-05-18T07:21:34.907Z"
+    },
+    "tool-problem:agent-browser-screenshot-slow": {
+      "key": "tool-problem:agent-browser-screenshot-slow",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-18T08:22:05.194Z",
+      "lastSuggestedAt": "2026-05-18T08:22:19.725Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-19T08:22:19.725Z"
+    },
+    "bash:bunx-bun-mariozechner-pi-coding-agent": {
+      "key": "bash:bunx-bun-mariozechner-pi-coding-agent",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-18T08:54:50.008Z",
+      "lastSuggestedAt": "2026-05-18T08:55:03.688Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-19T08:55:03.688Z"
+    },
+    "bash:git-c-home-jofre-dotfiles": {
+      "key": "bash:git-c-home-jofre-dotfiles",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-18T08:59:45.988Z",
+      "lastSuggestedAt": "2026-05-18T08:59:59.988Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-19T08:59:59.988Z"
+    },
+    "bash:php-l-app-services-usuari-traspasservice-php": {
+      "key": "bash:php-l-app-services-usuari-traspasservice-php",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-18T09:43:53.684Z",
+      "lastSuggestedAt": "2026-05-18T09:55:51.195Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-19T09:55:51.195Z"
+    },
+    "sequence:database-query-bash-php-l-app-services-usuari-traspasservice-php": {
+      "key": "sequence:database-query-bash-php-l-app-services-usuari-traspasservice-php",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-18T10:16:04.784Z",
+      "lastSuggestedAt": "2026-05-18T10:25:27.869Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-19T10:25:27.869Z"
+    },
+    "sequence:bash-php-l-app-services-usuari-traspasservice-php-database-query": {
+      "key": "sequence:bash-php-l-app-services-usuari-traspasservice-php-database-query",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-18T10:51:10.679Z",
+      "lastSuggestedAt": "2026-05-18T10:51:12.313Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-19T10:51:12.313Z"
     }
   }
 }

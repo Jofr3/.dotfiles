@@ -1,6 +1,6 @@
 ---
 name: bash-error-recovery-playbook
-description: Prevention and recovery checklist for bash tool errors: missing paths, no-output exit 1, quoting/cwd mistakes, and runtime dependency failures. Use whenever a bash command fails or before running fragile shell/PHP/search commands.
+description: "Prevention and recovery checklist for bash tool errors: missing paths, no-output exit 1, quoting/cwd mistakes, and runtime dependency failures. Use whenever a bash command fails or before running fragile shell/PHP/search commands."
 ---
 
 # Bash Error Recovery Playbook

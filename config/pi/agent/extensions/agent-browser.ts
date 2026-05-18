@@ -12,7 +12,7 @@
  * Docs: https://agent-browser.dev
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import {
 	DEFAULT_MAX_BYTES,
 	DEFAULT_MAX_LINES,
@@ -29,6 +29,9 @@ const DEFAULT_TIMEOUT_MS = 60_000;
 const LONG_TIMEOUT_MS = 120_000;
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const NOTIFY_MAX_CHARS = 4_000;
+const SCREENSHOT_PROGRESS_INTERVAL_MS = 2_000;
+const BATCH_PROGRESS_INTERVAL_MS = 2_000;
+const IMAGE_ATTACHMENT_CACHE_LIMIT = 12;
 
 const COMMAND_COMPLETIONS = [
 	"open",
@@ -96,6 +99,15 @@ interface FormattedRunResult {
 	truncated: boolean;
 	fullOutputPath?: string;
 }
+
+interface CachedImageAttachment {
+	size: number;
+	mtimeMs: number;
+	data: string;
+	mimeType: string;
+}
+
+const imageAttachmentCache = new Map<string, CachedImageAttachment>();
 
 function timeoutMs(value: unknown, fallback = DEFAULT_TIMEOUT_MS): number {
 	if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return fallback;
@@ -282,6 +294,37 @@ function mimeFor(path: string, format?: string): string {
 	return "image/png";
 }
 
+function cacheImageAttachment(path: string, attachment: CachedImageAttachment) {
+	if (imageAttachmentCache.has(path)) imageAttachmentCache.delete(path);
+	imageAttachmentCache.set(path, attachment);
+	while (imageAttachmentCache.size > IMAGE_ATTACHMENT_CACHE_LIMIT) {
+		const oldestKey = imageAttachmentCache.keys().next().value;
+		if (!oldestKey) break;
+		imageAttachmentCache.delete(oldestKey);
+	}
+}
+
+async function imageAttachmentFor(
+	path: string,
+	format: string | undefined,
+	info: { size: number; mtimeMs: number },
+) {
+	const cached = imageAttachmentCache.get(path);
+	if (cached && cached.size === info.size && cached.mtimeMs === info.mtimeMs) {
+		return { data: cached.data, mimeType: cached.mimeType, fromCache: true };
+	}
+
+	const image = await readFile(path);
+	const attachment = {
+		size: info.size,
+		mtimeMs: info.mtimeMs,
+		data: image.toString("base64"),
+		mimeType: mimeFor(path, format),
+	};
+	cacheImageAttachment(path, attachment);
+	return { data: attachment.data, mimeType: attachment.mimeType, fromCache: false };
+}
+
 function parseCommandLine(input: string): string[] {
 	const args: string[] = [];
 	let current = "";
@@ -340,8 +383,14 @@ function commandCompletions(prefix: string) {
 		.map((command) => ({ value: command, label: command }));
 }
 
+function notifyIfUI(ctx: ExtensionContext, text: string, level: "info" | "warning" | "error") {
+	if (!ctx.hasUI) return;
+	ctx.ui.notify(text, level);
+}
+
 export default function agentBrowserExtension(pi: ExtensionAPI) {
 	pi.on("session_start", async (_event, ctx) => {
+		if (!ctx.hasUI) return;
 		try {
 			const result = await pi.exec("agent-browser", ["--version"], { timeout: 3000, cwd: ctx.cwd });
 			if (result.code === 0) {
@@ -355,6 +404,7 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 	});
 
 	pi.on("session_shutdown", async (_event, ctx) => {
+		if (!ctx.hasUI) return;
 		ctx.ui.setStatus("agent-browser", undefined);
 	});
 
@@ -527,6 +577,7 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 		promptSnippet: "Take screenshots through agent-browser and attach the image for visual inspection",
 		promptGuidelines: [
 			"Use agent_browser_screenshot when visual layout, canvas content, or rendered styling matters more than text snapshots.",
+			"For repeated visual checks, use selector to capture only the relevant region and attachImage=false when the saved path is enough.",
 			"Use annotate=true to overlay numbered labels that correspond to @eN refs from agent-browser snapshots.",
 		],
 		parameters: Type.Object({
@@ -562,17 +613,36 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 			if (params.selector) screenshotArgs.push(params.selector);
 			if (params.path) screenshotArgs.push(params.path);
 
-			const args = withGlobalArgs(screenshotArgs, { session: params.session, json: true });
+			const needsJsonOutput = !params.path || params.annotate === true;
+			const args = withGlobalArgs(screenshotArgs, { session: params.session, json: needsJsonOutput });
+			const startedAt = Date.now();
 			onUpdate?.({ content: [{ type: "text", text: `Running ${commandText(args)}` }] });
-			const result = await runAgentBrowser(pi, args, {
-				cwd: ctx.cwd,
-				signal,
-				timeoutMs: timeoutMs(params.timeoutSeconds),
-			});
+			const progressTimer = onUpdate
+				? setInterval(() => {
+					const elapsedSeconds = Math.round((Date.now() - startedAt) / 1000);
+					onUpdate({
+						content: [{ type: "text", text: `Still capturing screenshot… ${elapsedSeconds}s elapsed.` }],
+					});
+				}, SCREENSHOT_PROGRESS_INTERVAL_MS)
+				: undefined;
+			let result: FormattedRunResult;
+			try {
+				result = await runAgentBrowser(pi, args, {
+					cwd: ctx.cwd,
+					signal,
+					timeoutMs: timeoutMs(params.timeoutSeconds),
+				});
+			} finally {
+				if (progressTimer) clearInterval(progressTimer);
+			}
+			const durationMs = Date.now() - startedAt;
 
 			if (result.code !== 0) return toolResultForRun(args, result);
+			onUpdate?.({
+				content: [{ type: "text", text: `Screenshot captured in ${(durationMs / 1000).toFixed(1)}s; preparing result…` }],
+			});
 
-			const parsed = parseMaybeJson(result.stdout);
+			const parsed = needsJsonOutput ? parseMaybeJson(result.stdout) : undefined;
 			const pathFromJson = getNestedPath(parsed);
 			const rawPath = pathFromJson ?? params.path;
 			const absolutePath = rawPath ? (isAbsolute(rawPath) ? rawPath : resolve(ctx.cwd, rawPath)) : undefined;
@@ -580,12 +650,14 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 			let text = absolutePath ? `Screenshot saved to ${absolutePath}.` : result.output;
 			if (parsed && result.output.length < 8_000) text += `\n\n${result.output}`;
 
+			let imageCacheHit = false;
 			if (absolutePath && params.attachImage !== false) {
 				try {
 					const info = await stat(absolutePath);
 					if (info.size <= MAX_IMAGE_BYTES) {
-						const image = await readFile(absolutePath);
-						content.push({ type: "image", data: image.toString("base64"), mimeType: mimeFor(absolutePath, format) });
+						const image = await imageAttachmentFor(absolutePath, format, info);
+						imageCacheHit = image.fromCache;
+						content.push({ type: "image", data: image.data, mimeType: image.mimeType });
 					} else {
 						text += `\n\n[Image not attached because it is ${formatSize(info.size)}; limit is ${formatSize(MAX_IMAGE_BYTES)}.]`;
 					}
@@ -603,6 +675,8 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 					exitCode: result.code,
 					path: absolutePath,
 					attachedImage: content.some((item) => item.type === "image"),
+					imageCacheHit,
+					durationMs,
 				},
 			};
 		},
@@ -689,7 +763,7 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 		}),
 		async execute(_toolCallId, params, signal, onUpdate, ctx) {
 			const commands = Array.isArray(params.commands)
-				? params.commands.map((command: unknown) => String(command)).filter(Boolean)
+				? params.commands.map((command: unknown) => String(command).trim()).filter(Boolean)
 				: [];
 			if (commands.length === 0) {
 				return {
@@ -698,17 +772,87 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 					isError: true,
 				};
 			}
+
+			if (commands.length === 1) {
+				let parsedCommand: string[];
+				try {
+					parsedCommand = normalizeArgs(parseCommandLine(commands[0]));
+				} catch (error) {
+					const message = error instanceof Error ? error.message : String(error);
+					return {
+						content: [{ type: "text" as const, text: `Error: could not parse command: ${message}` }],
+						details: { error: true, command: commands[0] },
+						isError: true,
+					};
+				}
+				if (parsedCommand.length === 0) {
+					return {
+						content: [{ type: "text" as const, text: "Error: provide a non-empty command string." }],
+						details: { error: true },
+						isError: true,
+					};
+				}
+
+				const args = withGlobalArgs(parsedCommand, { session: params.session, json: params.json === true });
+				const startedAt = Date.now();
+				onUpdate?.({ content: [{ type: "text", text: `Running ${commandText(args)} (single-command fast path)` }] });
+				const result = await runAgentBrowser(pi, args, {
+					cwd: ctx.cwd,
+					signal,
+					timeoutMs: timeoutMs(params.timeoutSeconds),
+				});
+				const durationMs = Date.now() - startedAt;
+				const toolResult = toolResultForRun(args, result);
+				return {
+					...toolResult,
+					details: {
+						...toolResult.details,
+						durationMs,
+						commandCount: commands.length,
+						optimizedSingleCommand: true,
+					},
+				};
+			}
+
 			const batchArgs = ["batch"];
 			if (params.bail) batchArgs.push("--bail");
 			batchArgs.push(...commands);
 			const args = withGlobalArgs(batchArgs, { session: params.session, json: params.json === true });
-			onUpdate?.({ content: [{ type: "text", text: `Running ${commands.length} agent-browser command(s)` }] });
-			const result = await runAgentBrowser(pi, args, {
-				cwd: ctx.cwd,
-				signal,
-				timeoutMs: timeoutMs(params.timeoutSeconds, LONG_TIMEOUT_MS),
+			const startedAt = Date.now();
+			const preview = commands.slice(0, 3).join(" → ") + (commands.length > 3 ? " → …" : "");
+			onUpdate?.({ content: [{ type: "text", text: `Running ${commands.length} agent-browser command(s): ${preview}` }] });
+			const progressTimer = onUpdate
+				? setInterval(() => {
+					const elapsedSeconds = Math.round((Date.now() - startedAt) / 1000);
+					onUpdate({
+						content: [
+							{
+								type: "text",
+								text: `Still running ${commands.length} agent-browser command(s)… ${elapsedSeconds}s elapsed.`,
+							},
+						],
+					});
+				}, BATCH_PROGRESS_INTERVAL_MS)
+				: undefined;
+			let result: FormattedRunResult;
+			try {
+				result = await runAgentBrowser(pi, args, {
+					cwd: ctx.cwd,
+					signal,
+					timeoutMs: timeoutMs(params.timeoutSeconds, LONG_TIMEOUT_MS),
+				});
+			} finally {
+				if (progressTimer) clearInterval(progressTimer);
+			}
+			const durationMs = Date.now() - startedAt;
+			onUpdate?.({
+				content: [{ type: "text", text: `Batch finished in ${(durationMs / 1000).toFixed(1)}s.` }],
 			});
-			return toolResultForRun(args, result);
+			const toolResult = toolResultForRun(args, result);
+			return {
+				...toolResult,
+				details: { ...toolResult.details, durationMs, commandCount: commands.length },
+			};
 		},
 		renderCall(args, theme) {
 			const count = Array.isArray(args.commands) ? args.commands.length : 0;
@@ -730,7 +874,7 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 		handler: async (rawArgs, ctx) => {
 			const raw = rawArgs.trim();
 			if (!raw) {
-				ctx.ui.notify("Usage: /browser <agent-browser args> (example: /browser snapshot -i -c)", "warning");
+				notifyIfUI(ctx, "Usage: /browser <agent-browser args> (example: /browser snapshot -i -c)", "warning");
 				return;
 			}
 
@@ -739,13 +883,13 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 				args = normalizeArgs(parseCommandLine(raw));
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
-				ctx.ui.notify(`Could not parse args: ${message}`, "error");
+				notifyIfUI(ctx, `Could not parse args: ${message}`, "error");
 				return;
 			}
 
 			const result = await runAgentBrowser(pi, args, { cwd: ctx.cwd, timeoutMs: LONG_TIMEOUT_MS });
 			const text = `${commandText(args)}\n\n${result.output}`;
-			ctx.ui.notify(notifyText(text), result.code === 0 ? "info" : "error");
+			notifyIfUI(ctx, notifyText(text), result.code === 0 ? "info" : "error");
 		},
 	});
 
@@ -757,12 +901,12 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 				extra = parseCommandLine(rawArgs.trim());
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
-				ctx.ui.notify(`Could not parse args: ${message}`, "error");
+				notifyIfUI(ctx, `Could not parse args: ${message}`, "error");
 				return;
 			}
 			const args = ["close", ...extra];
 			const result = await runAgentBrowser(pi, args, { cwd: ctx.cwd, timeoutMs: DEFAULT_TIMEOUT_MS });
-			ctx.ui.notify(notifyText(result.output), result.code === 0 ? "info" : "error");
+			notifyIfUI(ctx, notifyText(result.output), result.code === 0 ? "info" : "error");
 		},
 	});
 
@@ -774,7 +918,7 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 				extra = parseCommandLine(rawArgs.trim());
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
-				ctx.ui.notify(`Could not parse args: ${message}`, "error");
+				notifyIfUI(ctx, `Could not parse args: ${message}`, "error");
 				return;
 			}
 			const args = ["doctor", ...extra];
@@ -783,7 +927,7 @@ export default function agentBrowserExtension(pi: ExtensionAPI) {
 			if (result.code !== 0 && /unknown command|unrecognized/i.test(output)) {
 				output += "\n\nYour installed agent-browser may be older than the docs. Try: agent-browser upgrade";
 			}
-			ctx.ui.notify(notifyText(output), result.code === 0 ? "info" : "error");
+			notifyIfUI(ctx, notifyText(output), result.code === 0 ? "info" : "error");
 		},
 	});
 }

@@ -95,6 +95,7 @@ interface UpgradeSuggestion {
 	message: string;
 	action: string;
 	path?: string;
+	paths?: string[];
 	autoFixable?: boolean;
 }
 
@@ -241,6 +242,14 @@ function isValidSkillName(name: string): boolean {
 function truncate(text: string, max = MAX_REPORT_CHARS): string {
 	if (text.length <= max) return text;
 	return `${text.slice(0, max)}\n\n[Report truncated at ${max} characters. Full report: ${REPORT_PATH}]`;
+}
+
+function redact(text: string): string {
+	return text
+		.replace(/-----BEGIN [^-]+ PRIVATE KEY-----[\s\S]*?-----END [^-]+ PRIVATE KEY-----/g, "[redacted private key]")
+		.replace(/\b(Bearer\s+)[A-Za-z0-9._~+\/-]+=*/gi, "$1[redacted]")
+		.replace(/\b(api[_-]?key|access[_-]?token|refresh[_-]?token|token|password|passwd|secret)(\s*[:=]\s*)(['\"]?)[^'\"\s]+/gi, "$1$2$3[redacted]")
+		.replace(/[A-Za-z0-9+/]{80,}={0,2}/g, "[redacted-long-token]");
 }
 
 function formatDuration(ms: number): string {
@@ -815,7 +824,7 @@ function formatReport(result: AuditResult, metrics: MetricsStore): string {
 	lines.push("## How to improve safely");
 	lines.push("");
 	lines.push("1. Fix `error` findings first; missing skill descriptions can prevent loading entirely.");
-	lines.push("2. Use telemetry to prioritize high-error or slow extension tools.");
+	lines.push("2. Use telemetry to prioritize high-error or slow extension tools, especially setup/credential failures that should be solved in the owning resource.");
 	lines.push("3. Prefer small, reviewable edits and run `/reload` after editing extensions or skills.");
 	lines.push("4. Upgrade prompts never edit files unless the user accepts the prompt.");
 	return lines.join("\n");
@@ -847,7 +856,56 @@ function isExtensionToolMetric(metric: ToolMetric): boolean {
 	return true;
 }
 
-function collectPerformanceSuggestions(metrics: MetricsStore, config: ImproverConfig): UpgradeSuggestion[] {
+function uniquePaths(paths: Array<string | undefined>): string[] {
+	return [...new Set(paths.filter((path): path is string => typeof path === "string" && path.length > 0))];
+}
+
+function findResourcePath(resources: ResourceInfo[], kind: ResourceKind, name: string): string | undefined {
+	return resources.find((resource) => resource.kind === kind && resource.name === name)?.path;
+}
+
+function databaseConfigSetupError(text: string): boolean {
+	return /No database config found|\.agent\/credentials\/database\.json|auth\/credentials\/database\.json|Invalid database config|Invalid or missing database type|missing (host|host or socket|user|password|type)/i.test(text);
+}
+
+function genericSetupOrCredentialsError(text: string): boolean {
+	return /No .*config found|missing .*credentials?|missing .*config|credentials? .*missing|auth\/credentials|\.agent\/credentials|not configured/i.test(text);
+}
+
+function contextualToolUpgradeSuggestion(metric: ToolMetric, resources: ResourceInfo[]): UpgradeSuggestion | undefined {
+	if (!metric.lastError) return undefined;
+	const base = `${metric.sourcePath ?? metric.source}:${metric.toolName}`;
+	const databaseSkillPath = findResourcePath(resources, "skill", "database");
+
+	if (metric.toolName === "database_query" && databaseConfigSetupError(metric.lastError)) {
+		const paths = uniquePaths([metric.sourcePath, databaseSkillPath]);
+		return {
+			key: `tool-setup:database:${base}`,
+			severity: "warning",
+			title: "Database skill/extension needs a credential setup workflow",
+			message: `database_query could not run because project database credentials/config are missing or incomplete: ${metric.lastError}`,
+			action: "Upgrade the database extension and database skill so a missing .agent/credentials/database.json starts a setup path: inspect common project sources (.env*, docker-compose*, framework config), ask the user before writing credentials, allow user-provided credentials, write .agent/credentials/database.json only with confirmation, redact secrets in all output, and offer another solution when credentials cannot be inferred.",
+			path: paths[0],
+			paths,
+		};
+	}
+
+	if (genericSetupOrCredentialsError(metric.lastError)) {
+		return {
+			key: `tool-setup:${base}`,
+			severity: "warning",
+			title: `Extension tool ${metric.toolName} needs setup guidance`,
+			message: `The tool failed because required configuration or credentials appear to be missing: ${metric.lastError}`,
+			action: "Upgrade the owning skill/extension with a first-run setup workflow that discovers safe project config hints, asks the user for missing secrets, writes any credential file only after confirmation, and documents alternatives instead of repeatedly failing or creating a one-off recovery skill.",
+			path: metric.sourcePath,
+			paths: uniquePaths([metric.sourcePath]),
+		};
+	}
+
+	return undefined;
+}
+
+function collectPerformanceSuggestions(metrics: MetricsStore, config: ImproverConfig, resources: ResourceInfo[]): UpgradeSuggestion[] {
 	const suggestions: UpgradeSuggestion[] = [];
 	for (const metric of Object.values(metrics.tools)) {
 		if (!isExtensionToolMetric(metric)) continue;
@@ -856,8 +914,11 @@ function collectPerformanceSuggestions(metrics: MetricsStore, config: ImproverCo
 		const averageMs = metric.totalMs / metric.calls;
 		const errorRate = metric.errors / metric.calls;
 		const base = `${metric.sourcePath ?? metric.source}:${metric.toolName}`;
+		const contextual = contextualToolUpgradeSuggestion(metric, resources);
 
-		if (metric.lastError || (metric.calls >= config.minCallsForPerformanceWarning && errorRate > config.maxErrorRateForTools)) {
+		if (contextual) {
+			suggestions.push(contextual);
+		} else if (metric.lastError || (metric.calls >= config.minCallsForPerformanceWarning && errorRate > config.maxErrorRateForTools)) {
 			suggestions.push({
 				key: `tool-error:${base}`,
 				severity: "warning",
@@ -865,8 +926,9 @@ function collectPerformanceSuggestions(metrics: MetricsStore, config: ImproverCo
 				message: metric.lastError
 					? `Last failure: ${metric.lastError}`
 					: `Error rate is ${(errorRate * 100).toFixed(0)}% (${metric.errors}/${metric.calls}).`,
-				action: "Improve input validation, error messages, and recovery behavior for this tool.",
+				action: "Improve the owning skill/extension's validation, setup guidance, error messages, and recovery behavior. Prefer teaching the resource to solve its own recurring setup problem over creating a separate band-aid playbook.",
 				path: metric.sourcePath,
+				paths: uniquePaths([metric.sourcePath]),
 			});
 		}
 
@@ -876,8 +938,9 @@ function collectPerformanceSuggestions(metrics: MetricsStore, config: ImproverCo
 				severity: "warning",
 				title: `Extension tool ${metric.toolName} is slow`,
 				message: `Last run took ${formatDuration(metric.lastMs)}; average is ${formatDuration(averageMs)} across ${metric.calls} call(s).`,
-				action: "Cache repeated work, narrow scans, stream progress, or reduce shell/process startup overhead.",
+				action: "Improve the owning extension by caching repeated work, narrowing scans, streaming progress, or reducing shell/process startup overhead.",
 				path: metric.sourcePath,
+				paths: uniquePaths([metric.sourcePath]),
 			});
 		}
 	}
@@ -895,13 +958,18 @@ function collectUpgradeSuggestions(
 		.filter((finding) => finding.severity !== "info" || finding.autoFixable)
 		.map(suggestionFromFinding)
 		.sort((a, b) => severityRank(a.severity) - severityRank(b.severity));
-	const performance = collectPerformanceSuggestions(metrics, config);
+	const performance = collectPerformanceSuggestions(metrics, config, result.resources);
 	const ordered = preferPerformance ? [...performance, ...findings] : [...findings, ...performance];
 	return ordered.filter((suggestion) => !emittedKeys.has(suggestion.key));
 }
 
+function suggestionPaths(suggestion: UpgradeSuggestion): string[] {
+	return suggestion.paths?.length ? suggestion.paths : uniquePaths([suggestion.path]);
+}
+
 function formatUpgradeSuggestion(suggestion: UpgradeSuggestion, cwd: string): string {
 	const icon = suggestion.severity === "error" ? "❌" : suggestion.severity === "warning" ? "⚠️" : "ℹ️";
+	const paths = suggestionPaths(suggestion);
 	const lines = [
 		"💡 Skill/extension upgrade prompt",
 		"",
@@ -911,13 +979,19 @@ function formatUpgradeSuggestion(suggestion: UpgradeSuggestion, cwd: string): st
 		"",
 		`Suggested change: ${suggestion.action}`,
 	];
-	if (suggestion.path) lines.push("", `File: ${formatRelative(suggestion.path, cwd)}`);
+	if (paths.length === 1) lines.push("", `File: ${formatRelative(paths[0]!, cwd)}`);
+	else if (paths.length > 1) lines.push("", "Files:", ...paths.map((path) => `- ${formatRelative(path, cwd)}`));
 	lines.push("", `Report: ${REPORT_PATH}`);
 	return lines.join("\n");
 }
 
 function formatSuggestionWidget(suggestion: UpgradeSuggestion, cwd: string): string[] {
-	const location = suggestion.path ? ` — ${formatRelative(suggestion.path, cwd)}` : "";
+	const paths = suggestionPaths(suggestion);
+	const location = paths.length === 1
+		? ` — ${formatRelative(paths[0]!, cwd)}`
+		: paths.length > 1
+			? ` — ${formatRelative(paths[0]!, cwd)} +${paths.length - 1} more`
+			: "";
 	return [
 		`💡 Skill/extension upgrade prompt: ${suggestion.title}${location}`,
 		`Suggested change: ${suggestion.action}`,
@@ -960,6 +1034,27 @@ function updateSkillMetric(metrics: MetricsStore, name: string, patch: Partial<S
 	};
 }
 
+function extractToolResultText(result: unknown): string | undefined {
+	const content = (result as any)?.content;
+	if (Array.isArray(content)) {
+		const text = content
+			.map((item) => typeof item?.text === "string" ? item.text : "")
+			.filter(Boolean)
+			.join("\n")
+			.trim();
+		if (text) return redact(text).slice(0, 500);
+	}
+	return undefined;
+}
+
+function toolResultIndicatesError(result: unknown, isError: boolean): boolean {
+	if (isError) return true;
+	const details = (result as any)?.details;
+	if (details?.error === true || (result as any)?.isError === true) return true;
+	const text = extractToolResultText(result);
+	return Boolean(text && /^(Error|Failed|Failure):/i.test(text));
+}
+
 function updateToolMetric(metrics: MetricsStore, key: string, patch: Omit<ToolMetric, "calls" | "errors" | "totalMs" | "maxMs" | "lastUsedAt"> & { durationMs: number; isError: boolean }): void {
 	const now = new Date().toISOString();
 	const current = metrics.tools[key] ?? {
@@ -985,7 +1080,7 @@ function updateToolMetric(metrics: MetricsStore, key: string, patch: Omit<ToolMe
 		maxMs: Math.max(current.maxMs, patch.durationMs),
 		lastMs: patch.durationMs,
 		lastUsedAt: now,
-		lastError: patch.lastError ?? current.lastError,
+		lastError: patch.isError ? patch.lastError ?? current.lastError : undefined,
 	};
 }
 
@@ -1051,26 +1146,32 @@ export default function skillExtensionImprover(pi: ExtensionAPI) {
 	}
 
 	function emitUpgradeDetails(suggestion: UpgradeSuggestion, ctx: { cwd: string }): void {
+		const paths = suggestionPaths(suggestion).map((path) => formatRelative(path, ctx.cwd));
 		pi.sendMessage({
 			customType: "skill-extension-improver-suggestion",
 			content: formatUpgradeSuggestion(suggestion, ctx.cwd),
 			display: true,
 			details: {
 				suggestion,
-				path: suggestion.path ? formatRelative(suggestion.path, ctx.cwd) : undefined,
+				path: paths.join(", ") || undefined,
 				reportPath: REPORT_PATH,
 			},
 		});
 	}
 
 	function queueUpgradeTask(suggestion: UpgradeSuggestion, ctx: { cwd: string }): void {
-		const fileLine = suggestion.path ? `\nTarget file: ${formatRelative(suggestion.path, ctx.cwd)}` : "";
+		const paths = suggestionPaths(suggestion);
+		const fileLine = paths.length === 0
+			? ""
+			: paths.length === 1
+				? `\nTarget file: ${formatRelative(paths[0]!, ctx.cwd)}`
+				: `\nTarget files:\n${paths.map((path) => `- ${formatRelative(path, ctx.cwd)}`).join("\n")}`;
 		pi.sendUserMessage(
 			`Please apply this Pi skill/extension upgrade that the background monitor recommended.\n\n` +
 			`Finding: ${suggestion.title}\n` +
 			`Problem: ${suggestion.message}\n` +
 			`Upgrade: ${suggestion.action}${fileLine}\n\n` +
-			`Before editing, read the target file(s). Make the smallest safe change, validate extension loading if possible, and tell me whether /reload is needed.`,
+			`Before editing, read the target file(s). Improve the owning skill/extension rather than creating a one-off workaround, make the smallest safe change, validate extension loading if possible, and tell me whether /reload is needed.`,
 			{ deliverAs: "followUp" },
 		);
 	}
@@ -1258,17 +1359,14 @@ export default function skillExtensionImprover(pi: ExtensionAPI) {
 		const source = String(sourceInfo.source ?? "unknown");
 		const sourcePath = typeof sourceInfo.path === "string" ? sourceInfo.path : undefined;
 		const key = `${sourcePath ?? source}::${event.toolName}`;
-		const errorText = event.isError
-			? typeof (event.result as any)?.content?.[0]?.text === "string"
-				? String((event.result as any).content[0].text).slice(0, 500)
-				: "Tool failed"
-			: undefined;
+		const resultFailed = toolResultIndicatesError(event.result, Boolean(event.isError));
+		const errorText = resultFailed ? extractToolResultText(event.result) ?? "Tool failed" : undefined;
 		updateToolMetric(metrics, key, {
 			toolName: event.toolName,
 			source,
 			sourcePath,
 			durationMs,
-			isError: Boolean(event.isError),
+			isError: resultFailed,
 			lastMs: durationMs,
 			lastError: errorText,
 		});
@@ -1277,7 +1375,7 @@ export default function skillExtensionImprover(pi: ExtensionAPI) {
 			source !== "builtin" &&
 			source !== "sdk" &&
 			!sourcePath?.startsWith("<builtin:") &&
-			(event.isError || durationMs > config.maxAverageToolMs)
+			(resultFailed || durationMs > config.maxAverageToolMs)
 		) {
 			performanceSuggestionPending = true;
 		}

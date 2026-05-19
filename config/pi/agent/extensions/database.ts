@@ -17,7 +17,7 @@ import {
 	type TruncationResult,
 } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdtempSync, readFileSync, statSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { dirname, join } from "path";
 
@@ -57,6 +57,9 @@ interface TruncatedOutput {
 
 const CONFIG_RELATIVE_PATH = ".agent/credentials/database.json";
 const MAX_ROWS = 200;
+const EXEC_TIMEOUT_MS = 30000;
+const CONNECT_TIMEOUT_SECONDS = 5;
+const configCache = new Map<string, { result: LoadConfigResult; mtimeMs: number }>();
 
 function truncateForModel(text: string, mode: "head" | "tail" = "head"): TruncatedOutput {
 	const truncation = (mode === "tail" ? truncateTail : truncateHead)(text, {
@@ -123,7 +126,36 @@ function normalizeType(type: unknown): DatabaseEngine | null {
 	return null;
 }
 
+function cachedConfig(cwd: string): LoadConfigResult | null {
+	const cached = configCache.get(cwd);
+	if (!cached?.result.path) return null;
+
+	try {
+		if (statSync(cached.result.path).mtimeMs === cached.mtimeMs) return cached.result;
+	} catch {
+		// Config disappeared or became unreadable; fall through to a fresh lookup.
+	}
+
+	configCache.delete(cwd);
+	return null;
+}
+
+function cacheConfig(cwd: string, result: LoadConfigResult): LoadConfigResult {
+	if (!result.path) return result;
+
+	try {
+		configCache.set(cwd, { result, mtimeMs: statSync(result.path).mtimeMs });
+	} catch {
+		configCache.delete(cwd);
+	}
+
+	return result;
+}
+
 function loadConfig(cwd: string): LoadConfigResult {
+	const cached = cachedConfig(cwd);
+	if (cached) return cached;
+
 	const configPath = findConfigPath(cwd);
 	if (!configPath) {
 		return {
@@ -137,18 +169,21 @@ function loadConfig(cwd: string): LoadConfigResult {
 	try {
 		raw = JSON.parse(readFileSync(configPath, "utf-8")) as RawDatabaseConfig;
 	} catch (err: any) {
-		return { path: configPath, error: `Failed to parse ${configPath}: ${err.message}` };
+		return cacheConfig(cwd, {
+			path: configPath,
+			error: `Failed to parse ${configPath}: ${err.message}`,
+		});
 	}
 
 	const type = normalizeType(raw.type);
 	if (!type) {
 		const provided = raw.type === undefined ? "missing" : JSON.stringify(raw.type);
-		return {
+		return cacheConfig(cwd, {
 			path: configPath,
 			error:
 				`Invalid or missing database type in ${configPath} (got ${provided}). ` +
 				`Add "type": "mysql" for MySQL/MariaDB or "type": "sqlserver" for SQL Server.`,
-		};
+		});
 	}
 
 	const missing: string[] = [];
@@ -158,13 +193,13 @@ function loadConfig(cwd: string): LoadConfigResult {
 	if (raw.password === undefined) missing.push("password");
 
 	if (missing.length > 0) {
-		return {
+		return cacheConfig(cwd, {
 			path: configPath,
 			error: `Invalid database config in ${configPath}: missing ${missing.join(", ")}.`,
-		};
+		});
 	}
 
-	return {
+	return cacheConfig(cwd, {
 		path: configPath,
 		config: {
 			...raw,
@@ -172,11 +207,12 @@ function loadConfig(cwd: string): LoadConfigResult {
 			user: raw.user!,
 			password: raw.password!,
 		},
-	};
+	});
 }
 
 function buildMysqlArgs(config: DatabaseConfig, query: string, database?: string): string[] {
 	const args: string[] = [];
+	args.push(`--connect-timeout=${CONNECT_TIMEOUT_SECONDS}`);
 	if (config.password) args.push(`--password=${config.password}`);
 	if (config.host) args.push("-h", config.host);
 	args.push("-P", String(config.port ?? 3306));
@@ -197,6 +233,7 @@ function buildSqlServerArgs(config: DatabaseConfig, query: string, database?: st
 	args.push("-P", config.password);
 	const db = database ?? config.database;
 	if (db) args.push("-d", db);
+	args.push("-l", String(CONNECT_TIMEOUT_SECONDS));
 	if (config.encrypt !== undefined) args.push("-N", config.encrypt ? "true" : "false");
 	if (config.trustServerCertificate !== false) args.push("-C");
 	args.push("-b"); // non-zero exit code on SQL errors
@@ -324,10 +361,31 @@ export default function (pi: ExtensionAPI) {
 					? buildSqlServerArgs(config, params.query, params.database)
 					: buildMysqlArgs(config, params.query, params.database);
 
+			const startedAt = Date.now();
+			let progressTimer: ReturnType<typeof setInterval> | undefined;
+			if (onUpdate) {
+				const sendProgress = (message: string) => {
+					onUpdate({
+						content: [{ type: "text", text: message }],
+						details: {
+							databaseType: config.type,
+							configPath: loaded.path,
+							elapsedMs: Date.now() - startedAt,
+							timeoutMs: EXEC_TIMEOUT_MS,
+						},
+					});
+				};
+				sendProgress(`Running ${config.type} query...`);
+				progressTimer = setInterval(() => {
+					const seconds = Math.round((Date.now() - startedAt) / 1000);
+					sendProgress(`Still running ${config.type} query (${seconds}s elapsed)...`);
+				}, 5000);
+			}
+
 			try {
 				const result = await pi.exec(command, args, {
 					cwd: ctx.cwd,
-					timeout: 30000,
+					timeout: EXEC_TIMEOUT_MS,
 					signal,
 				});
 
@@ -342,6 +400,7 @@ export default function (pi: ExtensionAPI) {
 							code: result.code,
 							databaseType: config.type,
 							configPath: loaded.path,
+							elapsedMs: Date.now() - startedAt,
 							...truncationDetails(output),
 						},
 						isError: true,
@@ -361,6 +420,7 @@ export default function (pi: ExtensionAPI) {
 						success: true,
 						databaseType: config.type,
 						configPath: loaded.path,
+						elapsedMs: Date.now() - startedAt,
 						...truncationDetails(output),
 					},
 				};
@@ -372,10 +432,13 @@ export default function (pi: ExtensionAPI) {
 						error: true,
 						databaseType: config.type,
 						configPath: loaded.path,
+						elapsedMs: Date.now() - startedAt,
 						...truncationDetails(output),
 					},
 					isError: true,
 				};
+			} finally {
+				if (progressTimer) clearInterval(progressTimer);
 			}
 		},
 	});

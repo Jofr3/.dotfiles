@@ -1,175 +1,102 @@
 {
   "version": 1,
-  "createdAt": "2026-05-15T08:40:08.430Z",
-  "updatedAt": "2026-05-18T12:48:10.964Z",
+  "createdAt": "2026-05-19T09:04:12.446Z",
+  "updatedAt": "2026-05-19T12:55:24.690Z",
   "tools": {
-    "/home/jofre/.pi/agent/extensions/agent-browser.ts::agent_browser_open": {
-      "toolName": "agent_browser_open",
-      "source": "auto",
-      "sourcePath": "/home/jofre/.pi/agent/extensions/agent-browser.ts",
-      "calls": 9,
-      "errors": 0,
-      "totalMs": 11048,
-      "maxMs": 2193,
-      "lastMs": 1123,
-      "lastUsedAt": "2026-05-18T06:58:58.857Z"
-    },
-    "/home/jofre/.pi/agent/extensions/agent-browser.ts::agent_browser_snapshot": {
-      "toolName": "agent_browser_snapshot",
-      "source": "auto",
-      "sourcePath": "/home/jofre/.pi/agent/extensions/agent-browser.ts",
-      "calls": 14,
-      "errors": 0,
-      "totalMs": 2903,
-      "maxMs": 314,
-      "lastMs": 168,
-      "lastUsedAt": "2026-05-18T06:59:00.638Z"
-    },
-    "/home/jofre/.pi/agent/extensions/agent-browser.ts::agent_browser_run": {
-      "toolName": "agent_browser_run",
-      "source": "auto",
-      "sourcePath": "/home/jofre/.pi/agent/extensions/agent-browser.ts",
-      "calls": 31,
-      "errors": 0,
-      "totalMs": 9150,
-      "maxMs": 1363,
-      "lastMs": 221,
-      "lastUsedAt": "2026-05-18T07:56:12.173Z"
-    },
     "<builtin:read>::read": {
       "toolName": "read",
       "source": "builtin",
       "sourcePath": "<builtin:read>",
-      "calls": 298,
+      "calls": 116,
       "errors": 1,
-      "totalMs": 2104,
-      "maxMs": 113,
-      "lastMs": 9,
-      "lastUsedAt": "2026-05-18T11:01:54.414Z"
+      "totalMs": 2135,
+      "maxMs": 78,
+      "lastMs": 32,
+      "lastUsedAt": "2026-05-19T12:54:21.012Z"
     },
     "<builtin:bash>::bash": {
       "toolName": "bash",
       "source": "builtin",
       "sourcePath": "<builtin:bash>",
-      "calls": 236,
-      "errors": 15,
-      "totalMs": 613563,
-      "maxMs": 513410,
-      "lastMs": 58,
-      "lastUsedAt": "2026-05-18T11:02:53.095Z"
+      "calls": 113,
+      "errors": 9,
+      "totalMs": 339870,
+      "maxMs": 82639,
+      "lastMs": 2498,
+      "lastUsedAt": "2026-05-19T12:55:23.690Z"
     },
-    "<builtin:edit>::edit": {
-      "toolName": "edit",
-      "source": "builtin",
-      "sourcePath": "<builtin:edit>",
-      "calls": 102,
-      "errors": 3,
-      "totalMs": 37153,
-      "maxMs": 7636,
-      "lastMs": 459,
-      "lastUsedAt": "2026-05-18T11:02:32.957Z"
-    },
-    "/home/jofre/.pi/agent/extensions/agent-browser.ts::agent_browser_screenshot": {
-      "toolName": "agent_browser_screenshot",
+    "/home/jofre/.pi/agent/extensions/context7.ts::context7_search": {
+      "toolName": "context7_search",
       "source": "auto",
-      "sourcePath": "/home/jofre/.pi/agent/extensions/agent-browser.ts",
-      "calls": 14,
+      "sourcePath": "/home/jofre/.pi/agent/extensions/context7.ts",
+      "calls": 2,
       "errors": 0,
-      "totalMs": 127444,
-      "maxMs": 30168,
-      "lastMs": 30163,
-      "lastUsedAt": "2026-05-18T07:57:03.471Z"
+      "totalMs": 2598,
+      "maxMs": 1538,
+      "lastMs": 1060,
+      "lastUsedAt": "2026-05-19T10:57:06.251Z"
+    },
+    "/home/jofre/.pi/agent/extensions/context7.ts::context7_docs": {
+      "toolName": "context7_docs",
+      "source": "auto",
+      "sourcePath": "/home/jofre/.pi/agent/extensions/context7.ts",
+      "calls": 2,
+      "errors": 0,
+      "totalMs": 3279,
+      "maxMs": 1644,
+      "lastMs": 1644,
+      "lastUsedAt": "2026-05-19T10:57:12.656Z"
     },
     "<builtin:write>::write": {
       "toolName": "write",
       "source": "builtin",
       "sourcePath": "<builtin:write>",
-      "calls": 4,
+      "calls": 23,
       "errors": 0,
-      "totalMs": 53,
-      "maxMs": 41,
-      "lastMs": 6,
-      "lastUsedAt": "2026-05-18T07:24:42.685Z"
+      "totalMs": 177,
+      "maxMs": 16,
+      "lastMs": 16,
+      "lastUsedAt": "2026-05-19T12:14:46.137Z"
     },
-    "/home/jofre/.pi/agent/extensions/database.ts::database_query": {
-      "toolName": "database_query",
-      "source": "auto",
-      "sourcePath": "/home/jofre/.pi/agent/extensions/database.ts",
-      "calls": 17,
-      "errors": 0,
-      "totalMs": 5110,
-      "maxMs": 459,
-      "lastMs": 225,
-      "lastUsedAt": "2026-05-18T11:02:19.820Z"
-    },
-    "/home/jofre/.pi/agent/extensions/agent-browser.ts::agent_browser_eval": {
-      "toolName": "agent_browser_eval",
-      "source": "auto",
-      "sourcePath": "/home/jofre/.pi/agent/extensions/agent-browser.ts",
-      "calls": 6,
-      "errors": 0,
-      "totalMs": 994,
-      "maxMs": 172,
-      "lastMs": 172,
-      "lastUsedAt": "2026-05-18T07:57:28.483Z"
-    },
-    "/home/jofre/.pi/agent/extensions/agent-browser.ts::agent_browser_batch": {
-      "toolName": "agent_browser_batch",
-      "source": "auto",
-      "sourcePath": "/home/jofre/.pi/agent/extensions/agent-browser.ts",
-      "calls": 7,
-      "errors": 0,
-      "totalMs": 60461,
-      "maxMs": 35693,
-      "lastMs": 35693,
-      "lastUsedAt": "2026-05-18T07:52:01.391Z"
+    "<builtin:edit>::edit": {
+      "toolName": "edit",
+      "source": "builtin",
+      "sourcePath": "<builtin:edit>",
+      "calls": 181,
+      "errors": 11,
+      "totalMs": 3361,
+      "maxMs": 208,
+      "lastMs": 29,
+      "lastUsedAt": "2026-05-19T12:55:08.343Z"
     }
   },
   "skills": {
-    "agent-browser": {
-      "name": "agent-browser",
-      "loads": 3,
-      "explicitInvocations": 3,
-      "agentRuns": 3,
-      "totalAgentMs": 244665,
-      "lastUsedAt": "2026-05-18T06:58:52.001Z",
-      "path": "/home/jofre/.pi/agent/skills/agent-browser/SKILL.md"
-    },
-    "gitnexus-debugging": {
-      "name": "gitnexus-debugging",
-      "path": "/home/jofre/.agents/skills/gitnexus-debugging/SKILL.md",
-      "loads": 4,
+    "nix-dotfiles-workflow": {
+      "name": "nix-dotfiles-workflow",
+      "path": "/home/jofre/.pi/agent/skills/nix-dotfiles-workflow/SKILL.md",
+      "loads": 1,
       "explicitInvocations": 0,
       "agentRuns": 0,
       "totalAgentMs": 0,
-      "lastUsedAt": "2026-05-18T11:01:32.755Z"
+      "lastUsedAt": "2026-05-19T09:04:37.531Z"
     },
-    "sftp": {
-      "name": "sftp",
-      "path": "/home/jofre/.pi/agent/skills/sftp/SKILL.md",
-      "loads": 4,
+    "context7": {
+      "name": "context7",
+      "path": "/home/jofre/.pi/agent/skills/context7/SKILL.md",
+      "loads": 2,
       "explicitInvocations": 0,
       "agentRuns": 0,
       "totalAgentMs": 0,
-      "lastUsedAt": "2026-05-18T10:26:19.690Z"
-    },
-    "database": {
-      "name": "database",
-      "path": "/home/jofre/.pi/agent/skills/database/SKILL.md",
-      "loads": 3,
-      "explicitInvocations": 0,
-      "agentRuns": 0,
-      "totalAgentMs": 0,
-      "lastUsedAt": "2026-05-18T06:47:29.397Z"
+      "lastUsedAt": "2026-05-19T10:57:02.720Z"
     },
     "bash-error-recovery-playbook": {
       "name": "bash-error-recovery-playbook",
       "path": "/home/jofre/.pi/agent/skills/bash-error-recovery-playbook/SKILL.md",
-      "loads": 3,
+      "loads": 2,
       "explicitInvocations": 0,
       "agentRuns": 0,
       "totalAgentMs": 0,
-      "lastUsedAt": "2026-05-18T08:57:13.435Z"
+      "lastUsedAt": "2026-05-19T11:11:50.691Z"
     }
   }
 }

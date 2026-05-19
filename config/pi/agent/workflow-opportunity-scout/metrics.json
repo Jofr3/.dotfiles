@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-05-15T12:10:23.796Z",
-  "updatedAt": "2026-05-18T12:48:10.964Z",
+  "updatedAt": "2026-05-19T12:55:33.114Z",
   "promptPatterns": {
     "launcher-scripts-workflow": {
       "key": "launcher-scripts-workflow",
@@ -68,17 +68,19 @@
         "git",
         "release"
       ],
-      "count": 3,
+      "count": 4,
       "firstSeenAt": "2026-05-15T12:55:57.041Z",
-      "lastSeenAt": "2026-05-15T13:00:03.133Z",
+      "lastSeenAt": "2026-05-19T10:23:43.979Z",
       "averageConfidence": 0.47,
       "maxConfidence": 0.47,
       "cwdSamples": [
-        "~/.dotfiles"
+        "~/.dotfiles",
+        "~/projects/mult"
       ],
       "examples": [
         "resolve merge conflitct",
-        "resolve merge conflitct and push"
+        "resolve merge conflitct and push",
+        "i want to create a TUI: the main idea is to create an ai agent multiplexer, with multuple workspaces each with their own sessions/chats and terminals. We will have a sidebar with all the opened workspaces and under each workspace we will each chat, with its status. Each workspac…"
       ],
       "minSignals": 4,
       "skipIfResources": [
@@ -588,17 +590,19 @@
     "bun-run": {
       "key": "bun-run",
       "commandKey": "bun run",
-      "count": 2,
-      "errors": 0,
-      "totalMs": 4943,
+      "count": 16,
+      "errors": 1,
+      "totalMs": 30113,
       "maxMs": 2696,
       "firstSeenAt": "2026-05-18T08:54:33.163Z",
-      "lastSeenAt": "2026-05-18T08:59:25.754Z",
+      "lastSeenAt": "2026-05-19T07:35:51.262Z",
       "cwdSamples": [
         "~/projects/luminous_ui"
       ],
       "examples": [
-        "bun run typecheck"
+        "bun run typecheck",
+        "bun run lint",
+        "bun run typecheck && bun run lint"
       ]
     },
     "agent-browser-screenshot-help": {
@@ -620,17 +624,18 @@
     "pi-help": {
       "key": "pi-help",
       "commandKey": "pi --help |",
-      "count": 1,
+      "count": 2,
       "errors": 0,
-      "totalMs": 646,
-      "maxMs": 646,
+      "totalMs": 1476,
+      "maxMs": 830,
       "firstSeenAt": "2026-05-18T08:55:54.200Z",
-      "lastSeenAt": "2026-05-18T08:55:54.200Z",
+      "lastSeenAt": "2026-05-19T07:44:34.254Z",
       "cwdSamples": [
         "~/projects/luminous_ui"
       ],
       "examples": [
-        "pi --help | head -160"
+        "pi --help | head -160",
+        "pi --help | head -120"
       ]
     },
     "pi-offline-no-extensions": {
@@ -751,6 +756,255 @@
       ],
       "examples": [
         "git reset --hard HEAD && git status --porcelain=v1"
+      ]
+    },
+    "bun-run-dev": {
+      "key": "bun-run-dev",
+      "commandKey": "bun run dev",
+      "count": 2,
+      "errors": 0,
+      "totalMs": 49,
+      "maxMs": 27,
+      "firstSeenAt": "2026-05-19T05:53:27.184Z",
+      "lastSeenAt": "2026-05-19T05:55:08.529Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "(bun run dev > /tmp/luminous-ui-vite.log 2>&1 & echo $!)",
+        "pgrep -af \"vite --host 127.0.0.1 --port 5173|bun run dev\" || true"
+      ]
+    },
+    "kill-9238": {
+      "key": "kill-9238",
+      "commandKey": "kill 9238 ||",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 20,
+      "maxMs": 20,
+      "firstSeenAt": "2026-05-19T05:55:02.690Z",
+      "lastSeenAt": "2026-05-19T05:55:02.690Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "kill 9238 || true"
+      ]
+    },
+    "test-d-node-modules-mariozechner-pi-coding-agent": {
+      "key": "test-d-node-modules-mariozechner-pi-coding-agent",
+      "commandKey": "test -d node_modules/@mariozechner/pi-coding-agent",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 38,
+      "maxMs": 38,
+      "firstSeenAt": "2026-05-19T07:49:33.272Z",
+      "lastSeenAt": "2026-05-19T07:49:33.272Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "test -d node_modules/@mariozechner/pi-coding-agent && echo yes || echo no; test -d node_modules/@sinclair/typebox && echo typebox_yes || echo typebox_no"
+      ]
+    },
+    "pi-offline-1-pi-no-extensions": {
+      "key": "pi-offline-1-pi-no-extensions",
+      "commandKey": "PI_OFFLINE=1 pi --no-extensions",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 730,
+      "maxMs": 730,
+      "firstSeenAt": "2026-05-19T07:50:02.453Z",
+      "lastSeenAt": "2026-05-19T07:50:02.453Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "PI_OFFLINE=1 pi --no-extensions --offline -e /home/jofre/.pi/agent/extensions/database.ts --list-models > /tmp/pi-db-extension-load.txt"
+      ]
+    },
+    "command-v-nix": {
+      "key": "command-v-nix",
+      "commandKey": "command -v nix",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 135,
+      "maxMs": 135,
+      "firstSeenAt": "2026-05-19T10:24:27.341Z",
+      "lastSeenAt": "2026-05-19T10:24:27.341Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "command -v nix && nix --version && command -v cargo && cargo --version"
+      ]
+    },
+    "cargo-check": {
+      "key": "cargo-check",
+      "commandKey": "cargo check",
+      "count": 2,
+      "errors": 0,
+      "totalMs": 9823,
+      "maxMs": 9390,
+      "firstSeenAt": "2026-05-19T10:38:38.403Z",
+      "lastSeenAt": "2026-05-19T11:46:06.305Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "cargo check"
+      ]
+    },
+    "cargo-fmt": {
+      "key": "cargo-fmt",
+      "commandKey": "cargo fmt",
+      "count": 39,
+      "errors": 6,
+      "totalMs": 111193,
+      "maxMs": 24807,
+      "firstSeenAt": "2026-05-19T10:38:47.849Z",
+      "lastSeenAt": "2026-05-19T12:55:23.690Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "cargo fmt && cargo test && cargo clippy --all-targets --all-features -- -D warnings && nix flake check",
+        "cargo fmt",
+        "cargo fmt && just check && just lint && just test",
+        "cargo fmt && just test",
+        "cargo fmt && cargo check",
+        "cargo fmt && just lint && just test"
+      ]
+    },
+    "nix-flake-check": {
+      "key": "nix-flake-check",
+      "commandKey": "nix flake check",
+      "count": 3,
+      "errors": 0,
+      "totalMs": 124041,
+      "maxMs": 82641,
+      "firstSeenAt": "2026-05-19T10:40:14.882Z",
+      "lastSeenAt": "2026-05-19T10:48:28.107Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "nix flake check"
+      ]
+    },
+    "cargo-clippy-all-targets": {
+      "key": "cargo-clippy-all-targets",
+      "commandKey": "cargo clippy --all-targets",
+      "count": 2,
+      "errors": 1,
+      "totalMs": 2021,
+      "maxMs": 1592,
+      "firstSeenAt": "2026-05-19T10:46:36.695Z",
+      "lastSeenAt": "2026-05-19T10:53:55.911Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "cargo clippy --all-targets --all-features -- -D warnings"
+      ]
+    },
+    "cargo-search-portable-pty": {
+      "key": "cargo-search-portable-pty",
+      "commandKey": "cargo search portable-pty",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 381,
+      "maxMs": 381,
+      "firstSeenAt": "2026-05-19T10:57:32.694Z",
+      "lastSeenAt": "2026-05-19T10:57:32.694Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "cargo search portable-pty --limit 3"
+      ]
+    },
+    "cargo-info-portable-pty": {
+      "key": "cargo-info-portable-pty",
+      "commandKey": "cargo info portable-pty",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 480,
+      "maxMs": 480,
+      "firstSeenAt": "2026-05-19T10:57:37.452Z",
+      "lastSeenAt": "2026-05-19T10:57:37.452Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "cargo info portable-pty"
+      ]
+    },
+    "just-test": {
+      "key": "just-test",
+      "commandKey": "just test",
+      "count": 3,
+      "errors": 0,
+      "totalMs": 3387,
+      "maxMs": 1328,
+      "firstSeenAt": "2026-05-19T11:08:02.649Z",
+      "lastSeenAt": "2026-05-19T11:29:10.072Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "just test"
+      ]
+    },
+    "just-check": {
+      "key": "just-check",
+      "commandKey": "just check &&",
+      "count": 8,
+      "errors": 1,
+      "totalMs": 7613,
+      "maxMs": 4955,
+      "firstSeenAt": "2026-05-19T11:11:45.580Z",
+      "lastSeenAt": "2026-05-19T12:40:41.370Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "just check && just lint",
+        "just check",
+        "just check && just lint && just test"
+      ]
+    },
+    "just-lint": {
+      "key": "just-lint",
+      "commandKey": "just lint",
+      "count": 4,
+      "errors": 1,
+      "totalMs": 6996,
+      "maxMs": 2767,
+      "firstSeenAt": "2026-05-19T11:29:02.941Z",
+      "lastSeenAt": "2026-05-19T12:40:03.579Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "just lint",
+        "just lint && just test"
+      ]
+    },
+    "command-v-pi": {
+      "key": "command-v-pi",
+      "commandKey": "command -v pi",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 18,
+      "maxMs": 18,
+      "firstSeenAt": "2026-05-19T12:02:09.183Z",
+      "lastSeenAt": "2026-05-19T12:02:09.183Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "command -v pi || command -v pi-coding-agent || true printf 'MULT_AGENT_CMD=%s\\n' \"${MULT_AGENT_CMD-}\""
       ]
     }
   },
@@ -947,6 +1201,174 @@
       "examples": [
         "/tmp/nix-shell.6WCsq0/pi-clipboard-9e090efc-677f-4326-b249-f8fef5ce213a.png what is this space in the select here, in gestio/usuaris/traspas page"
       ]
+    },
+    "bash-bun-run-agent-browser-open-agent-browser-screenshot-agent-b": {
+      "key": "bash-bun-run-agent-browser-open-agent-browser-screenshot-agent-b",
+      "sequence": [
+        "bash:bun run",
+        "agent_browser_open",
+        "agent_browser_screenshot",
+        "agent_browser_snapshot",
+        "agent_browser_run",
+        "agent_browser_eval"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-19T05:55:38.950Z",
+      "lastSeenAt": "2026-05-19T05:55:38.950Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "/tmp/pi-clipboard-0d64cad4-9dbf-46d9-92c9-2c4211fe4994.png make the bench grow dimanimcally when too many cards are attached to pokemon cards"
+      ]
+    },
+    "agent-browser-eval-bash-bun-run-agent-browser-screenshot-agent-b": {
+      "key": "agent-browser-eval-bash-bun-run-agent-browser-screenshot-agent-b",
+      "sequence": [
+        "agent_browser_eval",
+        "bash:bun run",
+        "agent_browser_screenshot",
+        "agent_browser_run",
+        "agent_browser_screenshot",
+        "agent_browser_eval"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-19T06:03:01.728Z",
+      "lastSeenAt": "2026-05-19T06:03:01.728Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "/tmp/pi-clipboard-097ea30f-fba1-456f-bc36-e0c04844d6bb.png"
+      ]
+    },
+    "bash-bun-run-agent-browser-screenshot-bash-bun-run": {
+      "key": "bash-bun-run-agent-browser-screenshot-bash-bun-run",
+      "sequence": [
+        "bash:bun run",
+        "agent_browser_screenshot",
+        "bash:bun run"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-19T06:06:49.020Z",
+      "lastSeenAt": "2026-05-19T06:06:49.020Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "no, dont make it grow vertically. The image shows extra space on the sides of the pokemon, when they could fit correctly"
+      ]
+    },
+    "agent-browser-eval-bash-bun-run-agent-browser-run-agent-browser": {
+      "key": "agent-browser-eval-bash-bun-run-agent-browser-run-agent-browser",
+      "sequence": [
+        "agent_browser_eval",
+        "bash:bun run",
+        "agent_browser_run",
+        "agent_browser_screenshot",
+        "agent_browser_eval",
+        "agent_browser_run"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-19T06:12:03.551Z",
+      "lastSeenAt": "2026-05-19T06:12:03.551Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "/tmp/pi-clipboard-00e0bb76-5163-465c-9053-9de7a3226edb.png the prize cards and deck card dont alighn"
+      ]
+    },
+    "bash-bun-run-agent-browser-run-agent-browser-screenshot": {
+      "key": "bash-bun-run-agent-browser-run-agent-browser-screenshot",
+      "sequence": [
+        "bash:bun run",
+        "agent_browser_run",
+        "agent_browser_screenshot"
+      ],
+      "count": 3,
+      "firstSeenAt": "2026-05-19T06:16:14.359Z",
+      "lastSeenAt": "2026-05-19T07:29:31.789Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "/tmp/pi-clipboard-e8c36e80-d51b-4b4a-80e2-c0eb4175c78b.png the prize cards/deck card dont alighn instantly, why are the prize card elements not inside the prize card slot? Just nest them like normal html and they should move together, no?",
+        "/tmp/pi-clipboard-4b6beb11-4d66-4f46-9b3c-431b277c62bd.png use this space between bench and discard pile. Use the same spacing used between deck and discard pile"
+      ]
+    },
+    "bash-bun-run-agent-browser-run-agent-browser-screenshot-agent-br": {
+      "key": "bash-bun-run-agent-browser-run-agent-browser-screenshot-agent-br",
+      "sequence": [
+        "bash:bun run",
+        "agent_browser_run",
+        "agent_browser_screenshot",
+        "agent_browser_eval",
+        "agent_browser_batch",
+        "agent_browser_screenshot"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-19T06:31:11.071Z",
+      "lastSeenAt": "2026-05-19T06:31:11.071Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "there is still a delay, it does update untill i move a next card"
+      ]
+    },
+    "bash-bun-run-agent-browser-run-agent-browser-screenshot-bash-bun": {
+      "key": "bash-bun-run-agent-browser-run-agent-browser-screenshot-bash-bun",
+      "sequence": [
+        "bash:bun run",
+        "agent_browser_run",
+        "agent_browser_screenshot",
+        "bash:bun run"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-19T07:20:50.335Z",
+      "lastSeenAt": "2026-05-19T07:20:50.335Z",
+      "cwdSamples": [
+        "~/projects/luminous_ui"
+      ],
+      "examples": [
+        "nevermind, dont expand the bench at all. I want he bench to be a bit wider by default, and then collapse the attached cards if we run out of natuall space. The bench width will not change at all"
+      ]
+    },
+    "bash-command-v-nix-context7-search-context7-docs-bash-command-v": {
+      "key": "bash-command-v-nix-context7-search-context7-docs-bash-command-v",
+      "sequence": [
+        "bash:command -v nix",
+        "context7_search",
+        "context7_docs",
+        "bash:command -v nix"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-19T10:36:20.523Z",
+      "lastSeenAt": "2026-05-19T10:36:20.523Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "i want to create a TUI: the main idea is to create an ai agent multiplexer, with multuple workspaces each with their own sessions/chats and terminals. We will have a sidebar with all the opened workspaces and under each workspace we will each chat, with its status. Each workspac…"
+      ]
+    },
+    "context7-search-context7-docs-bash-cargo-search-portable-pty": {
+      "key": "context7-search-context7-docs-bash-cargo-search-portable-pty",
+      "sequence": [
+        "context7_search",
+        "context7_docs",
+        "bash:cargo search portable-pty"
+      ],
+      "count": 1,
+      "firstSeenAt": "2026-05-19T11:05:08.450Z",
+      "lastSeenAt": "2026-05-19T11:05:08.450Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "ok, continue"
+      ]
     }
   },
   "toolProblems": {
@@ -954,39 +1376,44 @@
       "key": "bash-error",
       "toolName": "bash",
       "problemType": "error",
-      "count": 13,
+      "count": 23,
       "firstSeenAt": "2026-05-15T12:11:19.069Z",
-      "lastSeenAt": "2026-05-18T09:13:43.906Z",
+      "lastSeenAt": "2026-05-19T12:54:43.078Z",
       "cwdSamples": [
         "~/lsw/renovacions",
         "~/.dotfiles",
         "~/lsw/ateinsa_new",
-        "~/projects/luminous_ui"
+        "~/projects/luminous_ui",
+        "~/projects/mult"
       ],
       "examples": [
-        "//home/jofre/lsw //home/jofre/lsw/ateinsa_new //home/jofre/lsw/ccbergueda/upload/logo_lsw.png //home/jofre/lsw/ateinsa //home/jofre/lsw/beques/imatges/logo_lsw.jpg /home/jofre/lsw/myproductium/app/Http/routes.php:44: 'dies_traspassats' => 0 /home/jofre/lsw/myproductium/app/Http/…",
-        "/home/jofre/projects/luminous_ui/node_modules/jiti/lib/jiti.cjs:5 throw err; /* ↓ Check stack trace ↓ */ ^ Error: Cannot find module '@mariozechner/pi-coding-agent' Require stack: - /home/jofre/.pi/agent/extensions/agent-browser.ts at Function._resolveFilename (node:internal/mod…",
-        "/tmp/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules/jiti/lib/jiti.cjs:5 throw err; /* ↓ Check stack trace ↓ */ ^ Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: No \"exports\" main defined in /tmp/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules/@mariozechner/pi-cod…",
-        "error TS5112: tsconfig.json is present but will not be loaded if files are specified on commandline. Use '--ignoreConfig' to skip this error. Command exited with code 1",
-        "../../.pi/agent/extensions/agent-browser.ts(15,35): error TS2307: Cannot find module '@mariozechner/pi-coding-agent' or its corresponding type declarations. ../../.pi/agent/extensions/agent-browser.ts(21,8): error TS2307: Cannot find module '@mariozechner/pi-coding-agent' or its…",
-        "Warning: require(/home/jofre/lsw/ateinsa_new/vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/ateinsa_new/artisan on line 10 Fatal error: Uncaught Error: Failed opening required '/home/jofre/lsw/ateinsa_new/vendor/autoload.php' (include_p…"
+        "cargo check Checking mult v0.1.0 (/home/jofre/projects/mult) warning: struct `AgentPrompt` is never constructed --> src/agent.rs:12:12 | 12 | pub struct AgentPrompt { | ^^^^^^^^^^^ | = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default warning: variants `User`,…",
+        "Checking mult v0.1.0 (/home/jofre/projects/mult) error[E0433]: failed to resolve: use of undeclared type `ChatStatus` --> src/main.rs:334:49 | 334 | app.mark_chat_status_by_id(chat_id, ChatStatus::Thinking); | ^^^^^^^^^^ use of undeclared type `ChatStatus` | help: consider impor…",
+        "cargo check Checking mult v0.1.0 (/home/jofre/projects/mult) warning: variant `AgentPrompt` is never constructed --> src/app.rs:30:5 | 26 | pub enum Mode { | ---- variant in this enum ... 30 | AgentPrompt(ChatPrompt), | ^^^^^^^^^^^ | = note: `Mode` has derived impls for the trai…",
+        "cargo clippy --all-targets --all-features -- -D warnings Checking mult v0.1.0 (/home/jofre/projects/mult) error: this `impl` can be derived --> src/app.rs:658:1 | 658 | / impl Default for TerminalBuffer { 659 | | fn default() -> Self { 660 | | Self { 661 | | screen: TerminalScre…",
+        "Checking mult v0.1.0 (/home/jofre/projects/mult) error[E0631]: type mismatch in function arguments --> src/app.rs:918:31 | 918 | self.cells.iter().map(render_terminal_row).collect() | --- ^^^^^^^^^^^^^^^^^^^ expected due to this | | | required by a bound introduced by this call …",
+        "cargo check Checking mult v0.1.0 (/home/jofre/projects/mult) warning: method `add_chat_to_selected_workspace` is never used --> src/app.rs:757:12 | 183 | impl App { | -------- method in this implementation ... 757 | pub fn add_chat_to_selected_workspace(&mut self) { | ^^^^^^^^^^…"
       ],
-      "lastMessage": "Warning: require(/home/jofre/lsw/ateinsa_new/vendor/autoload.php): Failed to open stream: No such file or directory in /home/jofre/lsw/ateinsa_new/artisan on line 10 Fatal error: Uncaught Error: Failed opening required '/home/jofre/lsw/ateinsa_new/vendor/autoload.php' (include_path='.:/nix/store/m13fg5a8bfmzh5x6mch5g2r2n1b582iw-php-8.4.20/lib/php') in /home/jofre/lsw/ateinsa_new/artisan:10 Stack trace: #0 {main} thrown in /home/jofre/lsw/ateinsa_new/artisan on line 10 Command exited with code 2…"
+      "lastMessage": "cargo check Checking mult v0.1.0 (/home/jofre/projects/mult) warning: method `add_chat_to_selected_workspace` is never used --> src/app.rs:757:12 | 183 | impl App { | -------- method in this implementation ... 757 | pub fn add_chat_to_selected_workspace(&mut self) { | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default warning: `mult` (bin \"mult\") generated 1 warning Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.32s cargo cli…"
     },
     "read-error": {
       "key": "read-error",
       "toolName": "read",
       "problemType": "error",
-      "count": 1,
+      "count": 3,
       "firstSeenAt": "2026-05-18T06:46:58.373Z",
-      "lastSeenAt": "2026-05-18T06:46:58.373Z",
+      "lastSeenAt": "2026-05-19T11:15:49.164Z",
       "cwdSamples": [
-        "~/lsw/ateinsa_new"
+        "~/lsw/ateinsa_new",
+        "~/projects/luminous_ui",
+        "~/projects/mult"
       ],
       "examples": [
-        "ENOENT: no such file or directory, access '/home/jofre/lsw/ateinsa_new/app/Http/Middleware/CheckUserType.php'"
+        "ENOENT: no such file or directory, access '/home/jofre/lsw/ateinsa_new/app/Http/Middleware/CheckUserType.php'",
+        "ENOENT: no such file or directory, access '/home/jofre/projects/luminous_ui/src/features/playmat/index.tsx'",
+        "Offset 900 is beyond end of file (858 lines total)"
       ],
-      "lastMessage": "ENOENT: no such file or directory, access '/home/jofre/lsw/ateinsa_new/app/Http/Middleware/CheckUserType.php'"
+      "lastMessage": "Offset 900 is beyond end of file (858 lines total)"
     },
     "agent-browser-batch-slow": {
       "key": "agent-browser-batch-slow",
@@ -1022,17 +1449,23 @@
       "key": "edit-error",
       "toolName": "edit",
       "problemType": "error",
-      "count": 2,
+      "count": 14,
       "firstSeenAt": "2026-05-18T09:37:06.595Z",
-      "lastSeenAt": "2026-05-18T09:38:30.608Z",
+      "lastSeenAt": "2026-05-19T12:43:11.110Z",
       "cwdSamples": [
-        "~/lsw/ateinsa_new"
+        "~/lsw/ateinsa_new",
+        "~/projects/luminous_ui",
+        "~/projects/mult"
       ],
       "examples": [
-        "Could not find the exact text in app/Services/Usuari/TraspasService.php. The old text must match exactly including all whitespace and newlines.",
-        "Found 2 occurrences of the text in app/Http/Controllers/Usuari/TraspasController.php. The text must be unique. Please provide more context to make it unique."
+        "Could not find the exact text in src/ui.rs. The old text must match exactly including all whitespace and newlines.",
+        "Could not find the exact text in src/config.rs. The old text must match exactly including all whitespace and newlines.",
+        "Could not find edits[1] in src/app.rs. The oldText must match exactly including all whitespace and newlines.",
+        "Found 2 occurrences of edits[8] in src/app.rs. Each oldText must be unique. Please provide more context to make it unique.",
+        "Found 2 occurrences of edits[2] in src/ui.rs. Each oldText must be unique. Please provide more context to make it unique.",
+        "edits[0] and edits[1] overlap in src/ui.rs. Merge them into one edit or target disjoint regions."
       ],
-      "lastMessage": "Found 2 occurrences of the text in app/Http/Controllers/Usuari/TraspasController.php. The text must be unique. Please provide more context to make it unique."
+      "lastMessage": "edits[0] and edits[1] overlap in src/ui.rs. Merge them into one edit or target disjoint regions."
     }
   },
   "suggestions": {
@@ -1040,9 +1473,9 @@
       "key": "bash:cd-lsw-beques",
       "status": "snoozed",
       "firstSuggestedAt": "2026-05-15T12:32:17.862Z",
-      "lastSuggestedAt": "2026-05-18T06:06:58.716Z",
-      "timesShown": 2,
-      "snoozedUntil": "2026-05-19T06:06:58.716Z"
+      "lastSuggestedAt": "2026-05-19T06:12:06.868Z",
+      "timesShown": 3,
+      "snoozedUntil": "2026-05-20T06:12:06.868Z"
     },
     "tool-problem:bash-error": {
       "key": "tool-problem:bash-error",
@@ -1064,9 +1497,9 @@
       "key": "bash:npm-run",
       "status": "snoozed",
       "firstSuggestedAt": "2026-05-18T07:00:14.489Z",
-      "lastSuggestedAt": "2026-05-18T07:00:26.026Z",
-      "timesShown": 1,
-      "snoozedUntil": "2026-05-19T07:00:26.026Z"
+      "lastSuggestedAt": "2026-05-19T07:24:31.368Z",
+      "timesShown": 2,
+      "snoozedUntil": "2026-05-20T07:24:31.368Z"
     },
     "prompt:nix-dotfiles-workflow": {
       "key": "prompt:nix-dotfiles-workflow",
@@ -1104,16 +1537,16 @@
       "key": "bash:php-l-app-services-usuari-traspasservice-php",
       "status": "snoozed",
       "firstSuggestedAt": "2026-05-18T09:43:53.684Z",
-      "lastSuggestedAt": "2026-05-18T09:55:51.195Z",
-      "timesShown": 1,
-      "snoozedUntil": "2026-05-19T09:55:51.195Z"
+      "lastSuggestedAt": "2026-05-19T10:36:22.452Z",
+      "timesShown": 2,
+      "snoozedUntil": "2026-05-20T10:36:22.452Z"
     },
     "sequence:database-query-bash-php-l-app-services-usuari-traspasservice-php": {
       "key": "sequence:database-query-bash-php-l-app-services-usuari-traspasservice-php",
-      "status": "snoozed",
+      "status": "seen",
       "firstSuggestedAt": "2026-05-18T10:16:04.784Z",
-      "lastSuggestedAt": "2026-05-18T10:25:27.869Z",
-      "timesShown": 1,
+      "lastSuggestedAt": "2026-05-19T11:14:15.069Z",
+      "timesShown": 2,
       "snoozedUntil": "2026-05-19T10:25:27.869Z"
     },
     "sequence:bash-php-l-app-services-usuari-traspasservice-php-database-query": {
@@ -1123,6 +1556,22 @@
       "lastSuggestedAt": "2026-05-18T10:51:12.313Z",
       "timesShown": 1,
       "snoozedUntil": "2026-05-19T10:51:12.313Z"
+    },
+    "bash:bun-run": {
+      "key": "bash:bun-run",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-19T05:48:14.065Z",
+      "lastSuggestedAt": "2026-05-19T05:48:15.580Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-20T05:48:15.580Z"
+    },
+    "bash:cargo-fmt": {
+      "key": "bash:cargo-fmt",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-19T11:05:08.455Z",
+      "lastSuggestedAt": "2026-05-19T11:05:12.395Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-20T11:05:12.395Z"
     }
   }
 }

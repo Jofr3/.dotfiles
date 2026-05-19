@@ -1,18 +1,20 @@
 # Skill & Extension Improvement Report
 
-Generated: 2026-05-18T11:14:31.719Z
+Generated: 2026-05-19T12:35:44.298Z
 Reason: background
-CWD: `/home/jofre/lsw/renovacions`
+CWD: `/home/jofre/lsw/ateinsa`
 Store: `/home/jofre/.pi/agent/skill-extension-improver`
 
 ## Summary
 
 - Skills discovered: 14
 - Extensions discovered: 8
-- Findings: 0 errors, 0 warnings, 5 info
+- Findings: 0 errors, 1 warnings, 5 info
 
 ## Findings
 
+- ⚠️ **extension/database** (~/.pi/agent/extensions/database.ts): Extension starts long-lived work but has no `session_shutdown` cleanup handler.
+  - Suggestion: Add a `session_shutdown` handler to close timers, watchers, servers, or connections.
 - ℹ️ **extension/context7** (~/.pi/agent/extensions/context7.ts): Extension registers tools without `promptSnippet` metadata.
   - Suggestion: Add concise `promptSnippet` text so custom tools are better represented in the system prompt.
 - ℹ️ **extension/database** (~/.pi/agent/extensions/database.ts): Extension uses UI methods without checking `ctx.hasUI`.
@@ -54,31 +56,26 @@ Store: `/home/jofre/.pi/agent/skill-extension-improver`
 ## Performance Metrics
 
 Metrics file: `/home/jofre/.pi/agent/skill-extension-improver/metrics.json`
-Updated: 2026-05-18T11:13:37.958Z
+Updated: 2026-05-19T12:35:36.898Z
 
 ### Tool telemetry
 | Tool | Source | Calls | Errors | Avg | Max | Last |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
-| read | <builtin:read> | 307 | 1 | 7ms | 113ms | 2026-05-18T11:13:36.958Z |
-| bash | <builtin:bash> | 241 | 16 | 2.5s | 513.4s | 2026-05-18T11:13:34.830Z |
-| edit | <builtin:edit> | 103 | 3 | 381ms | 7.6s | 2026-05-18T11:03:32.400Z |
-| database_query | ~/.pi/agent/extensions/database.ts | 17 | 0 | 301ms | 459ms | 2026-05-18T11:02:19.820Z |
-| agent_browser_eval | ~/.pi/agent/extensions/agent-browser.ts | 6 | 0 | 166ms | 172ms | 2026-05-18T07:57:28.483Z |
-| agent_browser_screenshot | ~/.pi/agent/extensions/agent-browser.ts | 14 | 0 | 9.1s | 30.2s | 2026-05-18T07:57:03.471Z |
-| agent_browser_run | ~/.pi/agent/extensions/agent-browser.ts | 31 | 0 | 295ms | 1.4s | 2026-05-18T07:56:12.173Z |
-| agent_browser_batch | ~/.pi/agent/extensions/agent-browser.ts | 7 | 0 | 8.6s | 35.7s | 2026-05-18T07:52:01.391Z |
-| write | <builtin:write> | 4 | 0 | 13ms | 41ms | 2026-05-18T07:24:42.685Z |
-| agent_browser_snapshot | ~/.pi/agent/extensions/agent-browser.ts | 14 | 0 | 207ms | 314ms | 2026-05-18T06:59:00.638Z |
-| agent_browser_open | ~/.pi/agent/extensions/agent-browser.ts | 9 | 0 | 1.2s | 2.2s | 2026-05-18T06:58:58.857Z |
+| database_query | ~/.pi/agent/extensions/database.ts | 13 | 1 | 1.4s | 14.6s | 2026-05-19T12:35:35.898Z |
+| read | <builtin:read> | 29 | 0 | 15ms | 46ms | 2026-05-19T12:34:14.318Z |
+| bash | <builtin:bash> | 30 | 1 | 9.1s | 82.6s | 2026-05-19T11:04:48.956Z |
+| edit | <builtin:edit> | 31 | 2 | 10ms | 30ms | 2026-05-19T11:04:18.285Z |
+| write | <builtin:write> | 20 | 0 | 7ms | 12ms | 2026-05-19T11:02:26.956Z |
+| context7_docs | ~/.pi/agent/extensions/context7.ts | 2 | 0 | 1.6s | 1.6s | 2026-05-19T10:57:12.656Z |
+| context7_search | ~/.pi/agent/extensions/context7.ts | 2 | 0 | 1.3s | 1.5s | 2026-05-19T10:57:06.251Z |
 
 ### Skill telemetry
 | Skill | Loads | Explicit invocations | Agent runs | Avg agent run | Last |
 | --- | ---: | ---: | ---: | ---: | --- |
-| bash-error-recovery-playbook | 4 | 0 | 0 | 0ms | 2026-05-18T11:03:39.432Z |
-| sftp | 5 | 0 | 0 | 0ms | 2026-05-18T11:03:17.190Z |
-| gitnexus-debugging | 4 | 0 | 0 | 0ms | 2026-05-18T11:01:32.755Z |
-| agent-browser | 3 | 3 | 3 | 81.6s | 2026-05-18T06:58:52.001Z |
-| database | 3 | 0 | 0 | 0ms | 2026-05-18T06:47:29.397Z |
+| database | 1 | 0 | 0 | 0ms | 2026-05-19T12:34:14.312Z |
+| context7 | 2 | 0 | 0 | 0ms | 2026-05-19T10:57:02.720Z |
+| bash-error-recovery-playbook | 1 | 0 | 0 | 0ms | 2026-05-19T10:46:40.423Z |
+| nix-dotfiles-workflow | 1 | 0 | 0 | 0ms | 2026-05-19T09:04:37.531Z |
 
 ## How to improve safely
 

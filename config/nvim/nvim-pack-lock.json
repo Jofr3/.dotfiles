@@ -13,6 +13,10 @@
       "rev": "8d82c240f190fc33723d48c308ccc1ed8baad69d",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
+    "gruvbox.nvim": {
+      "rev": "58a2cda2e953a99e2f87c12b7fb4602da4e0709c",
+      "src": "https://github.com/ellisonleao/gruvbox.nvim"
+    },
     "mini.diff": {
       "rev": "ab11575a6c147ecfba894d676d0c93e855021d34",
       "src": "https://github.com/echasnovski/mini.diff"

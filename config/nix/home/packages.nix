@@ -4,6 +4,7 @@
     btop
     brightnessctl
     claude-code
+    pi-coding-agent
     direnv
     eza
     fastfetch

@@ -1,13 +1,13 @@
 # Skill & Extension Improvement Report
 
-Generated: 2026-05-19T12:35:44.298Z
-Reason: background
-CWD: `/home/jofre/lsw/ateinsa`
+Generated: 2026-05-19T19:58:52.974Z
+Reason: startup
+CWD: `/home/jofre/projects/mult`
 Store: `/home/jofre/.pi/agent/skill-extension-improver`
 
 ## Summary
 
-- Skills discovered: 14
+- Skills discovered: 7
 - Extensions discovered: 8
 - Findings: 0 errors, 1 warnings, 5 info
 
@@ -42,13 +42,6 @@ Store: `/home/jofre/.pi/agent/skill-extension-improver`
 | skill | bash-error-recovery-playbook | global | ~/.pi/agent/skills/bash-error-recovery-playbook/SKILL.md |
 | skill | context7 | global | ~/.pi/agent/skills/context7/SKILL.md |
 | skill | database | global | ~/.pi/agent/skills/database/SKILL.md |
-| skill | gitnexus-cli | global | ~/.agents/skills/gitnexus-cli/SKILL.md |
-| skill | gitnexus-debugging | global | ~/.agents/skills/gitnexus-debugging/SKILL.md |
-| skill | gitnexus-exploring | global | ~/.agents/skills/gitnexus-exploring/SKILL.md |
-| skill | gitnexus-guide | global | ~/.agents/skills/gitnexus-guide/SKILL.md |
-| skill | gitnexus-impact-analysis | global | ~/.agents/skills/gitnexus-impact-analysis/SKILL.md |
-| skill | gitnexus-pr-review | global | ~/.agents/skills/gitnexus-pr-review/SKILL.md |
-| skill | gitnexus-refactoring | global | ~/.agents/skills/gitnexus-refactoring/SKILL.md |
 | skill | nix-dotfiles-workflow | global | ~/.pi/agent/skills/nix-dotfiles-workflow/SKILL.md |
 | skill | safeguard | global | ~/.pi/agent/skills/safeguard/SKILL.md |
 | skill | sftp | global | ~/.pi/agent/skills/sftp/SKILL.md |
@@ -56,26 +49,24 @@ Store: `/home/jofre/.pi/agent/skill-extension-improver`
 ## Performance Metrics
 
 Metrics file: `/home/jofre/.pi/agent/skill-extension-improver/metrics.json`
-Updated: 2026-05-19T12:35:36.898Z
+Updated: 2026-05-19T19:07:21.132Z
 
 ### Tool telemetry
 | Tool | Source | Calls | Errors | Avg | Max | Last |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
-| database_query | ~/.pi/agent/extensions/database.ts | 13 | 1 | 1.4s | 14.6s | 2026-05-19T12:35:35.898Z |
-| read | <builtin:read> | 29 | 0 | 15ms | 46ms | 2026-05-19T12:34:14.318Z |
-| bash | <builtin:bash> | 30 | 1 | 9.1s | 82.6s | 2026-05-19T11:04:48.956Z |
-| edit | <builtin:edit> | 31 | 2 | 10ms | 30ms | 2026-05-19T11:04:18.285Z |
-| write | <builtin:write> | 20 | 0 | 7ms | 12ms | 2026-05-19T11:02:26.956Z |
+| bash | <builtin:bash> | 246 | 16 | 2.0s | 82.6s | 2026-05-19T19:07:20.132Z |
+| read | <builtin:read> | 271 | 1 | 13ms | 99ms | 2026-05-19T19:06:20.263Z |
+| edit | <builtin:edit> | 362 | 31 | 21ms | 208ms | 2026-05-19T19:03:58.277Z |
+| write | <builtin:write> | 26 | 0 | 8ms | 16ms | 2026-05-19T15:06:13.515Z |
 | context7_docs | ~/.pi/agent/extensions/context7.ts | 2 | 0 | 1.6s | 1.6s | 2026-05-19T10:57:12.656Z |
 | context7_search | ~/.pi/agent/extensions/context7.ts | 2 | 0 | 1.3s | 1.5s | 2026-05-19T10:57:06.251Z |
 
 ### Skill telemetry
 | Skill | Loads | Explicit invocations | Agent runs | Avg agent run | Last |
 | --- | ---: | ---: | ---: | ---: | --- |
-| database | 1 | 0 | 0 | 0ms | 2026-05-19T12:34:14.312Z |
+| nix-dotfiles-workflow | 2 | 0 | 0 | 0ms | 2026-05-19T19:06:20.253Z |
+| bash-error-recovery-playbook | 5 | 0 | 0 | 0ms | 2026-05-19T18:36:24.806Z |
 | context7 | 2 | 0 | 0 | 0ms | 2026-05-19T10:57:02.720Z |
-| bash-error-recovery-playbook | 1 | 0 | 0 | 0ms | 2026-05-19T10:46:40.423Z |
-| nix-dotfiles-workflow | 1 | 0 | 0 | 0ms | 2026-05-19T09:04:37.531Z |
 
 ## How to improve safely
 

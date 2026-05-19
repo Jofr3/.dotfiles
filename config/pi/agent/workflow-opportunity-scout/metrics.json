@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-05-15T12:10:23.796Z",
-  "updatedAt": "2026-05-19T12:55:33.114Z",
+  "updatedAt": "2026-05-19T19:59:48.167Z",
   "promptPatterns": {
     "launcher-scripts-workflow": {
       "key": "launcher-scripts-workflow",
@@ -14,18 +14,20 @@
         "launchers",
         "dotfiles"
       ],
-      "count": 2,
+      "count": 3,
       "firstSeenAt": "2026-05-15T12:18:35.652Z",
-      "lastSeenAt": "2026-05-18T10:13:06.259Z",
+      "lastSeenAt": "2026-05-19T14:19:09.291Z",
       "averageConfidence": 0.56,
       "maxConfidence": 0.56,
       "cwdSamples": [
         "~/lsw/renovacions",
-        "~/lsw/ateinsa_new"
+        "~/lsw/ateinsa_new",
+        "~/projects/mult"
       ],
       "examples": [
         "move the \"no compactar\" /tmp/pi-clipboard-aa114bb6-aa1f-4c57-942a-f23856c6de79.png before the \"compactar option\". Move the \"En cas que se’m concedeixi l’ajut de menjador parcial del 70% estic interessat/da en compactar la beca d’acord amb la clàusula 7a de les bases de la convoc…",
-        "good. Some empreses have this: /tmp/nix-shell.6WCsq0/pi-clipboard-dddc335b-580b-4823-8092-810971cfb899.png is this normal?"
+        "good. Some empreses have this: /tmp/nix-shell.6WCsq0/pi-clipboard-dddc335b-580b-4823-8092-810971cfb899.png is this normal?",
+        "remove eveythin avobe the actuall pi agent output: /tmp/nix-shell.xBth5R/pi-clipboard-d55bf6de-c6a8-4463-a4bf-04903239355a.png"
       ],
       "minSignals": 3
     },
@@ -41,19 +43,21 @@
         "dotfiles",
         "home-manager"
       ],
-      "count": 4,
+      "count": 5,
       "firstSeenAt": "2026-05-15T12:55:57.038Z",
-      "lastSeenAt": "2026-05-18T09:08:28.470Z",
-      "averageConfidence": 0.5,
-      "maxConfidence": 0.5,
+      "lastSeenAt": "2026-05-19T19:06:15.823Z",
+      "averageConfidence": 0.516,
+      "maxConfidence": 0.58,
       "cwdSamples": [
         "~/.dotfiles",
-        "~/.dotfiles/config/pi"
+        "~/.dotfiles/config/pi",
+        "~/.dotfiles/config/nix"
       ],
       "examples": [
         "resolve merge conflitct",
         "resolve merge conflitct and push",
-        "i have a problem with the workflow-opportunity-scout extension: It does not try to look at the bigger picture most of the times, it only looks at the current session issues and tries to bandate a solution. For example in some projects i have not set the database credentials in a…"
+        "i have a problem with the workflow-opportunity-scout extension: It does not try to look at the bigger picture most of the times, it only looks at the current session issues and tries to bandate a solution. For example in some projects i have not set the database credentials in a…",
+        "update nix packages"
       ],
       "minSignals": 3
     },
@@ -420,17 +424,19 @@
     "python3-py": {
       "key": "python3-py",
       "commandKey": "python3 - <<'PY'",
-      "count": 1,
+      "count": 2,
       "errors": 0,
-      "totalMs": 445,
+      "totalMs": 556,
       "maxMs": 445,
       "firstSeenAt": "2026-05-18T06:04:06.774Z",
-      "lastSeenAt": "2026-05-18T06:04:06.774Z",
+      "lastSeenAt": "2026-05-19T14:28:40.354Z",
       "cwdSamples": [
-        "~/lsw/renovacions"
+        "~/lsw/renovacions",
+        "~/projects/mult"
       ],
       "examples": [
-        "python3 - <<'PY' import urllib.request url='http://dev-beques.ccosona.cat/auxiliars/get_ajudes_disponibles.php?id_municipi_alumne=45&id_curs_escolar=19&id_escola=62&id_nivell_curs=13&es_crae=0&from=2&escola_anterior=-1' try: data=urllib.request.urlopen(url, timeout=20).read().de…"
+        "python3 - <<'PY' import urllib.request url='http://dev-beques.ccosona.cat/auxiliars/get_ajudes_disponibles.php?id_municipi_alumne=45&id_curs_escolar=19&id_escola=62&id_nivell_curs=13&es_crae=0&from=2&escola_anterior=-1' try: data=urllib.request.urlopen(url, timeout=20).read().de…",
+        "python3 - <<'PY' import json from collections import OrderedDict from pathlib import Path path = Path.home() / '.config' / 'mult' / 'config.json' try: data = json.loads(path.read_text(), object_pairs_hook=OrderedDict) except FileNotFoundError: data = OrderedDict() if not isinsta…"
       ]
     },
     "set-e": {
@@ -523,19 +529,21 @@
     "git-c-home-jofre-dotfiles": {
       "key": "git-c-home-jofre-dotfiles",
       "commandKey": "git -C /home/jofre/.dotfiles",
-      "count": 3,
+      "count": 4,
       "errors": 0,
-      "totalMs": 68,
+      "totalMs": 86,
       "maxMs": 27,
       "firstSeenAt": "2026-05-18T07:25:07.234Z",
-      "lastSeenAt": "2026-05-18T08:37:07.479Z",
+      "lastSeenAt": "2026-05-19T19:07:20.132Z",
       "cwdSamples": [
-        "~/projects/luminous_ui"
+        "~/projects/luminous_ui",
+        "~/.dotfiles/config/nix"
       ],
       "examples": [
         "git -C /home/jofre/.dotfiles status --short -- config/pi/agent/skills/nix-dotfiles-workflow/SKILL.md",
         "git -C /home/jofre/.dotfiles status --short -- config/pi/agent/extensions/agent-browser.ts",
-        "git -C /home/jofre/.dotfiles diff -- config/pi/agent/extensions/agent-browser.ts | sed -n '1,220p' && git -C /home/jofre/.dotfiles status --short -- config/pi/agent/extensions/agent-browser.ts"
+        "git -C /home/jofre/.dotfiles diff -- config/pi/agent/extensions/agent-browser.ts | sed -n '1,220p' && git -C /home/jofre/.dotfiles status --short -- config/pi/agent/extensions/agent-browser.ts",
+        "git -C /home/jofre/.dotfiles status --short && git -C /home/jofre/.dotfiles diff --stat -- config/nix/flake.lock"
       ]
     },
     "node-node": {
@@ -858,35 +866,36 @@
     "cargo-fmt": {
       "key": "cargo-fmt",
       "commandKey": "cargo fmt",
-      "count": 39,
-      "errors": 6,
-      "totalMs": 111193,
+      "count": 74,
+      "errors": 8,
+      "totalMs": 183057,
       "maxMs": 24807,
       "firstSeenAt": "2026-05-19T10:38:47.849Z",
-      "lastSeenAt": "2026-05-19T12:55:23.690Z",
+      "lastSeenAt": "2026-05-19T18:38:15.310Z",
       "cwdSamples": [
         "~/projects/mult"
       ],
       "examples": [
-        "cargo fmt && cargo test && cargo clippy --all-targets --all-features -- -D warnings && nix flake check",
+        "cargo fmt && cargo test && cargo clippy --all-targets --all-features -- -D warnings",
         "cargo fmt",
-        "cargo fmt && just check && just lint && just test",
+        "cargo fmt && cargo clippy --all-targets --all-features -- -D warnings",
+        "cargo fmt && cargo clippy --all-targets --all-features -- -D warnings && cargo test",
         "cargo fmt && just test",
-        "cargo fmt && cargo check",
-        "cargo fmt && just lint && just test"
+        "cargo fmt && just test && just check"
       ]
     },
     "nix-flake-check": {
       "key": "nix-flake-check",
       "commandKey": "nix flake check",
-      "count": 3,
+      "count": 4,
       "errors": 0,
-      "totalMs": 124041,
+      "totalMs": 150763,
       "maxMs": 82641,
       "firstSeenAt": "2026-05-19T10:40:14.882Z",
-      "lastSeenAt": "2026-05-19T10:48:28.107Z",
+      "lastSeenAt": "2026-05-19T19:07:13.658Z",
       "cwdSamples": [
-        "~/projects/mult"
+        "~/projects/mult",
+        "~/.dotfiles/config/nix"
       ],
       "examples": [
         "nix flake check"
@@ -895,12 +904,12 @@
     "cargo-clippy-all-targets": {
       "key": "cargo-clippy-all-targets",
       "commandKey": "cargo clippy --all-targets",
-      "count": 2,
+      "count": 4,
       "errors": 1,
-      "totalMs": 2021,
-      "maxMs": 1592,
+      "totalMs": 14142,
+      "maxMs": 10635,
       "firstSeenAt": "2026-05-19T10:46:36.695Z",
-      "lastSeenAt": "2026-05-19T10:53:55.911Z",
+      "lastSeenAt": "2026-05-19T17:25:45.773Z",
       "cwdSamples": [
         "~/projects/mult"
       ],
@@ -943,12 +952,12 @@
     "just-test": {
       "key": "just-test",
       "commandKey": "just test",
-      "count": 3,
-      "errors": 0,
-      "totalMs": 3387,
+      "count": 5,
+      "errors": 1,
+      "totalMs": 4832,
       "maxMs": 1328,
       "firstSeenAt": "2026-05-19T11:08:02.649Z",
-      "lastSeenAt": "2026-05-19T11:29:10.072Z",
+      "lastSeenAt": "2026-05-19T18:37:16.327Z",
       "cwdSamples": [
         "~/projects/mult"
       ],
@@ -959,12 +968,12 @@
     "just-check": {
       "key": "just-check",
       "commandKey": "just check &&",
-      "count": 8,
+      "count": 10,
       "errors": 1,
-      "totalMs": 7613,
+      "totalMs": 8984,
       "maxMs": 4955,
       "firstSeenAt": "2026-05-19T11:11:45.580Z",
-      "lastSeenAt": "2026-05-19T12:40:41.370Z",
+      "lastSeenAt": "2026-05-19T18:37:36.997Z",
       "cwdSamples": [
         "~/projects/mult"
       ],
@@ -1005,6 +1014,137 @@
       ],
       "examples": [
         "command -v pi || command -v pi-coding-agent || true printf 'MULT_AGENT_CMD=%s\\n' \"${MULT_AGENT_CMD-}\""
+      ]
+    },
+    "if-f": {
+      "key": "if-f",
+      "commandKey": "if [ -f",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 24,
+      "maxMs": 24,
+      "firstSeenAt": "2026-05-19T13:58:38.203Z",
+      "lastSeenAt": "2026-05-19T13:58:38.203Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "if [ -f \"$HOME/.config/mult/config.json\" ]; then printf 'exists\\n'; else printf 'missing\\n'; fi"
+      ]
+    },
+    "printf-s-n-shell": {
+      "key": "printf-s-n-shell",
+      "commandKey": "printf '%s\\n' \"$SHELL\";",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 19,
+      "maxMs": 19,
+      "firstSeenAt": "2026-05-19T14:42:36.243Z",
+      "lastSeenAt": "2026-05-19T14:42:36.243Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "printf '%s\\n' \"$SHELL\"; command -v fish || true"
+      ]
+    },
+    "cargo-test": {
+      "key": "cargo-test",
+      "commandKey": "cargo test",
+      "count": 5,
+      "errors": 1,
+      "totalMs": 11255,
+      "maxMs": 2770,
+      "firstSeenAt": "2026-05-19T15:05:28.471Z",
+      "lastSeenAt": "2026-05-19T17:25:34.262Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "cargo test",
+        "cargo test && cargo clippy --all-targets --all-features -- -D warnings"
+      ]
+    },
+    "env-rg": {
+      "key": "env-rg",
+      "commandKey": "env | rg",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 15,
+      "maxMs": 15,
+      "firstSeenAt": "2026-05-19T19:02:01.754Z",
+      "lastSeenAt": "2026-05-19T19:02:01.754Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "env | rg 'PI_|BUN|XDG|PATH|TMP|TEMP|NIX' | sort"
+      ]
+    },
+    "npm-version-bun": {
+      "key": "npm-version-bun",
+      "commandKey": "npm --version; bun",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 134,
+      "maxMs": 134,
+      "firstSeenAt": "2026-05-19T19:02:47.136Z",
+      "lastSeenAt": "2026-05-19T19:02:47.136Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "npm --version; bun --version; node --version; type npm"
+      ]
+    },
+    "timeout-8-script": {
+      "key": "timeout-8-script",
+      "commandKey": "timeout 8 script",
+      "count": 3,
+      "errors": 0,
+      "totalMs": 21307,
+      "maxMs": 10021,
+      "firstSeenAt": "2026-05-19T19:03:03.031Z",
+      "lastSeenAt": "2026-05-19T19:03:43.926Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "timeout 8 script -q -c 'pi' /dev/null > /tmp/pi-pty.out 2>/tmp/pi-pty.err; code=$?; echo \"exit=$code\"; tail -80 /tmp/pi-pty.err; tail -120 /tmp/pi-pty.out | sed -r 's/\\x1B\\[[0-9;?]*[ -/]*[@-~]//g'",
+        "timeout 8 script -q -c 'bunx @mariozechner/pi-coding-agent --help' /dev/null > /tmp/bunx-pi-help.out 2>/tmp/bunx-pi-help.err; code=$?; echo \"exit=$code\"; tail -80 /tmp/bunx-pi-help.err; tail -80 /tmp/bunx-pi-help.out",
+        "timeout 8 script -q -c 'bunx @mariozechner/pi-coding-agent' /dev/null > /tmp/bunx-pi.out 2>/tmp/bunx-pi.err; code=$?; echo \"exit=$code\"; tail -80 /tmp/bunx-pi.err; strings /tmp/bunx-pi.out | tail -120"
+      ]
+    },
+    "pwd-git": {
+      "key": "pwd-git",
+      "commandKey": "pwd && git",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 30,
+      "maxMs": 30,
+      "firstSeenAt": "2026-05-19T19:06:24.171Z",
+      "lastSeenAt": "2026-05-19T19:06:24.171Z",
+      "cwdSamples": [
+        "~/.dotfiles/config/nix"
+      ],
+      "examples": [
+        "pwd && git -C /home/jofre/.dotfiles status --short"
+      ]
+    },
+    "nix-flake-update": {
+      "key": "nix-flake-update",
+      "commandKey": "nix flake update",
+      "count": 1,
+      "errors": 0,
+      "totalMs": 14133,
+      "maxMs": 14133,
+      "firstSeenAt": "2026-05-19T19:06:42.146Z",
+      "lastSeenAt": "2026-05-19T19:06:42.146Z",
+      "cwdSamples": [
+        "~/.dotfiles/config/nix"
+      ],
+      "examples": [
+        "nix flake update"
       ]
     }
   },
@@ -1376,9 +1516,9 @@
       "key": "bash-error",
       "toolName": "bash",
       "problemType": "error",
-      "count": 23,
+      "count": 30,
       "firstSeenAt": "2026-05-15T12:11:19.069Z",
-      "lastSeenAt": "2026-05-19T12:54:43.078Z",
+      "lastSeenAt": "2026-05-19T19:02:11.278Z",
       "cwdSamples": [
         "~/lsw/renovacions",
         "~/.dotfiles",
@@ -1387,14 +1527,14 @@
         "~/projects/mult"
       ],
       "examples": [
-        "cargo check Checking mult v0.1.0 (/home/jofre/projects/mult) warning: struct `AgentPrompt` is never constructed --> src/agent.rs:12:12 | 12 | pub struct AgentPrompt { | ^^^^^^^^^^^ | = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default warning: variants `User`,…",
-        "Checking mult v0.1.0 (/home/jofre/projects/mult) error[E0433]: failed to resolve: use of undeclared type `ChatStatus` --> src/main.rs:334:49 | 334 | app.mark_chat_status_by_id(chat_id, ChatStatus::Thinking); | ^^^^^^^^^^ use of undeclared type `ChatStatus` | help: consider impor…",
-        "cargo check Checking mult v0.1.0 (/home/jofre/projects/mult) warning: variant `AgentPrompt` is never constructed --> src/app.rs:30:5 | 26 | pub enum Mode { | ---- variant in this enum ... 30 | AgentPrompt(ChatPrompt), | ^^^^^^^^^^^ | = note: `Mode` has derived impls for the trai…",
-        "cargo clippy --all-targets --all-features -- -D warnings Checking mult v0.1.0 (/home/jofre/projects/mult) error: this `impl` can be derived --> src/app.rs:658:1 | 658 | / impl Default for TerminalBuffer { 659 | | fn default() -> Self { 660 | | Self { 661 | | screen: TerminalScre…",
-        "Checking mult v0.1.0 (/home/jofre/projects/mult) error[E0631]: type mismatch in function arguments --> src/app.rs:918:31 | 918 | self.cells.iter().map(render_terminal_row).collect() | --- ^^^^^^^^^^^^^^^^^^^ expected due to this | | | required by a bound introduced by this call …",
-        "cargo check Checking mult v0.1.0 (/home/jofre/projects/mult) warning: method `add_chat_to_selected_workspace` is never used --> src/app.rs:757:12 | 183 | impl App { | -------- method in this implementation ... 757 | pub fn add_chat_to_selected_workspace(&mut self) { | ^^^^^^^^^^…"
+        "Compiling mult v0.1.0 (/home/jofre/projects/mult) Finished `test` profile [unoptimized + debuginfo] target(s) in 1.77s Running unittests src/main.rs (target/debug/deps/mult-62c8596cc244ebc5) running 50 tests test agent::tests::agent_event_exposes_target ... ok test agent::tests:…",
+        "Compiling mult v0.1.0 (/home/jofre/projects/mult) Finished `test` profile [unoptimized + debuginfo] target(s) in 1.76s Running unittests src/main.rs (target/debug/deps/mult-62c8596cc244ebc5) running 52 tests test agent::tests::agent_event_exposes_target ... ok test agent::tests:…",
+        "Compiling mult v0.1.0 (/home/jofre/projects/mult) Finished `test` profile [unoptimized + debuginfo] target(s) in 1.50s Running unittests src/main.rs (target/debug/deps/mult-62c8596cc244ebc5) running 56 tests test agent::tests::agent_event_exposes_target ... ok test agent::tests:…",
+        "(no output) Command exited with code 1",
+        "cargo test Compiling mult v0.1.0 (/home/jofre/projects/mult) error[E0451]: field `dirty` of struct `app::App` is private --> src/main.rs:797:15 | 795 | let mut app = App { | --- in this type 796 | selected: 1, 797 | ..App::default() | ^^^^^^^^^^^^^^ field `dirty` is private For …",
+        "find: ‘/tmp/nix-shell.xBth5R/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules/@mariozechner/pi-coding-agent/src’: No such file or directory Command exited with code 1"
       ],
-      "lastMessage": "cargo check Checking mult v0.1.0 (/home/jofre/projects/mult) warning: method `add_chat_to_selected_workspace` is never used --> src/app.rs:757:12 | 183 | impl App { | -------- method in this implementation ... 757 | pub fn add_chat_to_selected_workspace(&mut self) { | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default warning: `mult` (bin \"mult\") generated 1 warning Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.32s cargo cli…"
+      "lastMessage": "find: ‘/tmp/nix-shell.xBth5R/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules/@mariozechner/pi-coding-agent/src’: No such file or directory Command exited with code 1"
     },
     "read-error": {
       "key": "read-error",
@@ -1449,23 +1589,23 @@
       "key": "edit-error",
       "toolName": "edit",
       "problemType": "error",
-      "count": 14,
+      "count": 34,
       "firstSeenAt": "2026-05-18T09:37:06.595Z",
-      "lastSeenAt": "2026-05-19T12:43:11.110Z",
+      "lastSeenAt": "2026-05-19T17:58:19.744Z",
       "cwdSamples": [
         "~/lsw/ateinsa_new",
         "~/projects/luminous_ui",
         "~/projects/mult"
       ],
       "examples": [
-        "Could not find the exact text in src/ui.rs. The old text must match exactly including all whitespace and newlines.",
-        "Could not find the exact text in src/config.rs. The old text must match exactly including all whitespace and newlines.",
-        "Could not find edits[1] in src/app.rs. The oldText must match exactly including all whitespace and newlines.",
-        "Found 2 occurrences of edits[8] in src/app.rs. Each oldText must be unique. Please provide more context to make it unique.",
+        "Found 2 occurrences of edits[3] in src/ui.rs. Each oldText must be unique. Please provide more context to make it unique.",
         "Found 2 occurrences of edits[2] in src/ui.rs. Each oldText must be unique. Please provide more context to make it unique.",
-        "edits[0] and edits[1] overlap in src/ui.rs. Merge them into one edit or target disjoint regions."
+        "Could not find edits[6] in src/ui.rs. The oldText must match exactly including all whitespace and newlines.",
+        "Found 2 occurrences of edits[0] in src/ui.rs. Each oldText must be unique. Please provide more context to make it unique.",
+        "Could not find edits[1] in src/ui.rs. The oldText must match exactly including all whitespace and newlines.",
+        "Found 2 occurrences of edits[5] in src/ui.rs. Each oldText must be unique. Please provide more context to make it unique."
       ],
-      "lastMessage": "edits[0] and edits[1] overlap in src/ui.rs. Merge them into one edit or target disjoint regions."
+      "lastMessage": "Found 2 occurrences of edits[3] in src/ui.rs. Each oldText must be unique. Please provide more context to make it unique."
     }
   },
   "suggestions": {
@@ -1545,8 +1685,8 @@
       "key": "sequence:database-query-bash-php-l-app-services-usuari-traspasservice-php",
       "status": "seen",
       "firstSuggestedAt": "2026-05-18T10:16:04.784Z",
-      "lastSuggestedAt": "2026-05-19T11:14:15.069Z",
-      "timesShown": 2,
+      "lastSuggestedAt": "2026-05-19T15:07:25.205Z",
+      "timesShown": 4,
       "snoozedUntil": "2026-05-19T10:25:27.869Z"
     },
     "sequence:bash-php-l-app-services-usuari-traspasservice-php-database-query": {
@@ -1572,6 +1712,29 @@
       "lastSuggestedAt": "2026-05-19T11:05:12.395Z",
       "timesShown": 1,
       "snoozedUntil": "2026-05-20T11:05:12.395Z"
+    },
+    "bash:just-check": {
+      "key": "bash:just-check",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-19T14:03:59.181Z",
+      "lastSuggestedAt": "2026-05-19T14:04:00.696Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-20T14:04:00.696Z"
+    },
+    "bash:just-lint": {
+      "key": "bash:just-lint",
+      "status": "snoozed",
+      "firstSuggestedAt": "2026-05-19T14:27:36.080Z",
+      "lastSuggestedAt": "2026-05-19T14:27:42.340Z",
+      "timesShown": 1,
+      "snoozedUntil": "2026-05-20T14:27:42.340Z"
+    },
+    "bash:cargo-test": {
+      "key": "bash:cargo-test",
+      "status": "seen",
+      "firstSuggestedAt": "2026-05-19T19:00:18.394Z",
+      "lastSuggestedAt": "2026-05-19T19:24:57.315Z",
+      "timesShown": 2
     }
   }
 }

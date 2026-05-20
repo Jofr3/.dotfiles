@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-05-15T12:10:23.796Z",
-  "updatedAt": "2026-05-19T19:59:48.167Z",
+  "updatedAt": "2026-05-20T06:02:16.477Z",
   "promptPatterns": {
     "launcher-scripts-workflow": {
       "key": "launcher-scripts-workflow",
@@ -952,12 +952,12 @@
     "just-test": {
       "key": "just-test",
       "commandKey": "just test",
-      "count": 5,
+      "count": 6,
       "errors": 1,
-      "totalMs": 4832,
-      "maxMs": 1328,
+      "totalMs": 6670,
+      "maxMs": 1838,
       "firstSeenAt": "2026-05-19T11:08:02.649Z",
-      "lastSeenAt": "2026-05-19T18:37:16.327Z",
+      "lastSeenAt": "2026-05-20T06:01:41.272Z",
       "cwdSamples": [
         "~/projects/mult"
       ],
@@ -986,12 +986,12 @@
     "just-lint": {
       "key": "just-lint",
       "commandKey": "just lint",
-      "count": 4,
+      "count": 5,
       "errors": 1,
-      "totalMs": 6996,
+      "totalMs": 8369,
       "maxMs": 2767,
       "firstSeenAt": "2026-05-19T11:29:02.941Z",
-      "lastSeenAt": "2026-05-19T12:40:03.579Z",
+      "lastSeenAt": "2026-05-20T06:01:55.846Z",
       "cwdSamples": [
         "~/projects/mult"
       ],
@@ -1145,6 +1145,23 @@
       ],
       "examples": [
         "nix flake update"
+      ]
+    },
+    "just-fmt": {
+      "key": "just-fmt",
+      "commandKey": "just fmt &&",
+      "count": 2,
+      "errors": 0,
+      "totalMs": 3805,
+      "maxMs": 2904,
+      "firstSeenAt": "2026-05-20T06:01:23.639Z",
+      "lastSeenAt": "2026-05-20T06:01:34.320Z",
+      "cwdSamples": [
+        "~/projects/mult"
+      ],
+      "examples": [
+        "just fmt && just test",
+        "just fmt && just check"
       ]
     }
   },
@@ -1516,9 +1533,9 @@
       "key": "bash-error",
       "toolName": "bash",
       "problemType": "error",
-      "count": 30,
+      "count": 31,
       "firstSeenAt": "2026-05-15T12:11:19.069Z",
-      "lastSeenAt": "2026-05-19T19:02:11.278Z",
+      "lastSeenAt": "2026-05-20T05:58:07.084Z",
       "cwdSamples": [
         "~/lsw/renovacions",
         "~/.dotfiles",
@@ -1527,14 +1544,14 @@
         "~/projects/mult"
       ],
       "examples": [
-        "Compiling mult v0.1.0 (/home/jofre/projects/mult) Finished `test` profile [unoptimized + debuginfo] target(s) in 1.77s Running unittests src/main.rs (target/debug/deps/mult-62c8596cc244ebc5) running 50 tests test agent::tests::agent_event_exposes_target ... ok test agent::tests:…",
         "Compiling mult v0.1.0 (/home/jofre/projects/mult) Finished `test` profile [unoptimized + debuginfo] target(s) in 1.76s Running unittests src/main.rs (target/debug/deps/mult-62c8596cc244ebc5) running 52 tests test agent::tests::agent_event_exposes_target ... ok test agent::tests:…",
         "Compiling mult v0.1.0 (/home/jofre/projects/mult) Finished `test` profile [unoptimized + debuginfo] target(s) in 1.50s Running unittests src/main.rs (target/debug/deps/mult-62c8596cc244ebc5) running 56 tests test agent::tests::agent_event_exposes_target ... ok test agent::tests:…",
         "(no output) Command exited with code 1",
         "cargo test Compiling mult v0.1.0 (/home/jofre/projects/mult) error[E0451]: field `dirty` of struct `app::App` is private --> src/main.rs:797:15 | 795 | let mut app = App { | --- in this type 796 | selected: 1, 797 | ..App::default() | ^^^^^^^^^^^^^^ field `dirty` is private For …",
-        "find: ‘/tmp/nix-shell.xBth5R/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules/@mariozechner/pi-coding-agent/src’: No such file or directory Command exited with code 1"
+        "find: ‘/tmp/nix-shell.xBth5R/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules/@mariozechner/pi-coding-agent/src’: No such file or directory Command exited with code 1",
+        "src/agent.rs:56: status: ChatStatus, src/agent.rs:70:pub struct ProcessAgentCommand { src/agent.rs:76: command: ProcessAgentCommand, src/agent.rs:77: running: BTreeMap<AgentTarget, RunningAgentProcess>, src/agent.rs:99:impl ProcessAgentCommand { src/agent.rs:124: pub fn new(comm…"
       ],
-      "lastMessage": "find: ‘/tmp/nix-shell.xBth5R/bunx-1000-@mariozechner/pi-coding-agent@latest/node_modules/@mariozechner/pi-coding-agent/src’: No such file or directory Command exited with code 1"
+      "lastMessage": "src/agent.rs:56: status: ChatStatus, src/agent.rs:70:pub struct ProcessAgentCommand { src/agent.rs:76: command: ProcessAgentCommand, src/agent.rs:77: running: BTreeMap<AgentTarget, RunningAgentProcess>, src/agent.rs:99:impl ProcessAgentCommand { src/agent.rs:124: pub fn new(command: ProcessAgentCommand) -> Self { src/agent.rs:128: running: BTreeMap::new(), src/agent.rs:134: pub fn command(&self) -> &ProcessAgentCommand { src/agent.rs:138: pub fn is_running(&self, target: AgentTarget) -> bool { …"
     },
     "read-error": {
       "key": "read-error",
@@ -1699,10 +1716,10 @@
     },
     "bash:bun-run": {
       "key": "bash:bun-run",
-      "status": "snoozed",
+      "status": "seen",
       "firstSuggestedAt": "2026-05-19T05:48:14.065Z",
-      "lastSuggestedAt": "2026-05-19T05:48:15.580Z",
-      "timesShown": 1,
+      "lastSuggestedAt": "2026-05-20T06:02:12.367Z",
+      "timesShown": 2,
       "snoozedUntil": "2026-05-20T05:48:15.580Z"
     },
     "bash:cargo-fmt": {

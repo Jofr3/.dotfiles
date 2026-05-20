@@ -1,29 +1,29 @@
 {
   "version": 1,
   "createdAt": "2026-05-19T09:04:12.446Z",
-  "updatedAt": "2026-05-19T19:59:48.166Z",
+  "updatedAt": "2026-05-20T06:02:16.476Z",
   "tools": {
     "<builtin:read>::read": {
       "toolName": "read",
       "source": "builtin",
       "sourcePath": "<builtin:read>",
-      "calls": 271,
+      "calls": 285,
       "errors": 1,
-      "totalMs": 3404,
+      "totalMs": 3452,
       "maxMs": 99,
-      "lastMs": 12,
-      "lastUsedAt": "2026-05-19T19:06:20.263Z"
+      "lastMs": 2,
+      "lastUsedAt": "2026-05-20T06:01:49.999Z"
     },
     "<builtin:bash>::bash": {
       "toolName": "bash",
       "source": "builtin",
       "sourcePath": "<builtin:bash>",
-      "calls": 246,
-      "errors": 16,
-      "totalMs": 503461,
+      "calls": 254,
+      "errors": 17,
+      "totalMs": 510531,
       "maxMs": 82639,
-      "lastMs": 18,
-      "lastUsedAt": "2026-05-19T19:07:20.132Z"
+      "lastMs": 9,
+      "lastUsedAt": "2026-05-20T06:02:02.751Z"
     },
     "/home/jofre/.pi/agent/extensions/context7.ts::context7_search": {
       "toolName": "context7_search",
@@ -62,12 +62,12 @@
       "toolName": "edit",
       "source": "builtin",
       "sourcePath": "<builtin:edit>",
-      "calls": 362,
+      "calls": 366,
       "errors": 31,
-      "totalMs": 7606,
+      "totalMs": 7626,
       "maxMs": 208,
-      "lastMs": 4,
-      "lastUsedAt": "2026-05-19T19:03:58.277Z"
+      "lastMs": 2,
+      "lastUsedAt": "2026-05-20T06:01:29.516Z"
     }
   },
   "skills": {
@@ -92,11 +92,11 @@
     "bash-error-recovery-playbook": {
       "name": "bash-error-recovery-playbook",
       "path": "/home/jofre/.pi/agent/skills/bash-error-recovery-playbook/SKILL.md",
-      "loads": 5,
+      "loads": 6,
       "explicitInvocations": 0,
       "agentRuns": 0,
       "totalAgentMs": 0,
-      "lastUsedAt": "2026-05-19T18:36:24.806Z"
+      "lastUsedAt": "2026-05-20T05:58:14.868Z"
     }
   }
 }

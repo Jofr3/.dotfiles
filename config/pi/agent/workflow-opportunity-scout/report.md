@@ -1,19 +1,43 @@
 # Workflow Opportunity Scout Report
 
-Generated: 2026-05-19T19:58:52.983Z
+Generated: 2026-05-20T06:02:12.361Z
 CWD: `/home/jofre/projects/mult`
 Store: `/home/jofre/.pi/agent/workflow-opportunity-scout`
 
 ## Summary
 
-- Active suggestions: 13
+- Active suggestions: 15
 - Prompt patterns tracked: 6
-- Repeated bash command patterns tracked: 58
+- Repeated bash command patterns tracked: 59
 - Tool sequences tracked: 19
 - Tool problem patterns tracked: 5
-- Known resources: 7 skills, 8 extensions, 1 context files
+- Known resources: 12 skills, 6 extensions, 1 context files
 
 ## Top Suggestions
+
+### 🧩 Automate repeated command: bun run
+
+- Kind: extension
+- Suggested name: `bun-run-command`
+- Confidence: 92% (16 signal(s), source: bash-command)
+- Target: `~/.pi/agent/extensions/bun-run-command.ts`
+- Why: The command pattern `bun run` has appeared 16 time(s). Repeated shell commands are often better as Pi slash commands/tools with prompts, validation, status UI, and output truncation.
+- Action: Create a Pi extension that exposes a slash command or tool for `bun run`, validates inputs, runs the command safely, shows progress, and summarizes/truncates output. Average runtime observed: 1.9s.
+- Evidence:
+  - bun run typecheck
+  - bun run lint
+  - bun run typecheck && bun run lint
+
+### 🧩 Automate repeated command: just test
+
+- Kind: extension
+- Suggested name: `just-test-command`
+- Confidence: 92% (6 signal(s), source: bash-command)
+- Target: `~/.pi/agent/extensions/just-test-command.ts`
+- Why: The command pattern `just test` has appeared 6 time(s). Repeated shell commands are often better as Pi slash commands/tools with prompts, validation, status UI, and output truncation.
+- Action: Create a Pi extension that exposes a slash command or tool for `just test`, validates inputs, runs the command safely, shows progress, and summarizes/truncates output. Average runtime observed: 1.1s.
+- Evidence:
+  - just test
 
 ### 🧩 Automate repeated command: cargo test
 
@@ -26,17 +50,6 @@ Store: `/home/jofre/.pi/agent/workflow-opportunity-scout`
 - Evidence:
   - cargo test
   - cargo test && cargo clippy --all-targets --all-features -- -D warnings
-
-### 🧩 Automate repeated command: just test
-
-- Kind: extension
-- Suggested name: `just-test-command`
-- Confidence: 88% (5 signal(s), source: bash-command)
-- Target: `~/.pi/agent/extensions/just-test-command.ts`
-- Why: The command pattern `just test` has appeared 5 time(s). Repeated shell commands are often better as Pi slash commands/tools with prompts, validation, status UI, and output truncation.
-- Action: Create a Pi extension that exposes a slash command or tool for `just test`, validates inputs, runs the command safely, shows progress, and summarizes/truncates output. Average runtime observed: 966ms.
-- Evidence:
-  - just test
 
 ### 🧩 Automate repeated command: cargo clippy --all-targets
 
@@ -114,31 +127,19 @@ Store: `/home/jofre/.pi/agent/workflow-opportunity-scout`
   - (bun run dev > /tmp/luminous-ui-vite.log 2>&1 & echo $!)
   - pgrep -af "vite --host 127.0.0.1 --port 5173|bun run dev" || true
 
-### 🧩 Automate recurring tool chain: bash:php -l app/Services/Usuari/TraspasService.php → database_query
+### 📘 NixOS/Home Manager dotfiles workflow
 
-- Kind: extension
-- Suggested name: `bash-php-l-app-services-usuari-traspasservice-php-database-query-workflow`
-- Confidence: 70% (4 signal(s), source: tool-sequence)
-- Target: `~/.pi/agent/extensions/bash-php-l-app-services-usuari-traspasservice-php-database-query-workflow.ts`
-- Why: A similar non-trivial tool chain has repeated 4 time(s). This may be a good fit for a command, wizard, or focused tool that coordinates the steps.
-- Action: Create a Pi extension that wraps this recurring tool chain behind a slash command or custom tool, asks for the few required inputs, and records clear results.
+- Kind: skill
+- Suggested name: `nix-dotfiles-workflow`
+- Confidence: 72% (5 signal(s), source: prompt-pattern)
+- Target: `~/.pi/agent/skills/nix-dotfiles-workflow/SKILL.md`
+- Why: Nix and dotfiles changes tend to have repo-specific conventions, rebuild commands, host-specific differences, and theming caveats that are worth loading on demand.
+- Action: Create a project or global skill documenting your NixOS flake layout, rebuild commands, machine differences, Stylix/theming workflow, and safe validation steps.
 - Evidence:
-  - "SQLSTATE[22007]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]La conversión del tipo de datos nvarchar en datetime produjo un valor fuera de intervalo. (Connection: sqlsrv, SQL: UPDATE usuaris_web_colaboradors_empresa SET data_fi = 2026-05-18 23:59:00 WHERE id = 68090 …
-  - in the Selector column, select (multi) the current users that bellong to the empresa, and do a sync when saving the changes
-  - /tmp/nix-shell.6WCsq0/pi-clipboard-c1dedba3-930a-4cfd-91ab-d65ff4ff9c36.png does not edit
-  - /tmp/nix-shell.6WCsq0/pi-clipboard-803dd73c-f083-4de4-acc7-90e7e8b7d7a7.png when closing a user, it should show in the inactive tab, why does it not?
-
-### 🧩 Automate repeated command: bunx --bun @mariozechner/pi-coding-agent
-
-- Kind: extension
-- Suggested name: `bunx-bun-mariozechner-pi-coding-agent-command`
-- Confidence: 69% (3 signal(s), source: bash-command)
-- Target: `~/.pi/agent/extensions/bunx-bun-mariozechner-pi-coding-agent-command.ts`
-- Why: The command pattern `bunx --bun @mariozechner/pi-coding-agent` has appeared 3 time(s). Repeated shell commands are often better as Pi slash commands/tools with prompts, validation, status UI, and output truncation.
-- Action: Create a Pi extension that exposes a slash command or tool for `bunx --bun @mariozechner/pi-coding-agent`, validates inputs, runs the command safely, shows progress, and summarizes/truncates output. Average runtime observed: 3.2s.
-- Evidence:
-  - bunx --bun @mariozechner/pi-coding-agent --help | head -80
-  - bunx --bun @mariozechner/pi-coding-agent --no-extensions -e /home/jofre/.pi/agent/extensions/agent-browser.ts --list-models >/tmp/pi-extension-validate.out 2>/tmp/pi-extension-validate.err; code=$?; if [ $code -eq 0 ]; then echo 'OK: pi loaded extension for --list-models'; else …
+  - resolve merge conflitct
+  - resolve merge conflitct and push
+  - i have a problem with the workflow-opportunity-scout extension: It does not try to look at the bigger picture most of the times, it only looks at the current session issues and tries to bandate a solution. For example in some projects i have not set the database credentials in a…
+  - update nix packages
 
 ## Prompt Pattern Signals
 
@@ -161,13 +162,13 @@ Store: `/home/jofre/.pi/agent/workflow-opportunity-scout`
 | `bun run` | 16 | 1 | 1.9s | 2.7s | 2026-05-19T07:35:51.262Z |
 | `just check &&` | 10 | 1 | 898ms | 5.0s | 2026-05-19T18:37:36.997Z |
 | `cd ~/lsw/beques &&` | 7 | 2 | 40ms | 62ms | 2026-05-15T12:30:37.061Z |
-| `just test` | 5 | 1 | 966ms | 1.3s | 2026-05-19T18:37:16.327Z |
+| `just test` | 6 | 1 | 1.1s | 1.8s | 2026-05-20T06:01:41.272Z |
+| `just lint` | 5 | 1 | 1.7s | 2.8s | 2026-05-20T06:01:55.846Z |
 | `cargo test` | 5 | 1 | 2.3s | 2.8s | 2026-05-19T17:25:34.262Z |
 | `set -e` | 4 | 0 | 1.0s | 1.6s | 2026-05-18T06:11:51.506Z |
 | `git -C /home/jofre/.dotfiles` | 4 | 0 | 22ms | 27ms | 2026-05-19T19:07:20.132Z |
 | `nix flake check` | 4 | 0 | 37.7s | 82.6s | 2026-05-19T19:07:13.658Z |
 | `cargo clippy --all-targets` | 4 | 1 | 3.5s | 10.6s | 2026-05-19T17:25:45.773Z |
-| `just lint` | 4 | 1 | 1.7s | 2.8s | 2026-05-19T12:40:03.579Z |
 | `bunx --bun @mariozechner/pi-coding-agent` | 3 | 0 | 3.2s | 7.0s | 2026-05-18T08:36:43.102Z |
 | `timeout 8 script` | 3 | 0 | 7.1s | 10.0s | 2026-05-19T19:03:43.926Z |
 | `cd ~/lsw/beques/auxiliars &&` | 2 | 2 | 51ms | 51ms | 2026-05-15T12:29:07.713Z |
@@ -192,13 +193,16 @@ Store: `/home/jofre/.pi/agent/workflow-opportunity-scout`
 | extension | push | ~/.pi/agent/extensions/push.ts |
 | extension | safeguard | ~/.pi/agent/extensions/safeguard.ts |
 | extension | sftp | ~/.pi/agent/extensions/sftp.ts |
-| extension | skill-extension-improver | ~/.pi/agent/extensions/skill-extension-improver.ts |
-| extension | workflow-opportunity-scout | ~/.pi/agent/extensions/workflow-opportunity-scout.ts |
 | skill | agent-browser | ~/.pi/agent/skills/agent-browser/SKILL.md |
-| skill | bash-error-recovery-playbook | ~/.pi/agent/skills/bash-error-recovery-playbook/SKILL.md |
 | skill | context7 | ~/.pi/agent/skills/context7/SKILL.md |
 | skill | database | ~/.pi/agent/skills/database/SKILL.md |
-| skill | nix-dotfiles-workflow | ~/.pi/agent/skills/nix-dotfiles-workflow/SKILL.md |
+| skill | gitnexus-cli | ~/.agents/skills/gitnexus-cli/SKILL.md |
+| skill | gitnexus-debugging | ~/.agents/skills/gitnexus-debugging/SKILL.md |
+| skill | gitnexus-exploring | ~/.agents/skills/gitnexus-exploring/SKILL.md |
+| skill | gitnexus-guide | ~/.agents/skills/gitnexus-guide/SKILL.md |
+| skill | gitnexus-impact-analysis | ~/.agents/skills/gitnexus-impact-analysis/SKILL.md |
+| skill | gitnexus-pr-review | ~/.agents/skills/gitnexus-pr-review/SKILL.md |
+| skill | gitnexus-refactoring | ~/.agents/skills/gitnexus-refactoring/SKILL.md |
 | skill | safeguard | ~/.pi/agent/skills/safeguard/SKILL.md |
 | skill | sftp | ~/.pi/agent/skills/sftp/SKILL.md |
 

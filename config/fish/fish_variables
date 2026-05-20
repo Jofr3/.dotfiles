@@ -30,3 +30,4 @@ SETUVAR fish_pager_color_description:yellow\x1e\x2d\x2ddim
 SETUVAR fish_pager_color_prefix:white\x1e\x2d\x2dbold
 SETUVAR fish_pager_color_progress:brwhite\x1e\x2d\x2dbackground\x3dcyan
 SETUVAR fish_prompt_pwd_dir_length:0
+SETUVAR fish_user_paths:/home/jofre/\x2ecargo/bin

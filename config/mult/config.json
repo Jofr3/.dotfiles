@@ -1,3 +1,16 @@
 {
-  "pi_agent_command": "pi"
+  "pi_agent_command": "pi",
+  "projects": [
+    { "name": "home", "path": "~/" },
+    { "name": "dotfiles", "path": "~/.dotfiles" },
+    { "name": "mult", "path": "~/projects/mult" },
+    { "name": "pi config", "path": "~/.dotfiles/config/pi" },
+    { "name": "nix config", "path": "~/.dotfiles/config/nix" },
+    { "name": "mult config", "path": "~/.dotfiles/config/mult" },
+    { "name": "niri config", "path": "~/.dotfiles/config/niri" },
+    { "name": "nvim config", "path": "~/.dotfiles/config/nvim" },
+    { "name": "senditum app", "path": "~/lsw/senditum_app" },
+    { "name": "ateinsa", "path": "~/lsw/ateinsa" },
+    { "name": "ateinsa new", "path": "~/lsw/ateinsa_new" }
+  ]
 }

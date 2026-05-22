@@ -10,6 +10,7 @@ in {
     fish.source = "${dotfiles}/config/fish";
     tofi.source = "${dotfiles}/config/tofi";
     nvim.source = "${dotfiles}/config/nvim";
+    mult.source = "${dotfiles}/config/mult";
     tmux.source = "${dotfiles}/config/tmux";
     btop.source = "${dotfiles}/config/btop";
     helix.source = "${dotfiles}/config/helix";

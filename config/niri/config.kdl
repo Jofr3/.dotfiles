@@ -30,7 +30,7 @@ input {
     keyboard {
         xkb {
             layout "us,ca"
-            options "caps:escape"
+            options "ctrl:nocaps"
         }
         repeat-delay 250
         repeat-rate 30

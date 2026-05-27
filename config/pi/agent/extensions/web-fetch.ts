@@ -1,267 +1,732 @@
 /**
- * Split Pi web-fetch extension (local fork of pi-web-access).
+ * Web Fetch Extension
  *
- * Registers fetch_content for URL/page/PDF/GitHub/YouTube/local-video extraction.
+ * Lightweight, dependency-free web content extraction for Pi.
+ * Inspired by nicobailon/pi-web-access: browser-like HTTP fetches,
+ * markdown extraction, GitHub API handling, Jina Reader fallback, and strict
+ * output truncation for model safety.
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import {
+	DEFAULT_MAX_BYTES,
+	DEFAULT_MAX_LINES,
+	formatSize,
+	truncateHead,
+} from "@mariozechner/pi-coding-agent";
+import { StringEnum } from "@mariozechner/pi-ai";
 import { Text } from "@mariozechner/pi-tui";
 import { Type } from "typebox";
-import { fetchAllContent, type ExtractedContent } from "./web-access/extract.js";
-import { formatSeconds } from "./web-access/utils.js";
-import { generateId, storeResult, type StoredSearchData } from "./web-access/storage.js";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { basename, join } from "node:path";
 
-const MAX_INLINE_CONTENT = 30000;
+const DEFAULT_TIMEOUT_MS = 30_000;
+const DEFAULT_MAX_RESPONSE_BYTES = 10 * 1024 * 1024;
+const MAX_MAX_RESPONSE_BYTES = 50 * 1024 * 1024;
+const MIN_USEFUL_MARKDOWN_CHARS = 250;
+const CONCURRENT_FETCHES = 3;
+const JINA_READER_BASE = "https://r.jina.ai/";
 
-function stripThumbnails(results: ExtractedContent[]): ExtractedContent[] {
-	return results.map(({ thumbnail, frames, ...rest }) => rest);
+const USER_AGENT =
+	"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36";
+
+type FetchFormat = "markdown" | "text" | "html";
+
+interface FetchResult {
+	url: string;
+	finalUrl: string;
+	title: string;
+	content: string;
+	contentType?: string;
+	status?: number;
+	source: "http" | "jina" | "github-api";
+	error?: string;
+	links?: Array<{ text: string; url: string }>;
+}
+
+interface GitHubUrlInfo {
+	owner: string;
+	repo: string;
+	ref?: string;
+	path?: string;
+	type: "root" | "blob" | "tree";
+}
+
+interface TruncatedText {
+	text: string;
+	truncated: boolean;
+	fullOutputPath?: string;
+	totalLines: number;
+	outputLines: number;
+}
+
+function timeoutMs(seconds: unknown): number {
+	if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds <= 0) return DEFAULT_TIMEOUT_MS;
+	return Math.max(1_000, Math.floor(seconds * 1000));
+}
+
+function maxResponseBytes(value: unknown): number {
+	if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return DEFAULT_MAX_RESPONSE_BYTES;
+	return Math.max(64 * 1024, Math.min(MAX_MAX_RESPONSE_BYTES, Math.floor(value)));
+}
+
+function withTimeout(signal: AbortSignal | undefined, ms: number): AbortSignal {
+	const timeout = AbortSignal.timeout(ms);
+	return signal ? AbortSignal.any([signal, timeout]) : timeout;
+}
+
+async function truncateForModel(text: string): Promise<TruncatedText> {
+	const truncation = truncateHead(text, {
+		maxLines: DEFAULT_MAX_LINES,
+		maxBytes: DEFAULT_MAX_BYTES,
+	});
+
+	let result = truncation.content;
+	let fullOutputPath: string | undefined;
+
+	if (truncation.truncated) {
+		const dir = await mkdtemp(join(tmpdir(), "pi-web-fetch-"));
+		fullOutputPath = join(dir, "output.md");
+		await writeFile(fullOutputPath, text, "utf8");
+		result += `\n\n[Output truncated: showing ${truncation.outputLines} of ${truncation.totalLines} lines`;
+		result += ` (${formatSize(truncation.outputBytes)} of ${formatSize(truncation.totalBytes)}).`;
+		result += ` Full output saved to: ${fullOutputPath}]`;
+	}
+
+	return {
+		text: result,
+		truncated: truncation.truncated,
+		fullOutputPath,
+		totalLines: truncation.totalLines,
+		outputLines: truncation.outputLines,
+	};
+}
+
+function decodeHtmlEntities(input: string): string {
+	const named: Record<string, string> = {
+		amp: "&",
+		lt: "<",
+		gt: ">",
+		quot: '"',
+		apos: "'",
+		nbsp: " ",
+		mdash: "—",
+		ndash: "–",
+		hellip: "…",
+		lsquo: "‘",
+		rsquo: "’",
+		ldquo: "“",
+		rdquo: "”",
+	};
+	return input.replace(/&(#x?[0-9a-f]+|[a-z][a-z0-9]+);/gi, (_match, entity: string) => {
+		if (entity[0] === "#") {
+			const isHex = entity[1]?.toLowerCase() === "x";
+			const value = Number.parseInt(entity.slice(isHex ? 2 : 1), isHex ? 16 : 10);
+			return Number.isFinite(value) ? String.fromCodePoint(value) : _match;
+		}
+		return named[entity.toLowerCase()] ?? _match;
+	});
+}
+
+function stripTags(input: string): string {
+	return decodeHtmlEntities(input)
+		.replace(/<script\b[\s\S]*?<\/script>/gi, " ")
+		.replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+		.replace(/<[^>]+>/g, " ")
+		.replace(/[ \t\f\v]+/g, " ")
+		.replace(/\s+\n/g, "\n")
+		.trim();
+}
+
+function normalizeWhitespace(input: string): string {
+	return input
+		.replace(/\r\n?/g, "\n")
+		.replace(/[\t\f\v]+/g, " ")
+		.replace(/\u00a0/g, " ")
+		.replace(/[ ]+\n/g, "\n")
+		.replace(/\n[ ]+/g, "\n")
+		.replace(/\n{3,}/g, "\n\n")
+		.trim();
+}
+
+function normalizeMarkdown(input: string): string {
+	return normalizeWhitespace(input)
+		.replace(/ *\*\* */g, "**")
+		.replace(/\n-\s+/g, "\n- ")
+		.replace(/^(\s*-\s+)/gm, "- ")
+		.trim();
+}
+
+function safeAbsoluteUrl(href: string, baseUrl: string): string | null {
+	const decoded = decodeHtmlEntities(href).trim();
+	if (!decoded || decoded.startsWith("#") || /^javascript:/i.test(decoded) || /^mailto:/i.test(decoded)) return null;
+	try {
+		const url = new URL(decoded, baseUrl);
+		return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
+	} catch {
+		return null;
+	}
+}
+
+function extractTitleFromHtml(html: string, fallbackUrl: string): string {
+	const candidates = [
+		html.match(/<meta\b[^>]*(?:property|name)=["']og:title["'][^>]*content=["']([^"']+)["'][^>]*>/i)?.[1],
+		html.match(/<meta\b[^>]*content=["']([^"']+)["'][^>]*(?:property|name)=["']og:title["'][^>]*>/i)?.[1],
+		html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1],
+		html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1],
+	];
+	for (const candidate of candidates) {
+		const title = stripTags(candidate ?? "");
+		if (title) return title.replace(/\s+/g, " ").trim();
+	}
+	return titleFromUrl(fallbackUrl);
+}
+
+function titleFromUrl(url: string): string {
+	try {
+		const parsed = new URL(url);
+		const file = basename(parsed.pathname.replace(/\/$/, ""));
+		return decodeURIComponent(file || parsed.hostname) || url;
+	} catch {
+		return url;
+	}
+}
+
+function selectMainHtml(html: string): string {
+	const candidates = [
+		html.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)?.[1],
+		html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1],
+		html.match(/<div\b[^>]*(?:id|class)=["'][^"']*(?:content|article|post|entry|markdown)[^"']*["'][^>]*>([\s\S]*?)<\/div>/i)?.[1],
+		html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1],
+	];
+	return candidates.find((candidate) => candidate && stripTags(candidate).length > 100) ?? html;
+}
+
+function htmlToMarkdown(html: string, baseUrl: string): string {
+	let content = selectMainHtml(html)
+		.replace(/<!--[\s\S]*?-->/g, " ")
+		.replace(/<script\b[\s\S]*?<\/script>/gi, " ")
+		.replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+		.replace(/<noscript\b[\s\S]*?<\/noscript>/gi, " ")
+		.replace(/<svg\b[\s\S]*?<\/svg>/gi, " ")
+		.replace(/<canvas\b[\s\S]*?<\/canvas>/gi, " ")
+		.replace(/<iframe\b[\s\S]*?<\/iframe>/gi, " ");
+
+	content = content.replace(/<pre\b[^>]*>([\s\S]*?)<\/pre>/gi, (_match, inner: string) => {
+		const code = stripTags(inner).replace(/^\s+|\s+$/g, "");
+		return code ? `\n\n\`\`\`\n${code}\n\`\`\`\n\n` : "\n\n";
+	});
+
+	content = content.replace(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_match, href: string, inner: string) => {
+		const text = stripTags(inner).replace(/\s+/g, " ").trim();
+		const url = safeAbsoluteUrl(href, baseUrl);
+		if (!text && !url) return "";
+		if (!url) return text;
+		return `[${text || url}](${url})`;
+	});
+
+	content = content.replace(/<code\b[^>]*>([\s\S]*?)<\/code>/gi, (_match, inner: string) => {
+		const code = stripTags(inner).replace(/`/g, "\\`");
+		return code ? `\`${code}\`` : "";
+	});
+
+	for (let level = 6; level >= 1; level--) {
+		const re = new RegExp(`<h${level}\\b[^>]*>([\\s\\S]*?)<\\/h${level}>`, "gi");
+		content = content.replace(re, (_match, inner: string) => {
+			const text = stripTags(inner).replace(/\s+/g, " ").trim();
+			return text ? `\n\n${"#".repeat(level)} ${text}\n\n` : "\n\n";
+		});
+	}
+
+	content = content
+		.replace(/<br\s*\/?\s*>/gi, "\n")
+		.replace(/<li\b[^>]*>([\s\S]*?)<\/li>/gi, (_match, inner: string) => {
+			const text = stripTags(inner).replace(/\s+/g, " ").trim();
+			return text ? `\n- ${text}` : "";
+		})
+		.replace(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote>/gi, (_match, inner: string) => {
+			const text = stripTags(inner).replace(/\n+/g, "\n").trim();
+			return text ? "\n\n" + text.split("\n").map((line) => `> ${line.trim()}`).join("\n") + "\n\n" : "\n\n";
+		})
+		.replace(/<\/(p|div|section|article|main|header|footer|tr|table|ul|ol)>/gi, "\n\n")
+		.replace(/<\/(td|th)>/gi, " | ")
+		.replace(/<[^>]+>/g, " ");
+
+	return normalizeMarkdown(decodeHtmlEntities(content));
+}
+
+function htmlToText(html: string): string {
+	return normalizeWhitespace(stripTags(selectMainHtml(html)));
+}
+
+function extractLinks(html: string, baseUrl: string, maxLinks = 50): Array<{ text: string; url: string }> {
+	const links: Array<{ text: string; url: string }> = [];
+	const seen = new Set<string>();
+	const re = /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+	for (const match of html.matchAll(re)) {
+		const url = safeAbsoluteUrl(match[1], baseUrl);
+		if (!url || seen.has(url)) continue;
+		seen.add(url);
+		const text = stripTags(match[2]).replace(/\s+/g, " ").trim();
+		links.push({ text: text || url, url });
+		if (links.length >= maxLinks) break;
+	}
+	return links;
+}
+
+function appendLinks(content: string, links: Array<{ text: string; url: string }> | undefined): string {
+	if (!links?.length) return content;
+	const lines = [content.trim(), "", "## Links"];
+	for (const link of links) lines.push(`- [${link.text.replace(/[\[\]]/g, "")}](${link.url})`);
+	return lines.join("\n");
+}
+
+function normalizeInputUrl(input: string): string | null {
+	const trimmed = input.trim();
+	if (!trimmed) return null;
+	const withProtocol = /^[a-z][a-z0-9+.-]*:/i.test(trimmed) ? trimmed : `https://${trimmed}`;
+	try {
+		const parsed = new URL(withProtocol);
+		if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+		return parsed.toString();
+	} catch {
+		return null;
+	}
+}
+
+function parseGitHubUrl(url: string): GitHubUrlInfo | null {
+	let parsed: URL;
+	try {
+		parsed = new URL(url);
+	} catch {
+		return null;
+	}
+	if (parsed.hostname !== "github.com" && parsed.hostname !== "www.github.com") return null;
+	const segments = parsed.pathname.split("/").filter(Boolean).map((segment) => {
+		try { return decodeURIComponent(segment); } catch { return segment; }
+	});
+	if (segments.length < 2) return null;
+	const owner = segments[0];
+	const repo = segments[1].replace(/\.git$/, "");
+	const action = segments[2];
+	const nonCode = new Set(["issues", "pull", "pulls", "discussions", "releases", "wiki", "actions", "settings", "security", "projects"]);
+	if (nonCode.has(action?.toLowerCase())) return null;
+	if (!action) return { owner, repo, type: "root" };
+	if (action !== "blob" && action !== "tree") return null;
+	if (!segments[3]) return null;
+	return {
+		owner,
+		repo,
+		type: action,
+		ref: segments[3],
+		path: segments.slice(4).join("/"),
+	};
+}
+
+function githubHeaders(): Record<string, string> {
+	const headers: Record<string, string> = {
+		"Accept": "application/vnd.github+json",
+		"User-Agent": "pi-web-fetch",
+		"X-GitHub-Api-Version": "2022-11-28",
+	};
+	const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+	if (token) headers.Authorization = `Bearer ${token}`;
+	return headers;
+}
+
+function encodePath(path: string): string {
+	return path.split("/").map(encodeURIComponent).join("/");
+}
+
+async function fetchJson<T>(url: string, signal?: AbortSignal): Promise<T | null> {
+	try {
+		const response = await fetch(url, { headers: githubHeaders(), signal });
+		if (!response.ok) return null;
+		return await response.json() as T;
+	} catch {
+		return null;
+	}
+}
+
+function decodeBase64Content(value: string): string {
+	return Buffer.from(value.replace(/\s+/g, ""), "base64").toString("utf8");
+}
+
+async function fetchGitHubContent(url: string, signal?: AbortSignal): Promise<FetchResult | null> {
+	const info = parseGitHubUrl(url);
+	if (!info) return null;
+
+	const repoApi = `https://api.github.com/repos/${encodeURIComponent(info.owner)}/${encodeURIComponent(info.repo)}`;
+	const ref = info.ref ?? (await fetchJson<{ default_branch?: string }>(repoApi, signal))?.default_branch ?? "main";
+	const titlePrefix = `${info.owner}/${info.repo}`;
+
+	if (info.type === "blob" && info.path) {
+		const fileApi = `${repoApi}/contents/${encodePath(info.path)}?ref=${encodeURIComponent(ref)}`;
+		const file = await fetchJson<{ content?: string; encoding?: string; name?: string; size?: number; html_url?: string }>(fileApi, signal);
+		if (!file?.content || file.encoding !== "base64") return null;
+		const content = decodeBase64Content(file.content);
+		return {
+			url,
+			finalUrl: file.html_url ?? url,
+			title: `${titlePrefix} — ${info.path}`,
+			content,
+			contentType: "text/plain",
+			status: 200,
+			source: "github-api",
+		};
+	}
+
+	const treeApi = `${repoApi}/git/trees/${encodeURIComponent(ref)}?recursive=1`;
+	const tree = await fetchJson<{ tree?: Array<{ path?: string; type?: string; size?: number }> }>(treeApi, signal);
+	if (!tree?.tree?.length) return null;
+
+	const prefix = info.type === "tree" && info.path ? info.path.replace(/\/+$/, "") : "";
+	const entries = tree.tree
+		.filter((entry) => entry.path && (!prefix || entry.path === prefix || entry.path.startsWith(`${prefix}/`)))
+		.slice(0, 200);
+
+	const lines: string[] = [];
+	lines.push(`# ${titlePrefix}${prefix ? ` — ${prefix}` : ""}`);
+	lines.push("");
+	lines.push(`Source: ${url}`);
+	lines.push(`Ref: ${ref}`);
+	lines.push("");
+	lines.push("## Repository structure");
+	if (entries.length === 0) {
+		lines.push("No entries found for this path.");
+	} else {
+		for (const entry of entries) {
+			const suffix = entry.type === "tree" ? "/" : entry.size ? ` (${formatSize(entry.size)})` : "";
+			lines.push(`- ${entry.path}${suffix}`);
+		}
+		const totalMatching = tree.tree.filter((entry) => entry.path && (!prefix || entry.path === prefix || entry.path.startsWith(`${prefix}/`))).length;
+		if (totalMatching > entries.length) lines.push(`- ... (${totalMatching - entries.length} more entries omitted)`);
+	}
+
+	if (info.type === "root") {
+		const readme = await fetchJson<{ content?: string; encoding?: string; name?: string; html_url?: string }>(`${repoApi}/readme?ref=${encodeURIComponent(ref)}`, signal);
+		if (readme?.content && readme.encoding === "base64") {
+			const readmeText = decodeBase64Content(readme.content);
+			lines.push("");
+			lines.push(`## ${readme.name ?? "README"}`);
+			lines.push(readmeText.length > 20_000 ? `${readmeText.slice(0, 20_000)}\n\n[README truncated at 20K chars]` : readmeText);
+		}
+	}
+
+	return {
+		url,
+		finalUrl: url,
+		title: `${titlePrefix}${prefix ? ` — ${prefix}` : ""}`,
+		content: lines.join("\n"),
+		contentType: "text/markdown",
+		status: 200,
+		source: "github-api",
+	};
+}
+
+function isHtml(contentType: string, text: string): boolean {
+	return contentType.includes("text/html") || contentType.includes("application/xhtml+xml") || /<html[\s>]|<article[\s>]|<main[\s>]/i.test(text.slice(0, 5000));
+}
+
+function isLikelyPdf(url: string, contentType: string): boolean {
+	return contentType.includes("application/pdf") || url.toLowerCase().split(/[?#]/)[0].endsWith(".pdf");
+}
+
+async function fetchWithJina(url: string, signal: AbortSignal | undefined, timeout: number): Promise<FetchResult | null> {
+	try {
+		const response = await fetch(JINA_READER_BASE + url, {
+			headers: {
+				"Accept": "text/markdown",
+				"User-Agent": USER_AGENT,
+				"X-No-Cache": "true",
+			},
+			signal: withTimeout(signal, timeout),
+		});
+		if (!response.ok) return null;
+		const text = await response.text();
+		const markdownStart = text.indexOf("Markdown Content:");
+		const content = markdownStart >= 0 ? text.slice(markdownStart + "Markdown Content:".length).trim() : text.trim();
+		if (content.length < 80) return null;
+		const title = text.match(/^Title:\s*(.+)$/m)?.[1]?.trim() || content.match(/^#\s+(.+)$/m)?.[1]?.trim() || titleFromUrl(url);
+		return {
+			url,
+			finalUrl: url,
+			title,
+			content,
+			contentType: "text/markdown",
+			status: response.status,
+			source: "jina",
+		};
+	} catch {
+		return null;
+	}
+}
+
+async function readResponseText(response: Response, limitBytes: number): Promise<string> {
+	const contentLength = response.headers.get("content-length");
+	if (contentLength && Number.parseInt(contentLength, 10) > limitBytes) {
+		throw new Error(`Response too large (${formatSize(Number.parseInt(contentLength, 10))}; limit ${formatSize(limitBytes)})`);
+	}
+	const buffer = Buffer.from(await response.arrayBuffer());
+	if (buffer.byteLength > limitBytes) {
+		throw new Error(`Response too large (${formatSize(buffer.byteLength)}; limit ${formatSize(limitBytes)})`);
+	}
+	return new TextDecoder("utf-8", { fatal: false }).decode(buffer);
+}
+
+async function fetchHttpContent(
+	url: string,
+	options: { format: FetchFormat; includeLinks: boolean; jinaFallback: boolean; timeoutMs: number; maxBytes: number },
+	signal?: AbortSignal,
+): Promise<FetchResult> {
+	try {
+		const response = await fetch(url, {
+			headers: {
+				"User-Agent": USER_AGENT,
+				"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,text/markdown,text/plain,application/json;q=0.8,*/*;q=0.7",
+				"Accept-Language": "en-US,en;q=0.9",
+				"Cache-Control": "no-cache",
+			},
+			redirect: "follow",
+			signal: withTimeout(signal, options.timeoutMs),
+		});
+
+		const finalUrl = response.url || url;
+		const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+
+		if (!response.ok) {
+			const jina = options.jinaFallback ? await fetchWithJina(url, signal, options.timeoutMs) : null;
+			if (jina) return jina;
+			return { url, finalUrl, title: titleFromUrl(url), content: "", contentType, status: response.status, source: "http", error: `HTTP ${response.status}: ${response.statusText}` };
+		}
+
+		if (isLikelyPdf(finalUrl, contentType)) {
+			const jina = options.jinaFallback ? await fetchWithJina(finalUrl, signal, options.timeoutMs) : null;
+			if (jina) return jina;
+			return { url, finalUrl, title: titleFromUrl(finalUrl), content: "", contentType, status: response.status, source: "http", error: "PDF extraction requires a readable text fallback; Jina Reader did not return content." };
+		}
+
+		if (/^(image|audio|video)\//.test(contentType) || /application\/(zip|octet-stream|x-tar|gzip)/.test(contentType)) {
+			return { url, finalUrl, title: titleFromUrl(finalUrl), content: "", contentType, status: response.status, source: "http", error: `Unsupported content type: ${contentType || "unknown"}` };
+		}
+
+		const text = await readResponseText(response, options.maxBytes);
+		const html = isHtml(contentType, text);
+		let content: string;
+		let title: string;
+		let links: Array<{ text: string; url: string }> | undefined;
+
+		if (html && options.format !== "html") {
+			title = extractTitleFromHtml(text, finalUrl);
+			content = options.format === "text" ? htmlToText(text) : htmlToMarkdown(text, finalUrl);
+			links = options.includeLinks ? extractLinks(text, finalUrl) : undefined;
+			if (options.format === "markdown") content = appendLinks(content, links);
+
+			if (options.jinaFallback && content.length < MIN_USEFUL_MARKDOWN_CHARS) {
+				const jina = await fetchWithJina(finalUrl, signal, options.timeoutMs);
+				if (jina && jina.content.length > content.length) return jina;
+			}
+		} else {
+			title = text.match(/^#\s+(.+)$/m)?.[1]?.trim() || titleFromUrl(finalUrl);
+			content = options.format === "html" ? text : normalizeWhitespace(text);
+		}
+
+		return { url, finalUrl, title, content, contentType, status: response.status, source: "http", links };
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		const jina = options.jinaFallback ? await fetchWithJina(url, signal, options.timeoutMs) : null;
+		if (jina) return jina;
+		return { url, finalUrl: url, title: titleFromUrl(url), content: "", source: "http", error: message };
+	}
+}
+
+async function fetchOne(
+	input: string,
+	options: { format: FetchFormat; includeLinks: boolean; jinaFallback: boolean; timeoutMs: number; maxBytes: number },
+	signal?: AbortSignal,
+): Promise<FetchResult> {
+	const url = normalizeInputUrl(input);
+	if (!url) {
+		return { url: input, finalUrl: input, title: input, content: "", source: "http", error: "Invalid URL. Only http(s) URLs are supported." };
+	}
+
+	const github = await fetchGitHubContent(url, signal);
+	if (github) return github;
+
+	return fetchHttpContent(url, options, signal);
+}
+
+async function mapLimit<T, U>(items: T[], limit: number, mapper: (item: T, index: number) => Promise<U>): Promise<U[]> {
+	const results = new Array<U>(items.length);
+	let next = 0;
+	const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+		while (next < items.length) {
+			const index = next++;
+			results[index] = await mapper(items[index], index);
+		}
+	});
+	await Promise.all(workers);
+	return results;
+}
+
+function buildCombinedOutput(results: FetchResult[]): string {
+	if (results.length === 1) {
+		const result = results[0];
+		if (result.error) return `Error fetching ${result.url}: ${result.error}`;
+		return `# ${result.title || result.url}\n\nSource: ${result.finalUrl}\nFetched via: ${result.source}\n\n${result.content}`.trim();
+	}
+
+	const sections: string[] = ["# Web fetch results", ""];
+	for (const result of results) {
+		sections.push(`## ${result.title || result.url}`);
+		sections.push(`Source: ${result.finalUrl}`);
+		sections.push(`Fetched via: ${result.source}`);
+		sections.push("");
+		if (result.error) {
+			sections.push(`Error: ${result.error}`);
+		} else {
+			sections.push(result.content);
+		}
+		sections.push("", "---", "");
+	}
+	return sections.join("\n").replace(/\n---\n\s*$/, "").trim();
 }
 
 export default function webFetchExtension(pi: ExtensionAPI) {
 	pi.registerTool({
-		name: "fetch_content",
-		label: "Fetch Content",
-		description: "Fetch URL(s) and extract readable content as markdown. Supports YouTube video transcripts (with thumbnail), GitHub repository contents, and local video files (with frame thumbnail). Video frames can be extracted via timestamp/range or sampled across the entire video with frames alone. Falls back to Gemini for pages that block bots or fail Readability extraction. For YouTube and video files: ALWAYS pass the user's specific question via the prompt parameter — this directs the AI to focus on that aspect of the video, producing much better results than a generic extraction. Content is always stored and can be retrieved with get_search_content.",
+		name: "web_fetch",
+		label: "Web Fetch",
+		description:
+			`Fetch URL(s) and extract readable content. HTML is converted to markdown/text, GitHub code URLs use the GitHub API, and difficult pages/PDFs can fall back to Jina Reader. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)}; if truncated, the full output is saved to a temp file.`,
 		promptSnippet:
-			"Use to extract readable content from URL(s), YouTube, GitHub repos, or local videos. For video questions, pass the user's exact question in prompt.",
+			"Fetch and extract readable web page content as markdown/text, with GitHub API and Jina Reader fallbacks",
+		promptGuidelines: [
+			"Use web_fetch after web_search when source-page details, documentation, or article content are needed.",
+			"Use web_fetch on GitHub blob/tree/repo URLs to inspect source files or repository structure without scraping rendered HTML.",
+		],
 		parameters: Type.Object({
-			url: Type.Optional(Type.String({ description: "Single URL to fetch" })),
-			urls: Type.Optional(Type.Array(Type.String(), { description: "Multiple URLs (parallel)" })),
-			forceClone: Type.Optional(Type.Boolean({
-				description: "Force cloning large GitHub repositories that exceed the size threshold",
-			})),
-			prompt: Type.Optional(Type.String({
-				description: "Question or instruction for video analysis (YouTube and video files). Pass the user's specific question here — e.g. 'describe the book shown at the advice for beginners section'. Without this, a generic transcript extraction is used which may miss what the user is asking about.",
-			})),
-			timestamp: Type.Optional(Type.String({
-				description: "Extract video frame(s) at a timestamp or time range. Single: '1:23:45', '23:45', or '85' (seconds). Range: '23:41-25:00' extracts evenly-spaced frames across that span (default 6). Use frames with ranges to control density; single+frames uses a fixed 5s interval. YouTube requires yt-dlp + ffmpeg; local videos require ffmpeg. Use a range when you know the approximate area but not the exact moment — you'll get a contact sheet to visually identify the right frame.",
-			})),
-			frames: Type.Optional(Type.Integer({
-				minimum: 1,
-				maximum: 12,
-				description: "Number of frames to extract. Use with timestamp range for custom density, with single timestamp to get N frames at 5s intervals, or alone to sample across the entire video. Requires yt-dlp + ffmpeg for YouTube, ffmpeg for local video.",
-			})),
-			model: Type.Optional(Type.String({
-				description: "Override the Gemini model for video/YouTube analysis (e.g. 'gemini-2.5-flash', 'gemini-3-flash-preview'). Defaults to config or gemini-3-flash-preview.",
-			})),
+			url: Type.Optional(Type.String({ description: "Single http(s) URL to fetch. URLs without a protocol are treated as https://." })),
+			urls: Type.Optional(Type.Array(Type.String(), { description: "Multiple URLs to fetch concurrently (max 3 at a time)." })),
+			format: Type.Optional(StringEnum(["markdown", "text", "html"] as const, { description: "Output format for HTTP HTML pages (default: markdown)." })),
+			includeLinks: Type.Optional(Type.Boolean({ description: "Append up to 50 extracted page links when format is markdown (default: false)." })),
+			jinaFallback: Type.Optional(Type.Boolean({ description: "Use https://r.jina.ai/ fallback for blocked, JS-heavy, short, or PDF pages (default: true)." })),
+			timeoutSeconds: Type.Optional(Type.Number({ description: "Per-request timeout in seconds (default: 30)." })),
+			maxResponseBytes: Type.Optional(Type.Number({ description: `Maximum raw response size to read per URL (default: ${formatSize(DEFAULT_MAX_RESPONSE_BYTES)}, max ${formatSize(MAX_MAX_RESPONSE_BYTES)}).` })),
 		}),
 
 		async execute(_toolCallId, params, signal, onUpdate) {
-			const urlList = params.urls ?? (params.url ? [params.url] : []);
-			if (urlList.length === 0) {
+			const urlList = Array.isArray(params.urls) ? params.urls : (params.url ? [params.url] : []);
+			const normalizedInputs = urlList.map((url) => typeof url === "string" ? url.trim() : "").filter(Boolean);
+			if (normalizedInputs.length === 0) {
 				return {
-					content: [{ type: "text", text: "Error: No URL provided." }],
+					content: [{ type: "text", text: "Error: provide url or urls." }],
 					details: { error: "No URL provided" },
+					isError: true,
 				};
 			}
 
-			onUpdate?.({
-				content: [{ type: "text", text: `Fetching ${urlList.length} URL(s)...` }],
-				details: { phase: "fetch", progress: 0 },
-			});
-
-			const fetchResults = await fetchAllContent(urlList, signal, {
-				forceClone: params.forceClone,
-				prompt: params.prompt,
-				timestamp: params.timestamp,
-				frames: params.frames,
-				model: params.model,
-			});
-			const successful = fetchResults.filter((r) => !r.error).length;
-			const totalChars = fetchResults.reduce((sum, r) => sum + r.content.length, 0);
-
-			// ALWAYS store results (even for single URL)
-			const responseId = generateId();
-			const data: StoredSearchData = {
-				id: responseId,
-				type: "fetch",
-				timestamp: Date.now(),
-				urls: stripThumbnails(fetchResults),
+			const startedAt = Date.now();
+			let completed = 0;
+			const options = {
+				format: (params.format ?? "markdown") as FetchFormat,
+				includeLinks: params.includeLinks === true,
+				jinaFallback: params.jinaFallback !== false,
+				timeoutMs: timeoutMs(params.timeoutSeconds),
+				maxBytes: maxResponseBytes(params.maxResponseBytes),
 			};
-			storeResult(responseId, data);
-			pi.appendEntry("web-search-results", data);
 
-			// Single URL: return content directly (possibly truncated) with responseId
-			if (urlList.length === 1) {
-				const result = fetchResults[0];
-				if (result.error) {
-					return {
-						content: [{ type: "text", text: `Error: ${result.error}` }],
-						details: { urls: urlList, urlCount: 1, successful: 0, error: result.error, responseId, prompt: params.prompt, timestamp: params.timestamp, frames: params.frames },
-					};
-				}
+			const results = await mapLimit(normalizedInputs, CONCURRENT_FETCHES, async (input, index) => {
+				onUpdate?.({
+					content: [{ type: "text", text: `Fetching ${index + 1}/${normalizedInputs.length}: ${input}` }],
+					details: { phase: "fetching", progress: completed / normalizedInputs.length, currentUrl: input },
+				});
+				const result = await fetchOne(input, options, signal);
+				completed += 1;
+				onUpdate?.({
+					content: [{ type: "text", text: `Fetched ${completed}/${normalizedInputs.length}` }],
+					details: { phase: "fetching", progress: completed / normalizedInputs.length, currentUrl: input },
+				});
+				return result;
+			});
 
-				const fullLength = result.content.length;
-				const truncated = fullLength > MAX_INLINE_CONTENT;
-				let output = truncated
-					? result.content.slice(0, MAX_INLINE_CONTENT) + "\n\n[Content truncated...]"
-					: result.content;
-
-				if (truncated) {
-					output += `\n\n---\nShowing ${MAX_INLINE_CONTENT} of ${fullLength} chars. ` +
-						`Use get_search_content({ responseId: "${responseId}", urlIndex: 0 }) for full content.`;
-				}
-
-				const content: Array<{ type: string; text?: string; data?: string; mimeType?: string }> = [];
-				if (result.frames?.length) {
-					for (const frame of result.frames) {
-						content.push({ type: "image", data: frame.data, mimeType: frame.mimeType });
-						content.push({ type: "text", text: `Frame at ${frame.timestamp}` });
-					}
-				} else if (result.thumbnail) {
-					content.push({ type: "image", data: result.thumbnail.data, mimeType: result.thumbnail.mimeType });
-				}
-				content.push({ type: "text", text: output });
-
-				const imageCount = (result.frames?.length ?? 0) + (result.thumbnail ? 1 : 0);
-				return {
-					content,
-					details: {
-						urls: urlList,
-						urlCount: 1,
-						successful: 1,
-						totalChars: fullLength,
-						title: result.title,
-						responseId,
-						truncated,
-						hasImage: imageCount > 0,
-						imageCount,
-						prompt: params.prompt,
-						timestamp: params.timestamp,
-						frames: params.frames,
-						duration: result.duration,
-					},
-				};
-			}
-
-			// Multi-URL: existing behavior (summary + responseId)
-			let output = "## Fetched URLs\n\n";
-			for (const { url, title, content, error } of fetchResults) {
-				if (error) {
-					output += `- ${url}: Error - ${error}\n`;
-				} else {
-					output += `- ${title || url} (${content.length} chars)\n`;
-				}
-			}
-			output += `\n---\nUse get_search_content({ responseId: "${responseId}", urlIndex: 0 }) to retrieve full content.`;
+			const combined = buildCombinedOutput(results);
+			const truncated = await truncateForModel(combined);
+			const successful = results.filter((result) => !result.error).length;
+			const failed = results.length - successful;
 
 			return {
-				content: [{ type: "text", text: output }],
-				details: { urls: urlList, urlCount: urlList.length, successful, totalChars, responseId },
+				content: [{ type: "text", text: truncated.text }],
+				details: {
+					urlCount: results.length,
+					successful,
+					failed,
+					elapsedMs: Date.now() - startedAt,
+					format: options.format,
+					truncated: truncated.truncated,
+					fullOutputPath: truncated.fullOutputPath,
+					results: results.map((result) => ({
+						url: result.url,
+						finalUrl: result.finalUrl,
+						title: result.title,
+						status: result.status,
+						source: result.source,
+						contentLength: result.content.length,
+						error: result.error,
+					})),
+				},
+				isError: successful === 0,
 			};
 		},
 
 		renderCall(args, theme) {
-			const { url, urls, prompt, timestamp, frames, model } = args as { url?: string; urls?: string[]; prompt?: string; timestamp?: string; frames?: number; model?: string };
-			const urlList = urls ?? (url ? [url] : []);
-			if (urlList.length === 0) {
-				return new Text(theme.fg("toolTitle", theme.bold("fetch ")) + theme.fg("error", "(no URL)"), 0, 0);
-			}
-			const lines: string[] = [];
-			if (urlList.length === 1) {
-				const display = urlList[0].length > 60 ? urlList[0].slice(0, 57) + "..." : urlList[0];
-				lines.push(theme.fg("toolTitle", theme.bold("fetch ")) + theme.fg("accent", display));
+			const raw = Array.isArray(args.urls) ? args.urls : (args.url ? [args.url] : []);
+			let text = theme.fg("toolTitle", theme.bold("web_fetch "));
+			if (raw.length === 0) return new Text(text + theme.fg("error", "(no URL)"), 0, 0);
+			if (raw.length === 1) {
+				const display = String(raw[0]).length > 72 ? `${String(raw[0]).slice(0, 69)}...` : String(raw[0]);
+				text += theme.fg("accent", display);
 			} else {
-				lines.push(theme.fg("toolTitle", theme.bold("fetch ")) + theme.fg("accent", `${urlList.length} URLs`));
-				for (const u of urlList.slice(0, 5)) {
-					const display = u.length > 60 ? u.slice(0, 57) + "..." : u;
-					lines.push(theme.fg("muted", "  " + display));
-				}
-				if (urlList.length > 5) {
-					lines.push(theme.fg("muted", `  ... and ${urlList.length - 5} more`));
-				}
+				text += theme.fg("accent", `${raw.length} URLs`);
 			}
-			if (timestamp) {
-				lines.push(theme.fg("dim", "  timestamp: ") + theme.fg("warning", timestamp));
-			}
-			if (typeof frames === "number") {
-				lines.push(theme.fg("dim", "  frames: ") + theme.fg("warning", String(frames)));
-			}
-			if (prompt) {
-				const display = prompt.length > 250 ? prompt.slice(0, 247) + "..." : prompt;
-				lines.push(theme.fg("dim", "  prompt: ") + theme.fg("muted", `"${display}"`));
-			}
-			if (model) {
-				lines.push(theme.fg("dim", "  model: ") + theme.fg("warning", model));
-			}
-			return new Text(lines.join("\n"), 0, 0);
+			if (args.format) text += theme.fg("muted", ` as ${args.format}`);
+			return new Text(text, 0, 0);
 		},
 
 		renderResult(result, { expanded, isPartial }, theme) {
 			const details = result.details as {
 				urlCount?: number;
 				successful?: number;
-				totalChars?: number;
-				error?: string;
-				title?: string;
+				failed?: number;
 				truncated?: boolean;
-				responseId?: string;
 				phase?: string;
 				progress?: number;
-				hasImage?: boolean;
-				imageCount?: number;
-				prompt?: string;
-				timestamp?: string;
-				frames?: number;
-				duration?: number;
-			};
+				currentUrl?: string;
+				results?: Array<{ title?: string; finalUrl?: string; source?: string; error?: string; contentLength?: number }>;
+			} | undefined;
 
 			if (isPartial) {
-				const progress = details?.progress ?? 0;
-				const bar = "\u2588".repeat(Math.floor(progress * 10)) + "\u2591".repeat(10 - Math.floor(progress * 10));
-				return new Text(theme.fg("accent", `[${bar}] ${details?.phase || "fetching"}`), 0, 0);
+				const progress = Math.max(0, Math.min(1, details?.progress ?? 0));
+				const bar = "█".repeat(Math.floor(progress * 10)) + "░".repeat(10 - Math.floor(progress * 10));
+				const current = details?.currentUrl ? ` ${details.currentUrl}` : "";
+				return new Text(theme.fg("accent", `[${bar}] ${details?.phase ?? "fetching"}${current}`), 0, 0);
 			}
 
-			if (details?.error) {
-				return new Text(theme.fg("error", `Error: ${details.error}`), 0, 0);
-			}
+			if (!details) return new Text(theme.fg("dim", "No details"), 0, 0);
+			const color = (details.successful ?? 0) > 0 ? "success" : "error";
+			let text = theme.fg(color, `${details.successful ?? 0}/${details.urlCount ?? 0} fetched`);
+			if (details.failed) text += theme.fg("warning", ` (${details.failed} failed)`);
+			if (details.truncated) text += theme.fg("warning", " [truncated]");
 
-			if (details?.urlCount === 1) {
-				const title = details?.title || "Untitled";
-				const imgCount = details?.imageCount ?? (details?.hasImage ? 1 : 0);
-				const imageBadge = imgCount > 1
-					? theme.fg("accent", ` [${imgCount} images]`)
-					: imgCount === 1
-						? theme.fg("accent", " [image]")
-						: "";
-				let statusLine = theme.fg("success", title) + theme.fg("muted", ` (${details?.totalChars ?? 0} chars)`) + imageBadge;
-				if (details?.truncated) {
-					statusLine += theme.fg("warning", " [truncated]");
+			if (expanded && details.results?.length) {
+				for (const item of details.results.slice(0, 12)) {
+					const title = item.title || item.finalUrl || "Untitled";
+					if (item.error) text += `\n${theme.fg("error", `✗ ${title}: ${item.error}`)}`;
+					else text += `\n${theme.fg("dim", `✓ ${title} · ${item.source} · ${item.contentLength ?? 0} chars`)}`;
 				}
-				if (typeof details?.duration === "number") {
-					statusLine += theme.fg("muted", ` | ${formatSeconds(Math.floor(details.duration))} total`);
-				}
-				const textContent = result.content.find((c) => c.type === "text")?.text || "";
-				if (!expanded) {
-					const brief = textContent.length > 200 ? textContent.slice(0, 200) + "..." : textContent;
-					return new Text(statusLine + "\n" + theme.fg("dim", brief), 0, 0);
-				}
-				const lines = [statusLine];
-				if (details?.prompt) {
-					const display = details.prompt.length > 250 ? details.prompt.slice(0, 247) + "..." : details.prompt;
-					lines.push(theme.fg("dim", `  prompt: "${display}"`));
-				}
-				if (details?.timestamp) {
-					lines.push(theme.fg("dim", `  timestamp: ${details.timestamp}`));
-				}
-				if (typeof details?.frames === "number") {
-					lines.push(theme.fg("dim", `  frames: ${details.frames}`));
-				}
-				const preview = textContent.length > 500 ? textContent.slice(0, 500) + "..." : textContent;
-				lines.push(theme.fg("dim", preview));
-				return new Text(lines.join("\n"), 0, 0);
 			}
-
-			const countColor = (details?.successful ?? 0) > 0 ? "success" : "error";
-			const statusLine = theme.fg(countColor, `${details?.successful}/${details?.urlCount} URLs`) + theme.fg("muted", " (content stored)");
-			if (!expanded) {
-				return new Text(statusLine, 0, 0);
-			}
-			const textContent = result.content.find((c) => c.type === "text")?.text || "";
-			const preview = textContent.length > 500 ? textContent.slice(0, 500) + "..." : textContent;
-			return new Text(statusLine + "\n" + theme.fg("dim", preview), 0, 0);
+			return new Text(text, 0, 0);
 		},
 	});
-
 
 }

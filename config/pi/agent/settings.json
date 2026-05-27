@@ -6,5 +6,9 @@
   "defaultThinkingLevel": "xhigh",
   "theme": "rose-pine-moon",
   "enableInstallTelemetry": false,
-  "npmCommand": ["env", "NPM_CONFIG_PREFIX=/home/jofre/.local/share/npm", "npm"]
+  "npmCommand": [
+    "env",
+    "NPM_CONFIG_PREFIX=/home/jofre/.local/share/npm",
+    "npm"
+  ]
 }

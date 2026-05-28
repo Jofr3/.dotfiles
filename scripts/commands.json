@@ -17,7 +17,7 @@
       "hold": false
     },
     "screenshot": {
-      "command": "grim -g \"$(slurp)\" - | tee \"$HOME/Documents/screenshots/$(date +%Y%m%d-%H%M%S).png\" | wl-copy",
+      "command": "$HOME/.dotfiles/scripts/screenshot-satty.sh",
       "terminal": false,
       "hold": false
     },

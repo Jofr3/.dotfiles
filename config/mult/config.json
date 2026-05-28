@@ -11,6 +11,7 @@
     { "name": "nvim config", "path": "~/.dotfiles/config/nvim" },
     { "name": "kitty config", "path": "~/.dotfiles/config/kitty" },
     { "name": "senditum app", "path": "~/lsw/senditum_app" },
+    { "name": "targecopy", "path": "~/lsw/targecopy" },
     { "name": "ateinsa", "path": "~/lsw/ateinsa" },
     { "name": "ateinsa new", "path": "~/lsw/ateinsa_new" },
     { "name": "renovacions", "path": "~/lsw/renovacions" },

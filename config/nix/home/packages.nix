@@ -24,6 +24,7 @@
     wget
     sox
     agent-browser
+    jujutsu
 
     # editors
     neovim
@@ -55,6 +56,7 @@
     cliphist
     grim
     hyprpicker
+    satty
     slurp
     swaybg
     wl-clipboard

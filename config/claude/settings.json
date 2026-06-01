@@ -5,9 +5,6 @@
       "Bash(homedir-marker *)"
     ]
   },
-  "enabledPlugins": {
-    "context-mode@context-mode": true
-  },
   "hooks": {
     "SessionStart": [
       {
@@ -19,5 +16,9 @@
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "context-mode@context-mode": true
+  },
+  "skipWorkflowUsageWarning": true
 }

@@ -58,7 +58,7 @@ alias vpn-ateinsa="sudo openfortivpn mail.ateinsa.com:10443 --username=jscaricac
 
 # Keybinds
 bind \ef super-cd
-bind \es "~/.dotfiles/scripts/tmux-sessionizer.sh"
+# bind \es "~/.dotfiles/scripts/tmux-sessionizer.sh"
 
 # Auto-start tmux
 # if status is-interactive

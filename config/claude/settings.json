@@ -3,7 +3,8 @@
     "allow": [],
     "deny": [
       "Bash(homedir-marker *)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "hooks": {
     "SessionStart": [
@@ -20,5 +21,9 @@
   "enabledPlugins": {
     "context-mode@context-mode": true
   },
-  "skipWorkflowUsageWarning": true
+  "spinnerTipsEnabled": false,
+  "tui": "fullscreen",
+  "skipWorkflowUsageWarning": true,
+  "skipAutoPermissionPrompt": true,
+  "effortLevel": "xhigh"
 }

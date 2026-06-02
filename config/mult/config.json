@@ -1,9 +1,11 @@
 {
   "pi_agent_command": "pi",
+  "claude_code_command": "npx -y @anthropic-ai/claude-code --chrome",
   "projects": [
     { "name": "home", "path": "~/" },
     { "name": "dotfiles", "path": "~/.dotfiles" },
     { "name": "mult", "path": "~/projects/mult" },
+    { "name": "luminous ui", "path": "~/projects/luminous_ui" },
     { "name": "pi config", "path": "~/.dotfiles/config/pi" },
     { "name": "nix config", "path": "~/.dotfiles/config/nix" },
     { "name": "mult config", "path": "~/.dotfiles/config/mult" },

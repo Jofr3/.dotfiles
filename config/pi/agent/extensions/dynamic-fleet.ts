@@ -26,11 +26,16 @@ import { Type } from "typebox";
 const TOOL_NAME = "dynamic_fleet";
 const CHILD_ENV = "PI_DYNAMIC_FLEET_CHILD";
 const RUN_ID_ENV = "PI_DYNAMIC_FLEET_RUN_ID";
+const CHILD_AGENT_ID_ENV = "PI_DYNAMIC_FLEET_AGENT_ID";
+const CHILD_WRITE_PATHS_ENV = "PI_DYNAMIC_FLEET_WRITE_PATHS";
 const DEFAULT_MAX_AGENTS = 6;
 const HARD_MAX_AGENTS = 10;
+const DEFAULT_MAX_WRITERS = 3;
+const HARD_MAX_WRITERS = HARD_MAX_AGENTS;
 const DEFAULT_CONCURRENCY = 4;
 const PROCESS_TIMEOUT_MS = 45 * 60 * 1000;
 const TASK_ARG_LIMIT = 8000;
+const DEFAULT_WRITE_PATHS = ["**"];
 
 const BUILTIN_READ_TOOLS = ["read", "grep", "find", "ls"];
 const BUILTIN_ANALYSIS_TOOLS = [...BUILTIN_READ_TOOLS, "bash"];
@@ -57,9 +62,14 @@ const FleetParams = Type.Object({
 		maximum: HARD_MAX_AGENTS,
 		description: `Maximum subagents to run at once inside a phase. Default ${DEFAULT_CONCURRENCY}.`,
 	})),
+	maxWriters: Type.Optional(Type.Integer({
+		minimum: 1,
+		maximum: HARD_MAX_WRITERS,
+		description: `Maximum write-access subagents the orchestrator may create. Default ${DEFAULT_MAX_WRITERS}. Writers must have non-overlapping write paths when run in parallel.`,
+	})),
 	allowWrites: Type.Optional(Type.Boolean({
 		description:
-			"Allow the orchestrator to nominate one writer subagent with edit/write tools. Defaults to true; set false for review/research only.",
+			"Allow the orchestrator to nominate write-access subagents with edit/write tools. Defaults to true; set false for review/research only.",
 	})),
 	model: Type.Optional(Type.String({
 		description:
@@ -79,6 +89,7 @@ interface PlannedAgent {
 	task: string;
 	tools: string[];
 	writeAccess: boolean;
+	writePaths: string[];
 }
 
 interface PlannedPhase {
@@ -102,6 +113,7 @@ interface AgentRunState {
 	status: AgentStatus;
 	tools: string[];
 	writeAccess: boolean;
+	writePaths: string[];
 	startedAt?: number;
 	endedAt?: number;
 	currentTool?: string;
@@ -151,6 +163,7 @@ interface RunPiChildInput {
 	systemPrompt: string;
 	task: string;
 	tools: string[];
+	writePaths?: string[];
 	model?: string;
 	signal?: AbortSignal;
 	onToolStart?: (toolName: string) => void;
@@ -185,6 +198,170 @@ function sanitizeId(value: string, fallback: string, used: Set<string>): string 
 	}
 	used.add(candidate);
 	return candidate;
+}
+
+function toPosixPath(value: string): string {
+	return value.replace(/\\/g, "/").replace(/\/+/g, "/");
+}
+
+function hasGlobPattern(value: string): boolean {
+	return /[*?]/.test(value);
+}
+
+function normalizeWritePathPattern(raw: string, cwd: string): string | undefined {
+	let value = toPosixPath(raw.trim());
+	if (!value || value.includes("\0")) return undefined;
+
+	const cwdPosix = toPosixPath(path.resolve(cwd));
+	if (value === cwdPosix) value = "**";
+	else if (value.startsWith(`${cwdPosix}/`)) value = value.slice(cwdPosix.length + 1);
+
+	if (path.isAbsolute(value) || value.startsWith("~")) return undefined;
+	value = value.replace(/^\.\/+/, "").replace(/^\/+/, "").replace(/\/+$/, "");
+	if (!value || value === ".") return "**";
+	if (value.split("/").some((segment) => segment === "..")) return undefined;
+	return value;
+}
+
+function normalizeWritePathList(raw: unknown, cwd: string): string[] {
+	const items = Array.isArray(raw) ? raw.filter((item): item is string => typeof item === "string") : [];
+	const paths: string[] = [];
+	for (const item of items) {
+		const normalized = normalizeWritePathPattern(item, cwd);
+		if (normalized && !paths.includes(normalized)) paths.push(normalized);
+	}
+	return paths;
+}
+
+function relativePathFromToolPath(rawPath: unknown, cwd: string): string | undefined {
+	if (typeof rawPath !== "string" || !rawPath.trim()) return undefined;
+	const target = rawPath.trim();
+	const abs = path.isAbsolute(target) ? path.resolve(target) : path.resolve(cwd, target);
+	const rel = path.relative(cwd, abs);
+	if (!rel) return ".";
+	if (rel === ".." || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel)) return undefined;
+	return toPosixPath(rel);
+}
+
+function escapeRegExp(value: string): string {
+	return value.replace(/[|\\{}()[\]^$+?.]/g, "\\$&");
+}
+
+function globPatternToRegExp(pattern: string): RegExp {
+	let source = "";
+	for (let i = 0; i < pattern.length; i++) {
+		const char = pattern[i]!;
+		if (char === "*") {
+			if (pattern[i + 1] === "*") {
+				source += ".*";
+				i++;
+			} else {
+				source += "[^/]*";
+			}
+		} else if (char === "?") {
+			source += "[^/]";
+		} else {
+			source += escapeRegExp(char);
+		}
+	}
+	return new RegExp(`^${source}$`);
+}
+
+function matchesWritePattern(relativePath: string, pattern: string): boolean {
+	const rel = toPosixPath(relativePath).replace(/^\.\/+/, "");
+	const cleanPattern = toPosixPath(pattern).replace(/^\.\/+/, "").replace(/\/+$/, "");
+	if (!cleanPattern || cleanPattern === "." || cleanPattern === "**") return true;
+	if (!hasGlobPattern(cleanPattern)) return rel === cleanPattern || rel.startsWith(`${cleanPattern}/`);
+	if (cleanPattern.endsWith("/**")) {
+		const base = cleanPattern.slice(0, -3).replace(/\/+$/, "");
+		if (base && (rel === base || rel.startsWith(`${base}/`))) return true;
+	}
+	return globPatternToRegExp(cleanPattern).test(rel);
+}
+
+function isPathAllowedForWrite(relativePath: string, writePaths: string[]): boolean {
+	return writePaths.some((pattern) => matchesWritePattern(relativePath, pattern));
+}
+
+function literalPrefixForOverlap(pattern: string): string {
+	const clean = toPosixPath(pattern).replace(/^\.\/+/, "").replace(/\/+$/, "");
+	if (!clean || clean === "**") return "";
+	const globIndex = clean.search(/[*?]/);
+	if (globIndex === -1) return clean;
+	const literal = clean.slice(0, globIndex).replace(/\/+$/, "");
+	if (!literal) return "";
+	const preceding = clean[globIndex - 1];
+	if (preceding === "/") return literal;
+	const slash = literal.lastIndexOf("/");
+	return slash === -1 ? "" : literal.slice(0, slash);
+}
+
+function writePathPatternsMayOverlap(a: string, b: string): boolean {
+	if (a === "**" || b === "**") return true;
+	if (matchesWritePattern(a, b) || matchesWritePattern(b, a)) return true;
+	const aPrefix = literalPrefixForOverlap(a);
+	const bPrefix = literalPrefixForOverlap(b);
+	if (!aPrefix || !bPrefix) return true;
+	return aPrefix === bPrefix || aPrefix.startsWith(`${bPrefix}/`) || bPrefix.startsWith(`${aPrefix}/`);
+}
+
+function writePathSetsMayOverlap(a: string[], b: string[]): boolean {
+	const left = a.length ? a : DEFAULT_WRITE_PATHS;
+	const right = b.length ? b : DEFAULT_WRITE_PATHS;
+	return left.some((leftPattern) => right.some((rightPattern) => writePathPatternsMayOverlap(leftPattern, rightPattern)));
+}
+
+function formatWritePaths(writePaths: string[]): string {
+	return writePaths.length ? writePaths.join(", ") : "none";
+}
+
+function commandLooksMutating(command: string): boolean {
+	const normalized = command.replace(/\\\n/g, " ");
+	return /(^|[;&|]\s*)(rm|mv|cp|mkdir|touch|chmod|chown|ln|tee|truncate)\b/.test(normalized)
+		|| /(^|[;&|]\s*)git\s+(init|add|commit|checkout|switch|merge|reset|clean|apply|am)\b/.test(normalized)
+		|| /(^|[;&|]\s*)(bun\s+(install|add|remove|create)|npm\s+(install|i|add|remove)|pnpm\s+(install|add|remove)|yarn\s+(install|add|remove))\b/.test(normalized)
+		|| /(^|[^<])>>?\s*[^&\s]/.test(normalized)
+		|| /<<\s*\w+/.test(normalized);
+}
+
+function registerChildPermissionGuard(pi: ExtensionAPI): void {
+	const role = process.env[CHILD_ENV];
+	let writePaths: string[] = [];
+	try {
+		const parsed = JSON.parse(process.env[CHILD_WRITE_PATHS_ENV] || "[]");
+		if (Array.isArray(parsed)) writePaths = parsed.filter((item): item is string => typeof item === "string");
+	} catch {
+		writePaths = [];
+	}
+	const canWrite = role === "subagent" && writePaths.length > 0;
+
+	pi.on("tool_call", async (event: any, ctx: ExtensionContext) => {
+		const toolName = typeof event.toolName === "string" ? event.toolName : "";
+		if (toolName === "write" || toolName === "edit") {
+			if (!canWrite) {
+				return { block: true, reason: "This dynamic-fleet child has no write permission." };
+			}
+			const target = relativePathFromToolPath(event.input?.path, ctx.cwd);
+			if (!target) {
+				return { block: true, reason: "Refusing to write outside the current working directory." };
+			}
+			if (!isPathAllowedForWrite(target, writePaths)) {
+				return {
+					block: true,
+					reason: `Write to ${target} is outside this subagent's allowed paths: ${formatWritePaths(writePaths)}.`,
+				};
+			}
+		}
+
+		if (toolName === "bash" && !canWrite) {
+			const command = typeof event.input?.command === "string" ? event.input.command : "";
+			if (commandLooksMutating(command)) {
+				return { block: true, reason: "Read-only dynamic-fleet subagents may not run shell commands that appear to modify files." };
+			}
+		}
+
+		return undefined;
+	});
 }
 
 function textFromMessageContent(content: unknown): string {
@@ -253,7 +430,54 @@ function normalizeToolList(raw: unknown, writeAccess: boolean, allowWrites: bool
 	return tools;
 }
 
-function normalizeFleetPlan(raw: unknown, maxAgents: number, allowWrites: boolean): FleetPlan {
+function splitConcurrentWriterConflicts(phases: PlannedPhase[], agents: PlannedAgent[]): PlannedPhase[] {
+	const byId = new Map(agents.map((agent) => [agent.id, agent]));
+	const repaired: PlannedPhase[] = [];
+
+	for (const phase of phases) {
+		const groups: string[][] = [];
+		for (const id of phase.agents) {
+			const agent = byId.get(id);
+			if (!agent?.writeAccess) {
+				if (groups.length === 0) groups.push([]);
+				groups[groups.length - 1]!.push(id);
+				continue;
+			}
+
+			let placed = false;
+			for (const group of groups) {
+				const conflicts = group.some((existingId) => {
+					const existing = byId.get(existingId);
+					return existing?.writeAccess && writePathSetsMayOverlap(agent.writePaths, existing.writePaths);
+				});
+				if (!conflicts) {
+					group.push(id);
+					placed = true;
+					break;
+				}
+			}
+
+			if (!placed) groups.push([id]);
+		}
+
+		const nonEmptyGroups = groups.filter((group) => group.length > 0);
+		if (nonEmptyGroups.length <= 1) {
+			repaired.push({ ...phase, agents: nonEmptyGroups[0] ?? [] });
+			continue;
+		}
+
+		for (let i = 0; i < nonEmptyGroups.length; i++) {
+			repaired.push({
+				name: i === 0 ? phase.name : `${phase.name} (write group ${i + 1})`,
+				agents: nonEmptyGroups[i]!,
+			});
+		}
+	}
+
+	return repaired.filter((phase) => phase.agents.length > 0);
+}
+
+function normalizeFleetPlan(raw: unknown, maxAgents: number, allowWrites: boolean, maxWriters: number, cwd: string): FleetPlan {
 	if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
 		throw new Error("Orchestrator plan must be a JSON object.");
 	}
@@ -264,7 +488,8 @@ function normalizeFleetPlan(raw: unknown, maxAgents: number, allowWrites: boolea
 	}
 
 	const usedIds = new Set<string>();
-	let writerAlreadyAssigned = false;
+	const writerLimit = allowWrites ? Math.min(maxWriters, maxAgents) : 0;
+	let writersAssigned = 0;
 	const agents: PlannedAgent[] = [];
 
 	for (let index = 0; index < rawAgents.length && agents.length < maxAgents; index++) {
@@ -278,8 +503,10 @@ function normalizeFleetPlan(raw: unknown, maxAgents: number, allowWrites: boolea
 			usedIds,
 		);
 		const requestedWriteAccess = a.writeAccess === true || (Array.isArray(a.tools) && a.tools.some((t) => typeof t === "string" && WRITE_TOOLS.includes(t)));
-		const writeAccess = allowWrites && requestedWriteAccess && !writerAlreadyAssigned;
-		if (writeAccess) writerAlreadyAssigned = true;
+		const requestedWritePaths = normalizeWritePathList(a.writePaths, cwd);
+		const writeAccess = allowWrites && requestedWriteAccess && writersAssigned < writerLimit;
+		if (writeAccess) writersAssigned++;
+		const writePaths = writeAccess ? (requestedWritePaths.length > 0 ? requestedWritePaths : [...DEFAULT_WRITE_PATHS]) : [];
 		const tools = normalizeToolList(a.tools, writeAccess, allowWrites);
 		agents.push({
 			id,
@@ -293,6 +520,7 @@ function normalizeFleetPlan(raw: unknown, maxAgents: number, allowWrites: boolea
 				: `Complete your purpose for the parent task: ${String(obj.overview ?? "")}`,
 			tools,
 			writeAccess,
+			writePaths,
 		});
 	}
 
@@ -325,11 +553,13 @@ function normalizeFleetPlan(raw: unknown, maxAgents: number, allowWrites: boolea
 		phases.push({ name: phases.length === 0 ? "Parallel fleet" : "Remaining agents", agents: unassigned.length ? unassigned : agents.map((a) => a.id) });
 	}
 
+	const safePhases = splitConcurrentWriterConflicts(phases, agents);
+
 	return {
 		overview: typeof obj.overview === "string" ? obj.overview.trim() : "Dynamic fleet plan",
 		strategy: typeof obj.strategy === "string" ? obj.strategy.trim() : "Run the task-specific fleet and synthesize results.",
 		agents,
-		phases,
+		phases: safePhases,
 		synthesisPrompt: typeof obj.synthesisPrompt === "string" && obj.synthesisPrompt.trim()
 			? obj.synthesisPrompt.trim()
 			: "Synthesize the fleet results into the best final answer for the original user task.",
@@ -380,6 +610,8 @@ async function runPiChild(input: RunPiChildInput): Promise<ChildRunResult> {
 		...process.env,
 		[CHILD_ENV]: input.role,
 		[RUN_ID_ENV]: input.runId,
+		[CHILD_AGENT_ID_ENV]: input.name,
+		[CHILD_WRITE_PATHS_ENV]: JSON.stringify(input.writePaths ?? []),
 	};
 
 	return new Promise<ChildRunResult>((resolve) => {
@@ -522,7 +754,7 @@ async function runPiChild(input: RunPiChildInput): Promise<ChildRunResult> {
 	});
 }
 
-function buildOrchestratorPlanningPrompt(maxAgents: number, allowWrites: boolean): string {
+function buildOrchestratorPlanningPrompt(maxAgents: number, maxWriters: number, allowWrites: boolean): string {
 	return `You are orchestrator, a temporary dynamic-subagent designer.
 
 Your job is to decide and create a task-specific fleet for the parent request. There are no predefined subagent roles. Invent the right specialists for this task from first principles.
@@ -533,9 +765,12 @@ Design principles:
 - Create subagents only when they add parallel evidence, independent reasoning, implementation throughput, or adversarial validation.
 - Prefer 2-${maxAgents} strong, distinct agents over many vague agents.
 - Make each subagent's purpose narrow and non-overlapping.
-- For implementation tasks, use at most one writer subagent. Other agents should be read-only reviewers/scouts/researchers/validators.
-- ${allowWrites ? "You may nominate exactly one writer by setting writeAccess: true." : "Do not nominate writer agents; allowWrites is false."}
 - Use phases when later agents should depend on earlier outputs. Agents inside the same phase run concurrently.
+- ${allowWrites ? `You may nominate up to ${maxWriters} writer subagents by setting writeAccess: true.` : "Do not nominate writer agents; allowWrites is false."}
+- For greenfield or multi-area implementation tasks, prefer a small serial foundation writer if needed, then parallel writers split by non-overlapping directories/packages, then a serial integration or validation phase.
+- Every writer MUST declare explicit writePaths relative to the working directory. Examples: ["package.json", "flake.nix"], ["apps/mobile/**"], ["apps/api/**"], ["packages/db/**", "packages/contracts/**"].
+- Writers in the same phase MUST NOT have overlapping writePaths. If two writers need the same files, put them in separate phases or assign those files to one integration/foundation writer.
+- Read-only reviewers/scouts/researchers/validators should have writeAccess: false and writePaths: []; they may run inspection or no-output validation commands, but not install/build commands that write artifacts.
 - Use only these tools when listing tools: ${[...ALLOWED_TOOLS].join(", ")}.
 - Give every subagent a custom systemPrompt and concrete task for this specific request.
 
@@ -553,7 +788,8 @@ Schema:
       "systemPrompt": "role-specific instructions and constraints",
       "task": "the exact task this subagent should perform",
       "tools": ["read", "grep", "find", "ls", "bash"],
-      "writeAccess": false
+      "writeAccess": false,
+      "writePaths": []
     }
   ],
   "phases": [
@@ -565,7 +801,7 @@ Schema:
 
 function buildAgentSystemPrompt(agent: PlannedAgent): string {
 	const writePolicy = agent.writeAccess
-		? "You are the only writer in the fleet. Make narrow, coherent edits only when your task explicitly requires them."
+		? `You have write access only for these relative path scopes: ${formatWritePaths(agent.writePaths)}. Make narrow, coherent edits only inside those scopes. Use write/edit for file changes so the path guard can enforce ownership; do not use bash to modify files outside your scopes.`
 		: "You are read-only for project/source files. Do not edit, write, move, or delete project files. If bash is available, use it only for inspection or validation commands that do not mutate files.";
 	return `You are ${agent.name}, a dynamic subagent created by orchestrator for one specific task.
 
@@ -594,7 +830,10 @@ function buildAgentTask(originalTask: string, plan: FleetPlan, agent: PlannedAge
 	const previous = previousPhaseOutputs.trim()
 		? `\n\nPrevious phase outputs you may rely on:\n${limitForPrompt(previousPhaseOutputs, 10000)}`
 		: "";
-	return `Original user task:\n${originalTask}\n\nFleet strategy:\n${plan.strategy}\n\nYour assigned task:\n${agent.task}${previous}`;
+	const permissions = agent.writeAccess
+		? `\n\nWrite permissions: ${formatWritePaths(agent.writePaths)}. Do not modify files outside these scopes.`
+		: "\n\nWrite permissions: none (read-only).";
+	return `Original user task:\n${originalTask}\n\nFleet strategy:\n${plan.strategy}${permissions}\n\nYour assigned task:\n${agent.task}${previous}`;
 }
 
 function buildSynthesisPrompt(): string {
@@ -605,7 +844,7 @@ Synthesize the fleet results into the final answer for the parent Pi session. Re
 
 function buildSynthesisTask(originalTask: string, plan: FleetPlan, results: Array<{ agent: PlannedAgent; state: AgentRunState; output: string }>): string {
 	const blocks = results.map(({ agent, state, output }, index) => {
-		return `## ${index + 1}. ${agent.name} (${state.status})\nPurpose: ${agent.purpose}\nWrite access: ${agent.writeAccess ? "yes" : "no"}\nTools: ${agent.tools.join(", ")}\nOutput:\n${limitForPrompt(output || state.error || "(no output)", 10000)}`;
+		return `## ${index + 1}. ${agent.name} (${state.status})\nPurpose: ${agent.purpose}\nWrite access: ${agent.writeAccess ? "yes" : "no"}\nWrite paths: ${formatWritePaths(agent.writePaths)}\nTools: ${agent.tools.join(", ")}\nOutput:\n${limitForPrompt(output || state.error || "(no output)", 10000)}`;
 	}).join("\n\n");
 	return `Original user task:\n${originalTask}\n\nYour fleet plan overview:\n${plan.overview}\n\nYour synthesis instruction:\n${plan.synthesisPrompt}\n\nFleet results:\n${blocks}\n\nNow produce the final answer for the parent session.`;
 }
@@ -614,7 +853,7 @@ function detailsSnapshot(details: FleetRunDetails): FleetRunDetails {
 	return {
 		...details,
 		phaseOrder: [...details.phaseOrder],
-		agents: details.agents.map((agent) => ({ ...agent, tools: [...agent.tools] })),
+		agents: details.agents.map((agent) => ({ ...agent, tools: [...agent.tools], writePaths: [...(agent.writePaths ?? [])] })),
 	};
 }
 
@@ -634,6 +873,7 @@ function buildStateFromPlan(run: FleetRunDetails, plan: FleetPlan): void {
 		status: "pending",
 		tools: agent.tools,
 		writeAccess: agent.writeAccess,
+		writePaths: agent.writePaths,
 		toolCount: 0,
 		turnCount: 0,
 	}));
@@ -677,6 +917,7 @@ function renderFleetDetails(result: any, options: { expanded?: boolean; isPartia
 			lines.push(`  ${theme.fg("dim", branch)} ${icon} ${theme.bold(agent.name)} ${theme.fg("dim", agent.status)}`);
 			if (options.expanded) {
 				lines.push(`  ${theme.fg("dim", "│")}  ${theme.fg("muted", agent.purpose)}`);
+				if (agent.writeAccess) lines.push(`  ${theme.fg("dim", "│")}  ${theme.fg("muted", `write paths: ${formatWritePaths(agent.writePaths ?? [])}`)}`);
 				if (agent.outputPreview) {
 					for (const line of wrapTextWithAnsi(theme.fg("dim", agent.outputPreview), 90).slice(0, 6)) {
 						lines.push(`  ${theme.fg("dim", "│")}  ${line}`);
@@ -717,6 +958,7 @@ async function runDynamicFleet(params: any, signal: AbortSignal, onUpdate: ((res
 	ensureDir(runDir);
 	const maxAgents = clampInt(params.maxAgents, DEFAULT_MAX_AGENTS, 1, HARD_MAX_AGENTS);
 	const concurrency = clampInt(params.concurrency, DEFAULT_CONCURRENCY, 1, HARD_MAX_AGENTS);
+	const maxWriters = clampInt(params.maxWriters, Math.min(DEFAULT_MAX_WRITERS, maxAgents), 1, Math.min(HARD_MAX_WRITERS, maxAgents));
 	const allowWrites = params.allowWrites !== false;
 	const model = currentModelId(ctx, params.model);
 	const task = String(params.task ?? "").trim();
@@ -753,7 +995,7 @@ async function runDynamicFleet(params: any, signal: AbortSignal, onUpdate: ((res
 			model,
 			signal,
 			tools: [...BUILTIN_ANALYSIS_TOOLS, ...OPTIONAL_RESEARCH_TOOLS],
-			systemPrompt: buildOrchestratorPlanningPrompt(maxAgents, allowWrites),
+			systemPrompt: buildOrchestratorPlanningPrompt(maxAgents, maxWriters, allowWrites),
 			task: `Parent task:\n${task}\n\nCurrent working directory: ${ctx.cwd}\n\nCreate the dynamic fleet plan now.`,
 			onToolStart: () => emit("Orchestrator is inspecting context..."),
 			onAssistantOutput: (text) => {
@@ -765,7 +1007,7 @@ async function runDynamicFleet(params: any, signal: AbortSignal, onUpdate: ((res
 		rawPlanOutput = planner.output || rawPlanOutput;
 		if (planner.error) throw new Error(planner.error);
 		fs.writeFileSync(path.join(runDir, "orchestrator-plan.raw.md"), rawPlanOutput, "utf-8");
-		plan = normalizeFleetPlan(extractJsonObject(rawPlanOutput), maxAgents, allowWrites);
+		plan = normalizeFleetPlan(extractJsonObject(rawPlanOutput), maxAgents, allowWrites, maxWriters, ctx.cwd);
 		fs.writeFileSync(path.join(runDir, "orchestrator-plan.json"), JSON.stringify(plan, null, 2), "utf-8");
 	} catch (error) {
 		run.status = signal.aborted ? "cancelled" : "failed";
@@ -816,6 +1058,7 @@ async function runDynamicFleet(params: any, signal: AbortSignal, onUpdate: ((res
 					model,
 					signal,
 					tools: agent.tools,
+					writePaths: agent.writePaths,
 					systemPrompt: buildAgentSystemPrompt(agent),
 					task: buildAgentTask(task, plan, agent, previousPhaseOutputs),
 					onToolStart: (tool) => {
@@ -959,8 +1202,12 @@ Do not call \`${TOOL_NAME}\` just to look busy. If delegation is not clearly use
 
 export default function dynamicFleetExtension(pi: ExtensionAPI) {
 	// Child Pi processes launched by this extension should not recursively expose
-	// the parent orchestration tool or inject parent-only routing instructions.
-	if (process.env[CHILD_ENV]) return;
+	// the parent orchestration tool or inject parent-only routing instructions, but
+	// they still install permission guards for write-scoped subagents.
+	if (process.env[CHILD_ENV]) {
+		registerChildPermissionGuard(pi);
+		return;
+	}
 
 	pi.on("before_agent_start", (event) => {
 		if (process.env[CHILD_ENV]) return undefined;
@@ -970,7 +1217,7 @@ export default function dynamicFleetExtension(pi: ExtensionAPI) {
 	pi.registerTool({
 		name: TOOL_NAME,
 		label: "Dynamic Fleet",
-		description: `Dynamically delegate complex work. Use only after deciding the user task is worth subagents. This creates a temporary orchestrator subagent which designs task-specific ephemeral subagents, runs them, and synthesizes the answer. Do NOT use for small or fast tasks. No predefined roles are used.`,
+		description: `Dynamically delegate complex work. Use only after deciding the user task is worth subagents. This creates a temporary orchestrator subagent which designs task-specific ephemeral subagents, may assign multiple path-scoped writers, runs them, and synthesizes the answer. Do NOT use for small or fast tasks. No predefined roles are used.`,
 		parameters: FleetParams,
 
 		execute(_toolCallId, params, signal, onUpdate, ctx) {

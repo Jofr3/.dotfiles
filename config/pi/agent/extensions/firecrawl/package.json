@@ -1,0 +1,38 @@
+{
+  "name": "pi-firecrawl-extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bounded, lazy Firecrawl tools for Pi",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "check": "node --experimental-strip-types --test test/*.test.ts",
+    "test": "node --test test/*.test.ts"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "dependencies": {
+    "firecrawl": "4.30.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-ai": {
+      "optional": true
+    },
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "typebox": {
+      "optional": true
+    }
+  }
+}

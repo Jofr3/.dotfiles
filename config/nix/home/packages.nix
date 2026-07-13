@@ -11,7 +11,6 @@
     fd
     fzf
     jq
-    lazygit
     lsof
     nix-prefetch-github
     pulseaudio
@@ -39,14 +38,13 @@
     google-chrome
 
     # apps
+    # claude-desktop
     dbeaver-bin
-    discord
     eog
     gnome-calculator
     libreoffice
     nautilus
     overskride
-    postman
     thunderbird
     wdisplays
     zathura

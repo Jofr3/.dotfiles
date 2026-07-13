@@ -1,8 +1,0 @@
-[
-  {
-    "from": "team-lead",
-    "text": "{\"type\":\"task_assignment\",\"taskId\":\"3\",\"subject\":\"Plan: OpenAI client + BoeAi services\",\"description\":\"Build app/Services/BoeAi/: OpenAiClient (Guzzle), PromptBuilder, WebCrawler, PdfDiscoveryService, PdfExtractionService.\",\"assignedBy\":\"team-lead\",\"timestamp\":\"2026-05-13T07:44:13.695Z\"}",
-    "timestamp": "2026-05-13T07:44:13.695Z",
-    "read": false
-  }
-]

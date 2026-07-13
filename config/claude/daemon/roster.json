@@ -1,6 +1,73 @@
 {
   "proto": 1,
-  "supervisorPid": 11558,
-  "updatedAt": 1778658722132,
-  "workers": {}
+  "supervisorPid": 56258,
+  "updatedAt": 1783066000933,
+  "workers": {
+    "df991566": {
+      "pid": 56293,
+      "procStart": "993577",
+      "sessionId": "df991566-c963-494c-9b2c-13a917aa2d96",
+      "rendezvousSock": "/tmp/cc-daemon-1000/1ea4607d/rv/df991566.sock",
+      "ptySock": "/tmp/cc-daemon-1000/1ea4607d/pty/df991566.sock",
+      "cliVersion": "2.1.199",
+      "startedAt": 1783065924235,
+      "attempt": 1,
+      "cwd": "/home/jofre/projects/luminous_ui",
+      "dispatch": {
+        "proto": 1,
+        "short": "df991566",
+        "nonce": "3ee8485b",
+        "sessionId": "df991566-c963-494c-9b2c-13a917aa2d96",
+        "createdAt": 1783065923758,
+        "source": "slash",
+        "cwd": "/home/jofre/projects/luminous_ui",
+        "launch": {
+          "mode": "resume",
+          "sessionId": "/home/jofre/.claude/projects/-home-jofre-projects-luminous-ui/dfab0368-4c00-4090-bd37-1df39f2b6c93.jsonl",
+          "fork": true,
+          "flagArgs": [
+            "--settings",
+            "/run/user/1000/mult/mult-claude-settings-4751-9ae440b45a1e3696.json",
+            "--model",
+            "claude-fable-5[1m]",
+            "--effort",
+            "xhigh",
+            "--permission-mode",
+            "auto"
+          ]
+        },
+        "env": {
+          "CLAUDE_BG_ISOLATION": "none"
+        },
+        "isolation": "none",
+        "respawnFlags": [
+          "--settings",
+          "/run/user/1000/mult/mult-claude-settings-4751-9ae440b45a1e3696.json",
+          "--model",
+          "claude-fable-5[1m]",
+          "--effort",
+          "xhigh",
+          "--permission-mode",
+          "auto"
+        ],
+        "seed": {
+          "intent": "deeply inspect the project and suggest improvements, fixes and changes to be made in every aspect and category /workflows",
+          "name": "Comprehensive project inspection and improvement suggestions"
+        },
+        "cols": 206,
+        "rows": 72
+      },
+      "decModes": [
+        1000,
+        1002,
+        1003,
+        1006,
+        2004,
+        1004,
+        2031
+      ],
+      "rvAuth": "0cee23eb04083e0fc244e0833d5a7cf5",
+      "ptyAuth": "35b0177baa65e6250be175cab44b0f72"
+    }
+  }
 }

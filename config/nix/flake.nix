@@ -20,9 +20,20 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, sops-nix, ... }@inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      sops-nix,
+      ...
+    }@inputs:
     let
-      cursorOverlay = final: prev: {
+      customOverlay = final: prev: {
+        helium-bin = final.callPackage ./pkgs/helium-bin.nix { };
+
+        claude-desktop = final.callPackage ./pkgs/claude-desktop-bin.nix { };
+
         code-cursor = prev.code-cursor.overrideAttrs (old: rec {
           version = "3.0.12";
           src = prev.appimageTools.extract {
@@ -37,11 +48,16 @@
         });
       };
 
-      mkHost = { hostName, hostId, hardware }:
+      mkHost =
+        {
+          hostName,
+          hostId,
+          hardware,
+        }:
         nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs hostId; };
           modules = [
-            { nixpkgs.overlays = [ cursorOverlay ]; }
+            { nixpkgs.overlays = [ customOverlay ]; }
             ./machines/common.nix
             sops-nix.nixosModules.sops
             home-manager.nixosModules.home-manager
@@ -54,7 +70,8 @@
               home-manager.extraSpecialArgs = { inherit inputs hostId; };
               home-manager.users.jofre = import ./home;
             }
-          ] ++ hardware;
+          ]
+          ++ hardware;
         };
     in
     {

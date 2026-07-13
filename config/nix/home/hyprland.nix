@@ -20,8 +20,19 @@ in {
     };
   };
 
+  services.wlsunset = {
+    enable = true;
+    sunrise = "00:00";
+    sunset = "00:01";
+    temperature = {
+      day = 4501;
+      night = 4500;
+    };
+  };
+
   wayland.windowManager.hyprland = {
     enable = true;
+    configType = "hyprlang";
     settings = {
       "$mod" = "SUPER";
 

@@ -1,5 +1,5 @@
 {
-  "pi_agent_command": "pi",
+  "pi_agent_command": "npx -y @earendil-works/pi-coding-agent",
   "claude_code_command": "npx -y @anthropic-ai/claude-code --chrome",
   "projects": [
     { "name": "home", "path": "~/" },
@@ -18,10 +18,15 @@
     { "name": "senditum app", "path": "~/lsw/senditum_app" },
     { "name": "myclientum", "path": "~/lsw/myclientum" },
     { "name": "myclientum app", "path": "~/lsw/myclientum_app" },
+    { "name": "mydocumentium api", "path": "~/lsw/mydocumentium_api" },
+    { "name": "mydocumentium", "path": "~/lsw/mydocumentium" },
     { "name": "targecopy", "path": "~/lsw/targecopy" },
+    { "name": "targecopy app", "path": "~/lsw/targecopy_app" },
+    { "name": "targecopy app clients", "path": "~/lsw/targecopy_app_clients" },
     { "name": "ateinsa", "path": "~/lsw/ateinsa" },
     { "name": "ateinsa new", "path": "~/lsw/ateinsa_new" },
     { "name": "renovacions", "path": "~/lsw/renovacions" },
-    { "name": "beques", "path": "~/lsw/beques" }
+    { "name": "beques", "path": "~/lsw/beques" },
+    { "name": "local", "path": "~/lsw/local" }
   ]
 }

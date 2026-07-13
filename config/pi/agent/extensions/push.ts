@@ -669,26 +669,93 @@ async function resolveSourceRef(
 	return undefined;
 }
 
-async function checkoutTargetBranch(
+async function currentBranchName(pi: ExtensionAPI, cwd: string): Promise<string | undefined> {
+	const result = await git(pi, cwd, ["symbolic-ref", "--quiet", "--short", "HEAD"]);
+	return result.code === 0 ? result.stdout.trim() : undefined;
+}
+
+async function resolveDetachedTargetBase(
 	pi: ExtensionAPI,
 	cwd: string,
 	targetBranch: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true; ref: string } | { ok: false; error: string }> {
 	const local = await hasLocalBranch(pi, cwd, targetBranch);
 	const remote = await hasRemoteBranch(pi, cwd, targetBranch);
 	if (!local && !remote) {
 		return { ok: false, error: `Target branch '${targetBranch}' does not exist locally or on origin.` };
 	}
+	if (local && remote) {
+		const remoteRef = `origin/${targetBranch}`;
+		const localBehindRemote = await git(pi, cwd, ["merge-base", "--is-ancestor", targetBranch, remoteRef]);
+		if (localBehindRemote.code === 0) return { ok: true, ref: remoteRef };
 
-	const checkout = local
-		? await git(pi, cwd, ["checkout", targetBranch])
-		: await git(pi, cwd, ["checkout", "--track", `origin/${targetBranch}`]);
+		const remoteBehindLocal = await git(pi, cwd, ["merge-base", "--is-ancestor", remoteRef, targetBranch]);
+		if (remoteBehindLocal.code === 0) return { ok: true, ref: targetBranch };
 
-	if (checkout.code !== 0) {
-		return { ok: false, error: commandOutput(checkout) };
+		return {
+			ok: false,
+			error: `Could not fast-forward ${targetBranch}: local '${targetBranch}' and 'origin/${targetBranch}' have diverged.`,
+		};
+	}
+	return { ok: true, ref: remote ? `origin/${targetBranch}` : targetBranch };
+}
+
+interface ShipMergeLocation {
+	cwd: string;
+	temporary: boolean;
+	detached: boolean;
+	tempParent?: string;
+	worktreeDir?: string;
+}
+
+async function createTemporaryShipWorktree(
+	pi: ExtensionAPI,
+	repoRoot: string,
+	targetBranch: string,
+): Promise<{ ok: true; location: ShipMergeLocation } | { ok: false; error: string }> {
+	const local = await hasLocalBranch(pi, repoRoot, targetBranch);
+	const remote = await hasRemoteBranch(pi, repoRoot, targetBranch);
+	if (!local && !remote) {
+		return { ok: false, error: `Target branch '${targetBranch}' does not exist locally or on origin.` };
 	}
 
-	return { ok: true };
+	const tempParent = mkdtempSync(join(tmpdir(), "pi-ship-"));
+	const worktreeDir = join(tempParent, "worktree");
+	const cleanup = () => rmSync(tempParent, { recursive: true, force: true });
+
+	const addArgs = local
+		? ["worktree", "add", worktreeDir, targetBranch]
+		: ["worktree", "add", "--track", "-b", targetBranch, worktreeDir, `origin/${targetBranch}`];
+	const add = await git(pi, repoRoot, addArgs);
+	if (add.code === 0) {
+		return {
+			ok: true,
+			location: { cwd: worktreeDir, temporary: true, detached: false, tempParent, worktreeDir },
+		};
+	}
+
+	if (!local) {
+		cleanup();
+		return { ok: false, error: commandOutput(add) };
+	}
+
+	const base = await resolveDetachedTargetBase(pi, repoRoot, targetBranch);
+	if (!base.ok) {
+		cleanup();
+		return { ok: false, error: `${base.error}\n${commandOutput(add)}`.trim() };
+	}
+	rmSync(worktreeDir, { recursive: true, force: true });
+
+	const detached = await git(pi, repoRoot, ["worktree", "add", "--detach", worktreeDir, base.ref]);
+	if (detached.code !== 0) {
+		cleanup();
+		return { ok: false, error: `${commandOutput(add)}\n${commandOutput(detached)}`.trim() };
+	}
+
+	return {
+		ok: true,
+		location: { cwd: worktreeDir, temporary: true, detached: true, tempParent, worktreeDir },
+	};
 }
 
 async function pullCurrentBranch(pi: ExtensionAPI, cwd: string, branch: string) {
@@ -963,55 +1030,81 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 
+			const currentBranch = await currentBranchName(pi, repoRoot);
+			const currentBranchDescription = currentBranch ?? "detached HEAD";
+			const useCurrentWorktree = currentBranch === targetBranch;
+
 			if (ctx.hasUI) {
-				const confirmed = await ctx.ui.confirm(
-					"Ship changes?",
-					`This will checkout '${targetBranch}', fast-forward it from origin if possible, merge '${sourceRef}' into it, then push '${targetBranch}'.`,
-				);
+				const details = useCurrentWorktree
+					? `This will update the current '${targetBranch}' worktree, merge '${sourceRef}' into it, then push '${targetBranch}'.`
+					: `This will keep '${currentBranchDescription}' checked out, merge '${sourceRef}' into '${targetBranch}' in a temporary worktree, then push '${targetBranch}'.`;
+				const confirmed = await ctx.ui.confirm("Ship changes?", details);
 				if (!confirmed) {
 					ctx.ui.notify("Ship cancelled", "info");
 					return;
 				}
 			}
 
-			const checkout = await checkoutTargetBranch(pi, repoRoot, targetBranch);
-			if (!checkout.ok) {
-				ctx.ui.notify(`Checkout failed: ${checkout.error}`, "error");
-				return;
-			}
+			let mergeLocation: ShipMergeLocation = {
+				cwd: repoRoot,
+				temporary: false,
+				detached: false,
+			};
 
-			ctx.ui.notify(`Updating ${targetBranch}...`, "info");
-			const pull = await pullCurrentBranch(pi, repoRoot, targetBranch);
-			if (pull.code !== 0) {
-				ctx.ui.notify(`Could not fast-forward ${targetBranch}: ${commandOutput(pull)}`, "error");
-				return;
-			}
+			try {
+				if (!useCurrentWorktree) {
+					ctx.ui.notify(`Preparing temporary ${targetBranch} worktree...`, "info");
+					const temporaryWorktree = await createTemporaryShipWorktree(pi, repoRoot, targetBranch);
+					if (!temporaryWorktree.ok) {
+						ctx.ui.notify(`Could not prepare temporary worktree: ${temporaryWorktree.error}`, "error");
+						return;
+					}
+					mergeLocation = temporaryWorktree.location;
+				}
 
-			ctx.ui.notify(`Merging ${sourceRef} into ${targetBranch}...`, "info");
-			const merge = await git(pi, repoRoot, ["merge", "--no-edit", sourceRef]);
-			if (merge.code !== 0) {
-				ctx.ui.notify(
-					`Merge failed. Resolve conflicts on '${targetBranch}', then commit/push manually.\n${commandOutput(merge)}`,
-					"error",
-				);
-				return;
-			}
+				ctx.ui.notify(`Updating ${targetBranch}...`, "info");
+				if (!mergeLocation.detached) {
+					const pull = await pullCurrentBranch(pi, mergeLocation.cwd, targetBranch);
+					if (pull.code !== 0) {
+						ctx.ui.notify(`Could not fast-forward ${targetBranch}: ${commandOutput(pull)}`, "error");
+						return;
+					}
+				}
 
-			ctx.ui.notify(`Pushing ${targetBranch}...`, "info");
-			const upstream = await git(pi, repoRoot, [
-				"rev-parse",
-				"--abbrev-ref",
-				"--symbolic-full-name",
-				"@{u}",
-			]);
-			const pushArgs = upstream.code === 0 ? ["push"] : ["push", "-u", "origin", targetBranch];
-			const push = await git(pi, repoRoot, pushArgs);
-			if (push.code !== 0) {
-				ctx.ui.notify(`Push failed: ${commandOutput(push)}`, "error");
-				return;
-			}
+				ctx.ui.notify(`Merging ${sourceRef} into ${targetBranch}...`, "info");
+				const merge = await git(pi, mergeLocation.cwd, ["merge", "--no-edit", sourceRef]);
+				if (merge.code !== 0) {
+					const conflictHint = mergeLocation.temporary
+						? "Merge failed in a temporary worktree; your current branch was left unchanged."
+						: `Merge failed. Resolve conflicts on '${targetBranch}', then commit/push manually.`;
+					ctx.ui.notify(`${conflictHint}\n${commandOutput(merge)}`, "error");
+					return;
+				}
 
-			ctx.ui.notify(`✓ Shipped ${sourceRef} into ${targetBranch} and pushed`, "info");
+				ctx.ui.notify(`Pushing ${targetBranch}...`, "info");
+				const push = await git(pi, mergeLocation.cwd, ["push", "origin", `HEAD:refs/heads/${targetBranch}`]);
+				if (push.code !== 0) {
+					ctx.ui.notify(`Push failed: ${commandOutput(push)}`, "error");
+					return;
+				}
+
+				const branchNote = useCurrentWorktree ? "" : `; still on ${currentBranchDescription}`;
+				ctx.ui.notify(`✓ Shipped ${sourceRef} into ${targetBranch} and pushed${branchNote}`, "info");
+			} finally {
+				if (mergeLocation.temporary && mergeLocation.worktreeDir && mergeLocation.tempParent) {
+					const remove = await git(pi, repoRoot, ["worktree", "remove", "--force", mergeLocation.worktreeDir]);
+					if (remove.code !== 0) {
+						ctx.ui.notify(
+							`Could not remove temporary worktree cleanly: ${commandOutput(remove)}`,
+							"warning",
+						);
+						rmSync(mergeLocation.tempParent, { recursive: true, force: true });
+						await git(pi, repoRoot, ["worktree", "prune"]);
+					} else {
+						rmSync(mergeLocation.tempParent, { recursive: true, force: true });
+					}
+				}
+			}
 		},
 	});
 }

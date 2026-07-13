@@ -335,6 +335,8 @@ export default function (pi: ExtensionAPI) {
 			"Execute SQL against the project database configured in .agent/credentials/database.json (`type` selects MySQL/MariaDB or SQL Server/MSSQL)",
 		promptGuidelines: [
 			"Use database_query when the user asks to query, inspect, modify, or manage the project database.",
+			"If .agent/credentials/database.json is missing or invalid, first try to infer the connection from local project config and create the file with restrictive permissions; ask the user if any required detail is missing or uncertain.",
+			"Do not bypass database_query by running application snippets (for example PHP DB scripts) or raw database clients through bash unless the user explicitly approves that fallback.",
 			"Before writing SQL, respect the project's configured database type in .agent/credentials/database.json and use the matching SQL dialect.",
 			"Confirm with the user before using database_query for destructive operations such as DROP, TRUNCATE, or broad DELETE/UPDATE statements.",
 		],
@@ -451,7 +453,7 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 			pi.sendUserMessage(
-				`Use the database_query tool to run this query with the project's configured database dialect: ${args.trim()}`,
+				`Use the database_query tool to run this query with the project's configured database dialect. If .agent/credentials/database.json is missing or invalid, infer and create it from local project config when possible; otherwise ask me how to proceed. Do not use bash/PHP/raw DB client fallbacks without my approval: ${args.trim()}`,
 			);
 		},
 	});

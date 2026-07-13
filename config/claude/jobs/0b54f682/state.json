@@ -1,0 +1,32 @@
+{
+  "state": "failed",
+  "detail": "exit 1 before init — ^[[IError: Settings file not found: /run/user/1000/mult/mult-claude-settings-4275-425a82ae75e2165c.json",
+  "tempo": "idle",
+  "output": null,
+  "children": null,
+  "linkScanOffset": 0,
+  "template": "bg",
+  "respawnFlags": [
+    "--settings",
+    "/run/user/1000/mult/mult-claude-settings-4275-425a82ae75e2165c.json",
+    "--effort",
+    "xhigh",
+    "--permission-mode",
+    "auto",
+    "--model",
+    "opus[1m]"
+  ],
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "intent": "when i press a card to add it shakes twice, once on click and then again because it triggers the hover again for some reason",
+  "name": "Add dashed border to empty deck list",
+  "nameSource": "auto",
+  "sessionId": "0b54f682-2a38-4336-ab52-ab2d94e21b9c",
+  "resumeSessionId": "0b54f682-2a38-4336-ab52-ab2d94e21b9c",
+  "daemonShort": "0b54f682",
+  "cwd": "/home/jofre/projects/luminous_ui",
+  "createdAt": "2026-07-01T08:34:25.878Z",
+  "updatedAt": "2026-07-03T08:05:27.196Z",
+  "firstTerminalAt": "2026-07-03T08:05:27.196Z",
+  "backend": "daemon"
+}

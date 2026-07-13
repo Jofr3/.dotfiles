@@ -27,7 +27,14 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
-  swapDevices = [ ];
+  # 8 GiB swap file — prevents OOM crashes during memory-heavy Android/Gradle
+  # builds on this 8 GB laptop. NixOS creates and enables /swapfile on rebuild.
+  swapDevices = [
+    {
+      device = "/swapfile";
+      size = 8 * 1024; # MiB = 8 GiB
+    }
+  ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's

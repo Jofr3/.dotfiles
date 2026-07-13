@@ -33,13 +33,6 @@
       "field": "query",
       "action": "confirm",
       "label": "Destructive database query (DROP/TRUNCATE/DELETE)"
-    },
-    {
-      "tool": "database_query",
-      "match": "\\b(INSERT|UPDATE|REPLACE|ALTER|CREATE|RENAME|MERGE)\\b",
-      "field": "query",
-      "action": "confirm",
-      "label": "Database write operation"
     }
   ]
 }

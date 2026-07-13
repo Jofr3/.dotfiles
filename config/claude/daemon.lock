@@ -1,14 +1,15 @@
 {
-  "pid": 4243,
-  "version": "2.1.139",
+  "pid": 56258,
+  "version": "2.1.199",
   "jsonPath": "/home/jofre/.claude/daemon.json",
   "logPath": "/home/jofre/.claude/daemon.log",
-  "startedAt": 1778603407135,
+  "startedAt": 1783065924066,
   "origin": "transient",
   "spawnedBy": {
-    "label": "claude agents",
+    "label": "claude",
     "cwd": "/home/jofre/projects/luminous_ui",
-    "pid": 4222
+    "pid": 4871
   },
-  "procStart": "35513"
+  "procStart": "993535",
+  "launchTarget": "/home/jofre/.npm/_npx/becf7b9e49303068/node_modules/@anthropic-ai/claude-code/bin/claude.exe"
 }

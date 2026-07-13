@@ -408,6 +408,7 @@ In `~/projects/pi-mono`:
 | File | Purpose |
 |------|---------|
 | `~/.pi/agent/extensions/database.ts` | Unified `database_query` tool for MySQL/MariaDB and SQL Server/MSSQL via `.agent/credentials/database.json` |
+| `~/.pi/agent/extensions/firecrawl/` | Lazy Firecrawl Node SDK tools for status, scrape, search, map, crawl, batch scrape, structured extract, and agent jobs; command: `/firecrawl status` |
 | `~/.pi/agent/extensions/push.ts` | `/push` command that analyzes git status/diffs only, creates one or more Conventional Commits when appropriate, and pushes without message confirmation; `/ship` merges `staging` into `main`/`master` and pushes |
 | `~/.pi/agent/extensions/safeguard.ts` | Configurable policy engine for tool call interception |
 | `~/.pi/agent/extensions/skill-extension-improver.ts` | Continuous background monitor for Pi skills/extensions; prompts the user when it decides an upgrade/update is worthwhile |

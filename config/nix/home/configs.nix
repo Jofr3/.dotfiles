@@ -8,7 +8,6 @@ in {
     zed.source = "${dotfiles}/config/zed";
     foot.source = "${dotfiles}/config/foot";
     fish.source = "${dotfiles}/config/fish";
-    tofi.source = "${dotfiles}/config/tofi";
     nvim.source = "${dotfiles}/config/nvim";
     mult.source = "${dotfiles}/config/mult";
     tmux.source = "${dotfiles}/config/tmux";

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "requestTimeoutMs": 30000,
+  "servers": [
+    {
+      "id": "production",
+      "url": "https://toolbox.example.com",
+      "protocol": "2025-11-25",
+      "tools": [
+        {
+          "name": "search-hotels",
+          "toolset": "hotel-tools",
+          "confirmation": "required",
+          "authTokens": ["my_oauth"],
+          "boundParams": ["tenant_id"]
+        },
+        {
+          "name": "update-hotel",
+          "toolset": "hotel-tools",
+          "confirmation": "required",
+          "authTokens": ["my_oauth"],
+          "boundParams": ["tenant_id"]
+        }
+      ],
+      "denyTools": [],
+      "headers": {
+        "Authorization": {
+          "resolver": {
+            "provider": "bitwarden-secrets-manager",
+            "slot": "production-authorization"
+          }
+        }
+      },
+      "authTokens": {
+        "my_oauth": {
+          "resolver": {
+            "provider": "bitwarden-secrets-manager",
+            "slot": "production-oauth"
+          }
+        }
+      },
+      "boundParams": {
+        "tenant_id": {
+          "resolver": {
+            "provider": "bitwarden-secrets-manager",
+            "slot": "production-tenant"
+          }
+        }
+      }
+    }
+  ]
+}

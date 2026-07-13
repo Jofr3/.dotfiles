@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "bindings": [
+    {
+      "consumer": "mcp-toolbox",
+      "slot": "production-authorization",
+      "purpose": "mcp-toolbox.header",
+      "secretId": "11111111-2222-3333-8444-555555555555"
+    },
+    {
+      "consumer": "mcp-toolbox",
+      "slot": "production-oauth",
+      "purpose": "mcp-toolbox.auth-token",
+      "secretId": "aaaaaaaa-bbbb-cccc-8ddd-eeeeeeeeeeee"
+    },
+    {
+      "consumer": "mcp-toolbox",
+      "slot": "production-tenant",
+      "purpose": "mcp-toolbox.bound-param",
+      "secretId": "ffffffff-eeee-dddd-8ccc-bbbbbbbbbbbb"
+    }
+  ]
+}

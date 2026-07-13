@@ -1,0 +1,35 @@
+{
+  "name": "pi-bitwarden-secrets-manager-extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Consent-gated Bitwarden metadata tools and in-memory secret resolver for Pi",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "check": "npm test && npm run syntax",
+    "test": "node --experimental-strip-types --test test/*.test.ts",
+    "syntax": "for file in src/*.ts test/*.test.ts; do node --experimental-strip-types --check \"$file\" || exit 1; done"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "dependencies": {
+    "@bitwarden/sdk-napi": "1.0.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "typebox": {
+      "optional": true
+    }
+  }
+}

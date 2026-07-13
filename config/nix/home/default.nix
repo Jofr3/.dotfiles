@@ -10,7 +10,6 @@
     username = "jofre";
     homeDirectory = "/home/jofre";
     stateVersion = "25.11";
-    enableNixpkgsReleaseCheck = false;
 
     sessionVariables = {
       FZF_DEFAULT_OPTS = builtins.concatStringsSep " " [
@@ -23,13 +22,13 @@
     };
   };
 
-  programs.home-manager.enable = true;
   programs.bash.enable = true;
 
-  services.emacs = {
+  programs.emacs = {
     enable = true;
     package = pkgs.emacs-pgtk;
   };
+  services.emacs.enable = true;
 
   services.wlsunset = {
     enable = true;
@@ -41,7 +40,6 @@
     };
   };
 
-  stylix.enable = true;
   home.pointerCursor.enable = true;
 
   gtk = {
@@ -89,6 +87,4 @@
       "application/x-shellscript" = "org.gnome.TextEditor.desktop";
     };
   };
-
-  systemd.user.startServices = "sd-switch";
 }

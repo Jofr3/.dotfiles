@@ -5,6 +5,7 @@
     brightnessctl
     claude-code
     pi-coding-agent
+    opencode
     direnv
     eza
     fastfetch
@@ -41,6 +42,7 @@
     dbeaver-bin
     eog
     gnome-calculator
+    gnome-text-editor
     libreoffice
     nautilus
     overskride
@@ -66,10 +68,8 @@
 
     # development tools
     bun
-    docker
     docker-compose
     gcc
-    git
     gnumake
     ninja
     sshpass

@@ -1,8 +1,8 @@
 { config, ... }:
 let
-  dotfiles = config.lib.file.mkOutOfStoreSymlink
-    "${config.home.homeDirectory}/.dotfiles";
-in {
+  dotfiles = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles";
+in
+{
   xdg.configFile = {
     git.source = "${dotfiles}/config/git";
     foot.source = "${dotfiles}/config/foot";

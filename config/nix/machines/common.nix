@@ -1,9 +1,4 @@
-{
-  config,
-  inputs,
-  pkgs,
-  ...
-}:
+{ inputs, pkgs, ... }:
 {
   imports = [ inputs.stylix.nixosModules.stylix ];
 
@@ -11,21 +6,10 @@
   boot.loader.systemd-boot.enable = true;
 
   # networking
-  networking = {
-    networkmanager.enable = true;
-    firewall.enable = false;
-    extraHosts = ''
-      # 127.0.0.1 youtube.com
-      # 127.0.0.1 www.youtube.com
-      # 127.0.0.1 m.youtube.com
-    '';
-  };
+  networking.networkmanager.enable = true;
 
   # nix settings
-  nixpkgs.config = {
-    allowUnfree = true;
-    allowInsecure = true;
-  };
+  nixpkgs.config.allowUnfree = true;
 
   nix.settings = {
     experimental-features = "nix-command flakes";
@@ -36,7 +20,7 @@
 
   # minimal system packages (user packages go in home-manager)
   environment.systemPackages = with pkgs; [
-    home-manager
+    inputs.home-manager.packages.${pkgs.stdenv.hostPlatform.system}.home-manager
     git
     vim
     playwright-driver.browsers
@@ -76,42 +60,30 @@
         "audio"
         "input"
         "render"
-        "adbusers"
-        "jmtpfs"
-        "mtpfs"
       ];
     };
-    groups = {
-      docker = { };
-    };
   };
 
-  # udev rules for android
-  services.udev = {
-    enable = true;
-    extraRules = ''
-      SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", MODE="0666", GROUP="adbusers"
-      SUBSYSTEM=="usb", ATTR{idVendor}=="2717", MODE="0666", GROUP="adbusers"
+  # Wooting udev rules
+  services.udev.extraRules = ''
+    # Wooting One Legacy
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="ff01", TAG+="uaccess"
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="ff01", TAG+="uaccess"
 
-      # Wooting One Legacy
-      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="ff01", TAG+="uaccess"
-      SUBSYSTEM=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="ff01", TAG+="uaccess"
+    # Wooting One update mode
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2402", TAG+="uaccess"
 
-      # Wooting One update mode
-      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2402", TAG+="uaccess"
+    # Wooting Two Legacy
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="ff02", TAG+="uaccess"
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="ff02", TAG+="uaccess"
 
-      # Wooting Two Legacy
-      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="ff02", TAG+="uaccess"
-      SUBSYSTEM=="usb", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="ff02", TAG+="uaccess"
+    # Wooting Two update mode
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2403", TAG+="uaccess"
 
-      # Wooting Two update mode
-      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03eb", ATTRS{idProduct}=="2403", TAG+="uaccess"
-
-      # Generic Wooting devices
-      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="31e3", TAG+="uaccess"
-      SUBSYSTEM=="usb", ATTRS{idVendor}=="31e3", TAG+="uaccess"
-    '';
-  };
+    # Generic Wooting devices
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="31e3", TAG+="uaccess"
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="31e3", TAG+="uaccess"
+  '';
 
   # localization
   time.timeZone = "Europe/Madrid";
@@ -119,10 +91,7 @@
 
   # display manager
   services = {
-    displayManager = {
-      enable = true;
-      ly.enable = true;
-    };
+    displayManager.ly.enable = true;
     xserver = {
       enable = true;
       xkb = {
@@ -130,13 +99,10 @@
         variant = "";
       };
     };
-    dbus.enable = true;
   };
 
   # audio
-  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
-  hardware.alsa.enablePersistence = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -146,22 +112,13 @@
   };
 
   # bluetooth
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = true;
-  };
+  hardware.bluetooth.enable = true;
 
   # wayland
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
     PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
     PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true";
-  };
-
-  xdg.portal = {
-    enable = true;
-    wlr.enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
   # usb

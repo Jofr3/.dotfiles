@@ -22,10 +22,8 @@
 
   outputs =
     {
-      self,
       nixpkgs,
       home-manager,
-      sops-nix,
       ...
     }@inputs:
     let
@@ -36,10 +34,9 @@
           hardware,
         }:
         nixpkgs.lib.nixosSystem {
-          specialArgs = { inherit inputs hostId; };
+          specialArgs = { inherit inputs; };
           modules = [
             ./machines/common.nix
-            sops-nix.nixosModules.sops
             home-manager.nixosModules.home-manager
             {
               networking.hostName = hostName;

@@ -1,0 +1,48 @@
+Firecrawl Skills Pack — ISC provenance
+
+This Pi adaptation contains routing, trigger, endpoint-selection, and workflow
+material adapted from official Firecrawl skill repositories. The exact upstream
+revisions and adaptation boundaries are recorded in references/provenance.md.
+
+--- Notice from firecrawl/skills at revision
+    7ad43730e76913c4d1e9f94bf6fa6f82e38fc12b ---
+
+ISC License
+
+Copyright (c) Firecrawl
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+
+--- Notice from firecrawl/firecrawl-workflows at revision
+    1a6b302731139d6de6117d205efd8198d3775cc3 ---
+
+ISC License
+
+Copyright (c) 2026 Firecrawl
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+The inspected firecrawl/cli package metadata at revision
+5cf5c926d35fc114dc7579b9dbad09811fd42335 identifies Firecrawl as author and
+ISC as its license. That repository revision did not contain a standalone
+license file, so no additional notice has been invented here.

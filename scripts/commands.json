@@ -22,12 +22,12 @@
       "hold": false
     },
     "keyboard switch layout": {
-      "command": "hyprctl switchxkblayout active next",
+      "command": "niri msg action switch-layout next",
       "terminal": false,
       "hold": false
     },
     "color picker": {
-      "command": "hyprpicker | wl-copy",
+      "command": "wl-color-picker clipboard",
       "terminal": false,
       "hold": false
     },

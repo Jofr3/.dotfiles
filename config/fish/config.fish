@@ -24,7 +24,8 @@ set -Ux FZF_DEFAULT_OPTS "
 	--color=border:#44415a,header:#3e8fb0,gutter:#232136
 	--color=spinner:#f6c177,info:#9ccfd8
 	--color=pointer:#c4a7e7,marker:#eb6f92,prompt:#908caa"
-# set -Ux CLAUDE_CODE_DISABLE_AUTO_MEMORY=0
+
+set -Ux FIRECRAWL_API_KEY "fc-7cef9fc52f414ef1a16c35a8f7cbe670"
 
 # Abbreviations
 alias n="nvim"

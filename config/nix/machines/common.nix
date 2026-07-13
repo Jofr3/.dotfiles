@@ -1,4 +1,9 @@
-{ config, inputs, pkgs, ... }:
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
 {
   imports = [ inputs.stylix.nixosModules.stylix ];
 
@@ -22,7 +27,9 @@
     allowInsecure = true;
   };
 
-  nix.settings = { experimental-features = "nix-command flakes"; };
+  nix.settings = {
+    experimental-features = "nix-command flakes";
+  };
 
   # fonts
   fonts.packages = with pkgs; [ nerd-fonts.fira-code ];
@@ -37,11 +44,6 @@
 
   # programs
   programs = {
-    hyprland = {
-      enable = true;
-      xwayland.enable = true;
-      withUWSM = false;
-    };
     niri.enable = true;
     fish.enable = true;
     ssh.startAgent = true;
@@ -79,7 +81,9 @@
         "mtpfs"
       ];
     };
-    groups = { docker = { }; };
+    groups = {
+      docker = { };
+    };
   };
 
   # udev rules for android

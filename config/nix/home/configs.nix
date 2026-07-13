@@ -5,7 +5,6 @@ let
 in {
   xdg.configFile = {
     git.source = "${dotfiles}/config/git";
-    zed.source = "${dotfiles}/config/zed";
     foot.source = "${dotfiles}/config/foot";
     fish.source = "${dotfiles}/config/fish";
     nvim.source = "${dotfiles}/config/nvim";
@@ -15,7 +14,6 @@ in {
     helix.source = "${dotfiles}/config/helix";
     kitty.source = "${dotfiles}/config/kitty";
     niri.source = "${dotfiles}/config/niri";
-    zellij.source = "${dotfiles}/config/zellij";
     wezterm.source = "${dotfiles}/config/wezterm";
     opencode.source = "${dotfiles}/config/opencode";
     qutebrowser.source = "${dotfiles}/config/qutebrowser";

@@ -38,7 +38,6 @@
     google-chrome
 
     # apps
-    # claude-desktop
     dbeaver-bin
     eog
     gnome-calculator
@@ -53,14 +52,12 @@
     # wayland utilities
     cliphist
     grim
-    hyprpicker
     satty
     slurp
     swaybg
     wl-clipboard
     wl-color-picker
     wtype
-    xdg-desktop-portal-hyprland
     xwayland-satellite
 
     # vpn

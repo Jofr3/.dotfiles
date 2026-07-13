@@ -1,7 +1,6 @@
-{ config, pkgs, hostId, ... }: {
+{ pkgs, ... }: {
   imports = [
     ./configs.nix
-    ./hyprland.nix
     ./packages.nix
     ./sops.nix
     ./ssh.nix
@@ -30,6 +29,16 @@
   services.emacs = {
     enable = true;
     package = pkgs.emacs-pgtk;
+  };
+
+  services.wlsunset = {
+    enable = true;
+    sunrise = "00:00";
+    sunset = "00:01";
+    temperature = {
+      day = 4501;
+      night = 4500;
+    };
   };
 
   stylix.enable = true;

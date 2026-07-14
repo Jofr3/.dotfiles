@@ -1,10 +1,10 @@
 import {
 	isResolverReference,
 	type ConfiguredTool,
-	type CredentialReference,
 	type InvocationServerSnapshot,
 } from "./config.ts";
-import { CredentialResolverError, SecretResolverConsumer, type ResolverPurpose } from "./resolver.ts";
+import { planSelectedCredentials, type PlannedCredential } from "./requirements.ts";
+import { CredentialResolverError, SecretResolverConsumer } from "./resolver.ts";
 import { requireEnvironmentValue } from "./safety.ts";
 
 const MAX_RESOLUTION_CONCURRENCY = 4;
@@ -17,57 +17,29 @@ export interface CredentialMaterial {
 	resolverValuesUsed: boolean;
 }
 
-type CredentialTarget = "headers" | "authTokens" | "boundParams";
-
-interface PlannedCredential {
-	target: CredentialTarget;
-	name: string;
-	reference: CredentialReference;
-	purpose: ResolverPurpose;
-}
-
-function selectedPlan(server: InvocationServerSnapshot, tool: ConfiguredTool): PlannedCredential[] {
-	const plan: PlannedCredential[] = [];
-	for (const [name, reference] of Object.entries(server.headers)) {
-		plan.push({ target: "headers", name, reference, purpose: "mcp-toolbox.header" });
-	}
-	for (const name of tool.authTokens) {
-		plan.push({
-			target: "authTokens",
-			name,
-			reference: server.authTokens[name]!,
-			purpose: "mcp-toolbox.auth-token",
-		});
-	}
-	for (const name of tool.boundParams) {
-		plan.push({
-			target: "boundParams",
-			name,
-			reference: server.boundParams[name]!,
-			purpose: "mcp-toolbox.bound-param",
-		});
-	}
-	return plan;
-}
-
 function environmentPurpose(item: PlannedCredential): string {
-	if (item.target === "headers") return `header ${item.name}`;
-	if (item.target === "authTokens") return `authentication source ${item.name}`;
-	return `bound parameter ${item.name}`;
+	if (item.target === "headers") return `header ${item.targetName}`;
+	if (item.target === "authTokens") return `authentication source ${item.targetName}`;
+	return `bound parameter ${item.targetName}`;
 }
 
 function tuple(item: PlannedCredential): string {
-	if (!isResolverReference(item.reference)) throw new CredentialResolverError();
-	return `${item.purpose}\u0000${item.reference.resolver.slot}`;
+	if (!item.resolver) throw new CredentialResolverError();
+	return `${item.resolver.provider}\u0000${item.purpose}\u0000${item.resolver.slot}`;
 }
 
 function targetKey(item: PlannedCredential): string {
-	return `${item.target}\u0000${item.name}`;
+	return `${item.target}\u0000${item.targetName}`;
+}
+
+function resolveEnvironmentItem(item: PlannedCredential): string {
+	if (isResolverReference(item.reference)) throw new CredentialResolverError();
+	return requireEnvironmentValue(item.reference, environmentPurpose(item));
 }
 
 export function selectedEnvironmentValues(server: InvocationServerSnapshot, tool: ConfiguredTool): string[] {
 	const values = new Set<string>();
-	for (const item of selectedPlan(server, tool)) {
+	for (const item of planSelectedCredentials(server, tool)) {
 		if (isResolverReference(item.reference)) continue;
 		const value = process.env[item.reference.env];
 		if (value) values.add(value);
@@ -82,10 +54,10 @@ export async function resolveCredentialMaterial(
 	signal: AbortSignal,
 	deadlineAt: number,
 ): Promise<CredentialMaterial> {
-	const plan = selectedPlan(server, tool);
+	const plan = planSelectedCredentials(server, tool);
 	const resolverItems = new Map<string, PlannedCredential>();
 	for (const item of plan) {
-		if (isResolverReference(item.reference)) resolverItems.set(tuple(item), item);
+		if (item.resolver) resolverItems.set(tuple(item), item);
 	}
 
 	const controller = new AbortController();
@@ -104,14 +76,15 @@ export async function resolveCredentialMaterial(
 				const index = next;
 				next += 1;
 				const [key, item] = pending[index]!;
-				if (!isResolverReference(item.reference)) {
+				if (!item.resolver) {
 					failed = true;
 					controller.abort("invalid-resolver-plan");
 					return;
 				}
 				try {
 					const value = await consumer.resolve(
-						item.reference.resolver.slot,
+						item.resolver.provider,
+						item.resolver.slot,
 						item.purpose,
 						controller.signal,
 						deadlineAt,
@@ -132,9 +105,9 @@ export async function resolveCredentialMaterial(
 		if (failed || controller.signal.aborted || signal.aborted) throw new CredentialResolverError();
 
 		for (const item of plan) {
-			const value = isResolverReference(item.reference)
+			const value = item.resolver
 				? resolvedTuples.get(tuple(item))
-				: requireEnvironmentValue(item.reference, environmentPurpose(item));
+				: resolveEnvironmentItem(item);
 			if (value === undefined) throw new CredentialResolverError();
 			resolvedTargets.set(targetKey(item), value);
 		}
@@ -152,7 +125,7 @@ export async function resolveCredentialMaterial(
 			for (const item of plan) {
 				const value = resolvedTargets.get(targetKey(item));
 				if (value === undefined) throw new CredentialResolverError();
-				material[item.target][item.name] = value;
+				material[item.target][item.targetName] = value;
 				redactions.add(value);
 			}
 			material.redactionValues = [...redactions].sort((left, right) => right.length - left.length);

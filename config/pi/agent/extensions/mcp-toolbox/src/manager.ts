@@ -232,6 +232,9 @@ export class ToolboxManager {
 		const timeoutMs = snapshot.requestTimeoutMs;
 		const server = snapshot.server;
 		const tool = snapshot.tool;
+		// Reject model-controlled routing and generic credential shapes before
+		// resolver work so invalid input cannot consume a one-shot grant.
+		const precheckedArguments = prepareToolArguments(arguments_);
 
 		return this.#withinDeadline(timeoutMs, signal, async (operationSignal, deadlineAt) => {
 			let credentials: CredentialMaterial;
@@ -253,7 +256,7 @@ export class ToolboxManager {
 			let client: ToolboxSdkClient | undefined;
 			try {
 				this.#assertActive(generation, operationSignal);
-				const checkedArguments = prepareToolArguments(arguments_, credentials.redactionValues);
+				const checkedArguments = prepareToolArguments(precheckedArguments, credentials.redactionValues);
 				const remainingMs = Math.max(1, deadlineAt - Date.now());
 				client = await this.#factory(server, remainingMs, credentials);
 				this.#assertActive(generation, operationSignal);

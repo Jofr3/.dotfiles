@@ -1,13 +1,33 @@
 import { randomBytes } from "node:crypto";
+import { parseDynamicRequirementId } from "./requirements.ts";
 
-const SECRET_RESOLVER_PROTOCOL = "pi.secret-resolver/v1" as const;
-const SECRET_RESOLVER_REQUEST_CHANNEL = "pi:secret-resolver:v1:request" as const;
+export const SECRET_RESOLVER_V2_PROTOCOL_VERSION = 2 as const;
+export const SECRET_RESOLVER_V2_PROTOCOL = "pi.secret-resolver/v2" as const;
+export const SECRET_RESOLVER_V2_REQUEST_CHANNEL = "pi:secret-resolver:v2:request" as const;
+export const BITWARDEN_RESOLVER_PROVIDER = "bitwarden-secrets-manager" as const;
+export const ONEPASSWORD_RESOLVER_PROVIDER = "onepassword-secrets-manager" as const;
+
+export type ResolverProvider =
+	| typeof BITWARDEN_RESOLVER_PROVIDER
+	| typeof ONEPASSWORD_RESOLVER_PROVIDER;
+
+const RESOLVER_PROVIDERS = new Set<string>([
+	BITWARDEN_RESOLVER_PROVIDER,
+	ONEPASSWORD_RESOLVER_PROVIDER,
+]);
 const CONSUMER_IDENTITY = "mcp-toolbox";
 const REQUEST_ID_PATTERN = /^[A-Za-z0-9_-]{16,128}$/u;
+const LEGACY_RESOLVER_SLOT_PATTERN = /^[a-z][a-z0-9._-]{0,127}$/u;
 const MAX_VALUE_BYTES = 64 * 1024;
 const MAX_RESOLVER_CALLS = 20;
 const MAX_RESOLVER_PENDING = 4;
 const MAX_RESOLVER_WAIT_MS = 30_000;
+
+const RESOLVER_PURPOSES = new Set<string>([
+	"mcp-toolbox.header",
+	"mcp-toolbox.auth-token",
+	"mcp-toolbox.bound-param",
+]);
 
 const FAILURE_CODES = new Set([
 	"aborted",
@@ -44,8 +64,8 @@ export interface SecretResolverConsumerOptions {
 }
 
 type ResolverResponse =
-	| Readonly<{ protocol: typeof SECRET_RESOLVER_PROTOCOL; ok: true; value: string }>
-	| Readonly<{ protocol: typeof SECRET_RESOLVER_PROTOCOL; ok: false; code: string }>;
+	| Readonly<{ protocol: typeof SECRET_RESOLVER_V2_PROTOCOL; ok: true; value: string }>
+	| Readonly<{ protocol: typeof SECRET_RESOLVER_V2_PROTOCOL; ok: false; code: string }>;
 
 export class CredentialResolverError extends Error {
 	constructor() {
@@ -74,8 +94,14 @@ function ownDataRecord(value: unknown): Record<string, unknown> | undefined {
 }
 
 function parseResponse(value: unknown): ResolverResponse | undefined {
-	const object = ownDataRecord(value);
-	if (!object || object.protocol !== SECRET_RESOLVER_PROTOCOL || typeof object.ok !== "boolean") return undefined;
+	let frozen = false;
+	try {
+		frozen = Object.isFrozen(value);
+	} catch {
+		return undefined;
+	}
+	const object = frozen ? ownDataRecord(value) : undefined;
+	if (!object || object.protocol !== SECRET_RESOLVER_V2_PROTOCOL || typeof object.ok !== "boolean") return undefined;
 	const keys = Object.keys(object).sort().join(",");
 	if (object.ok === true) {
 		if (keys !== "ok,protocol,value") return undefined;
@@ -85,12 +111,12 @@ function parseResponse(value: unknown): ResolverResponse | undefined {
 			Buffer.byteLength(object.value, "utf8") > MAX_VALUE_BYTES ||
 			/[\r\n\0]/u.test(object.value)
 		) return undefined;
-		return { protocol: SECRET_RESOLVER_PROTOCOL, ok: true, value: object.value };
+		return { protocol: SECRET_RESOLVER_V2_PROTOCOL, ok: true, value: object.value };
 	}
 	if (keys !== "code,ok,protocol" || typeof object.code !== "string" || !FAILURE_CODES.has(object.code)) {
 		return undefined;
 	}
-	return { protocol: SECRET_RESOLVER_PROTOCOL, ok: false, code: object.code };
+	return { protocol: SECRET_RESOLVER_V2_PROTOCOL, ok: false, code: object.code };
 }
 
 function defaultRequestId(): string {
@@ -123,12 +149,36 @@ export class SecretResolverConsumer {
 		) throw new Error("Invalid MCP Toolbox resolver bounds");
 	}
 
-	async resolve(slot: string, purpose: ResolverPurpose, signal: AbortSignal, deadlineAt: number): Promise<string> {
-		if (this.#closed || signal.aborted) throw new CredentialResolverError();
+	async resolve(
+		provider: ResolverProvider,
+		slot: string,
+		purpose: ResolverPurpose,
+		signal: AbortSignal,
+		deadlineAt: number,
+	): Promise<string> {
+		const dynamicRequirement = parseDynamicRequirementId(slot);
+		const legacySlot = typeof slot === "string" && LEGACY_RESOLVER_SLOT_PATTERN.test(slot);
+		const validSlot = provider === BITWARDEN_RESOLVER_PROVIDER
+			? legacySlot
+			: legacySlot || dynamicRequirement !== undefined;
+		if (
+			this.#closed ||
+			!RESOLVER_PROVIDERS.has(provider) ||
+			!validSlot ||
+			!RESOLVER_PURPOSES.has(purpose) ||
+			(dynamicRequirement !== undefined && dynamicRequirement.purpose !== purpose) ||
+			!(signal instanceof AbortSignal) ||
+			signal.aborted
+		) throw new CredentialResolverError();
 		if (this.#callsUsed >= this.#maxCalls || this.#controllers.size >= this.#maxPending) {
 			throw new CredentialResolverError();
 		}
-		const now = this.#now();
+		let now: number;
+		try {
+			now = this.#now();
+		} catch {
+			throw new CredentialResolverError();
+		}
 		const effectiveDeadline = Math.min(deadlineAt, now + this.#maxWaitMs);
 		if (!Number.isSafeInteger(effectiveDeadline) || effectiveDeadline <= now) throw new CredentialResolverError();
 		let requestId: string;
@@ -176,7 +226,8 @@ export class SecretResolverConsumer {
 				finish(() => resolve(response.value));
 			};
 			const request = Object.freeze({
-				protocol: SECRET_RESOLVER_PROTOCOL,
+				protocol: SECRET_RESOLVER_V2_PROTOCOL,
+				provider,
 				consumer: CONSUMER_IDENTITY,
 				slot,
 				purpose,
@@ -186,7 +237,7 @@ export class SecretResolverConsumer {
 				respond,
 			});
 			try {
-				this.#bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, request);
+				this.#bus.emit(SECRET_RESOLVER_V2_REQUEST_CHANNEL, request);
 			} catch {
 				fail();
 			}

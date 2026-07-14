@@ -5,6 +5,7 @@ import {
 	prepareToolArguments,
 	requireEnvironmentValue,
 } from "../src/safety.ts";
+import { deriveRequirementId } from "../src/requirements.ts";
 import {
 	formatToolboxOutput,
 	redactText,
@@ -55,6 +56,42 @@ test("tool arguments reject prototype pollution, credentials, accessors, cycles,
 	assert.throws(() => prepareToolArguments({ value: "x".repeat(20_001) }), /string longer/);
 });
 
+test("tool arguments recursively reject credential-routing keys and values", () => {
+	const routingValues = [
+		"bitwarden-secrets-manager",
+		"onepassword-secrets-manager",
+		"mcp-toolbox.header",
+		"mcp-toolbox.auth-token",
+		"mcp-toolbox.bound-param",
+		"op://example-vault/example-item/password",
+		deriveRequirementId("production", "search", "bound-param", "database_password"),
+	];
+	for (const key of [
+		"env",
+		"resolver",
+		"provider",
+		"slot",
+		"purpose",
+		"dynamic",
+		"requirementId",
+		"Requirement-ID",
+		"requirement_id",
+	]) {
+		assert.throws(
+			() => prepareToolArguments({ outer: { [key]: "model-controlled-routing" } }),
+			/credential-routing data/,
+			key,
+		);
+	}
+	for (const value of routingValues) {
+		assert.throws(
+			() => prepareToolArguments({ outer: { note: value } }),
+			/credential-routing data/,
+			value,
+		);
+	}
+});
+
 test("environment references are resolved without accepting blank, huge, or injected values", () => {
 	delete process.env.PI_MCP_TOOLBOX_TEST_VALUE;
 	assert.throws(
@@ -87,6 +124,42 @@ test("output redacts structured and textual secrets and neutralizes terminal con
 	assert.ok(boundary.length <= 20_000);
 	assert.equal(redactText("Bearer abcdefghijklmnop", ["[redacted]"]).includes("[redacted]"), false);
 	assert.equal(sanitizeTerminalText("safe\u001b[31m\u202Etext"), "safe�[31m�text");
+	assert.equal(sanitizeTerminalText("tab\ttext"), "tab�text");
+
+	const normalizedSecret = "terminal�collision";
+	assert.equal(redactText("terminal\u001bcollision", [normalizedSecret]).includes(normalizedSecret), false);
+	const surrogateSecret = "surrogate�collision";
+	assert.equal(redactText("surrogate\uD800collision", [surrogateSecret]).includes(surrogateSecret), false);
+	const escapedSecret = "escaped\\tcollision";
+	assert.equal(
+		formatToolboxOutput(JSON.stringify({ note: "escaped\tcollision" }), [escapedSecret]).text.includes(escapedSecret),
+		false,
+	);
+	assert.equal(
+		JSON.stringify(sanitizeRpcErrorPayload({ result: { note: "escaped\tcollision" } }, [escapedSecret]))
+			.includes(escapedSecret),
+		false,
+	);
+	const foldedSecret = "folded collision";
+	assert.equal(safeErrorMessage("folded\tcollision", { knownSecrets: [foldedSecret] }).includes(foldedSecret), false);
+});
+
+test("public output framing prevents Pi's persisted tool-result envelope from reconstructing a credential", () => {
+	const suffix = "ATTACKER_SUFFIX";
+	const secret = `"text":"${suffix}`;
+	const output = formatToolboxOutput(suffix, [secret]);
+	assert.equal(output.text.includes(secret), false);
+	const persisted = JSON.stringify({
+		role: "toolResult",
+		toolCallId: "offline-call",
+		toolName: "mcp_toolbox_call",
+		content: [{ type: "text", text: output.text }],
+		details: { operation: "call" },
+		isError: false,
+		timestamp: 0,
+	});
+	assert.equal(persisted.includes(secret), false);
+	assert.notEqual(output.text, suffix);
 });
 
 test("RPC error sanitization replaces the whole hostile payload before SDK logging", () => {
@@ -117,7 +190,7 @@ test("RPC error sanitization replaces the whole hostile payload before SDK loggi
 	assert.deepEqual(JSON.parse(serialized), {
 		jsonrpc: "2.0",
 		id: 0,
-		error: { code: -32_000, message: "Remote error details were removed" },
+		error: { code: -32_000, message: "�" },
 	});
 	assert.equal(Object.isFrozen(sanitized), true);
 	assert.equal(Object.isFrozen((sanitized as { error: object }).error), true);

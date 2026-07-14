@@ -12,14 +12,14 @@
           "toolset": "hotel-tools",
           "confirmation": "required",
           "authTokens": ["my_oauth"],
-          "boundParams": ["tenant_id"]
+          "boundParams": ["tenant_id", "example_database_password"]
         },
         {
           "name": "update-hotel",
           "toolset": "hotel-tools",
           "confirmation": "required",
           "authTokens": ["my_oauth"],
-          "boundParams": ["tenant_id"]
+          "boundParams": ["tenant_id", "example_database_password"]
         }
       ],
       "denyTools": [],
@@ -44,6 +44,12 @@
           "resolver": {
             "provider": "bitwarden-secrets-manager",
             "slot": "production-tenant"
+          }
+        },
+        "example_database_password": {
+          "resolver": {
+            "provider": "onepassword-secrets-manager",
+            "dynamic": true
           }
         }
       }

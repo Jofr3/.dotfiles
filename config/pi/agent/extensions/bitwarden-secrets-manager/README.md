@@ -84,18 +84,20 @@ Tuple fields are exact and case-sensitive. Safe ASCII patterns are exported in `
 - `mcp-toolbox.auth-token`
 - `mcp-toolbox.bound-param`
 
-A consumer request names only `consumer`, `slot`, and `purpose`; it has no secret-ID field. The provider looks up the UUID from the protected binding map.
+A v2 consumer request names the provider plus only `consumer`, `slot`, and `purpose`; it has no secret-ID field. The provider looks up the UUID from the protected binding map.
 
-## Resolver protocol v1
+## Resolver protocol v2
 
-The stable, dependency-free contract is documented and exported by `src/resolver-protocol.ts`. Consumers should reproduce these constants/types locally rather than importing or loading the provider package:
+Provider-aware v2 is the current dependency-free contract. It is documented and exported by `src/resolver-protocol.ts`; consumers should reproduce these literals/types locally rather than importing or loading the provider package:
 
 ```ts
-const protocol = "pi.secret-resolver/v1";
-const channel = "pi:secret-resolver:v1:request";
+const protocol = "pi.secret-resolver/v2";
+const channel = "pi:secret-resolver:v2:request";
+const provider = "bitwarden-secrets-manager";
 
 type Request = {
   protocol: typeof protocol;
+  provider: typeof provider;
   consumer: string;
   slot: string;
   purpose: string;
@@ -104,22 +106,30 @@ type Request = {
   signal?: AbortSignal;
   respond(result:
     | { protocol: typeof protocol; ok: true; value: string }
-    | { protocol: typeof protocol; ok: false; code: FailureCode }
+    | { protocol: typeof protocol; ok: false; code: ProviderFailureCode }
   ): unknown;
 };
 
 pi.events.emit(channel, Object.freeze(request));
 ```
 
-The request event contains no value. The asynchronous result is delivered by direct invocation of `respond`; no result event is emitted. Provider and consumer must both enforce one-shot response handling. Consumers must use a fresh request ID, freeze the request, set their own deadline, synthesize `unavailable` if no listener responds, and keep all value use inside trusted in-memory code. They must not render, serialize, log, persist, notify, throw, or return the value.
+A v2 request must be shallow-frozen and contain exactly the eight required own, enumerable data properties shown above plus optional `signal`. The optional value must be a native `AbortSignal`. Arrays, non-plain prototypes, symbols, unknown properties, accessors, non-enumerable properties, invalid identifiers/deadlines, and unfrozen requests are rejected. Responses are frozen, match v2 exactly, and deliberately omit `provider`: the callback itself is the request-local response capability.
+
+Bitwarden reads only the own data descriptor for `provider` before anything else. Missing, accessor-backed, unsafe, or non-Bitwarden routing labels are ignored silently without inspecting `respond`, consuming a request ID, or charging call/pending bounds. A malformed request with the exact Bitwarden routing label receives one v2 `invalid_request` response if it supplied an own data-property callback. This makes one Bitwarden and one 1Password provider safe to load on the same bus without racing responses.
+
+The request event contains no value. The asynchronous result is delivered by direct invocation of `respond`; no result event is emitted. Provider and consumer must both enforce one-shot response handling. Consumers must use a fresh request ID, set their own deadline, synthesize `unavailable` if the addressed provider does not respond, and keep all value use inside trusted in-memory code. They must not render, serialize, log, persist, notify, throw, or return the value.
 
 Provider failure codes are fixed and carry no message or cause:
 
 `aborted`, `binding_denied`, `busy`, `call_limit`, `configuration`, `deadline_exceeded`, `disabled`, `duplicate_request`, `invalid_request`, `lifecycle`, `request_failed`, `response_rejected`, `sdk_unavailable`, `unexpected`.
 
-`unavailable` is reserved for a consumer to synthesize when the callback was not invoked before its deadline (for example, because the provider extension is absent or loaded too late).
+`unavailable` is reserved for a consumer to synthesize when the callback was not invoked before its deadline (for example, because the addressed provider is absent or loaded too late). Providers never send it.
 
-Pi's event bus is synchronous only for listener dispatch; it does not await asynchronous handler work or report whether a listener exists. The provider catches all synchronous and asynchronous failures so Pi's event-handler logger cannot receive SDK or callback errors. A process-wide registry permits only one live Bitwarden provider per Pi event bus, including across extension module reloads. Shutdown synchronously makes any stale listener inert, unsubscribes it, revokes callbacks, and then boundedly drains accepted work. Request-at-use-time plus consumer deadlines makes extension load order fail closed.
+### Legacy Bitwarden-only v1
+
+The original `pi.secret-resolver/v1` request and `pi:secret-resolver:v1:request` channel remain unchanged solely for existing provider-less Bitwarden consumers. Do not add `provider` to a v1 payload: that is an unknown field and is rejected. Only Bitwarden listens on v1; new and updated consumers must use v2. v1 and v2 share the same consent gate, protected bindings, replay set, call/pending bounds, lifecycle epoch, and serialized SDK source.
+
+Pi's event bus is synchronous only for listener dispatch; it does not await asynchronous handler work or report whether a listener exists. The provider catches all synchronous and asynchronous failures so Pi's event-handler logger cannot receive SDK or callback errors. A process-wide registry scopes ownership by event bus and provider identity: it blocks duplicate live Bitwarden providers, including across module reloads, without reserving the bus against 1Password. Both channel subscriptions become active atomically; partial startup rollback and shutdown first make stale listeners inert even if unsubscribe throws. Shutdown then revokes callbacks and boundedly drains accepted work. Request-at-use-time plus consumer deadlines makes extension load order fail closed.
 
 ## Metadata use
 
@@ -155,7 +165,7 @@ Tests use fake SDKs and event buses or inert local SDK construction. They do not
 
 ## Limitations
 
-- Pi's process-wide event bus is **not an authentication boundary**. Any loaded extension can observe requests, race/mutate a mutable request, or impersonate a configured consumer if it knows a tuple. Use frozen consumer requests and enable the resolver only when every loaded extension is trusted.
+- Pi's process-wide event bus is **not an authentication boundary**. Any loaded extension can observe requests or impersonate a configured consumer if it knows a tuple; legacy v1 consumers may also emit mutable requests. v2 requests must be frozen, and the resolver should be enabled only when every loaded extension is trusted.
 - Protected binding-file loading currently requires POSIX owner identity and permission bits (`process.getuid()` plus mode `0600`); it fails closed on platforms where those checks are unavailable.
 - `@bitwarden/sdk-napi@1.0.0` is old/beta and exposes no logout, close, dispose, zeroization, cancellation, request timeout, or retry API. JavaScript strings and native memory cannot be deterministically cleared.
 - A provider timeout, disable, reset, or shutdown cannot stop an already-running native request; it may complete locally after the callback has received a fixed failure and after the one-second drain bound expires. Queued work remains serialized, late values are discarded, and JavaScript references held only by completed extension promise chains are then released.

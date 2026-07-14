@@ -79,7 +79,7 @@ test("locked SDK console.error observes only a fixed replacement for cyclic JSON
 		client = await createToolboxSdkClient(invocationServer(), 1_000, credentials());
 		await assert.rejects(
 			() => client!.loadTool("search", new AbortController().signal),
-			/MCP request failed with code -32000: Remote error details were removed/u,
+			/code.*-32000/u,
 		);
 	} finally {
 		await client?.dispose?.();
@@ -92,7 +92,140 @@ test("locked SDK console.error observes only a fixed replacement for cyclic JSON
 	for (const canary of CANARIES) {
 		assert.equal(consoleText.includes(canary), false, `console.error retained ${canary}`);
 	}
-	assert.match(consoleText, /Remote error details were removed/u);
+	assert.match(consoleText, /code.*-32000/u);
+});
+
+test("terminal normalization cannot reconstruct a credential before locked SDK validation logging", async () => {
+	const previousAdapter = axios.defaults.adapter;
+	const previousConsoleError = console.error;
+	const secret = "SDK_NORMALIZATION�COLLISION_CANARY";
+	const hostileNearMatch = "SDK_NORMALIZATION\u001bCOLLISION_CANARY";
+	const calls: unknown[][] = [];
+	axios.defaults.adapter = async (config) => ({
+		data: {
+			jsonrpc: "2.0",
+			id: "collision",
+			result: { malformed: { note: hostileNearMatch } },
+		},
+		status: 200,
+		statusText: "OK",
+		headers: {},
+		config,
+		request: {},
+	});
+	console.error = (...args: unknown[]) => { calls.push(args); };
+	const material = credentials();
+	material.headers.Authorization = secret;
+	material.redactionValues = [secret];
+	let client: Awaited<ReturnType<typeof createToolboxSdkClient>> | undefined;
+	try {
+		client = await createToolboxSdkClient(invocationServer("https://toolbox.example.test"), 1_000, material);
+		await assert.rejects(() => client!.loadTool("search", new AbortController().signal));
+	} finally {
+		await client?.dispose?.();
+		console.error = previousConsoleError;
+		axios.defaults.adapter = previousAdapter;
+	}
+	assert.ok(calls.length >= 1, "the locked SDK validation logger was not exercised");
+	assert.equal(publicConsoleText(calls).includes(secret), false);
+});
+
+test("mismatched server protocol cannot combine with an SDK prefix into a credential", async () => {
+	const previousAdapter = axios.defaults.adapter;
+	const previousConsoleError = console.error;
+	const attackerVersion = "ATTACKER_VERSION";
+	const prefixedSecret = `MCP version mismatch: client does not support server version ${attackerVersion}`;
+	const formerFixedMessageSecret = "Remote error details were removed";
+	const calls: unknown[][] = [];
+	axios.defaults.adapter = async (config) => ({
+		data: {
+			jsonrpc: "2.0",
+			id: "protocol-collision",
+			result: {
+				protocolVersion: attackerVersion,
+				capabilities: { tools: {} },
+				serverInfo: { name: "offline", version: "1" },
+			},
+		},
+		status: 200,
+		statusText: "OK",
+		headers: {},
+		config,
+		request: {},
+	});
+	console.error = (...args: unknown[]) => { calls.push(args); };
+	const material = credentials();
+	material.headers.Authorization = prefixedSecret;
+	material.redactionValues = [prefixedSecret, formerFixedMessageSecret];
+	let client: Awaited<ReturnType<typeof createToolboxSdkClient>> | undefined;
+	try {
+		client = await createToolboxSdkClient(invocationServer("https://toolbox.example.test"), 1_000, material);
+		await assert.rejects(() => client!.loadTool("search", new AbortController().signal));
+	} finally {
+		await client?.dispose?.();
+		console.error = previousConsoleError;
+		axios.defaults.adapter = previousAdapter;
+	}
+	const consoleText = publicConsoleText(calls);
+	assert.equal(consoleText.includes(prefixedSecret), false);
+	assert.equal(consoleText.includes(formerFixedMessageSecret), false);
+});
+
+test("method-aware validation blocks Zod formatting from prefixing a malformed value into a credential", async () => {
+	const previousAdapter = axios.defaults.adapter;
+	const previousConsoleError = console.error;
+	const suffix = "ATTACKER_SUFFIX";
+	const secret = `"received": "${suffix}"`;
+	const calls: unknown[][] = [];
+	axios.defaults.adapter = async (config) => {
+		const request = typeof config.data === "string" ? JSON.parse(config.data) : config.data;
+		let data: unknown;
+		let status = 200;
+		if (request.method === "initialize") {
+			data = {
+				jsonrpc: "2.0",
+				id: request.id,
+				result: {
+					protocolVersion: "2025-11-25",
+					capabilities: { tools: {} },
+					serverInfo: { name: "offline", version: "1" },
+				},
+			};
+		} else if (request.method === "notifications/initialized") {
+			status = 202;
+			data = null;
+		} else if (request.method === "tools/list") {
+			data = {
+				jsonrpc: "2.0",
+				id: request.id,
+				result: {
+					tools: [{ name: "search", inputSchema: { type: "object", properties: {} } }],
+				},
+			};
+		} else {
+			data = {
+				jsonrpc: "2.0",
+				id: request.id,
+				result: { content: [{ type: suffix, text: "not accepted" }] },
+			};
+		}
+		return { data, status, statusText: "OK", headers: {}, config, request: {} };
+	};
+	console.error = (...args: unknown[]) => { calls.push(args); };
+	const material = credentials();
+	material.headers.Authorization = secret;
+	material.redactionValues = [secret];
+	let client: Awaited<ReturnType<typeof createToolboxSdkClient>> | undefined;
+	try {
+		client = await createToolboxSdkClient(invocationServer("https://toolbox.example.test"), 1_000, material);
+		const tool = await client.loadTool("search", new AbortController().signal);
+		await assert.rejects(() => client!.invoke(tool, {}, new AbortController().signal));
+	} finally {
+		await client?.dispose?.();
+		console.error = previousConsoleError;
+		axios.defaults.adapter = previousAdapter;
+	}
+	assert.equal(publicConsoleText(calls).includes(secret), false);
 });
 
 test("successful locked SDK initialize/list/invoke accepts frozen cloned payloads and redacts exact echoes", async () => {

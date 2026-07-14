@@ -50,6 +50,7 @@
     wdisplays
     zathura
     pinta
+    _1password-gui
 
     # wayland utilities
     cliphist

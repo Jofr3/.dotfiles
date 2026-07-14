@@ -1,92 +1,155 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { parseResolverBindings as parseBitwardenBindings } from "../../bitwarden-secrets-manager/src/resolver-bindings.ts";
+import { SecretResolverProvider as BitwardenResolverProvider } from "../../bitwarden-secrets-manager/src/resolver.ts";
+import { parseResolverBindings as parseOnePasswordBindings } from "../../onepassword-secrets-manager/src/resolver-bindings.ts";
+import { SecretResolverProvider as OnePasswordResolverProvider } from "../../onepassword-secrets-manager/src/resolver.ts";
 import { createInvocationSnapshot, parseConfig } from "../src/config.ts";
 import { ToolboxManager } from "../src/manager.ts";
-import { SecretResolverConsumer } from "../src/resolver.ts";
+import {
+	BITWARDEN_RESOLVER_PROVIDER,
+	CredentialResolverError,
+	ONEPASSWORD_RESOLVER_PROVIDER,
+	SECRET_RESOLVER_V2_REQUEST_CHANNEL,
+	SecretResolverConsumer,
+} from "../src/resolver.ts";
 import type { ToolboxSdkClientFactory } from "../src/sdk.ts";
-import { SecretResolverProvider } from "../../bitwarden-secrets-manager/src/resolver.ts";
 
-const PROTOCOL = "pi.secret-resolver/v1";
-const REQUEST_CHANNEL = "pi:secret-resolver:v1:request";
-const HEADER_SECRET = "BWS_HEADER_CANARY_NEVER_PUBLIC";
-const OAUTH_SECRET = "BWS_OAUTH_CANARY_NEVER_PUBLIC";
-const TENANT_SECRET = "BWS_TENANT_CANARY_NEVER_PUBLIC";
-const UNUSED_SECRET = "BWS_UNUSED_CANARY_NEVER_FETCHED";
-const TRANSPORT_ERROR_CANARY = "TOOLBOX_TRANSPORT_ERROR_CANARY";
+for (const name of [
+	"BWS_ACCESS_TOKEN",
+	"BWS_API_URL",
+	"BWS_IDENTITY_URL",
+	"OP_SERVICE_ACCOUNT_TOKEN",
+	"PI_BITWARDEN_RESOLVER_BINDINGS",
+	"PI_MCP_TOOLBOX_CONFIG",
+	"PI_ONEPASSWORD_RESOLVER_BINDINGS",
+]) delete process.env[name];
+
+const BW_HEADER_SECRET = "BWS_HEADER_CANARY_NEVER_PUBLIC";
+const BW_OAUTH_SECRET = "BWS_OAUTH_CANARY_NEVER_PUBLIC";
+const OP_HEADER_SECRET = "OP_HEADER_CANARY_NEVER_PUBLIC";
+const OP_DATABASE_SECRET = "OP_DATABASE_CANARY_NEVER_PUBLIC";
+const UNUSED_SECRET = "UNUSED_CANARY_NEVER_FETCHED";
+const SOURCE_ERROR_CANARY = "ONEPASSWORD_SOURCE_ERROR_CANARY_NEVER_PUBLIC";
+
+const BW_HEADER_ID = "11111111-2222-3333-8444-555555555555";
+const BW_OAUTH_ID = "aaaaaaaa-bbbb-cccc-8ddd-eeeeeeeeeeee";
+const BW_UNUSED_ID = "99999999-8888-7777-8666-555555555555";
+const OP_HEADER_REFERENCE = "op://example-vault/example-header/password";
+const OP_DATABASE_REFERENCE = "op://example-vault/example-database/password";
+
+interface ObservedEvent {
+	channel: string;
+	data: unknown;
+}
 
 interface ResolverRequest {
-	protocol: string;
+	provider: string;
 	consumer: string;
 	slot: string;
 	purpose: string;
-	requestId: string;
-	deadlineAt: number;
 	signal: AbortSignal;
 	respond(response: unknown): void;
 }
 
-class FakeEventBus {
-	readonly observed: unknown[] = [];
-	readonly listeners = new Set<(data: unknown) => void>();
+class SharedEventBus {
+	readonly observed: ObservedEvent[] = [];
+	#listeners = new Map<string, Set<(data: unknown) => void>>();
 
-	on(first: string | ((data: unknown) => void), second?: (data: unknown) => void): () => void {
-		const listener = typeof first === "function" ? first : second;
-		if (!listener) throw new Error("missing listener");
-		this.listeners.add(listener);
-		return () => this.listeners.delete(listener);
+	on(channel: string, handler: (data: unknown) => void): () => void {
+		const listeners = this.#listeners.get(channel) ?? new Set<(data: unknown) => void>();
+		listeners.add(handler);
+		this.#listeners.set(channel, listeners);
+		return () => { listeners.delete(handler); };
 	}
 
 	emit(channel: string, data: unknown): void {
-		assert.equal(channel, REQUEST_CHANNEL);
-		this.observed.push(data);
-		for (const listener of this.listeners) listener(data);
+		this.observed.push({ channel, data });
+		for (const listener of this.#listeners.get(channel) ?? []) listener(data);
 	}
 }
 
-class FakeBitwardenSdk {
-	readonly requestedIds: string[] = [];
-	readonly values = new Map<string, string>([
-		["11111111-2222-3333-8444-555555555555", HEADER_SECRET],
-		["aaaaaaaa-bbbb-cccc-8ddd-eeeeeeeeeeee", OAUTH_SECRET],
-		["ffffffff-eeee-dddd-8ccc-bbbbbbbbbbbb", TENANT_SECRET],
-		["99999999-8888-7777-8666-555555555555", UNUSED_SECRET],
+class FakeBitwardenSource {
+	readonly requested: string[] = [];
+	readonly values = new Map([
+		[BW_HEADER_ID, BW_HEADER_SECRET],
+		[BW_OAUTH_ID, BW_OAUTH_SECRET],
+		[BW_UNUSED_ID, UNUSED_SECRET],
 	]);
 
-	secrets() {
-		return {
-			get: async (id: string) => {
-				this.requestedIds.push(id);
-				const value = this.values.get(id);
-				if (!value) throw new Error("FAKE_BITWARDEN_ERROR_CANARY");
-				return { id, value, note: "fake response only" };
+	async resolveSecretValue(id: string): Promise<string> {
+		this.requested.push(id);
+		const value = this.values.get(id);
+		if (value === undefined) throw new Error("FAKE_BITWARDEN_SOURCE_FAILURE");
+		return value;
+	}
+}
+
+class FakeOnePasswordSource {
+	readonly requested: string[] = [];
+	readonly values = new Map([
+		[OP_HEADER_REFERENCE, OP_HEADER_SECRET],
+		[OP_DATABASE_REFERENCE, OP_DATABASE_SECRET],
+	]);
+	fail = false;
+
+	async resolveSecretValue(reference: string): Promise<string> {
+		this.requested.push(reference);
+		if (this.fail) throw new Error(`${SOURCE_ERROR_CANARY}:${OP_DATABASE_SECRET}`);
+		const value = this.values.get(reference);
+		if (value === undefined) throw new Error("FAKE_ONEPASSWORD_SOURCE_FAILURE");
+		return value;
+	}
+}
+
+function bitwardenBindings() {
+	return parseBitwardenBindings({
+		version: 1,
+		bindings: [
+			{
+				consumer: "mcp-toolbox",
+				slot: "shared-authorization",
+				purpose: "mcp-toolbox.header",
+				secretId: BW_HEADER_ID,
 			},
-		};
-	}
-}
-
-function installFakeProvider(bus: FakeEventBus, sdk: FakeBitwardenSdk): () => void {
-	const bindings = new Map<string, string>([
-		["mcp-toolbox\u0000production-authorization\u0000mcp-toolbox.header", "11111111-2222-3333-8444-555555555555"],
-		["mcp-toolbox\u0000production-oauth\u0000mcp-toolbox.auth-token", "aaaaaaaa-bbbb-cccc-8ddd-eeeeeeeeeeee"],
-		["mcp-toolbox\u0000production-tenant\u0000mcp-toolbox.bound-param", "ffffffff-eeee-dddd-8ccc-bbbbbbbbbbbb"],
-		["mcp-toolbox\u0000unused-oauth\u0000mcp-toolbox.auth-token", "99999999-8888-7777-8666-555555555555"],
-	]);
-	return bus.on((data) => {
-		const request = data as ResolverRequest;
-		const binding = bindings.get(`${request.consumer}\u0000${request.slot}\u0000${request.purpose}`);
-		if (!binding) {
-			request.respond({ protocol: PROTOCOL, ok: false, code: "binding_denied" });
-			return;
-		}
-		void sdk.secrets().get(binding).then(
-			(response) => request.respond({ protocol: PROTOCOL, ok: true, value: response.value }),
-			() => request.respond({ protocol: PROTOCOL, ok: false, code: "request_failed" }),
-		);
+			{
+				consumer: "mcp-toolbox",
+				slot: "production-oauth",
+				purpose: "mcp-toolbox.auth-token",
+				secretId: BW_OAUTH_ID,
+			},
+			{
+				consumer: "mcp-toolbox",
+				slot: "unused-oauth",
+				purpose: "mcp-toolbox.auth-token",
+				secretId: BW_UNUSED_ID,
+			},
+		],
 	});
 }
 
-function resolverConfig(slot = "production-authorization") {
+function onePasswordBindings() {
+	return parseOnePasswordBindings({
+		version: 1,
+		bindings: [
+			{
+				consumer: "mcp-toolbox",
+				slot: "shared-authorization",
+				purpose: "mcp-toolbox.header",
+				secretReference: OP_HEADER_REFERENCE,
+			},
+			{
+				consumer: "mcp-toolbox",
+				slot: "production-db-password",
+				purpose: "mcp-toolbox.bound-param",
+				secretReference: OP_DATABASE_REFERENCE,
+			},
+		],
+	});
+}
+
+function mixedProviderConfig() {
 	return parseConfig({
 		version: 1,
 		requestTimeoutMs: 1_000,
@@ -97,216 +160,261 @@ function resolverConfig(slot = "production-authorization") {
 				name: "search",
 				confirmation: "not-required",
 				authTokens: ["selected_oauth"],
-				boundParams: ["tenant_id"],
+				boundParams: ["database_password"],
 			}],
 			headers: {
-				Authorization: { resolver: { provider: "bitwarden-secrets-manager", slot } },
-				"X-Shared-Authorization": { resolver: { provider: "bitwarden-secrets-manager", slot } },
+				Authorization: {
+					resolver: { provider: BITWARDEN_RESOLVER_PROVIDER, slot: "shared-authorization" },
+				},
+				"X-Database-Authorization": {
+					resolver: { provider: ONEPASSWORD_RESOLVER_PROVIDER, slot: "shared-authorization" },
+				},
+				"X-Database-Authorization-Copy": {
+					resolver: { provider: ONEPASSWORD_RESOLVER_PROVIDER, slot: "shared-authorization" },
+				},
 			},
 			authTokens: {
 				selected_oauth: {
-					resolver: { provider: "bitwarden-secrets-manager", slot: "production-oauth" },
+					resolver: { provider: BITWARDEN_RESOLVER_PROVIDER, slot: "production-oauth" },
 				},
 				unused_oauth: {
-					resolver: { provider: "bitwarden-secrets-manager", slot: "unused-oauth" },
+					resolver: { provider: BITWARDEN_RESOLVER_PROVIDER, slot: "unused-oauth" },
 				},
 			},
 			boundParams: {
-				tenant_id: {
-					resolver: { provider: "bitwarden-secrets-manager", slot: "production-tenant" },
+				database_password: {
+					resolver: { provider: ONEPASSWORD_RESOLVER_PROVIDER, slot: "production-db-password" },
 				},
 			},
 		}],
 	});
 }
 
-function testConsumer(bus: FakeEventBus): SecretResolverConsumer {
+function onePasswordOnlyConfig(slot = "production-db-password") {
+	return parseConfig({
+		version: 1,
+		requestTimeoutMs: 1_000,
+		servers: [{
+			id: "production",
+			url: "https://toolbox.example.test",
+			tools: [{ name: "search", confirmation: "not-required", boundParams: ["database_password"] }],
+			boundParams: {
+				database_password: {
+					resolver: { provider: ONEPASSWORD_RESOLVER_PROVIDER, slot },
+				},
+			},
+		}],
+	});
+}
+
+function testConsumer(bus: SharedEventBus, maxWaitMs = 100): SecretResolverConsumer {
 	let nonce = 0;
 	return new SecretResolverConsumer(bus, {
-		maxWaitMs: 100,
+		maxWaitMs,
 		requestId: () => `cross-extension-request-${String(++nonce).padStart(4, "0")}`,
 	});
 }
 
 function assertNoCanaries(value: unknown): void {
 	const serialized = value instanceof Error ? value.message : JSON.stringify(value);
-	for (const canary of [HEADER_SECRET, OAUTH_SECRET, TENANT_SECRET, UNUSED_SECRET, TRANSPORT_ERROR_CANARY]) {
+	for (const canary of [
+		BW_HEADER_SECRET,
+		BW_OAUTH_SECRET,
+		OP_HEADER_SECRET,
+		OP_DATABASE_SECRET,
+		UNUSED_SECRET,
+		SOURCE_ERROR_CANARY,
+	]) {
 		assert.equal(serialized.includes(canary), false, `public sink contained ${canary}`);
 	}
 }
 
-test("fake Bitwarden provider handoff resolves only selected slots and redacts canary echoes sink-wide", async () => {
-	const bus = new FakeEventBus();
-	const bitwarden = new FakeBitwardenSdk();
-	installFakeProvider(bus, bitwarden);
-	const resolver = testConsumer(bus);
+test("MCP routes provider-aware tuples to Bitwarden and fake 1Password together without collisions", async () => {
+	const bus = new SharedEventBus();
+	const bitwardenSource = new FakeBitwardenSource();
+	const onePasswordSource = new FakeOnePasswordSource();
+	const bitwarden = new BitwardenResolverProvider(bitwardenSource);
+	const onePassword = new OnePasswordResolverProvider(onePasswordSource);
+	bitwarden.start(bus);
+	onePassword.start(bus);
+	bitwarden.enable(bitwardenBindings());
+	onePassword.enable(onePasswordBindings());
+
 	let disposals = 0;
 	const factory: ToolboxSdkClientFactory = async (_server, _timeout, credentials) => {
-		assert.equal(credentials.headers.Authorization, HEADER_SECRET);
-		assert.equal(credentials.headers["X-Shared-Authorization"], HEADER_SECRET);
-		assert.equal(credentials.authTokens.selected_oauth, OAUTH_SECRET);
+		assert.equal(credentials.headers.Authorization, BW_HEADER_SECRET);
+		assert.equal(credentials.headers["X-Database-Authorization"], OP_HEADER_SECRET);
+		assert.equal(credentials.headers["X-Database-Authorization-Copy"], OP_HEADER_SECRET);
+		assert.equal(credentials.authTokens.selected_oauth, BW_OAUTH_SECRET);
 		assert.equal(Object.hasOwn(credentials.authTokens, "unused_oauth"), false);
-		assert.equal(credentials.boundParams.tenant_id, TENANT_SECRET);
+		assert.equal(credentials.boundParams.database_password, OP_DATABASE_SECRET);
 		return {
 			async loadTool(name) { return { raw: { name }, getName: () => name }; },
 			async loadToolset() { return []; },
 			async invoke() {
 				return JSON.stringify({
-					message: `${HEADER_SECRET} ${OAUTH_SECRET} ${TENANT_SECRET}`,
-					password: HEADER_SECRET,
+					message: `${BW_HEADER_SECRET} ${BW_OAUTH_SECRET} ${OP_HEADER_SECRET} ${OP_DATABASE_SECRET}`,
+					password: OP_DATABASE_SECRET,
 				});
 			},
 			async dispose() { disposals += 1; },
 		};
 	};
+	const resolver = testConsumer(bus);
 	const manager = new ToolboxManager(factory, resolver);
-	const config = resolverConfig();
-	const selected = createInvocationSnapshot(config, "production", "search");
-	const output = await manager.call(selected, { query: "hotels" }, manager.captureGeneration());
-	assert.match(output.text, /\[redacted\]/u);
+	const config = mixedProviderConfig();
+	const invocation = createInvocationSnapshot(config, "production", "search");
+	assert.equal(
+		(invocation.server.headers.Authorization as { resolver: { provider: string } }).resolver.provider,
+		BITWARDEN_RESOLVER_PROVIDER,
+	);
+	assert.equal(
+		(invocation.server.headers["X-Database-Authorization"] as { resolver: { provider: string } }).resolver.provider,
+		ONEPASSWORD_RESOLVER_PROVIDER,
+	);
+
+	const output = await manager.call(invocation, { query: "hotels" }, manager.captureGeneration());
+	assert.match(output.text, /[�█◆*\uE000-\uF8FF]/u);
 	assertNoCanaries(output);
-	assert.deepEqual(bitwarden.requestedIds.sort(), [
-		"11111111-2222-3333-8444-555555555555",
-		"aaaaaaaa-bbbb-cccc-8ddd-eeeeeeeeeeee",
-		"ffffffff-eeee-dddd-8ccc-bbbbbbbbbbbb",
-	].sort());
+	assert.deepEqual(bitwardenSource.requested.sort(), [BW_HEADER_ID, BW_OAUTH_ID].sort());
+	assert.deepEqual(onePasswordSource.requested.sort(), [OP_HEADER_REFERENCE, OP_DATABASE_REFERENCE].sort());
 	assert.equal(disposals, 1);
-	for (const event of bus.observed) {
-		assert.equal(Object.hasOwn(event as object, "value"), false);
-		assert.equal(Object.hasOwn(event as object, "secretId"), false);
-		assertNoCanaries(event);
+	assert.equal(bitwarden.status().callsUsed, 2);
+	assert.equal(onePassword.status().callsUsed, 2);
+
+	const v2Events = bus.observed.filter((event) => event.channel === SECRET_RESOLVER_V2_REQUEST_CHANNEL);
+	assert.equal(v2Events.length, 4, "duplicate same-provider tuples should resolve once");
+	assert.deepEqual(
+		new Set(v2Events.map((event) => (event.data as ResolverRequest).provider)),
+		new Set([BITWARDEN_RESOLVER_PROVIDER, ONEPASSWORD_RESOLVER_PROVIDER]),
+	);
+	for (const event of v2Events) {
+		const payload = event.data as Record<string, unknown>;
+		assert.equal(Object.isFrozen(payload), true);
+		assert.equal(Object.hasOwn(payload, "value"), false);
+		assert.equal(Object.hasOwn(payload, "secretId"), false);
+		assert.equal(Object.hasOwn(payload, "secretReference"), false);
+		assertNoCanaries(payload);
+		assert.equal(JSON.stringify(payload).includes(OP_HEADER_REFERENCE), false);
+		assert.equal(JSON.stringify(payload).includes(OP_DATABASE_REFERENCE), false);
 	}
 	assertNoCanaries(manager.snapshot());
 	assertNoCanaries(config);
+
+	resolver.shutdown();
+	await Promise.all([manager.shutdown(), bitwarden.shutdown(), onePassword.shutdown()]);
 });
 
-test("transport, disposal, and resolver-denial errors cannot disclose exact values or provider discovery details", async () => {
-	const bus = new FakeEventBus();
-	installFakeProvider(bus, new FakeBitwardenSdk());
-	const resolver = testConsumer(bus);
-	const failingFactory: ToolboxSdkClientFactory = async () => ({
-		async loadTool(name) { return { raw: { name }, getName: () => name }; },
-		async loadToolset() { return []; },
-		async invoke() {
-			throw new Error(`${TRANSPORT_ERROR_CANARY} ${HEADER_SECRET} ${OAUTH_SECRET} ${TENANT_SECRET}`);
-		},
-		async dispose() {
-			throw new Error(`${HEADER_SECRET} disposal failure`);
-		},
-	});
-	const manager = new ToolboxManager(failingFactory, resolver);
-	const config = resolverConfig();
-	const selected = createInvocationSnapshot(config, "production", "search");
-	let transportError: unknown;
-	try {
-		await manager.call(selected, {}, manager.captureGeneration());
-	} catch (error) {
-		transportError = error;
-	}
-	assert.ok(transportError instanceof Error);
-	assert.match(transportError.message, /no downstream error details/u);
-	assertNoCanaries(transportError);
-
-	let factoryCalls = 0;
-	const deniedConfig = resolverConfig("not-bound");
-	const denied = createInvocationSnapshot(deniedConfig, "production", "search");
-	const deniedManager = new ToolboxManager(async () => {
-		factoryCalls += 1;
-		throw new Error("must not initialize");
-	}, testConsumer(bus));
-	let deniedError: unknown;
-	try {
-		await deniedManager.call(denied, {}, deniedManager.captureGeneration());
-	} catch (error) {
-		deniedError = error;
-	}
-	assert.ok(deniedError instanceof Error);
-	assert.equal(factoryCalls, 0);
-	assert.doesNotMatch(deniedError.message, /not-bound|binding_denied|Bitwarden/u);
-	assertNoCanaries(deniedError);
-});
-
-test("real provider/consumer race aborts sibling resolver work on first source failure", async () => {
-	const bus = new FakeEventBus();
-	const sourceCalls: Array<{ id: string; signal: AbortSignal | undefined }> = [];
-	let rejectFirst: ((error: Error) => void) | undefined;
-	const provider = new SecretResolverProvider({
-		async resolveSecretValue(id, signal) {
-			sourceCalls.push({ id, signal });
-			if (sourceCalls.length === 1) {
-				return new Promise<string>((_resolve, reject) => { rejectFirst = reject; });
-			}
-			return new Promise<string>((resolve, reject) => {
-				if (signal?.aborted) {
-					reject(new Error("SIBLING_ABORTED_CANARY"));
-					return;
-				}
-				const timer = setTimeout(() => resolve("LATE_SIBLING_SECRET_CANARY"), 100);
-				signal?.addEventListener("abort", () => {
-					clearTimeout(timer);
-					reject(new Error("SIBLING_ABORTED_CANARY"));
-				}, { once: true });
-			});
-		},
-	}, { drainMs: 50 });
+test("fake 1Password source failure stays fixed, canary-free, and prevents MCP client construction", async () => {
+	const bus = new SharedEventBus();
+	const source = new FakeOnePasswordSource();
+	source.fail = true;
+	const provider = new OnePasswordResolverProvider(source);
 	provider.start(bus);
-	provider.enable({
-		version: 1,
-		bindings: [
-			{
-				consumer: "mcp-toolbox",
-				slot: "production-authorization",
-				purpose: "mcp-toolbox.header",
-				secretId: "11111111-2222-3333-8444-555555555555",
-			},
-			{
-				consumer: "mcp-toolbox",
-				slot: "production-oauth",
-				purpose: "mcp-toolbox.auth-token",
-				secretId: "aaaaaaaa-bbbb-cccc-8ddd-eeeeeeeeeeee",
-			},
-			{
-				consumer: "mcp-toolbox",
-				slot: "production-tenant",
-				purpose: "mcp-toolbox.bound-param",
-				secretId: "ffffffff-eeee-dddd-8ccc-bbbbbbbbbbbb",
-			},
-		],
-	});
+	provider.enable(onePasswordBindings());
 	const resolver = testConsumer(bus);
-	let factories = 0;
+	let factoryCalls = 0;
 	const manager = new ToolboxManager(async () => {
-		factories += 1;
-		throw new Error("SDK_MUST_NOT_INITIALIZE_CANARY");
-	}, resolver, { drainMs: 50 });
-	const config = resolverConfig();
+		factoryCalls += 1;
+		throw new Error("MCP_FACTORY_MUST_NOT_RUN");
+	}, resolver);
+	const config = onePasswordOnlyConfig();
 	const invocation = createInvocationSnapshot(config, "production", "search");
-	const call = manager.call(invocation, {}, manager.captureGeneration());
-	void call.catch(() => undefined);
-	while (bus.observed.length < 3 || !rejectFirst) await new Promise((resolve) => setTimeout(resolve, 0));
-	rejectFirst(new Error("FIRST_PROVIDER_FAILURE_CANARY"));
-	await assert.rejects(
-		call,
-		(error: unknown) => error instanceof Error &&
-			!error.message.includes("FIRST_PROVIDER_FAILURE_CANARY") &&
-			!error.message.includes("LATE_SIBLING_SECRET_CANARY"),
-	);
-	await new Promise((resolve) => setTimeout(resolve, 0));
-	assert.equal(factories, 0);
-	assert.ok(
-		bus.observed.slice(0, 3).filter((event) => (event as ResolverRequest).signal.aborted).length >= 2,
-		"sibling resolver signals were not aborted after the first failure",
-	);
-	assert.ok(
-		sourceCalls.slice(1).every((call) => call.signal?.aborted),
-		"a source sibling remained active after consumer cancellation",
-	);
+	let failure: unknown;
+	try {
+		await manager.call(invocation, {}, manager.captureGeneration());
+	} catch (error) {
+		failure = error;
+	}
+	assert.ok(failure instanceof CredentialResolverError);
+	assert.equal(factoryCalls, 0);
+	assert.deepEqual(source.requested, [OP_DATABASE_REFERENCE]);
+	assertNoCanaries(failure);
+	for (const event of bus.observed) assertNoCanaries(event.data);
+
 	resolver.shutdown();
 	await Promise.all([manager.shutdown(), provider.shutdown()]);
 });
 
+test("a request for absent 1Password is invisible to matching Bitwarden bindings and times out unavailable", async () => {
+	const bus = new SharedEventBus();
+	const source = new FakeBitwardenSource();
+	const bitwarden = new BitwardenResolverProvider(source);
+	bitwarden.start(bus);
+	bitwarden.enable(parseBitwardenBindings({
+		version: 1,
+		bindings: [{
+			consumer: "mcp-toolbox",
+			slot: "production-db-password",
+			purpose: "mcp-toolbox.bound-param",
+			secretId: BW_HEADER_ID,
+		}],
+	}));
+	const resolver = testConsumer(bus, 10);
+	let factoryCalls = 0;
+	const manager = new ToolboxManager(async () => {
+		factoryCalls += 1;
+		throw new Error("MCP_FACTORY_MUST_NOT_RUN");
+	}, resolver);
+	const invocation = createInvocationSnapshot(onePasswordOnlyConfig(), "production", "search");
+	await assert.rejects(
+		() => manager.call(invocation, {}, manager.captureGeneration()),
+		(error: unknown) => error instanceof CredentialResolverError,
+	);
+	assert.equal(factoryCalls, 0);
+	assert.deepEqual(source.requested, []);
+	assert.equal(bitwarden.status().callsUsed, 0);
+	assert.equal(bus.observed.length, 1);
+	assert.equal((bus.observed[0]!.data as ResolverRequest).provider, ONEPASSWORD_RESOLVER_PROVIDER);
+
+	resolver.shutdown();
+	await Promise.all([manager.shutdown(), bitwarden.shutdown()]);
+});
+
+test("provider callbacks remain process-local one-shot capabilities and never become response events", async () => {
+	const bus = new SharedEventBus();
+	let callbackInvocations = 0;
+	bus.on(SECRET_RESOLVER_V2_REQUEST_CHANNEL, (data) => {
+		const request = data as ResolverRequest;
+		if (request.provider !== ONEPASSWORD_RESOLVER_PROVIDER) return;
+		callbackInvocations += 1;
+		request.respond(Object.freeze({
+			protocol: "pi.secret-resolver/v2",
+			ok: true,
+			value: OP_DATABASE_SECRET,
+		}));
+		request.respond(Object.freeze({
+			protocol: "pi.secret-resolver/v2",
+			ok: true,
+			value: "LATE_DUPLICATE_VALUE_CANARY",
+		}));
+	});
+	const resolver = testConsumer(bus);
+	const value = await resolver.resolve(
+		ONEPASSWORD_RESOLVER_PROVIDER,
+		"production-db-password",
+		"mcp-toolbox.bound-param",
+		new AbortController().signal,
+		Date.now() + 1_000,
+	);
+	assert.equal(value, OP_DATABASE_SECRET);
+	assert.equal(callbackInvocations, 1);
+	assert.equal(bus.observed.length, 1);
+	assert.equal(Object.hasOwn(bus.observed[0]!.data as object, "value"), false);
+	assert.equal(JSON.stringify(bus.observed).includes(OP_DATABASE_SECRET), false);
+	resolver.shutdown();
+});
+
 test("fetched-value source has no logging, persistence, message, notification, or temporary-file sink", async () => {
-	const files = ["credentials.ts", "index.ts", "manager.ts", "resolver.ts", "sdk.ts"];
+	const files = [
+		"credentials.ts",
+		"index.ts",
+		"manager.ts",
+		"requirements-tool.ts",
+		"requirements.ts",
+		"resolver.ts",
+		"sdk.ts",
+	];
 	const source = (
 		await Promise.all(files.map((file) => readFile(new URL(`../src/${file}`, import.meta.url), "utf8")))
 	).join("\n");

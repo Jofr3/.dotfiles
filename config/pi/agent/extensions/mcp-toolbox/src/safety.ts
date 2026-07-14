@@ -9,6 +9,27 @@ const MAX_STRING_LENGTH = 20_000;
 const MAX_ENV_VALUE_BYTES = 64 * 1024;
 const PROTOTYPE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 const SENSITIVE_ARGUMENT_KEY = /(?:api[-_ ]?key|authorization|cookie|credential|headers?|password|secret|token)/i;
+const CREDENTIAL_ROUTING_ARGUMENT_KEYS = new Set([
+	"env",
+	"resolver",
+	"provider",
+	"slot",
+	"purpose",
+	"dynamic",
+	"requirementid",
+]);
+const CREDENTIAL_ROUTING_VALUES = new Set([
+	"bitwarden-secrets-manager",
+	"onepassword-secrets-manager",
+	"mcp-toolbox.header",
+	"mcp-toolbox.auth-token",
+	"mcp-toolbox.bound-param",
+]);
+const DYNAMIC_REQUIREMENT_VALUE = /^mcp1-(?:H|A|B)-[A-Za-z0-9_-]{43}$/u;
+
+function normalizedRoutingKey(key: string): string {
+	return key.toLowerCase().replace(/[-_ ]/gu, "");
+}
 
 interface CloneState {
 	nodes: number;
@@ -33,6 +54,12 @@ function inspectString(value: string, state: CloneState, path: string): string {
 	}
 	if (containsKnownSecret(value, state.knownSecrets)) {
 		throw new Error(`${path} must not contain configured credential values`);
+	}
+	if (
+		value.startsWith("op://") || CREDENTIAL_ROUTING_VALUES.has(value) ||
+		DYNAMIC_REQUIREMENT_VALUE.test(value)
+	) {
+		throw new Error(`${path} must not contain credential-routing data`);
 	}
 	try {
 		const url = new URL(value);
@@ -99,6 +126,9 @@ function cloneJson(value: unknown, state: CloneState, depth: number, path: strin
 			throw new Error(`${path} contains configured credential material in a property name`);
 		}
 		if (PROTOTYPE_KEYS.has(key.toLowerCase())) throw new Error(`${pathKey(path, key)} is not permitted`);
+		if (CREDENTIAL_ROUTING_ARGUMENT_KEYS.has(normalizedRoutingKey(key))) {
+			throw new Error(`${pathKey(path, key)} is credential-routing data and must not appear in tool arguments`);
+		}
 		if (SENSITIVE_ARGUMENT_KEY.test(key)) {
 			throw new Error(`${pathKey(path, key)} is credential-bearing and must be configured outside tool arguments`);
 		}

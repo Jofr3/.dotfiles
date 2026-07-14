@@ -1,14 +1,18 @@
 import { bindingTupleKey, type ResolverBindings } from "./resolver-bindings.ts";
 import {
+	BITWARDEN_RESOLVER_PROVIDER,
 	SECRET_RESOLVER_CONSUMER_PATTERN,
 	SECRET_RESOLVER_PROTOCOL,
 	SECRET_RESOLVER_PURPOSE_PATTERN,
 	SECRET_RESOLVER_REQUEST_CHANNEL,
 	SECRET_RESOLVER_REQUEST_ID_PATTERN,
 	SECRET_RESOLVER_SLOT_PATTERN,
+	SECRET_RESOLVER_V2_PROTOCOL,
+	SECRET_RESOLVER_V2_REQUEST_CHANNEL,
 	type ResolverEventBus,
-	type SecretResolverFailureCode,
+	type SecretResolverProviderFailureCode,
 	type SecretResolverResponse,
+	type SecretResolverV2Response,
 } from "./resolver-protocol.ts";
 import { PublicError, REQUEST_DEADLINE_MS } from "./safety.ts";
 
@@ -17,7 +21,7 @@ export const MAX_RESOLVER_PENDING = 4;
 export const RESOLVER_DEADLINE_MS = 30_000;
 export const RESOLVER_DRAIN_MS = 1_000;
 
-const REQUEST_KEYS = new Set([
+const V1_REQUEST_KEYS = new Set([
 	"protocol",
 	"consumer",
 	"slot",
@@ -27,7 +31,22 @@ const REQUEST_KEYS = new Set([
 	"signal",
 	"respond",
 ]);
+const V2_REQUEST_KEYS = new Set([...V1_REQUEST_KEYS, "provider"]);
+const V2_REQUIRED_REQUEST_KEYS = [
+	"protocol",
+	"provider",
+	"consumer",
+	"slot",
+	"purpose",
+	"requestId",
+	"deadlineAt",
+	"respond",
+] as const;
+// Provider-specific registry: ownership is effectively keyed by (event bus, provider).
 const PROVIDER_REGISTRY_SYMBOL = Symbol.for("pi.bitwarden-secret-resolver.provider-registry.v1");
+
+type ResolverProtocol = typeof SECRET_RESOLVER_PROTOCOL | typeof SECRET_RESOLVER_V2_PROTOCOL;
+type ProviderResponse = SecretResolverResponse | SecretResolverV2Response;
 
 export interface SecretValueSource {
 	resolveSecretValue(secretId: string, signal?: AbortSignal, deadlineMs?: number): Promise<string>;
@@ -51,24 +70,31 @@ export interface ResolverProviderStatus {
 }
 
 interface ValidRequest {
+	protocol: ResolverProtocol;
 	consumer: string;
 	slot: string;
 	purpose: string;
 	requestId: string;
 	deadlineAt: number;
 	signal?: AbortSignal;
-	respond: (response: SecretResolverResponse) => unknown;
+	respond: (response: ProviderResponse) => unknown;
 }
 
 interface ActiveInvocation {
 	controller: AbortController;
-	respond: (response: SecretResolverResponse) => void;
+	respond: (response: ProviderResponse) => void;
+	protocol: ResolverProtocol;
+}
+
+interface BusRegistration {
+	active: boolean;
+	unsubscribes: Array<() => void>;
 }
 
 class ResolverFailure {
-	readonly code: SecretResolverFailureCode;
+	readonly code: SecretResolverProviderFailureCode;
 
-	constructor(code: SecretResolverFailureCode) {
+	constructor(code: SecretResolverProviderFailureCode) {
 		this.code = code;
 	}
 }
@@ -80,7 +106,9 @@ export class ResolverProviderRegistrationError extends Error {
 	}
 }
 
-function providerRegistry(): WeakMap<object, object> {
+type ProviderRegistry = WeakMap<object, object>;
+
+function providerRegistry(): ProviderRegistry {
 	let descriptor: PropertyDescriptor | undefined;
 	try {
 		descriptor = Object.getOwnPropertyDescriptor(globalThis, PROVIDER_REGISTRY_SYMBOL);
@@ -91,10 +119,10 @@ function providerRegistry(): WeakMap<object, object> {
 		if (!("value" in descriptor) || !(descriptor.value instanceof WeakMap)) {
 			throw new ResolverProviderRegistrationError();
 		}
-		return descriptor.value as WeakMap<object, object>;
+		return descriptor.value as ProviderRegistry;
 	}
 
-	const registry = new WeakMap<object, object>();
+	const registry: ProviderRegistry = new WeakMap<object, object>();
 	try {
 		Object.defineProperty(globalThis, PROVIDER_REGISTRY_SYMBOL, {
 			value: registry,
@@ -108,8 +136,28 @@ function providerRegistry(): WeakMap<object, object> {
 	return registry;
 }
 
+function claimProvider(bus: object, token: object): void {
+	try {
+		const registry = providerRegistry();
+		if (registry.has(bus)) throw new ResolverProviderRegistrationError();
+		registry.set(bus, token);
+	} catch (error) {
+		if (error instanceof ResolverProviderRegistrationError) throw error;
+		throw new ResolverProviderRegistrationError();
+	}
+}
+
+function releaseProvider(bus: object, token: object): void {
+	try {
+		const registry = providerRegistry();
+		if (registry.get(bus) === token) registry.delete(bus);
+	} catch {
+		// A closed or inactive listener remains inert even if registry cleanup fails.
+	}
+}
+
 function ownDataValue(value: unknown, key: string): unknown {
-	if (typeof value !== "object" || value === null) return undefined;
+	if ((typeof value !== "object" && typeof value !== "function") || value === null) return undefined;
 	try {
 		const descriptor = Object.getOwnPropertyDescriptor(value, key);
 		return descriptor && "value" in descriptor ? descriptor.value : undefined;
@@ -118,13 +166,12 @@ function ownDataValue(value: unknown, key: string): unknown {
 	}
 }
 
-function extractResponder(value: unknown): ((response: SecretResolverResponse) => unknown) | undefined {
+function extractResponder(value: unknown): ((response: ProviderResponse) => unknown) | undefined {
 	const responder = ownDataValue(value, "respond");
-	return typeof responder === "function" ? responder as (response: SecretResolverResponse) => unknown : undefined;
+	return typeof responder === "function" ? responder as (response: ProviderResponse) => unknown : undefined;
 }
 
 function isNativeAbortSignal(value: unknown): value is AbortSignal {
-	if (value === undefined) return true;
 	try {
 		return typeof AbortSignal === "function" && value instanceof AbortSignal;
 	} catch {
@@ -132,31 +179,51 @@ function isNativeAbortSignal(value: unknown): value is AbortSignal {
 	}
 }
 
-function parseRequest(value: unknown): ValidRequest {
+function requestDescriptors(
+	value: unknown,
+	allowedKeys: ReadonlySet<string>,
+	requiredKeys: readonly string[],
+	requireFrozen: boolean,
+): Record<PropertyKey, PropertyDescriptor> {
 	if (typeof value !== "object" || value === null || Array.isArray(value)) {
 		throw new ResolverFailure("invalid_request");
 	}
-	let descriptors: Record<PropertyKey, PropertyDescriptor>;
 	try {
 		const prototype = Object.getPrototypeOf(value);
 		if (prototype !== Object.prototype && prototype !== null) throw new ResolverFailure("invalid_request");
-		descriptors = Object.getOwnPropertyDescriptors(value);
+		const descriptors = Object.getOwnPropertyDescriptors(value);
 		for (const key of Reflect.ownKeys(descriptors)) {
-			if (typeof key !== "string" || !REQUEST_KEYS.has(key)) throw new ResolverFailure("invalid_request");
+			if (typeof key !== "string" || !allowedKeys.has(key)) throw new ResolverFailure("invalid_request");
 			const descriptor = descriptors[key];
 			if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) {
 				throw new ResolverFailure("invalid_request");
 			}
 		}
+		for (const key of requiredKeys) {
+			if (!Object.hasOwn(descriptors, key)) throw new ResolverFailure("invalid_request");
+		}
+		if (requireFrozen && !Object.isFrozen(value)) throw new ResolverFailure("invalid_request");
+		return descriptors;
 	} catch (error) {
 		if (error instanceof ResolverFailure) throw error;
 		throw new ResolverFailure("invalid_request");
 	}
+}
+
+function parseRequest(value: unknown, expectedProtocol: ResolverProtocol): ValidRequest {
+	const isV2 = expectedProtocol === SECRET_RESOLVER_V2_PROTOCOL;
+	const descriptors = requestDescriptors(
+		value,
+		isV2 ? V2_REQUEST_KEYS : V1_REQUEST_KEYS,
+		isV2 ? V2_REQUIRED_REQUEST_KEYS : [],
+		isV2,
+	);
 	const read = (key: string): unknown => {
 		const descriptor = descriptors[key];
 		return descriptor && "value" in descriptor ? descriptor.value : undefined;
 	};
 	const protocol = read("protocol");
+	const provider = read("provider");
 	const consumer = read("consumer");
 	const slot = read("slot");
 	const purpose = read("purpose");
@@ -164,8 +231,10 @@ function parseRequest(value: unknown): ValidRequest {
 	const deadlineAt = read("deadlineAt");
 	const signal = read("signal");
 	const respond = read("respond");
+	const hasSignal = Object.hasOwn(descriptors, "signal");
 	if (
-		protocol !== SECRET_RESOLVER_PROTOCOL ||
+		protocol !== expectedProtocol ||
+		(isV2 && provider !== BITWARDEN_RESOLVER_PROVIDER) ||
 		typeof consumer !== "string" ||
 		!SECRET_RESOLVER_CONSUMER_PATTERN.test(consumer) ||
 		typeof slot !== "string" ||
@@ -175,28 +244,36 @@ function parseRequest(value: unknown): ValidRequest {
 		typeof requestId !== "string" ||
 		!SECRET_RESOLVER_REQUEST_ID_PATTERN.test(requestId) ||
 		!Number.isSafeInteger(deadlineAt) ||
-		!isNativeAbortSignal(signal) ||
+		(isV2 ? hasSignal && !isNativeAbortSignal(signal) : signal !== undefined && !isNativeAbortSignal(signal)) ||
 		typeof respond !== "function"
 	) {
 		throw new ResolverFailure("invalid_request");
 	}
 	return {
+		protocol: expectedProtocol,
 		consumer,
 		slot,
 		purpose,
 		requestId,
 		deadlineAt: deadlineAt as number,
 		...(signal === undefined ? {} : { signal }),
-		respond: respond as (response: SecretResolverResponse) => unknown,
+		respond: respond as (response: ProviderResponse) => unknown,
 	};
 }
 
-function failureResponse(code: SecretResolverFailureCode): SecretResolverResponse {
-	return Object.freeze({ protocol: SECRET_RESOLVER_PROTOCOL, ok: false, code });
+function failureResponse(
+	protocol: ResolverProtocol,
+	code: SecretResolverProviderFailureCode,
+): ProviderResponse {
+	return protocol === SECRET_RESOLVER_V2_PROTOCOL
+		? Object.freeze({ protocol: SECRET_RESOLVER_V2_PROTOCOL, ok: false, code })
+		: Object.freeze({ protocol: SECRET_RESOLVER_PROTOCOL, ok: false, code });
 }
 
-function successResponse(value: string): SecretResolverResponse {
-	return Object.freeze({ protocol: SECRET_RESOLVER_PROTOCOL, ok: true, value });
+function successResponse(protocol: ResolverProtocol, value: string): ProviderResponse {
+	return protocol === SECRET_RESOLVER_V2_PROTOCOL
+		? Object.freeze({ protocol: SECRET_RESOLVER_V2_PROTOCOL, ok: true, value })
+		: Object.freeze({ protocol: SECRET_RESOLVER_PROTOCOL, ok: true, value });
 }
 
 function safelyConsumeCallbackResult(value: unknown): void {
@@ -209,8 +286,8 @@ function safelyConsumeCallbackResult(value: unknown): void {
 }
 
 function oneShotResponder(
-	callback: ((response: SecretResolverResponse) => unknown) | undefined,
-): (response: SecretResolverResponse) => void {
+	callback: ((response: ProviderResponse) => unknown) | undefined,
+): (response: ProviderResponse) => void {
 	let used = false;
 	return (response) => {
 		if (used || callback === undefined) return;
@@ -223,7 +300,7 @@ function oneShotResponder(
 	};
 }
 
-function fixedFailureCode(error: unknown): SecretResolverFailureCode {
+function fixedFailureCode(error: unknown): SecretResolverProviderFailureCode {
 	if (error instanceof ResolverFailure) return error.code;
 	if (error instanceof PublicError) {
 		switch (error.code) {
@@ -265,7 +342,7 @@ export class SecretResolverProvider {
 	readonly #now: () => number;
 	readonly #ownershipToken = Object.freeze({});
 	#bindings: ReadonlyMap<string, string> | undefined;
-	#unsubscribe: (() => void) | undefined;
+	#registration: BusRegistration | undefined;
 	#bus: object | undefined;
 	#callsUsed = 0;
 	#pending = 0;
@@ -296,23 +373,33 @@ export class SecretResolverProvider {
 
 	start(bus: ResolverEventBus): void {
 		if (this.#closed) throw new ResolverProviderRegistrationError();
-		if (this.#unsubscribe !== undefined) return;
+		if (this.#registration !== undefined) return;
 		if ((typeof bus !== "object" && typeof bus !== "function") || bus === null) {
 			throw new ResolverProviderRegistrationError();
 		}
 
-		const registry = providerRegistry();
-		if (registry.has(bus as object)) throw new ResolverProviderRegistrationError();
-		registry.set(bus as object, this.#ownershipToken);
-		this.#bus = bus as object;
+		const busObject = bus as object;
+		claimProvider(busObject, this.#ownershipToken);
+		const registration: BusRegistration = { active: false, unsubscribes: [] };
+		this.#bus = busObject;
 		try {
-			const unsubscribe = bus.on(SECRET_RESOLVER_REQUEST_CHANNEL, (data: unknown) => {
-				this.handleRequest(data);
-			});
-			if (typeof unsubscribe !== "function") throw new ResolverProviderRegistrationError();
-			this.#unsubscribe = unsubscribe;
+			const subscribe = (channel: string, handler: (data: unknown) => void): void => {
+				const unsubscribe = bus.on(channel, (data: unknown) => {
+					if (registration.active) handler(data);
+				});
+				if (typeof unsubscribe !== "function") throw new ResolverProviderRegistrationError();
+				registration.unsubscribes.push(unsubscribe);
+			};
+			subscribe(SECRET_RESOLVER_REQUEST_CHANNEL, (data) => this.handleRequest(data));
+			subscribe(SECRET_RESOLVER_V2_REQUEST_CHANNEL, (data) => this.handleV2Request(data));
+			this.#registration = registration;
+			registration.active = true;
 		} catch {
-			if (registry.get(bus as object) === this.#ownershipToken) registry.delete(bus as object);
+			registration.active = false;
+			for (const unsubscribe of registration.unsubscribes.reverse()) {
+				try { unsubscribe(); } catch { /* The inactive guard makes rollback-safe stale listeners inert. */ }
+			}
+			releaseProvider(busObject, this.#ownershipToken);
 			this.#bus = undefined;
 			throw new ResolverProviderRegistrationError();
 		}
@@ -359,44 +446,54 @@ export class SecretResolverProvider {
 		};
 	}
 
+	/** Legacy v1 entry point retained only for provider-less Bitwarden requests. */
 	handleRequest(data: unknown): void {
 		if (this.#closed) return;
 		const fallbackRespond = oneShotResponder(extractResponder(data));
 		try {
-			const request = parseRequest(data);
+			const request = parseRequest(data, SECRET_RESOLVER_PROTOCOL);
 			const respond = oneShotResponder(request.respond);
 			void this.#process(request, respond).catch(() => {
-				respond(failureResponse("unexpected"));
+				respond(failureResponse(SECRET_RESOLVER_PROTOCOL, "unexpected"));
 			});
 		} catch (error) {
-			fallbackRespond(failureResponse(fixedFailureCode(error)));
+			fallbackRespond(failureResponse(SECRET_RESOLVER_PROTOCOL, fixedFailureCode(error)));
+		}
+	}
+
+	/** Provider-aware v2 entry point. Routing is descriptor-only and precedes all other inspection. */
+	handleV2Request(data: unknown): void {
+		if (this.#closed) return;
+		if (ownDataValue(data, "provider") !== BITWARDEN_RESOLVER_PROVIDER) return;
+		const fallbackRespond = oneShotResponder(extractResponder(data));
+		try {
+			const request = parseRequest(data, SECRET_RESOLVER_V2_PROTOCOL);
+			const respond = oneShotResponder(request.respond);
+			void this.#process(request, respond).catch(() => {
+				respond(failureResponse(SECRET_RESOLVER_V2_PROTOCOL, "unexpected"));
+			});
+		} catch {
+			fallbackRespond(failureResponse(SECRET_RESOLVER_V2_PROTOCOL, "invalid_request"));
 		}
 	}
 
 	#unsubscribeFromBus(): void {
-		const unsubscribe = this.#unsubscribe;
-		this.#unsubscribe = undefined;
-		try {
-			unsubscribe?.();
-		} catch {
-			// The closed guard makes a stale listener inert if unsubscription fails.
+		const registration = this.#registration;
+		this.#registration = undefined;
+		if (registration !== undefined) {
+			registration.active = false;
+			for (const unsubscribe of registration.unsubscribes.reverse()) {
+				try { unsubscribe(); } catch { /* The inactive guard makes stale listeners inert. */ }
+			}
 		}
 		const bus = this.#bus;
 		this.#bus = undefined;
-		if (bus !== undefined) {
-			try {
-				const registry = providerRegistry();
-				if (registry.get(bus) === this.#ownershipToken) registry.delete(bus);
-			} catch {
-				// Ownership was already established; closed listeners still fail inertly.
-			}
-		}
+		if (bus !== undefined) releaseProvider(bus, this.#ownershipToken);
 	}
 
 	#revokeActive(reason: string): void {
-		const lifecycle = failureResponse("lifecycle");
 		for (const invocation of this.#invocations) {
-			invocation.respond(lifecycle);
+			invocation.respond(failureResponse(invocation.protocol, "lifecycle"));
 			try {
 				invocation.controller.abort(reason);
 			} catch {
@@ -426,7 +523,7 @@ export class SecretResolverProvider {
 		});
 	}
 
-	async #process(request: ValidRequest, respond: (response: SecretResolverResponse) => void): Promise<void> {
+	async #process(request: ValidRequest, respond: (response: ProviderResponse) => void): Promise<void> {
 		let timer: ReturnType<typeof setTimeout> | undefined;
 		let externalAbort: (() => void) | undefined;
 		let invocation: ActiveInvocation | undefined;
@@ -451,7 +548,7 @@ export class SecretResolverProvider {
 			this.#pending += 1;
 
 			const controller = new AbortController();
-			invocation = { controller, respond };
+			invocation = { controller, respond, protocol: request.protocol };
 			this.#invocations.add(invocation);
 			externalAbort = () => controller.abort("consumer-aborted");
 			if (request.signal !== undefined) {
@@ -497,9 +594,9 @@ export class SecretResolverProvider {
 			if (this.#closed || requestEpoch !== this.#epoch) throw new ResolverFailure("lifecycle");
 			if (controller.signal.aborted) throw new ResolverFailure(timedOut ? "deadline_exceeded" : "aborted");
 			if (typeof value !== "string") throw new ResolverFailure("response_rejected");
-			respond(successResponse(value));
+			respond(successResponse(request.protocol, value));
 		} catch (error) {
-			respond(failureResponse(fixedFailureCode(error)));
+			respond(failureResponse(request.protocol, fixedFailureCode(error)));
 		} finally {
 			if (timer !== undefined) clearTimeout(timer);
 			if (externalAbort !== undefined && request.signal !== undefined) {

@@ -116,6 +116,42 @@ test("manager keeps every SDK client/tool invocation-scoped instead of caching c
 	assert.equal(manager.snapshot().initializedServers, 0);
 });
 
+test("nested credential-routing arguments fail before resolver or SDK construction", async () => {
+	const count = counters();
+	let resolverCalls = 0;
+	const resolver = {
+		async resolve() { resolverCalls += 1; return "ONE_SHOT_SECRET_MUST_NOT_BE_CONSUMED"; },
+	} as unknown as SecretResolverConsumer;
+	const manager = new ToolboxManager(fakeFactory(count), resolver);
+	const config = parseConfig({
+		version: 1,
+		requestTimeoutMs: 2_000,
+		servers: [{
+			id: "one",
+			url: "http://127.0.0.1:5000",
+			tools: [{ name: "search", confirmation: "not-required", boundParams: ["database_password"] }],
+			boundParams: {
+				database_password: {
+					resolver: { provider: "onepassword-secrets-manager", dynamic: true },
+				},
+			},
+		}],
+	});
+	for (const arguments_ of [
+		{ nested: [{ resolver: { provider: "onepassword-secrets-manager", dynamic: true } }] },
+		{ nested: [{ requirement_id: "model-controlled" }] },
+		{ nested: [{ note: "mcp-toolbox.bound-param" }] },
+	]) {
+		await assert.rejects(
+			() => managerCall(manager, config, "one", "search", arguments_),
+			/credential-routing data/u,
+		);
+	}
+	assert.equal(resolverCalls, 0);
+	assert.deepEqual(count, counters());
+	await manager.shutdown();
+});
+
 test("named toolsets select the exact allowlisted member without loading another tool's credentials", async () => {
 	const count = counters();
 	const manager = new ToolboxManager(fakeFactory(count), inertResolver());

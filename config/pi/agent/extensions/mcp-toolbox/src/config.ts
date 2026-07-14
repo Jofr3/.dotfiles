@@ -3,6 +3,18 @@ import { lstat, open } from "node:fs/promises";
 import { isAbsolute } from "node:path";
 import { TextDecoder } from "node:util";
 import { fileURLToPath } from "node:url";
+import {
+	BITWARDEN_RESOLVER_PROVIDER,
+	ONEPASSWORD_RESOLVER_PROVIDER,
+	type ResolverProvider,
+} from "./resolver.ts";
+import {
+	isDynamicResolverReference,
+	MAX_SELECTED_CREDENTIAL_REFERENCES,
+	MAX_UNIQUE_RESOLVER_TUPLES,
+	planSelectedCredentials,
+	RequirementPlanningError,
+} from "./requirements.ts";
 
 export const SDK_VERSION = "1.0.1";
 export const EXTENSION_VERSION = "1.0.0";
@@ -11,8 +23,8 @@ export const MAX_CONFIG_BYTES = 256 * 1024;
 export const MAX_SERVERS = 16;
 export const MAX_TOOLS_PER_SERVER = 128;
 export const MAX_TOOLSET_TOOLS = 256;
-export const MAX_RESOLVER_REFERENCES_PER_CALL = 20;
-export const MAX_CREDENTIAL_REFERENCES_PER_CALL = 32;
+export const MAX_RESOLVER_REFERENCES_PER_CALL = MAX_UNIQUE_RESOLVER_TUPLES;
+export const MAX_CREDENTIAL_REFERENCES_PER_CALL = MAX_SELECTED_CREDENTIAL_REFERENCES;
 
 const PROTOCOLS = new Set(["2024-11-05", "2025-03-26", "2025-06-18", "2025-11-25"]);
 const DEFAULT_PROTOCOL = "2025-11-25";
@@ -20,7 +32,10 @@ const SERVER_ID = /^[a-z][a-z0-9-]{0,31}$/;
 const REMOTE_NAME = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/;
 const ENV_NAME = /^[A-Za-z_][A-Za-z0-9_]{0,127}$/;
 const RESOLVER_SLOT = /^[a-z][a-z0-9._-]{0,127}$/;
-const RESOLVER_PROVIDER = "bitwarden-secrets-manager";
+const RESOLVER_PROVIDERS = new Set<unknown>([
+	BITWARDEN_RESOLVER_PROVIDER,
+	ONEPASSWORD_RESOLVER_PROVIDER,
+]);
 const HEADER_NAME = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]{1,64}$/;
 const FORBIDDEN_HEADERS = new Set([
 	"connection",
@@ -50,18 +65,32 @@ export interface EnvironmentReference {
 	env: string;
 }
 
-export interface ResolverReference {
+export interface StaticResolverReference {
 	resolver: {
-		provider: "bitwarden-secrets-manager";
+		provider: ResolverProvider;
 		slot: string;
 	};
 }
 
+export interface DynamicResolverReference {
+	resolver: {
+		provider: typeof ONEPASSWORD_RESOLVER_PROVIDER;
+		dynamic: true;
+	};
+}
+
+export type ResolverReference = StaticResolverReference | DynamicResolverReference;
 export type CredentialReference = EnvironmentReference | ResolverReference;
 
 export function isResolverReference(reference: CredentialReference): reference is ResolverReference {
 	return Object.hasOwn(reference, "resolver");
 }
+
+export function isStaticResolverReference(reference: CredentialReference): reference is StaticResolverReference {
+	return isResolverReference(reference) && !isDynamicResolverReference(reference);
+}
+
+export { isDynamicResolverReference };
 
 export interface ConfiguredTool {
 	name: string;
@@ -227,13 +256,33 @@ function credentialReference(value: unknown, path: string): CredentialReference 
 			),
 		};
 	}
-	const resolver = strictObject(object.resolver, `${path}.resolver`, ["provider", "slot"]);
-	if (resolver.provider !== RESOLVER_PROVIDER) {
-		fail(`${path}.resolver.provider`, `must be ${RESOLVER_PROVIDER}`);
+	const resolver = strictObject(object.resolver, `${path}.resolver`, ["provider", "slot", "dynamic"]);
+	const hasSlot = Object.hasOwn(resolver, "slot");
+	const hasDynamic = Object.hasOwn(resolver, "dynamic");
+	if (hasSlot === hasDynamic) {
+		fail(`${path}.resolver`, "must contain exactly one of slot or dynamic");
+	}
+	if (hasDynamic) {
+		if (resolver.provider !== ONEPASSWORD_RESOLVER_PROVIDER) {
+			fail(`${path}.resolver.provider`, `must be ${ONEPASSWORD_RESOLVER_PROVIDER} for dynamic resolution`);
+		}
+		if (resolver.dynamic !== true) fail(`${path}.resolver.dynamic`, "must be true");
+		return {
+			resolver: {
+				provider: ONEPASSWORD_RESOLVER_PROVIDER,
+				dynamic: true,
+			},
+		};
+	}
+	if (!RESOLVER_PROVIDERS.has(resolver.provider)) {
+		fail(
+			`${path}.resolver.provider`,
+			`must be ${BITWARDEN_RESOLVER_PROVIDER} or ${ONEPASSWORD_RESOLVER_PROVIDER}`,
+		);
 	}
 	return {
 		resolver: {
-			provider: RESOLVER_PROVIDER,
+			provider: resolver.provider as ResolverProvider,
 			slot: stringValue(
 				resolver.slot,
 				`${path}.resolver.slot`,
@@ -431,30 +480,11 @@ function parseServer(value: unknown, path: string): ServerConfig {
 		const tool = tools[index]!;
 		if (toolNames.has(tool.name)) fail(`${path}.tools[${index}].name`, "creates an ambiguous canonical tool name");
 		toolNames.add(tool.name);
-		const selectedReferenceCount = Object.keys(headers).length + tool.authTokens.length + tool.boundParams.length;
-		if (selectedReferenceCount > MAX_CREDENTIAL_REFERENCES_PER_CALL) {
-			fail(
-				`${path}.tools[${index}]`,
-				`selects more than ${MAX_CREDENTIAL_REFERENCES_PER_CALL} credential references`,
-			);
-		}
-		const resolverTuples = new Set<string>();
-		for (const reference of Object.values(headers)) {
-			if (isResolverReference(reference)) resolverTuples.add(`mcp-toolbox.header\u0000${reference.resolver.slot}`);
-		}
-		for (const authName of tool.authTokens) {
-			const reference = authTokens[authName]!;
-			if (isResolverReference(reference)) resolverTuples.add(`mcp-toolbox.auth-token\u0000${reference.resolver.slot}`);
-		}
-		for (const boundName of tool.boundParams) {
-			const reference = boundParams[boundName]!;
-			if (isResolverReference(reference)) resolverTuples.add(`mcp-toolbox.bound-param\u0000${reference.resolver.slot}`);
-		}
-		if (resolverTuples.size > MAX_RESOLVER_REFERENCES_PER_CALL) {
-			fail(
-				`${path}.tools[${index}]`,
-				`requires more than ${MAX_RESOLVER_REFERENCES_PER_CALL} resolver references`,
-			);
+		try {
+			planSelectedCredentials({ id, headers, authTokens, boundParams }, tool);
+		} catch (error) {
+			if (error instanceof RequirementPlanningError) fail(`${path}.tools[${index}]`, error.message);
+			throw error;
 		}
 	}
 	const denyTools = uniqueStringArray(
@@ -508,6 +538,26 @@ export function parseConfig(value: unknown): ToolboxConfig {
 		configuredTools += server.tools.length;
 	}
 	if (configuredTools > 256) fail("config.servers", "configures more than 256 tools in total");
+	const requirementIds = new Map<string, string>();
+	for (let serverIndex = 0; serverIndex < servers.length; serverIndex += 1) {
+		const server = servers[serverIndex]!;
+		for (let toolIndex = 0; toolIndex < server.tools.length; toolIndex += 1) {
+			const tool = server.tools[toolIndex]!;
+			const plan = planSelectedCredentials(server, tool);
+			for (const item of plan) {
+				if (!item.requirement) continue;
+				const identity = JSON.stringify([server.id, tool.name, item.targetKind, item.targetName]);
+				const previous = requirementIds.get(item.requirement.requirementId);
+				if (previous !== undefined && previous !== identity) {
+					fail(
+						`config.servers[${serverIndex}].tools[${toolIndex}]`,
+						"creates a derived requirement identifier collision",
+					);
+				}
+				requirementIds.set(item.requirement.requirementId, identity);
+			}
+		}
+	}
 	return deepFreeze({
 		version: 1,
 		requestTimeoutMs: requestTimeoutMs as number,
@@ -818,9 +868,10 @@ export function findConfiguredTool(
 }
 
 function cloneReference(reference: CredentialReference): CredentialReference {
-	return isResolverReference(reference)
-		? { resolver: { provider: RESOLVER_PROVIDER, slot: reference.resolver.slot } }
-		: { env: reference.env };
+	if (!isResolverReference(reference)) return { env: reference.env };
+	return isDynamicResolverReference(reference)
+		? { resolver: { provider: ONEPASSWORD_RESOLVER_PROVIDER, dynamic: true } }
+		: { resolver: { provider: reference.resolver.provider, slot: reference.resolver.slot } };
 }
 
 function cloneReferenceEntries(

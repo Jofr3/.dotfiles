@@ -24,6 +24,22 @@ export type ToolboxSdkClientFactory = (
 	credentials: CredentialMaterial,
 ) => Promise<ToolboxSdkClient>;
 
+type RpcRequestMethod = "initialize" | "notifications/initialized" | "tools/list" | "tools/call";
+
+function requestMethod(value: unknown): RpcRequestMethod | undefined {
+	try {
+		const parsed = typeof value === "string" ? JSON.parse(value) as unknown : value;
+		if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return undefined;
+		const descriptor = Object.getOwnPropertyDescriptor(parsed, "method");
+		if (!descriptor || !("value" in descriptor)) return undefined;
+		const method = descriptor.value;
+		return method === "initialize" || method === "notifications/initialized" ||
+			method === "tools/list" || method === "tools/call" ? method : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
 function transportError(error: unknown, signal: AbortSignal, isAxiosError: (value: unknown) => boolean): Error {
 	if (signal.aborted) return new Error("MCP Toolbox HTTP request was cancelled; remote outcome may be unknown");
 	if (isAxiosError(error)) {
@@ -84,6 +100,10 @@ export const createToolboxSdkClient: ToolboxSdkClientFactory = async (server, re
 			response.data = sanitizeRpcErrorPayload(
 				successfulStatus ? response.data : { error: null },
 				[...credentials.redactionValues, serverUrl],
+				{
+					expectedProtocolVersion: serverProtocol,
+					requestMethod: requestMethod(response.config?.data),
+				},
 			);
 			return response;
 		},

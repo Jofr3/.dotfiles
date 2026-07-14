@@ -2,10 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { parseResolverBindings } from "../src/resolver-bindings.ts";
 import {
-	SECRET_RESOLVER_PROTOCOL,
-	SECRET_RESOLVER_REQUEST_CHANNEL,
-	type SecretResolverRequest,
-	type SecretResolverResponse,
+	BITWARDEN_RESOLVER_PROVIDER,
+	SECRET_RESOLVER_V1_PROTOCOL,
+	SECRET_RESOLVER_V1_REQUEST_CHANNEL,
+	SECRET_RESOLVER_V2_PROTOCOL as SECRET_RESOLVER_PROTOCOL,
+	SECRET_RESOLVER_V2_REQUEST_CHANNEL as SECRET_RESOLVER_REQUEST_CHANNEL,
+	type SecretResolverV1Request,
+	type SecretResolverV1Response,
+	type SecretResolverV2Request as SecretResolverRequest,
+	type SecretResolverV2Response as SecretResolverResponse,
 } from "../src/resolver-protocol.ts";
 import {
 	ResolverProviderRegistrationError,
@@ -64,6 +69,7 @@ function request(
 	nonce += 1;
 	return Object.freeze({
 		protocol: SECRET_RESOLVER_PROTOCOL,
+		provider: BITWARDEN_RESOLVER_PROVIDER,
 		consumer: "mcp-toolbox",
 		slot: "production-authorization",
 		purpose: "mcp-toolbox.header",
@@ -83,6 +89,32 @@ function responsePromise(
 	});
 }
 
+function legacyRequest(
+	respond: (response: SecretResolverV1Response) => unknown,
+	overrides: Partial<SecretResolverV1Request> = {},
+): SecretResolverV1Request {
+	nonce += 1;
+	return {
+		protocol: SECRET_RESOLVER_V1_PROTOCOL,
+		consumer: "mcp-toolbox",
+		slot: "production-authorization",
+		purpose: "mcp-toolbox.header",
+		requestId: `legacy-test-request-${String(nonce).padStart(4, "0")}`,
+		deadlineAt: Date.now() + 5_000,
+		respond,
+		...overrides,
+	};
+}
+
+function legacyResponsePromise(
+	bus: FakeEventBus,
+	overrides: Partial<SecretResolverV1Request> = {},
+): Promise<SecretResolverV1Response> {
+	return new Promise((resolve) => {
+		bus.emit(SECRET_RESOLVER_V1_REQUEST_CHANNEL, legacyRequest(resolve, overrides));
+	});
+}
+
 function deferred<T>() {
 	let resolve!: (value: T | PromiseLike<T>) => void;
 	const promise = new Promise<T>((resolvePromise) => { resolve = resolvePromise; });
@@ -95,6 +127,13 @@ function assertFailure(response: SecretResolverResponse, code: string): void {
 	if (!response.ok) assert.equal(response.code, code);
 	assert.equal(JSON.stringify(response).includes(SECRET_VALUE), false);
 	assert.equal(JSON.stringify(response).includes(SDK_ERROR_CANARY), false);
+}
+
+function assertLegacyFailure(response: SecretResolverV1Response, code: string): void {
+	assert.equal(response.protocol, SECRET_RESOLVER_V1_PROTOCOL);
+	assert.equal(response.ok, false);
+	if (!response.ok) assert.equal(response.code, code);
+	assert.equal(Object.isFrozen(response), true);
 }
 
 test("successful handoff uses only the bound UUID and keeps the value out of the event payload", async () => {
@@ -131,6 +170,129 @@ test("successful handoff uses only the bound UUID and keeps the value out of the
 	assert.deepEqual(bus.loggedErrors, []);
 });
 
+test("legacy v1 remains provider-less, matches v1 responses, and is Bitwarden-only", async () => {
+	const bus = new FakeEventBus();
+	let sourceCalls = 0;
+	const provider = new SecretResolverProvider({
+		async resolveSecretValue(secretId) {
+			sourceCalls += 1;
+			assert.equal(secretId, SECRET_ID);
+			return SECRET_VALUE;
+		},
+	});
+	provider.start(bus);
+	assertLegacyFailure(await legacyResponsePromise(bus), "disabled");
+	provider.enable(bindings());
+	const success = await legacyResponsePromise(bus);
+	assert.deepEqual(success, { protocol: SECRET_RESOLVER_V1_PROTOCOL, ok: true, value: SECRET_VALUE });
+	assert.equal(Object.isFrozen(success), true);
+
+	const requestWithProvider = { ...legacyRequest(() => undefined), provider: BITWARDEN_RESOLVER_PROVIDER };
+	const rejected = new Promise<SecretResolverV1Response>((resolve) => {
+		requestWithProvider.respond = resolve;
+		bus.emit(SECRET_RESOLVER_V1_REQUEST_CHANNEL, requestWithProvider);
+	});
+	assertLegacyFailure(await rejected, "invalid_request");
+	assert.equal(sourceCalls, 1);
+	await provider.shutdown();
+});
+
+test("v2 routing ignores every non-addressed shape before responder inspection or accounting", async () => {
+	const bus = new FakeEventBus();
+	let sourceCalls = 0;
+	const provider = new SecretResolverProvider({
+		async resolveSecretValue() { sourceCalls += 1; return SECRET_VALUE; },
+	});
+	provider.start(bus);
+
+	let callbacks = 0;
+	const otherProvider = { ...request(() => { callbacks += 1; }), provider: "onepassword-secrets-manager" };
+	let responderReads = 0;
+	Object.defineProperty(otherProvider, "respond", {
+		get() { responderReads += 1; throw new Error(SDK_ERROR_CANARY); },
+		enumerable: true,
+	});
+	Object.freeze(otherProvider);
+	bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, otherProvider);
+
+	let providerReads = 0;
+	const accessorProvider = { ...request(() => { callbacks += 1; }) };
+	Object.defineProperty(accessorProvider, "provider", {
+		get() { providerReads += 1; return BITWARDEN_RESOLVER_PROVIDER; },
+		enumerable: true,
+	});
+	Object.freeze(accessorProvider);
+	bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, accessorProvider);
+
+	const missingProvider = { ...request(() => { callbacks += 1; }) } as Record<string, unknown>;
+	delete missingProvider.provider;
+	Object.freeze(missingProvider);
+	bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, missingProvider);
+	await new Promise((resolve) => setTimeout(resolve, 0));
+
+	assert.equal(callbacks, 0);
+	assert.equal(responderReads, 0);
+	assert.equal(providerReads, 0);
+	assert.equal(sourceCalls, 0);
+	assert.equal(provider.status().callsUsed, 0);
+	assert.equal(provider.status().pending, 0);
+	assert.deepEqual(bus.loggedErrors, []);
+	await provider.shutdown();
+});
+
+test("targeted v2 requests require exact frozen own enumerable data properties", async () => {
+	const bus = new FakeEventBus();
+	const provider = new SecretResolverProvider({ resolveSecretValue: async () => SECRET_VALUE });
+	provider.start(bus);
+
+	const malformed = async (
+		build: (respond: (response: SecretResolverResponse) => void) => unknown,
+	): Promise<void> => {
+		let callbacks = 0;
+		const response = await new Promise<SecretResolverResponse>((resolve) => {
+			bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, build((received) => {
+				callbacks += 1;
+				resolve(received);
+			}));
+		});
+		assertFailure(response, "invalid_request");
+		assert.equal(Object.isFrozen(response), true);
+		assert.deepEqual(Reflect.ownKeys(response).sort(), ["code", "ok", "protocol"]);
+		assert.equal(callbacks, 1);
+	};
+
+	await malformed((respond) => ({ ...request(respond) }));
+	await malformed((respond) => Object.freeze({ ...request(respond), unknown: true }));
+	await malformed((respond) => {
+		const payload = { ...request(respond) };
+		Object.defineProperty(payload, Symbol("unknown"), { value: true, enumerable: true });
+		return Object.freeze(payload);
+	});
+	await malformed((respond) => {
+		const payload = { ...request(respond) };
+		Object.defineProperty(payload, "slot", { get() { throw new Error(SDK_ERROR_CANARY); }, enumerable: true });
+		return Object.freeze(payload);
+	});
+	await malformed((respond) => {
+		const payload = { ...request(respond) };
+		Object.defineProperty(payload, "purpose", { value: payload.purpose, enumerable: false });
+		return Object.freeze(payload);
+	});
+	await malformed((respond) => {
+		const payload = { ...request(respond) } as Record<string, unknown>;
+		delete payload.slot;
+		return Object.freeze(payload);
+	});
+	await malformed((respond) => Object.freeze({ ...request(respond), signal: undefined }));
+	await malformed((respond) => Object.freeze(Object.assign(Object.create({ inherited: true }), request(respond))));
+	await malformed((respond) => Object.freeze(Object.assign([], request(respond))));
+
+	assert.equal(provider.status().callsUsed, 0);
+	assert.equal(provider.status().pending, 0);
+	assert.deepEqual(bus.loggedErrors, []);
+	await provider.shutdown();
+});
+
 test("disabled, denied, malformed, and arbitrary-id requests fail before source access", async () => {
 	const bus = new FakeEventBus();
 	let sourceCalls = 0;
@@ -155,7 +317,11 @@ test("disabled, denied, malformed, and arbitrary-id requests fail before source 
 	assertFailure(await arbitraryResponse, "invalid_request");
 
 	const malformedResponse = new Promise<SecretResolverResponse>((resolve) => {
-		bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, { protocol: "wrong", respond: resolve });
+		bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, {
+			protocol: "wrong",
+			provider: BITWARDEN_RESOLVER_PROVIDER,
+			respond: resolve,
+		});
 	});
 	assertFailure(await malformedResponse, "invalid_request");
 	assert.equal(sourceCalls, 0);
@@ -176,7 +342,7 @@ test("provider call limit is separate, charged once accepted, and not replenishe
 	assert.equal((await responsePromise(bus)).ok, true);
 	provider.disable();
 	provider.enable(bindings());
-	assertFailure(await responsePromise(bus), "call_limit");
+	assertLegacyFailure(await legacyResponsePromise(bus), "call_limit");
 	assert.equal(sourceCalls, 1);
 	assert.equal(provider.status().callsUsed, 1);
 });
@@ -353,11 +519,11 @@ test("disable revokes queued requests and stale queued work never reaches the so
 	provider.start(bus);
 	provider.enable(bindings());
 	const active = responsePromise(bus);
-	const queued = responsePromise(bus);
+	const queued = legacyResponsePromise(bus);
 	await started.promise;
 	const drain = provider.disable();
 	assertFailure(await active, "lifecycle");
-	assertFailure(await queued, "lifecycle");
+	assertLegacyFailure(await queued, "lifecycle");
 	release.resolve(SECRET_VALUE);
 	await drain;
 	assert.equal(sourceCalls, 1);
@@ -385,6 +551,97 @@ test("denied request IDs cannot poison replay tracking before enablement or admi
 	assert.equal(sourceCalls, 1);
 });
 
+test("provider constructor bounds fail closed", () => {
+	const source: SecretValueSource = { resolveSecretValue: async () => SECRET_VALUE };
+	for (const options of [
+		{ maxCalls: 0 },
+		{ maxPending: 0 },
+		{ deadlineMs: 0 },
+		{ deadlineMs: 30_001 },
+		{ drainMs: 0 },
+		{ maxCalls: Number.MAX_SAFE_INTEGER + 1 },
+	]) {
+		assert.throws(() => new SecretResolverProvider(source, options), /Invalid secret resolver provider bounds/u);
+	}
+});
+
+test("registration ownership is provider-scoped while duplicate Bitwarden providers stay blocked", async () => {
+	const bus = new FakeEventBus();
+	let onePasswordRequests = 0;
+	const unsubscribeOnePassword = bus.on(SECRET_RESOLVER_REQUEST_CHANNEL, (data) => {
+		const provider = typeof data === "object" && data !== null
+			? Object.getOwnPropertyDescriptor(data, "provider")
+			: undefined;
+		if (provider && "value" in provider && provider.value === "onepassword-secrets-manager") {
+			onePasswordRequests += 1;
+		}
+	});
+	const first = new SecretResolverProvider({ resolveSecretValue: async () => SECRET_VALUE });
+	first.start(bus);
+	const duplicate = new SecretResolverProvider({ resolveSecretValue: async () => SECRET_VALUE });
+	assert.throws(() => duplicate.start(bus), ResolverProviderRegistrationError);
+
+	bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, request(() => undefined, {
+		provider: "onepassword-secrets-manager" as typeof BITWARDEN_RESOLVER_PROVIDER,
+	}));
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	assert.equal(onePasswordRequests, 1);
+	assert.equal(first.status().callsUsed, 0);
+	await first.shutdown();
+
+	bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, request(() => undefined, {
+		provider: "onepassword-secrets-manager" as typeof BITWARDEN_RESOLVER_PROVIDER,
+	}));
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	assert.equal(onePasswordRequests, 2);
+	unsubscribeOnePassword();
+});
+
+test("partial two-channel startup rollback leaves stale listeners inert and releases ownership", async () => {
+	const listeners = new Map<string, Set<(data: unknown) => void>>();
+	let failV2 = true;
+	let rollbackUnsubscribeCalls = 0;
+	const bus = {
+		on(channel: string, listener: (data: unknown) => void): () => void {
+			const channelListeners = listeners.get(channel) ?? new Set<(data: unknown) => void>();
+			channelListeners.add(listener);
+			listeners.set(channel, channelListeners);
+			if (failV2 && channel === SECRET_RESOLVER_REQUEST_CHANNEL) {
+				throw new Error("second subscription failed");
+			}
+			return () => {
+				rollbackUnsubscribeCalls += 1;
+				throw new Error("unsubscribe failed");
+			};
+		},
+		emit(channel: string, data: unknown): void {
+			for (const listener of listeners.get(channel) ?? []) listener(data);
+		},
+	};
+	let sourceCalls = 0;
+	const provider = new SecretResolverProvider({
+		async resolveSecretValue() { sourceCalls += 1; return SECRET_VALUE; },
+	});
+	assert.throws(() => provider.start(bus), ResolverProviderRegistrationError);
+	assert.equal(rollbackUnsubscribeCalls, 1);
+	let staleResponses = 0;
+	bus.emit(SECRET_RESOLVER_V1_REQUEST_CHANNEL, legacyRequest(() => { staleResponses += 1; }));
+	bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, request(() => { staleResponses += 1; }));
+	await new Promise((resolve) => setTimeout(resolve, 0));
+	assert.equal(staleResponses, 0);
+	assert.equal(sourceCalls, 0);
+
+	failV2 = false;
+	provider.start(bus);
+	provider.enable(bindings());
+	const response = await new Promise<SecretResolverResponse>((resolve) => {
+		bus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, request(resolve));
+	});
+	assert.equal(response.ok, true);
+	assert.equal(sourceCalls, 1);
+	await provider.shutdown();
+});
+
 test("only one live provider may own an event bus and a closed stale listener stays inert", async () => {
 	const bus = new FakeEventBus();
 	let firstCalls = 0;
@@ -409,14 +666,16 @@ test("only one live provider may own an event bus and a closed stale listener st
 	assert.equal(duplicateCalls, 0);
 	await first.shutdown();
 
-	const staleListeners = new Set<(data: unknown) => void>();
+	const staleListeners = new Map<string, Set<(data: unknown) => void>>();
 	const hostileBus = {
-		on(_channel: string, listener: (data: unknown) => void) {
-			staleListeners.add(listener);
+		on(channel: string, listener: (data: unknown) => void) {
+			const listeners = staleListeners.get(channel) ?? new Set<(data: unknown) => void>();
+			listeners.add(listener);
+			staleListeners.set(channel, listeners);
 			return () => { throw new Error("unsubscribe failure"); };
 		},
-		emit(data: unknown) {
-			for (const listener of staleListeners) listener(data);
+		emit(channel: string, data: unknown) {
+			for (const listener of staleListeners.get(channel) ?? []) listener(data);
 		},
 	};
 	let oldCalls = 0;
@@ -430,7 +689,7 @@ test("only one live provider may own an event bus and a closed stale listener st
 	replacement.start(hostileBus);
 	replacement.enable(bindings());
 	const response = await new Promise<SecretResolverResponse>((resolve) => {
-		hostileBus.emit(request(resolve));
+		hostileBus.emit(SECRET_RESOLVER_REQUEST_CHANNEL, request(resolve));
 	});
 	assert.equal(response.ok, true);
 	assert.equal(oldCalls, 0);

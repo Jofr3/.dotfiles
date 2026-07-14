@@ -1,0 +1,7 @@
+node_modules/
+.npm-cache/
+*.log
+.env
+.env.*
+!.env.example
+resolver-bindings.json

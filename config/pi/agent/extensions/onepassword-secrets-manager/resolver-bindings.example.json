@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "bindings": [
+    {
+      "consumer": "mcp-toolbox",
+      "slot": "production-authorization",
+      "purpose": "mcp-toolbox.header",
+      "secretReference": "op://example-vault/example-database/authorization-header"
+    },
+    {
+      "consumer": "mcp-toolbox",
+      "slot": "production-oauth",
+      "purpose": "mcp-toolbox.auth-token",
+      "secretReference": "op://example-vault/example-service/access-token"
+    },
+    {
+      "consumer": "mcp-toolbox",
+      "slot": "production-db-password",
+      "purpose": "mcp-toolbox.bound-param",
+      "secretReference": "op://example-vault/example-database/password"
+    }
+  ]
+}

@@ -39,6 +39,32 @@ function validConfig(): Record<string, unknown> {
 	};
 }
 
+function dynamicResolverConfig(): Record<string, unknown> {
+	return {
+		version: 1,
+		requestTimeoutMs: 10_000,
+		servers: [{
+			id: "production",
+			url: "https://toolbox.example.test/private?never=accepted",
+			tools: [{
+				name: "search-hotels",
+				confirmation: "required",
+				authTokens: ["my_oauth"],
+				boundParams: ["example_database_password"],
+			}],
+			headers: {
+				Authorization: { resolver: { provider: "onepassword-secrets-manager", dynamic: true } },
+			},
+			authTokens: {
+				my_oauth: { resolver: { provider: "onepassword-secrets-manager", dynamic: true } },
+			},
+			boundParams: {
+				example_database_password: { resolver: { provider: "onepassword-secrets-manager", dynamic: true } },
+			},
+		}],
+	};
+}
+
 function resolverConfig(): Record<string, unknown> {
 	return {
 		version: 1,
@@ -56,7 +82,7 @@ function resolverConfig(): Record<string, unknown> {
 				Authorization: { resolver: { provider: "bitwarden-secrets-manager", slot: "production-header" } },
 			},
 			authTokens: {
-				selected_oauth: { resolver: { provider: "bitwarden-secrets-manager", slot: "production-oauth" } },
+				selected_oauth: { resolver: { provider: "onepassword-secrets-manager", slot: "production-oauth" } },
 				unused_oauth: { env: "UNUSED_ENV" },
 			},
 			boundParams: {
@@ -155,6 +181,10 @@ test("tracked example config remains valid, HTTPS, and confirmation-gated", asyn
 	assert.match(config.servers[0]!.url, /^https:/u);
 	assert.equal(config.servers[0]!.tools.length, 2);
 	assert.ok(config.servers[0]!.tools.every((tool) => tool.confirmation === "required"));
+	assert.ok(JSON.stringify(config).includes("onepassword-secrets-manager"));
+	assert.ok(JSON.stringify(config).includes('"dynamic":true'));
+	assert.equal(JSON.stringify(config).includes("example-production-db-password"), false);
+	assert.equal(JSON.stringify(config).includes("op://"), false);
 });
 
 test("strict config parsing normalizes safe URLs, defaults security policy, and deeply freezes", () => {
@@ -179,6 +209,12 @@ test("invocation snapshot contains only selected references and is immutable acr
 	assert.equal(invocation.server.url, "https://toolbox.example.test");
 	assert.deepEqual(Object.keys(invocation.server.authTokens), ["selected_oauth"]);
 	assert.equal(Object.hasOwn(invocation.server.authTokens, "unused_oauth"), false);
+	assert.deepEqual(invocation.server.headers.Authorization, {
+		resolver: { provider: "bitwarden-secrets-manager", slot: "production-header" },
+	});
+	assert.deepEqual(invocation.server.authTokens.selected_oauth, {
+		resolver: { provider: "onepassword-secrets-manager", slot: "production-oauth" },
+	});
 	for (const value of [
 		invocation,
 		invocation.server,
@@ -225,11 +261,14 @@ test("config rejects unknown fields, unsafe URLs, collisions, and undefined refe
 	assert.throws(() => parseConfig(undefinedAuth), /undefined authentication source/u);
 });
 
-test("resolver references are explicit, provider-bound, slot-safe, and credential-location-only", () => {
+test("resolver references accept exactly the two providers and preserve the selected provider", () => {
 	const configured = resolverConfig();
 	const parsed = parseConfig(configured);
 	assert.deepEqual(parsed.servers[0]!.headers.Authorization, {
 		resolver: { provider: "bitwarden-secrets-manager", slot: "production-header" },
+	});
+	assert.deepEqual(parsed.servers[0]!.authTokens.selected_oauth, {
+		resolver: { provider: "onepassword-secrets-manager", slot: "production-oauth" },
 	});
 
 	const invalidReferences: unknown[] = [
@@ -259,7 +298,52 @@ test("resolver references are explicit, provider-bound, slot-safe, and credentia
 	assert.throws(() => parseConfig(resolverToolField), /resolver is not supported/u);
 });
 
-test("config caps total credential references and resolver tuples, and rejects header collisions", () => {
+test("dynamic references accept only the exact value-free 1Password shape and survive frozen snapshots", () => {
+	const configured = dynamicResolverConfig();
+	(configured.servers as Array<Record<string, unknown>>)[0]!.url = "https://toolbox.example.test";
+	const config = parseConfig(configured);
+	const invocation = createInvocationSnapshot(config, "production", "search-hotels");
+	for (const reference of [
+		invocation.server.headers.Authorization,
+		invocation.server.authTokens.my_oauth,
+		invocation.server.boundParams.example_database_password,
+	]) {
+		assert.deepEqual(reference, {
+			resolver: { provider: "onepassword-secrets-manager", dynamic: true },
+		});
+		assert.equal(Object.isFrozen(reference), true);
+		assert.equal(Object.isFrozen((reference as { resolver: object }).resolver), true);
+		assert.equal(Object.hasOwn((reference as { resolver: object }).resolver, "slot"), false);
+	}
+
+	let getterInvoked = false;
+	const accessor = { provider: "onepassword-secrets-manager" } as Record<string, unknown>;
+	Object.defineProperty(accessor, "dynamic", {
+		enumerable: true,
+		get() {
+			getterInvoked = true;
+			return true;
+		},
+	});
+	const invalidReferences: unknown[] = [
+		{ resolver: { provider: "onepassword-secrets-manager", dynamic: false } },
+		{ resolver: { provider: "bitwarden-secrets-manager", dynamic: true } },
+		{ resolver: { provider: "onepassword-secrets-manager", dynamic: true, slot: "mixed" } },
+		{ resolver: { provider: "onepassword-secrets-manager", dynamic: true, value: "SECRET_CANARY" } },
+		{ resolver: { provider: "onepassword-secrets-manager", dynamic: true, env: "SECRET_ENV" } },
+		{ env: "SECRET_ENV", resolver: { provider: "onepassword-secrets-manager", dynamic: true } },
+		{ resolver: accessor },
+	];
+	for (const reference of invalidReferences) {
+		const invalid = dynamicResolverConfig();
+		(invalid.servers as Array<Record<string, unknown>>)[0]!.url = "https://toolbox.example.test";
+		(invalid.servers as Array<Record<string, unknown>>)[0]!.headers = { Authorization: reference };
+		assert.throws(() => parseConfig(invalid), /config\.servers\[0\]\.headers\.Authorization/u);
+	}
+	assert.equal(getterInvoked, false);
+});
+
+test("config caps provider-aware resolver tuples and total credential references, and rejects header collisions", () => {
 	const configured = validConfig();
 	const headers: Record<string, unknown> = {};
 	for (let index = 0; index < 21; index += 1) {
@@ -269,6 +353,31 @@ test("config caps total credential references and resolver tuples, and rejects h
 	}
 	(configured.servers as Array<Record<string, unknown>>)[0]!.headers = headers;
 	assert.throws(() => parseConfig(configured), /more than 20 resolver references/u);
+
+	const providerIsolated = validConfig();
+	const providerHeaders: Record<string, unknown> = {};
+	for (let index = 0; index < 11; index += 1) {
+		for (const [suffix, provider] of [
+			["Bw", "bitwarden-secrets-manager"],
+			["Op", "onepassword-secrets-manager"],
+		] as const) {
+			providerHeaders[`X-${suffix}-${index}`] = {
+				resolver: { provider, slot: `shared-${index}` },
+			};
+		}
+	}
+	(providerIsolated.servers as Array<Record<string, unknown>>)[0]!.headers = providerHeaders;
+	assert.throws(() => parseConfig(providerIsolated), /more than 20 resolver references/u);
+
+	const dynamicBound = validConfig();
+	const dynamicHeaders: Record<string, unknown> = {};
+	for (let index = 0; index < 21; index += 1) {
+		dynamicHeaders[`X-Dynamic-${index}`] = {
+			resolver: { provider: "onepassword-secrets-manager", dynamic: true },
+		};
+	}
+	(dynamicBound.servers as Array<Record<string, unknown>>)[0]!.headers = dynamicHeaders;
+	assert.throws(() => parseConfig(dynamicBound), /more than 20 resolver references/u);
 
 	const total = validConfig();
 	const totalHeaders: Record<string, unknown> = {};

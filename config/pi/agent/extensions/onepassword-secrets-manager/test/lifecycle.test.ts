@@ -4,7 +4,6 @@ import test from "node:test";
 import { disableResolverLifecycle, shutdownLifecycle } from "../src/lifecycle.ts";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 function deferred() {
@@ -120,7 +119,13 @@ test("command and session lifecycle stay disabled by default and revoke without 
 	assert.match(source, /\(\) => resolver\.status\(\)\.mode === "dynamic"/u);
 	assert.match(source, /pi\.on\("session_before_switch"/u);
 	assert.match(source, /pi\.on\("session_before_fork"/u);
+	assert.match(source, /pi\.on\("session_before_tree"/u);
+	assert.match(source, /pi\.on\("session_before_compact"/u);
 	assert.match(source, /pi\.on\("session_shutdown"/u);
+	assert.match(source, /databaseRequirements\.shutdown\(\)/u);
+	assert.match(source, /databaseProvider\?\.shutdown\(\)/u);
+	assert.match(source, /revealRegistry\.shutdown\(\)/u);
+	assert.match(source, /login\.shutdown\(\)/u);
 	assert.match(source, /shutdownLifecycle\(resolver, manager, dynamic, requirements\)/u);
 	assert.doesNotMatch(source, /session_start[\s\S]*resolver\.enable/u);
 });

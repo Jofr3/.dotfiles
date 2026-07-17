@@ -26,12 +26,14 @@ set -Ux FZF_DEFAULT_OPTS "
 	--color=pointer:#c4a7e7,marker:#eb6f92,prompt:#908caa"
 
 set -Ux FIRECRAWL_API_KEY "fc-7cef9fc52f414ef1a16c35a8f7cbe670"
+set -Ux PI_ONEPASSWORD_DESKTOP_ACCOUNT "Jofre Scaricaciottoli Sirvent"
+set -Ux SOPS_AGE_KEY_FILE "$HOME/.ssh/keys/sops" 
 
 # Abbreviations
 alias n="nvim"
 alias ff="fastfetch"
 alias b="btop"
-alias op="opencode"
+# alias op="opencode"
 alias bcc="npx -y @anthropic-ai/claude-code --chrome"
 alias bcx="bunx @openai/codex@latest"
 alias bpi="bunx @mariozechner/pi-coding-agent"

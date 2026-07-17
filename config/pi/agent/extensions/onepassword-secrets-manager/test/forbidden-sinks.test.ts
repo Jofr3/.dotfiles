@@ -3,21 +3,24 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 const SOURCE_FILES = [
+	"database-profile.ts",
 	"dynamic.ts",
 	"index.ts",
 	"lifecycle.ts",
+	"login.ts",
 	"manager.ts",
 	"metadata.ts",
 	"presentation.ts",
+	"reveal.ts",
 	"resolver-bindings.ts",
 	"resolver-protocol.ts",
 	"requirements.ts",
 	"resolver.ts",
 	"safety.ts",
+	"stagehand-lease.ts",
 ];
 
 async function sources(files: readonly string[]): Promise<string> {
@@ -64,18 +67,22 @@ test("fetched-value path has no serialization, event emission, UI, status, file,
 	}
 });
 
-test("extension registers only status plus fixed metadata/grant tools and no reveal tool", async () => {
+test("extension registers only the fixed metadata, grant, reveal, login, and status tools", async () => {
 	const source = await readFile(new URL("../src/index.ts", import.meta.url), "utf8");
 	const registered = [...source.matchAll(/name:\s*"([a-z0-9_]+)"/gu)].map((match) => match[1]);
 	assert.deepEqual(registered, [
 		"onepassword_list_vaults",
 		"onepassword_list_items",
+		"onepassword_search_items",
 		"onepassword_list_fields",
 		"onepassword_grant_secret",
+		"onepassword_grant_database_profile",
+		"onepassword_reveal_field",
+		"onepassword_fill_login",
 		"onepassword_sm_status",
 	]);
 	assert.equal(source.includes("SECRET_VALUE"), false);
-	assert.equal(/name:\s*"[^"]*(?:reveal|resolve_secret|get_secret)/u.test(source), false);
+	assert.equal(/name:\s*"[^"]*(?:resolve_secret|get_secret)/u.test(source), false);
 	const grantStart = source.indexOf('name: "onepassword_grant_secret"');
 	const grantEnd = source.indexOf("\n\t\t});", grantStart);
 	const grant = source.slice(grantStart, grantEnd);

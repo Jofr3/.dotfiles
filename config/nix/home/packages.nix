@@ -51,6 +51,7 @@
     zathura
     pinta
     _1password-gui
+    _1password-cli
 
     # wayland utilities
     cliphist

@@ -14,7 +14,6 @@ import { OnePasswordManager } from "../src/manager.ts";
 import { PublicError } from "../src/safety.ts";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 const TOKEN = "metadata-test-service-account-placeholder";
@@ -85,8 +84,7 @@ function fakeSdk(client: object, validate: (reference: string) => void = () => u
 	class Secrets {
 		static validateSecretReference(reference: string): void { validate(reference); }
 	}
-	class DesktopAuth { constructor(_account: string) {} }
-	return { default: { Secrets, DesktopAuth, createClient: async () => client } };
+	return { default: { Secrets, createClient: async () => client } };
 }
 
 function fakeClient(options: {
@@ -308,39 +306,18 @@ test("pre-aborted metadata calls remain lazy and consume no metadata budget", as
 	assert.equal(manager.status().metadataCallsUsed, 0);
 });
 
-test("service metadata mode never constructs DesktopAuth and desktop metadata construction stays lazy", async () => {
-	let serviceDesktopConstructions = 0;
-	class ServiceDesktopAuth { constructor() { serviceDesktopConstructions += 1; } }
-	const service = new OnePasswordManager({
-		readEnvironment: () => ({ OP_SERVICE_ACCOUNT_TOKEN: TOKEN }),
-		loadSdk: async () => fakeSdk(fakeClient(), () => undefined),
-	});
-	// Replace the default fake constructor with a canary without changing the service auth selection.
-	const serviceWithCanary = new OnePasswordManager({
+test("service-account metadata initialization stays lazy", async () => {
+	let loads = 0;
+	const manager = new OnePasswordManager({
 		readEnvironment: () => ({ OP_SERVICE_ACCOUNT_TOKEN: TOKEN }),
 		loadSdk: async () => {
-			const sdk = fakeSdk(fakeClient());
-			sdk.default.DesktopAuth = ServiceDesktopAuth;
-			return sdk;
+			loads += 1;
+			return fakeSdk(fakeClient());
 		},
 	});
-	assert.equal(service.status().phase, "not_initialized");
-	assert.equal(serviceWithCanary.status().phase, "not_initialized");
-	await serviceWithCanary.listVaultMetadata();
-	assert.equal(serviceDesktopConstructions, 0);
-
-	let desktopConstructions = 0;
-	class DesktopAuth { constructor(account: string) { desktopConstructions += 1; assert.equal(account, "desktop-account"); } }
-	const desktop = new OnePasswordManager({
-		readEnvironment: () => ({ PI_ONEPASSWORD_DESKTOP_ACCOUNT: "desktop-account" }),
-		loadSdk: async () => {
-			const sdk = fakeSdk(fakeClient());
-			sdk.default.DesktopAuth = DesktopAuth;
-			return sdk;
-		},
-	});
-	assert.equal(desktop.status().authenticationMode, "desktop");
-	assert.equal(desktopConstructions, 0);
-	await desktop.listVaultMetadata();
-	assert.equal(desktopConstructions, 1);
+	assert.equal(manager.status().phase, "not_initialized");
+	assert.equal(loads, 0);
+	await manager.listVaultMetadata();
+	assert.equal(loads, 1);
+	assert.equal(manager.status().phase, "ready");
 });

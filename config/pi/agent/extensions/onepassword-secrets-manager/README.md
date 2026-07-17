@@ -1,8 +1,8 @@
 # 1Password Secrets Manager for Pi
 
-A conservative global Pi extension backed by the official `@1password/sdk@0.4.0` package. It provides a disabled-by-default, session-local, in-memory secret resolver for trusted Pi extensions such as MCP Toolbox. It supports mutually exclusive protected static bindings and consent-gated dynamic secret selection.
+A conservative, service-account-only global Pi extension backed by the official stable `@1password/sdk@0.4.0` package. It provides disabled-by-default, session-local metadata discovery, protected in-memory resolution for trusted Pi extensions, a TUI-only timed reveal, and origin-bound Login autofill through the existing Stagehand session. Protected static bindings and consent-gated dynamic selection remain mutually exclusive.
 
-There is no get/reveal tool. The model cannot provide a secret reference. A fetched value may leave the manager only as the argument to a one-shot process-local callback. This extension never places a fetched value or an internally generated dynamic reference in a Pi event payload, tool argument/result, message, session entry, notification, status, log, error, file, temporary file, command, or process metadata.
+The model cannot provide a secret reference and no tool ever returns a value. A fetched value may leave the manager only through one of three deliberate in-memory sinks: a one-shot trusted consumer callback, a confirmed temporary TUI reveal component, or a confirmed Stagehand credential lease that writes directly to an approved login form. Values and internally generated references never enter Pi event payloads, tool arguments/results/details, progress, messages, session entries, notifications, statuses, logs, errors, files, temporary files, commands, or serialized extension state. The temporary reveal is the sole terminal disclosure and clears after 30 seconds or early dismissal.
 
 ## Pi surface
 
@@ -17,12 +17,16 @@ After dynamic consent, and only while dynamic mode is active, these fixed sequen
 
 - `onepassword_list_vaults`
 - `onepassword_list_items`
+- `onepassword_search_items`
 - `onepassword_list_fields`
 - `onepassword_grant_secret`
+- `onepassword_grant_database_profile`
+- `onepassword_reveal_field`
+- `onepassword_fill_login`
 
-Status reports only the SDK version, client phase, authentication-setting presence booleans, the safe authentication category (`service_account`, `desktop`, `none`, or `ambiguous`), resolver mode (`disabled`, `static`, or `dynamic`), protected binding count, aggregate one-shot grant count, metadata enablement, and aggregate call/pending bounds. It never reports authentication values, metadata IDs/titles, slots, purposes, tuples, or references. Status does **not** read bindings, import or validate through the SDK, construct desktop authentication, create a client, authenticate, or contact 1Password.
+Status reports only the SDK version, client phase, service-account-token presence, the safe authentication category (`service_account` or `none`), resolver mode (`disabled`, `static`, or `dynamic`), protected binding count, aggregate one-shot grant count, metadata enablement, and aggregate call/pending bounds. It never reports authentication values, metadata IDs/titles, slots, purposes, tuples, or references. Status does **not** read bindings, import or validate through the SDK, create a client, authenticate, or contact 1Password.
 
-The resolver allows at most 20 accepted calls and four pending calls per extension instance. The manager separately allows at most 20 secret calls and 20 metadata SDK calls, each with four pending operations. All SDK work shares one serialization queue, uses at most a 30-second caller-side deadline, and drains for at most one second on disable or shutdown. Disable/reset never replenishes any call budget.
+The resolver allows at most 20 accepted calls and four pending calls per extension instance. The manager separately allows at most 20 secret requests and 20 metadata requests, each with four pending operations. One bounded all-vault search metadata request may issue one vault list plus at most 20 per-vault item-list SDK calls; it still shares the same 30-second request deadline and 1,000-item inspection cap. All SDK work shares one serialization queue and drains for at most one second on disable or shutdown. Disable/reset never replenishes any call budget.
 
 ## Install
 
@@ -37,41 +41,22 @@ The lockfile pins `@1password/sdk` and `@1password/sdk-core` to stable version `
 
 ## Authentication
 
-Configure **exactly one** authentication mode in Pi's launch environment. If both settings are present, the configuration is ambiguous: the first accepted resolution fails before SDK import, client phase transition, or authentication. If neither is present, resolution also fails closed.
-
-### Service-account mode
-
-Service-account behavior remains unchanged:
+The extension supports **1Password service accounts only**. Create a dedicated least-privilege service account with access restricted to the required vaults and items, then configure its token in the environment that launches Pi:
 
 ```bash
 export OP_SERVICE_ACCOUNT_TOKEN
 pi
 ```
 
-Set the token outside Pi. **Never type, paste, or pass it in a prompt, tool argument, slash command, resolver binding, project file, extension setting, or `.env` file.** Use a dedicated least-privilege service account restricted to the required vaults/items.
-
-### Desktop-app mode
-
-Set the explicit, non-secret account selector to the account name shown in the 1Password desktop app sidebar, or to the account UUID:
-
-```bash
-export PI_ONEPASSWORD_DESKTOP_ACCOUNT='your desktop account name or UUID'
-pi
-```
-
-You may persist this non-secret setting in a trusted launcher or trusted shell configuration used to start Pi. The extension reads only `PI_ONEPASSWORD_DESKTOP_ACCOUNT`; it intentionally ignores broad ambient aliases such as `OP_ACCOUNT`. Account selectors are own-data-property read, limited to 1024 UTF-8 bytes, and rejected if empty, surrounded by whitespace, or containing control/format/bidirectional text characters. The account selector is never placed in status, errors, notifications, tool output, session data, or logs.
-
-Keep the 1Password desktop app installed and unlocked. The first accepted metadata or secret operation may cause official 1Password authorization UI to appear. No `/login` command is needed or provided: either enable command grants only extension consent and does not authenticate.
-
-Do **not** set `OP_SERVICE_ACCOUNT_TOKEN` and `PI_ONEPASSWORD_DESKTOP_ACCOUNT` together. The extension does not support Connect variables, token files, account prompts inside Pi, or alternate authentication variable names.
+Set the token outside Pi. **Never type, paste, or pass it in a prompt, tool argument, slash command, resolver binding, project file, extension setting, or `.env` file.** An absent, malformed, inherited, or accessor-backed token fails closed before SDK import, client phase transition, or authentication. Desktop-app authentication, Connect variables, token files, account prompts inside Pi, `OP_ACCOUNT`, and alternate authentication variable names are unsupported and ignored.
 
 ### Lazy initialization
 
-Status, startup, and resolver enablement do not import the SDK, construct `DesktopAuth`, create a client, authenticate, or contact 1Password. When an accepted secret or metadata operation needs a new client, the extension snapshots both explicit authentication settings, selects exactly one mode, validates it, imports and descriptor-validates the pinned SDK, and calls `sdk.createClient` with the selected authentication and fixed integration identity. In desktop mode only, it first constructs `new sdk.DesktopAuth(accountSelector)`; service-account mode never constructs `DesktopAuth`.
+Status, startup, and resolver enablement do not import the SDK, create a client, authenticate, or contact 1Password. When an accepted secret or metadata operation needs a new client, the extension snapshots and validates `OP_SERVICE_ACCOUNT_TOKEN`, imports and descriptor-validates the pinned SDK, and calls `sdk.createClient` with the token as `auth` plus the fixed integration identity.
 
-The runtime retains only these documented SDK methods: `client.secrets.resolve`, `client.vaults.list`, `client.items.list`, and `client.items.get`, plus root `Secrets.validateSecretReference`. Secret resolution validates the private reference first. Dynamic discovery calls only the corresponding metadata method. No vault/item write, archive, delete, share, group, batch, or file API is read or exposed.
+The runtime retains only these documented SDK methods: `client.secrets.resolve`, `client.vaults.list`, `client.items.list`, and `client.items.get`, plus root `Secrets.validateSecretReference`. Secret resolution validates the private reference first. Dynamic discovery calls only the corresponding metadata method. No desktop-authentication constructor or vault/item write, archive, delete, share, group, batch, or file API is read or exposed.
 
-Service-account mode passes the token string as `auth`. Desktop mode passes the exact constructed `DesktopAuth` object. Raw constructor, client-creation, SDK request, and response errors are reduced to fixed public categories. Credentials are not verified until the first accepted metadata or secret operation.
+Raw client-creation, SDK request, and response errors are reduced to fixed public categories. The token is not verified until the first accepted metadata or secret operation.
 
 ## Protected resolver bindings
 
@@ -126,7 +111,36 @@ Dynamic mode does **not** read or require `resolver-bindings.json`. `/onepasswor
 
 Descriptions, versions, dates, websites, tags, notes, files, document metadata, field values, field details, and raw 1Password vault/item/field/section IDs are not emitted. 1Password responses are descriptor-checked plain records/dense arrays with at most 1,000 raw records inspected and 50 records emitted, 256-byte labels, safe bounded internal IDs, no controls/ANSI/bidirectional formatting, and at most 32 KiB/500 lines of output. The schema keeps the compatibility property names `vaultId`, `itemId`, and `fieldId`, but every value returned there is a session-epoch HMAC handle; it is not the underlying 1Password ID and cannot be composed into the internally generated `op://` reference. Handles are cleared and re-keyed on reset. There is no fallback or temporary output file. Each discovery call must use handles emitted by the prior step.
 
-Dynamic mode is **less restrictive** than protected static bindings. The model may inspect and choose any metadata-visible item/field permitted by the authenticated account. Every selected field still requires a separate metadata-only user confirmation for one exact prior cached MCP credential requirement, but that approval is not equivalent to operator-preselecting a permanent allowlist. Prefer protected static mode when a fixed allowlist is practical. For dynamic mode, use a dedicated least-privilege service account or tightly restrict the desktop account's vault access.
+Dynamic mode is **less restrictive** than protected static bindings. The model may inspect and choose any metadata-visible item/field permitted by the authenticated account. Every selected field still requires a separate metadata-only user confirmation for one exact prior cached MCP credential requirement, but that approval is not equivalent to operator-preselecting a permanent allowlist. Prefer protected static mode when a fixed allowlist is practical. For dynamic mode, use a dedicated least-privilege service account restricted to the required vaults and items.
+
+### Bounded all-vault search
+
+`onepassword_search_items` first lists accessible vault metadata, then lists active (or explicitly requested archived/all) item overviews in at most 20 vaults. It inspects at most 1,000 item overviews and emits at most 50 matches. Filtering is local, case-insensitive title matching; the query is never converted into an SDK/server-side search. Results contain only sanitized vault/item titles, category/state, and opaque epoch handles. A result reports aggregate scanned/omitted counts. Search does not fetch full items or values.
+
+### TUI-only timed reveal
+
+`onepassword_reveal_field` accepts only exact opaque vault/item/field handles from the current dynamic epoch. It fails before SDK work unless `ctx.mode === "tui"`, re-fetches field metadata, asks for a separate confirmation, and only after literal approval re-resolves the field through `client.secrets.resolve`. RPC, JSON, and print modes fail closed because `ctx.ui.custom()` cannot provide a private terminal-only component there.
+
+The value is held in a JavaScript private field of a non-serializable popup component and appears only in that popup's `render()` output. Control, escape, C1, and bidirectional formatting characters are escaped before terminal output. The popup owns a 30-second timer, clears the private display reference on timeout, Enter/Escape/`q`, disposal, disable, session replacement, reload, or shutdown, and never returns the value from `ctx.ui.custom()` or the tool result. JavaScript strings still cannot be deterministically zeroized.
+
+### Stagehand Login autofill
+
+`onepassword_fill_login` operates only on a current opaque Login item handle and an already authorized Stagehand HTTP(S) page. It does not call Stagehand's model-backed `act`, `extract`, or agent APIs. Instead, the Stagehand extension issues a revocable process-local credential lease over a callback-only event handshake. The request event contains fixed protocol/consumer/purpose metadata, a nonce, and a responder capability—never a value, reference, page object, target ID, URL, or credential. The 1Password extension caches one lease for the Pi session; Stagehand close/reset, 1Password disable, session replacement, reload, and shutdown revoke it and remove listeners.
+
+Before resolving values, autofill:
+
+1. re-fetches the full Login item and descriptor-maps only safe field/website metadata;
+2. requires exactly one standard username field and one standard password field;
+3. requires an HTTPS current origin allowed by the item's non-`Never` website policy;
+4. analyzes the DOM for one visible username input, one visible current-password input, one shared form, and at most one submit control;
+5. rejects an unapproved form-action origin; and
+6. requests explicit TUI/RPC confirmation showing only vault/item/origin metadata.
+
+After approval it calls `secrets.resolve` separately for username and password **on every use**, rechecks the page and form action under the same lease, sets values with the native input setter, dispatches `input`/`change`, and submits by default via `requestSubmit`. The post-submit URL must still match the item's website policy. MFA/one-time-code steps are reported but never filled or submitted; a surviving login form or unknown step fails closed. Configured Stagehand SDK flow logging disables the credential lease even when generic Stagehand use was explicitly allowed, because CDP arguments contain the credential values. The browser/CDP transport and destination origin necessarily receive the confirmed credentials.
+
+### Direct database profile compatibility
+
+The extension consumes the existing exact `pi.database.profile-requirements/v1` metadata event and serves `pi.database.profile-resolver/v1` requests without changing the database extension contract. `onepassword_grant_database_profile` requires an exact current `profileId` plus exact opaque discovery handles, re-fetches the selected field metadata, and confirms canonical project path/scope, fixed consumer/tool/purpose/role/contract, profile label, and selected safe metadata. The grant is staged until a successful tool turn ends, is one-shot, and is consumed before profile resolution; same-turn use, denial, cancellation, retry, failure, replacement, tree/compaction, reload, or shutdown revokes it. The atomic JSON profile value reaches `database_query` only through its request-local callback and never through an event payload.
 
 ### Automatically derived MCP requirement handshake
 
@@ -159,7 +173,7 @@ Dynamic mode chooses which approved 1Password field backs that derived requireme
 
 ### Exact requirements-first dynamic workflow
 
-1. Configure exactly one 1Password authentication mode, restrict it to the minimum needed vaults, and launch Pi.
+1. Configure `OP_SERVICE_ACCOUNT_TOKEN` for a dedicated service account restricted to the minimum needed vaults and items, then launch Pi.
 2. Configure the chosen MCP credential location with `{ "resolver": { "provider": "onepassword-secrets-manager", "dynamic": true } }`; do not configure a dynamic slot.
 3. Run `/onepassword-sm dynamic-enable` and approve metadata disclosure.
 4. Call `mcp_toolbox_requirements` with the exact configured `server` and `tool`; wait for its result and use only an emitted `requirementId`. Never invent or alter one.
@@ -219,7 +233,7 @@ Provider failure codes are fixed and carry no message/cause:
 
 ## Protected static MCP Toolbox workflow
 
-1. Launch Pi with exactly one of `OP_SERVICE_ACCOUNT_TOKEN` or `PI_ONEPASSWORD_DESKTOP_ACCOUNT` already present. For desktop mode, keep the desktop app installed and unlocked and approve official authorization UI if it appears.
+1. Launch Pi with `OP_SERVICE_ACCOUNT_TOKEN` already present for a dedicated least-privilege service account.
 2. Add an exact 1Password binding tuple matching the MCP credential slot and purpose.
 3. Configure the MCP credential with provider `onepassword-secrets-manager` (never put a value or `op://` reference in MCP configuration).
 4. Start/reload Pi, review every loaded extension, then run `/onepassword-sm resolver-enable` and approve the UI prompt.
@@ -235,9 +249,9 @@ Provider names isolate cooperative routing: a Bitwarden request is invisible to 
 - Requirement events are exact, deeply frozen, strictly parsed through descriptors, bounded by record/scope limits, ignored while dynamic mode is disabled, and never trigger SDK work.
 - Dynamic grants are fixed internally to consumer `mcp-toolbox`, staged until a later turn, and deleted synchronously at exact derived-requirement admission.
 - Status and startup are offline/non-initializing.
-- Authentication reads are descriptor-based, bounded, and limited to `OP_SERVICE_ACCOUNT_TOKEN` and `PI_ONEPASSWORD_DESKTOP_ACCOUNT`; inherited, accessor-backed, malformed, ambiguous, and ambient alias settings fail closed.
-- Status exposes only authentication presence booleans and a safe mode category, never authentication values or validity details.
-- SDK exports, including `DesktopAuth`, plus only `client.secrets.resolve`, `client.vaults.list`, `client.items.list`, and `client.items.get` are resolved through data descriptors; accessor-backed or malformed mock surfaces fail closed without invocation.
+- Authentication reads are descriptor-based, bounded, and limited to `OP_SERVICE_ACCOUNT_TOKEN`; inherited, accessor-backed, malformed, and ambient alias settings fail closed.
+- Status exposes only service-account-token presence and a safe mode category, never the token or validity details.
+- Only root `createClient` and `Secrets.validateSecretReference`, plus `client.secrets.resolve`, `client.vaults.list`, `client.items.list`, and `client.items.get`, are resolved through data descriptors; accessor-backed or malformed mock surfaces fail closed without invocation.
 - The SDK client and adapter are cached per lifecycle epoch and released on reset/shutdown.
 - Authentication and every SDK operation are serialized. The serialization tail is not replaced on reset, so stale SDK/WASM work cannot overlap a new client.
 - Resolved values must be non-empty strings no larger than 64 KiB. They are never stringified by the manager/provider.
@@ -248,24 +262,27 @@ Provider names isolate cooperative routing: a Bitwarden request is invisible to 
 ## Offline validation
 
 ```bash
-env -u OP_SERVICE_ACCOUNT_TOKEN -u PI_ONEPASSWORD_DESKTOP_ACCOUNT -u PI_ONEPASSWORD_RESOLVER_BINDINGS npm ci --ignore-scripts
+env -u OP_SERVICE_ACCOUNT_TOKEN -u PI_ONEPASSWORD_RESOLVER_BINDINGS npm ci --ignore-scripts
 
-env -u OP_SERVICE_ACCOUNT_TOKEN -u PI_ONEPASSWORD_DESKTOP_ACCOUNT -u PI_ONEPASSWORD_RESOLVER_BINDINGS npm run check
-env -u OP_SERVICE_ACCOUNT_TOKEN -u PI_ONEPASSWORD_DESKTOP_ACCOUNT -u PI_ONEPASSWORD_RESOLVER_BINDINGS npm ls --all
+env -u OP_SERVICE_ACCOUNT_TOKEN -u PI_ONEPASSWORD_RESOLVER_BINDINGS npm run check
+env -u OP_SERVICE_ACCOUNT_TOKEN -u PI_ONEPASSWORD_RESOLVER_BINDINGS npm ls --all
 ```
 
-Tests use fake SDKs/event buses/files plus manifest, export-source, and declaration inspection of the installed SDK surface. The installed-SDK test does not import runtime SDK code, construct `DesktopAuth`, call `createClient`, authenticate, or make 1Password/MCP network requests.
+Tests use fake SDK clients, fake TUI/custom popup callbacks, fake Stagehand leases/pages, fake timers, fake database/MCP consumers, event buses, and protected files plus manifest, export-source, and declaration inspection of the installed SDK surface. Sentinel credentials and raw SDK errors are asserted absent from tool content/details, progress, events, sessions, logs, errors, and serialized state. The installed-SDK test does not import runtime SDK code, call `createClient`, authenticate, launch a browser, contact Browserbase, query a database, or make 1Password/MCP network requests.
 
 ## Trust model and limitations
 
 - **Pi's process-wide event bus is not an authentication boundary.** Any loaded extension can observe or spoof requirement metadata and can observe requests or impersonate a known tuple/provider. Frozen payloads prevent mutation, not observation or impersonation. Enable only when every loaded global/project/temporary extension is trusted.
 - Provider routing and the requirement handshake prevent accidental races; both are cooperative labeling, not authentication. Static mode's protected exact tuple map or dynamic mode's approved one-shot requirement is the provider's local policy, but another loaded extension can still spoof MCP metadata or impersonate MCP Toolbox on the process-wide bus.
-- Desktop mode depends on the local 1Password desktop app and its authorization flow. The extension cannot suppress, automate, or report details from official authorization UI.
 - Dynamic mode deliberately exposes safe metadata to the active model/events/session and is therefore a broader authorization surface than protected static bindings. Per-secret confirmation reduces but does not eliminate model-selection risk.
 - Field discovery necessarily decrypts a full item inside the official SDK before extension-side projection; filtering cannot prevent that upstream exposure.
 - `@1password/sdk@0.4.0` exposes no `AbortSignal`, close/logout/dispose, request-timeout, or zeroization API for these calls. A resolver timeout, disable, reset, or shutdown cannot truly cancel already-running SDK/WASM work. It can only revoke callbacks, discard late values/metadata, release extension-held references, and stop stale queued work.
-- JavaScript strings are garbage-collected and immutable. The token, desktop account selector, reference, and fetched value cannot be deterministically zeroized; SDK/WASM internals and Node's module cache may retain data or code beyond extension reference release.
+- JavaScript strings are garbage-collected and immutable. The service-account token, reference, and fetched value cannot be deterministically zeroized; SDK/WASM internals and Node's module cache may retain data or code beyond extension reference release.
 - Bounded drain returns after one second even if SDK/WASM work hangs. Because the serialization tail is intentionally retained, a permanently hung SDK call can block future resolution until Pi restarts.
 - Upstream SDK/WASM behavior, memory, networking, telemetry, and logging cannot be treated as a secrecy boundary. This extension does not log, but cannot prove or clear upstream copies.
 - Protected file checks require POSIX UID/permission semantics and fail closed where unavailable.
-- Once the callback transfers a value, the trusted consumer is responsible for keeping it out of model-visible, event, session, log, error, file, and process-command surfaces.
+- Once a callback transfers a value, the trusted consumer is responsible for keeping it out of model-visible, event, session, log, error, file, and process-command surfaces.
+- Reveal cleanup drops extension-held references and timers but cannot zero immutable JavaScript strings, terminal scrollback, screen capture, or terminal-emulator history.
+- Login mapping intentionally supports only one conventional username field, one conventional current-password field, one shared form, and at most one submit control. Multi-page username-first flows, passkeys, federated/SSO buttons, CAPTCHA, password-change forms, and MFA automation are unsupported and fail closed.
+- Stagehand's credential lease prevents model/event/session exposure, not exposure to the approved destination page, CDP/browser transport, browser process, remote Browserbase infrastructure when that session is remote, endpoint scripts, or operating-system observers. Use a dedicated local debugging profile when those boundaries matter.
+- Origin validation is conservative URL policy, not proof that a website is trustworthy. The operator must verify the item and origin shown in the confirmation; a compromised approved origin can still receive the credentials.

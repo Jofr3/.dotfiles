@@ -136,6 +136,12 @@ Stagehand 3.6.0 can inherit `BROWSERBASE_CONFIG_DIR` (JSONL/files) and `BROWSERB
 
 Command: `/stagehand status|close|reset`. Print/JSON users should use the tools because notification UI is unavailable there.
 
+### Private 1Password credential lease
+
+The Stagehand extension also serves one fixed process-local `pi.stagehand.credential-lease/v1` handshake for the trusted `onepassword-secrets-manager` consumer. It is not an LLM tool. The event request contains only fixed protocol/consumer/purpose strings, a random nonce, and a direct responder callback. It never contains a credential, `op://` reference, page object, URL, tab/target ID, or browser metadata. The returned frozen lease is callback-only and is normally cached by the 1Password extension for the Pi session.
+
+A lease can run only the fixed `login-form-fill` operation against the already authorized Stagehand page. It exposes a narrow page facade (`url`, `evaluate`, bounded load wait, bounded delay), reuses the manager's existing serialization queue/session, and never calls Stagehand model-backed act/extract/agent APIs. Configured Browserbase/Stagehand SDK flow logging makes credential leasing unavailable because raw CDP evaluate arguments contain credentials. Explicit Stagehand close/reset, 1Password disable, session replacement, `/reload`, and shutdown synchronously revoke leases. Session shutdown removes the broker's event listener.
+
 `stagehand_tabs` behavior is explicit and deterministic:
 
 - `action=list` may lazily initialize the current/default session, enumerates at most 200 tabs for metadata, and returns at most `maxResults` (default 20, maximum 50). It reports scanned/unscanned and matched/returned/omitted counts.

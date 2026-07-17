@@ -3,13 +3,13 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 test("package manifest pins the stable SDK, Node floor, Pi entry, and optional Pi peers", async () => {
 	const manifest = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 	assert.equal(manifest.engines.node, ">=22.19.0");
 	assert.equal(manifest.dependencies["@1password/sdk"], "0.4.0");
+	assert.match(manifest.dependencies["@1password/sdk"], /^\d+\.\d+\.\d+$/u);
 	assert.deepEqual(manifest.pi.extensions, ["./src/index.ts"]);
 	assert.equal(manifest.peerDependencies["@earendil-works/pi-coding-agent"], "*");
 	assert.equal(manifest.peerDependencies.typebox, "*");

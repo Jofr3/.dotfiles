@@ -4,9 +4,7 @@
   "Chromium": { "command": "chromium", "workspace": "chrome" },
   "Helium": "helium",
   "Dbeaver": "dbeaver",
-  "Discord": "discord",
   "Displays": "wdisplays",
-  "Eye of gnome": "eog",
   "Emacs": "emacsclient -c",
   "Nautilus": "nautilus",
   "Firefox": "firefox",
@@ -14,5 +12,6 @@
   "Kitty": "kitty",
   "Thunderbird": { "command": "thunderbird", "workspace": "mail" },
   "VSCode": "code",
-  "Postman": "postman"
+  "Postman": "postman",
+  "1Password": "1password"
 }

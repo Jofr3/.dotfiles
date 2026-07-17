@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Consent-gated in-memory 1Password secret resolver for Pi",
+  "description": "Service-account-backed 1Password metadata, protected resolution, TUI reveal, and Stagehand Login autofill for Pi",
   "keywords": [
     "pi-package"
   ],

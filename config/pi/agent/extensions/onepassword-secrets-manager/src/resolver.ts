@@ -234,7 +234,7 @@ function parseRequest(value: unknown): ValidRequest {
 		purpose,
 		requestId,
 		deadlineAt: deadlineAt as number,
-		...(signal === undefined ? {} : { signal }),
+		...(signal === undefined ? {} : { signal: signal as AbortSignal }),
 		respond: respond as (response: SecretResolverV2Response) => unknown,
 	};
 }

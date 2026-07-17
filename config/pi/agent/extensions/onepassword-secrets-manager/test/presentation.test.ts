@@ -13,7 +13,6 @@ import type { ResolverProviderStatus } from "../src/resolver.ts";
 import type { AuthenticationMode } from "../src/safety.ts";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 const ACCOUNT_DISCLOSURE_SENTINEL = "presentation-account-disclosure-sentinel";
@@ -33,12 +32,10 @@ const resolverStatus: ResolverProviderStatus = {
 function managerStatus(
 	authenticationMode: AuthenticationMode,
 	serviceAccountTokenConfigured: boolean,
-	desktopAccountConfigured: boolean,
 ): ManagerStatus {
 	return {
 		phase: "not_initialized",
 		serviceAccountTokenConfigured,
-		desktopAccountConfigured,
 		authenticationMode,
 		callsUsed: 0,
 		callLimit: 20,
@@ -51,20 +48,18 @@ function managerStatus(
 	};
 }
 
-test("status presentation exposes only authentication booleans and safe mode categories", () => {
-	const cases: readonly [AuthenticationMode, boolean, boolean][] = [
-		["none", false, false],
-		["service_account", true, false],
-		["desktop", false, true],
-		["ambiguous", true, true],
+test("status presentation exposes only service-account presence and a safe mode category", () => {
+	const cases: readonly [AuthenticationMode, boolean][] = [
+		["none", false],
+		["service_account", true],
 	];
-	for (const [mode, tokenConfigured, desktopConfigured] of cases) {
-		const status = managerStatus(mode, tokenConfigured, desktopConfigured);
+	for (const [mode, tokenConfigured] of cases) {
+		const status = managerStatus(mode, tokenConfigured);
 		const payload = statusPayload(status, resolverStatus);
 		const text = statusText(status, resolverStatus);
 		assert.equal(payload.authenticationMode, mode);
 		assert.equal(payload.serviceAccountTokenConfigured, tokenConfigured);
-		assert.equal(payload.desktopAccountConfigured, desktopConfigured);
+		assert.equal("desktopAccountConfigured" in payload, false);
 		assert.equal(payload.offline, true);
 		assert.match(text, new RegExp(`Authentication mode: ${mode}`, "u"));
 		assert.equal(JSON.stringify(payload).includes(ACCOUNT_DISCLOSURE_SENTINEL), false);
@@ -72,12 +67,9 @@ test("status presentation exposes only authentication booleans and safe mode cat
 	}
 });
 
-test("resolver confirmation explains lazy desktop authorization without interpolating an account", async () => {
-	assert.match(RESOLVER_ENABLE_CONFIRMATION, /Authentication remains lazy until the first accepted secret resolution/u);
-	assert.match(RESOLVER_ENABLE_CONFIRMATION, /mutually exclusive/u);
-	assert.match(RESOLVER_ENABLE_CONFIRMATION, /Desktop mode may show 1Password authorization UI/u);
-	assert.match(RESOLVER_ENABLE_CONFIRMATION, /installed and unlocked/u);
-	assert.match(RESOLVER_ENABLE_CONFIRMATION, /No \/login command is needed/u);
+test("resolver confirmation explains lazy service-account authentication without interpolating a credential", async () => {
+	assert.match(RESOLVER_ENABLE_CONFIRMATION, /Service-account authentication remains lazy until the first accepted secret resolution/u);
+	assert.match(RESOLVER_ENABLE_CONFIRMATION, /OP_SERVICE_ACCOUNT_TOKEN must be configured/u);
 	assert.equal(RESOLVER_ENABLE_CONFIRMATION.includes(ACCOUNT_DISCLOSURE_SENTINEL), false);
 
 	const source = await readFile(new URL("../src/index.ts", import.meta.url), "utf8");

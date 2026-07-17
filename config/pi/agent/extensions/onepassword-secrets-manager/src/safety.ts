@@ -3,11 +3,9 @@ import { Buffer } from "node:buffer";
 export const SDK_PACKAGE = "@1password/sdk";
 export const SDK_VERSION = "0.4.0";
 export const SERVICE_ACCOUNT_TOKEN_ENV = "OP_SERVICE_ACCOUNT_TOKEN";
-export const DESKTOP_ACCOUNT_ENV = "PI_ONEPASSWORD_DESKTOP_ACCOUNT";
 export const REQUEST_DEADLINE_MS = 30_000;
 export const MAX_SECRET_VALUE_BYTES = 64 * 1024;
 export const MAX_SERVICE_ACCOUNT_TOKEN_BYTES = 8 * 1024;
-export const MAX_DESKTOP_ACCOUNT_BYTES = 1024;
 
 const UNSAFE_CONFIGURATION_TEXT = /[\p{Cc}\p{Cf}\u2028\u2029]/u;
 
@@ -48,16 +46,15 @@ export class PublicError extends Error {
 	}
 }
 
-export type AuthenticationMode = "service_account" | "desktop" | "none" | "ambiguous";
+export type AuthenticationMode = "service_account" | "none";
 
 export interface AuthenticationInspection {
 	serviceAccountTokenConfigured: boolean;
-	desktopAccountConfigured: boolean;
 	authenticationMode: AuthenticationMode;
 }
 
 export type AuthenticationSelection = Readonly<{
-	mode: "service_account" | "desktop";
+	mode: "service_account";
 	value: string;
 }>;
 
@@ -83,13 +80,6 @@ function readEnvironmentSetting(environment: unknown, key: string): EnvironmentS
 		: { state: "configured", value: descriptor.value };
 }
 
-function modeFor(serviceAccountTokenConfigured: boolean, desktopAccountConfigured: boolean): AuthenticationMode {
-	if (serviceAccountTokenConfigured && desktopAccountConfigured) return "ambiguous";
-	if (serviceAccountTokenConfigured) return "service_account";
-	if (desktopAccountConfigured) return "desktop";
-	return "none";
-}
-
 function validateServiceAccountToken(token: string): string {
 	if (
 		Buffer.byteLength(token, "utf8") > MAX_SERVICE_ACCOUNT_TOKEN_BYTES ||
@@ -101,39 +91,19 @@ function validateServiceAccountToken(token: string): string {
 	return token;
 }
 
-function validateDesktopAccount(account: string): string {
-	if (
-		Buffer.byteLength(account, "utf8") > MAX_DESKTOP_ACCOUNT_BYTES ||
-		account.trim() !== account ||
-		UNSAFE_CONFIGURATION_TEXT.test(account)
-	) {
-		throw new PublicError("configuration");
-	}
-	return account;
-}
-
 export function parseServiceAccountToken(environment: unknown): string {
 	const setting = readEnvironmentSetting(environment, SERVICE_ACCOUNT_TOKEN_ENV);
 	if (setting.state !== "configured") throw new PublicError("configuration");
 	return validateServiceAccountToken(setting.value);
 }
 
-export function parseDesktopAccount(environment: unknown): string {
-	const setting = readEnvironmentSetting(environment, DESKTOP_ACCOUNT_ENV);
-	if (setting.state !== "configured") throw new PublicError("configuration");
-	return validateDesktopAccount(setting.value);
-}
-
 /** Presence-only inspection; it does not validate credentials or initialize the SDK. */
 export function inspectAuthenticationConfiguration(environment: unknown): AuthenticationInspection {
 	const token = readEnvironmentSetting(environment, SERVICE_ACCOUNT_TOKEN_ENV);
-	const desktop = readEnvironmentSetting(environment, DESKTOP_ACCOUNT_ENV);
 	const serviceAccountTokenConfigured = token.state === "configured";
-	const desktopAccountConfigured = desktop.state === "configured";
 	return {
 		serviceAccountTokenConfigured,
-		desktopAccountConfigured,
-		authenticationMode: modeFor(serviceAccountTokenConfigured, desktopAccountConfigured),
+		authenticationMode: serviceAccountTokenConfigured ? "service_account" : "none",
 	};
 }
 
@@ -142,23 +112,9 @@ export function inspectServiceAccountToken(environment: unknown): boolean {
 	return inspectAuthenticationConfiguration(environment).serviceAccountTokenConfigured;
 }
 
-/** Select and validate exactly one authentication mode from one environment snapshot. */
+/** Select and validate the service-account token from one environment snapshot. */
 export function selectAuthentication(environment: unknown): AuthenticationSelection {
 	const token = readEnvironmentSetting(environment, SERVICE_ACCOUNT_TOKEN_ENV);
-	const desktop = readEnvironmentSetting(environment, DESKTOP_ACCOUNT_ENV);
-	const tokenConfigured = token.state === "configured";
-	const desktopConfigured = desktop.state === "configured";
-	const mode = modeFor(tokenConfigured, desktopConfigured);
-
-	// Ambiguity is based on configured presence and takes precedence over value validation.
-	if (mode === "ambiguous") throw new PublicError("configuration");
-	// A malformed descriptor/value must never permit fallback to the other mode.
-	if (token.state === "invalid" || desktop.state === "invalid") throw new PublicError("configuration");
-	if (mode === "service_account" && token.state === "configured") {
-		return Object.freeze({ mode, value: validateServiceAccountToken(token.value) });
-	}
-	if (mode === "desktop" && desktop.state === "configured") {
-		return Object.freeze({ mode, value: validateDesktopAccount(desktop.value) });
-	}
-	throw new PublicError("configuration");
+	if (token.state !== "configured") throw new PublicError("configuration");
+	return Object.freeze({ mode: "service_account", value: validateServiceAccountToken(token.value) });
 }

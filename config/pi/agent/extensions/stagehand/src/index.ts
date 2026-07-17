@@ -39,6 +39,7 @@ import {
 	type TabsInput,
 } from "./schemas.ts";
 import { isNonPublicIp } from "./network.ts";
+import { StagehandCredentialLeaseBroker } from "./lease.ts";
 import { rankTabCandidates, type RankableTab } from "./tabs.ts";
 
 const DEFAULT_NAVIGATION_TIMEOUT_MS = 30_000;
@@ -429,8 +430,11 @@ function commandText(status: ReturnType<StagehandManager["getStatus"]>): string 
 
 export default function stagehandExtension(pi: ExtensionAPI) {
 	const manager = new StagehandManager();
+	const credentialLeases = new StagehandCredentialLeaseBroker(manager);
+	credentialLeases.start(pi.events);
 
 	pi.on("session_shutdown", async (_event, ctx) => {
+		credentialLeases.shutdown();
 		try {
 			await manager.shutdown();
 		} finally {
@@ -1294,6 +1298,7 @@ export default function stagehandExtension(pi: ExtensionAPI) {
 				details: { operation: "close", state: "closing" },
 			});
 			const startedAt = Date.now();
+			credentialLeases.revokeAll();
 			const closed = await manager.close();
 			updateStatus(ctx, manager);
 			const output = compactJson(closed);
@@ -1340,6 +1345,7 @@ export default function stagehandExtension(pi: ExtensionAPI) {
 			}
 			if (action === "close" || action === "reset") {
 				try {
+					credentialLeases.revokeAll();
 					const closed = await manager.close();
 					updateStatus(ctx, manager);
 					if (ctx.hasUI) {

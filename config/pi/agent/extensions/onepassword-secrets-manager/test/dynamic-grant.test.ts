@@ -14,7 +14,6 @@ import {
 import { SecretResolverProvider } from "../src/resolver.ts";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 const TOKEN = "dynamic-test-service-account-placeholder";
@@ -117,7 +116,6 @@ function harness(admitRequirement = true) {
 	class Secrets {
 		static validateSecretReference(reference: string): void { validations.push(reference); }
 	}
-	class DesktopAuth { constructor(_account: string) {} }
 	const client = {
 		secrets: {
 			resolve: async (_reference: string) => {
@@ -134,7 +132,7 @@ function harness(admitRequirement = true) {
 	};
 	const manager = new OnePasswordManager({
 		readEnvironment: () => ({ OP_SERVICE_ACCOUNT_TOKEN: TOKEN }),
-		loadSdk: async () => ({ default: { Secrets, DesktopAuth, createClient: async () => client } }),
+		loadSdk: async () => ({ default: { Secrets, createClient: async () => client } }),
 	});
 	const resolver = new SecretResolverProvider(manager);
 	let dynamic!: DynamicSelectionSession;

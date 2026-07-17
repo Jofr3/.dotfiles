@@ -6,5 +6,6 @@
     age.sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/keys/sops" ];
 
     secrets.DBEE_CONNECTIONS = { };
+    secrets.OP_SERVICE_ACCOUNT_TOKEN = { };
   };
 }

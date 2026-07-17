@@ -6,7 +6,6 @@ import test from "node:test";
 import { resolveSdkSurface } from "../src/manager.ts";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 const require = createRequire(import.meta.url);
@@ -33,7 +32,6 @@ test("pinned official SDK manifest and declarations expose only the required ins
 	const secrets = await declarations("secrets.d.ts");
 	const types = await declarations("types.d.ts");
 	assert.match(sdk, /export \{ Secrets \} from "\.\/secrets\.js"/u);
-	assert.match(sdk, /export \{ DesktopAuth \} from "\.\/configuration\.js"/u);
 	assert.match(sdk, /createClient: \(config: ClientConfiguration\) => Promise<Client>/u);
 	assert.match(client, /secrets: SecretsApi/u);
 	assert.match(client, /items: ItemsApi/u);
@@ -54,8 +52,6 @@ test("runtime manager resolves only documented list/get/resolve methods through 
 	const source = `${managerSource}\n${safetySource}`;
 	assert.match(managerSource, /import\("@1password\/sdk"\)/u);
 	assert.match(managerSource, /"createClient"/u);
-	assert.match(managerSource, /"DesktopAuth"/u);
-	assert.match(managerSource, /Reflect\.construct\(desktopAuth\.constructor, \[accountName\]\)/u);
 	assert.match(managerSource, /"validateSecretReference"/u);
 	assert.match(managerSource, /immediateDataMethod\(secrets, "resolve"\)/u);
 	assert.match(managerSource, /immediateDataMethod\(vaults, "list"\)/u);
@@ -64,8 +60,8 @@ test("runtime manager resolves only documented list/get/resolve methods through 
 	assert.match(managerSource, /integrationName: INTEGRATION_NAME/u);
 	assert.match(managerSource, /integrationVersion: INTEGRATION_VERSION/u);
 	assert.match(managerSource, /selectAuthentication\(this\.#readEnvironment\(\)\)/u);
-	assert.match(safetySource, /"PI_ONEPASSWORD_DESKTOP_ACCOUNT"/u);
-	assert.doesNotMatch(source, /["']OP_ACCOUNT["']/u);
+	assert.match(safetySource, /"OP_SERVICE_ACCOUNT_TOKEN"/u);
+	assert.doesNotMatch(source, /DesktopAuth|PI_ONEPASSWORD_DESKTOP_ACCOUNT|["']OP_ACCOUNT["']/u);
 	for (const forbidden of [
 		"OP_CONNECT_",
 		"resolveAll",
@@ -80,23 +76,17 @@ test("runtime manager resolves only documented list/get/resolve methods through 
 	]) assert.equal(source.includes(forbidden), false, forbidden);
 });
 
-test("mock root and client surfaces reject accessors without invocation", async () => {
+test("service-account root resolution ignores unrelated accessors and client methods reject accessors", async () => {
 	class Secrets { static validateSecretReference(): void {} }
-	let desktopAccessor = 0;
+	let unrelatedAccessor = 0;
 	const defaultExport = { Secrets, createClient: async () => undefined } as Record<string, unknown>;
 	Object.defineProperty(defaultExport, "DesktopAuth", {
 		enumerable: true,
-		get() { desktopAccessor += 1; return class DesktopAuth {}; },
+		get() { unrelatedAccessor += 1; return class UnsupportedDesktopAuth {}; },
 	});
-	assert.throws(() => resolveSdkSurface({ default: defaultExport }));
-	assert.equal(desktopAccessor, 0);
-
-	let malformedInvoked = false;
-	const malformed = () => { malformedInvoked = true; };
-	assert.throws(() => resolveSdkSurface({
-		default: { Secrets, createClient: async () => undefined, DesktopAuth: malformed },
-	}));
-	assert.equal(malformedInvoked, false);
+	const surface = resolveSdkSurface({ default: defaultExport });
+	assert.equal(unrelatedAccessor, 0);
+	assert.deepEqual(Object.keys(surface).sort(), ["createClient", "validateSecretReference"]);
 
 	let listAccessor = 0;
 	const vaults = Object.create(null);
@@ -104,13 +94,11 @@ test("mock root and client surfaces reject accessors without invocation", async 
 		enumerable: true,
 		get() { listAccessor += 1; return async () => []; },
 	});
-	class DesktopAuth {}
 	const manager = new (await import("../src/manager.ts")).OnePasswordManager({
 		readEnvironment: () => ({ OP_SERVICE_ACCOUNT_TOKEN: "test-placeholder" }),
 		loadSdk: async () => ({
 			default: {
 				Secrets,
-				DesktopAuth,
 				createClient: async () => ({ secrets: { resolve: async () => "x" }, vaults }),
 			},
 		}),

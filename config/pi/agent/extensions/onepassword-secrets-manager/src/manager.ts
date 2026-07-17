@@ -3,10 +3,14 @@ import {
 	type FieldMetadata,
 	type FullItemMetadata,
 	type ItemMetadata,
+	type LoginItemMetadata,
+	type LoginWebsitePolicy,
 	mapFullItemMetadata,
 	mapItemMetadataList,
+	mapLoginItemMetadata,
 	mapVaultMetadataList,
 	safeMetadataId,
+	type SearchItemMetadata,
 	type VaultMetadata,
 } from "./metadata.ts";
 import {
@@ -35,13 +39,11 @@ interface LocalItemListFilter {
 
 export interface OnePasswordSdkSurface {
 	createClient(configuration: CreateClientConfiguration): Promise<unknown>;
-	createDesktopAuth(accountName: string): object;
 	validateSecretReference(reference: string): void;
 }
 
 interface CachedSdkSurface {
 	createClient: OnePasswordSdkSurface["createClient"] | undefined;
-	createDesktopAuth: OnePasswordSdkSurface["createDesktopAuth"] | undefined;
 	validateSecretReference: OnePasswordSdkSurface["validateSecretReference"] | undefined;
 }
 
@@ -75,7 +77,20 @@ interface GrantReferenceRecord {
 	release: () => void;
 }
 
+interface VerifiedLoginRecord {
+	owner: object;
+	epoch: number;
+	vaultId: string;
+	itemId: string;
+	usernameFieldId: string;
+	usernameSectionId?: string;
+	passwordFieldId: string;
+	passwordSectionId?: string;
+	websites: readonly LoginWebsitePolicy[];
+}
+
 const verifiedSelections = new WeakMap<object, VerifiedSelectionRecord>();
+const verifiedLogins = new WeakMap<object, VerifiedLoginRecord>();
 const grantReferences = new WeakMap<object, GrantReferenceRecord>();
 
 export interface VerifiedDynamicSelection {
@@ -86,6 +101,29 @@ export interface VerifiedDynamicSelection {
 		category: string;
 	}>;
 	readonly field: FieldMetadata;
+}
+
+export interface VerifiedLoginSelection {
+	readonly item: Readonly<{
+		id: string;
+		vaultId: string;
+		title: string;
+		category: "Login";
+	}>;
+	readonly usernameField: FieldMetadata;
+	readonly passwordField: FieldMetadata;
+}
+
+export interface ResolvedLoginCredentials {
+	username: string;
+	password: string;
+}
+
+export interface SearchMetadataResult {
+	readonly items: readonly SearchItemMetadata[];
+	readonly scannedVaults: number;
+	readonly omittedVaults: number;
+	readonly scannedItems: number;
 }
 
 /** Opaque process-local capability. It has no enumerable data and no public reference field. */
@@ -121,7 +159,6 @@ export type ItemMetadataStateFilter = "active" | "archived" | "all";
 export interface ManagerStatus {
 	phase: ClientPhase;
 	serviceAccountTokenConfigured: boolean;
-	desktopAccountConfigured: boolean;
 	authenticationMode: AuthenticationMode;
 	callsUsed: number;
 	callLimit: number;
@@ -140,6 +177,8 @@ export const MANAGER_MAX_METADATA_PENDING = 4;
 export const MANAGER_DRAIN_MS = 1_000;
 export const INTEGRATION_NAME = "Pi 1Password Secrets Manager";
 export const INTEGRATION_VERSION = "v1.0.0";
+export const MAX_SEARCH_VAULTS = 20;
+export const MAX_SEARCH_ITEMS = 1_000;
 
 export interface ManagerOptions {
 	loadSdk?: () => Promise<unknown>;
@@ -183,59 +222,17 @@ function ownFunctionOwner(
 	return undefined;
 }
 
-interface ConstructorSurface {
-	constructor: Function;
-	prototype: object;
-}
-
-function ownConstructor(primary: unknown, secondary: unknown, key: string): ConstructorSurface | undefined {
-	for (const candidate of [primary, secondary]) {
-		if ((typeof candidate !== "object" && typeof candidate !== "function") || candidate === null) continue;
-		const constructor = ownDataValue(candidate, key);
-		if (typeof constructor !== "function") continue;
-		try {
-			const prototypeDescriptor = Object.getOwnPropertyDescriptor(constructor, "prototype");
-			if (
-				prototypeDescriptor === undefined || !("value" in prototypeDescriptor) ||
-				typeof prototypeDescriptor.value !== "object" || prototypeDescriptor.value === null
-			) continue;
-			const ownConstructorDescriptor = Object.getOwnPropertyDescriptor(prototypeDescriptor.value, "constructor");
-			if (
-				ownConstructorDescriptor === undefined || !("value" in ownConstructorDescriptor) ||
-				ownConstructorDescriptor.value !== constructor
-			) continue;
-			return { constructor, prototype: prototypeDescriptor.value };
-		} catch {
-			continue;
-		}
-	}
-	return undefined;
-}
-
-/** Resolve only the documented root SDK surface without creating a client or desktop auth object. */
+/** Resolve only the documented root SDK surface without creating a client. */
 export function resolveSdkSurface(imported: unknown): OnePasswordSdkSurface {
 	const defaultExport = ownDataValue(imported, "default");
 	const createClient = ownFunctionOwner(defaultExport, imported, "createClient");
 	const secretsClass = ownDataValue(defaultExport, "Secrets") ?? ownDataValue(imported, "Secrets");
 	const validator = ownFunctionOwner(secretsClass, undefined, "validateSecretReference");
-	const desktopAuth = ownConstructor(defaultExport, imported, "DesktopAuth");
-	if (createClient === undefined || validator === undefined || desktopAuth === undefined) {
-		throw new PublicError("sdk");
-	}
+	if (createClient === undefined || validator === undefined) throw new PublicError("sdk");
 	return Object.freeze({
 		async createClient(configuration: CreateClientConfiguration): Promise<unknown> {
 			try {
 				return await Reflect.apply(createClient.method, createClient.owner, [configuration]);
-			} catch {
-				throw new PublicError("sdk");
-			}
-		},
-		createDesktopAuth(accountName: string): object {
-			try {
-				const result = Reflect.construct(desktopAuth.constructor, [accountName]);
-				if (typeof result !== "object" || result === null || Array.isArray(result)) throw new PublicError("sdk");
-				if (Object.getPrototypeOf(result) !== desktopAuth.prototype) throw new PublicError("sdk");
-				return result;
 			} catch {
 				throw new PublicError("sdk");
 			}
@@ -420,7 +417,6 @@ export class OnePasswordManager {
 		return {
 			phase: this.#phase,
 			serviceAccountTokenConfigured: authentication.serviceAccountTokenConfigured,
-			desktopAccountConfigured: authentication.desktopAccountConfigured,
 			authenticationMode: authentication.authenticationMode,
 			callsUsed: this.#callsUsed,
 			callLimit: this.#maxCalls,
@@ -518,6 +514,57 @@ export class OnePasswordManager {
 		}, signal, deadlineMs);
 	}
 
+	searchItemMetadata(
+		query: string,
+		state: ItemMetadataStateFilter = "active",
+		signal?: AbortSignal,
+		deadlineMs = this.#deadlineMs,
+	): Promise<SearchMetadataResult> {
+		if (
+			typeof query !== "string" || query.length === 0 || query.trim() !== query ||
+			Buffer.byteLength(query, "utf8") > 256 ||
+			(state !== "active" && state !== "archived" && state !== "all")
+		) throw new PublicError("invalid_input");
+		const normalized = query.toLowerCase();
+		return this.#runMetadata(async (cached, requestEpoch, gate) => {
+			const vaultMethod = this.#vaultListMethod(cached);
+			let vaultResponse: unknown;
+			try { vaultResponse = await Reflect.apply(vaultMethod.method, vaultMethod.owner, []); }
+			catch { throw new PublicError("request"); }
+			this.#assertOperationActive(requestEpoch, gate);
+			const allVaults = mapVaultMetadataList(vaultResponse);
+			vaultResponse = undefined;
+			const vaults = allVaults.slice(0, MAX_SEARCH_VAULTS);
+			const itemMethod = this.#itemListMethod(cached);
+			const filter: LocalItemListFilter = Object.freeze({
+				type: "ByState",
+				content: Object.freeze({ active: state !== "archived", archived: state !== "active" }),
+			});
+			const items: SearchItemMetadata[] = [];
+			let scannedItems = 0;
+			for (const vault of vaults) {
+				let itemResponse: unknown;
+				try { itemResponse = await Reflect.apply(itemMethod.method, itemMethod.owner, [vault.id, filter]); }
+				catch { throw new PublicError("request"); }
+				this.#assertOperationActive(requestEpoch, gate);
+				const mapped = mapItemMetadataList(itemResponse, vault.id);
+				itemResponse = undefined;
+				scannedItems += mapped.length;
+				if (scannedItems > MAX_SEARCH_ITEMS) throw new PublicError("response");
+				for (const item of mapped) {
+					if (!item.title.toLowerCase().includes(normalized)) continue;
+					items.push(Object.freeze({ ...item, vaultId: vault.id, vaultTitle: vault.title }));
+				}
+			}
+			return Object.freeze({
+				items: Object.freeze(items),
+				scannedVaults: vaults.length,
+				omittedVaults: Math.max(0, allVaults.length - vaults.length),
+				scannedItems,
+			});
+		}, signal, deadlineMs);
+	}
+
 	getItemFieldMetadata(
 		vaultId: string,
 		itemId: string,
@@ -570,6 +617,97 @@ export class OnePasswordManager {
 		return candidate;
 	}
 
+	async resolveVerifiedFieldSelection(
+		candidate: VerifiedDynamicSelection,
+		signal?: AbortSignal,
+		deadlineMs = this.#deadlineMs,
+	): Promise<string> {
+		const verified = typeof candidate === "object" && candidate !== null ? verifiedSelections.get(candidate) : undefined;
+		if (verified === undefined || verified.owner !== this.#ownerToken || verified.epoch !== this.#epoch) {
+			throw new PublicError("lifecycle");
+		}
+		return this.resolveSecretValue(this.#reference(
+			verified.vaultId,
+			verified.itemId,
+			verified.fieldId,
+			verified.sectionId,
+		), signal, deadlineMs);
+	}
+
+	async prepareLoginSelection(
+		vaultId: string,
+		itemId: string,
+		signal?: AbortSignal,
+		deadlineMs = this.#deadlineMs,
+	): Promise<VerifiedLoginSelection> {
+		const safeVaultId = safeMetadataId(vaultId);
+		const safeItemId = safeMetadataId(itemId);
+		const requestEpoch = this.#epoch;
+		const login = await this.#runMetadata(
+			(cached, epoch, gate) => this.#fetchLoginMetadata(cached, safeVaultId, safeItemId, epoch, gate),
+			signal,
+			deadlineMs,
+		);
+		if (requestEpoch !== this.#epoch || this.#stopped) throw new PublicError("lifecycle");
+		const selection: VerifiedLoginSelection = Object.freeze({
+			item: Object.freeze({ id: login.id, vaultId: login.vaultId, title: login.title, category: "Login" as const }),
+			usernameField: login.usernameField,
+			passwordField: login.passwordField,
+		});
+		verifiedLogins.set(selection, {
+			owner: this.#ownerToken,
+			epoch: requestEpoch,
+			vaultId: login.vaultId,
+			itemId: login.id,
+			usernameFieldId: login.usernameField.id,
+			...(login.usernameField.section === undefined ? {} : { usernameSectionId: login.usernameField.section.id }),
+			passwordFieldId: login.passwordField.id,
+			...(login.passwordField.section === undefined ? {} : { passwordSectionId: login.passwordField.section.id }),
+			websites: login.websites,
+		});
+		return selection;
+	}
+
+	loginOriginAllowed(candidate: VerifiedLoginSelection, rawUrl: string): boolean {
+		const verified = this.#loginRecord(candidate);
+		let url: URL;
+		try { url = new URL(rawUrl); } catch { return false; }
+		if (url.protocol !== "https:" || url.username || url.password) return false;
+		const hostname = url.hostname.toLowerCase();
+		return verified.websites.some((website) => {
+			if (website.protocol !== url.protocol || website.port !== url.port) return false;
+			if (website.behavior === "ExactDomain") return website.hostname === hostname;
+			return website.hostname === hostname || hostname.endsWith(`.${website.hostname}`);
+		});
+	}
+
+	async resolveLoginCredentials(
+		candidate: VerifiedLoginSelection,
+		signal?: AbortSignal,
+		deadlineMs = this.#deadlineMs,
+	): Promise<ResolvedLoginCredentials> {
+		const verified = this.#loginRecord(candidate);
+		const username = await this.resolveSecretValue(this.#reference(
+			verified.vaultId,
+			verified.itemId,
+			verified.usernameFieldId,
+			verified.usernameSectionId,
+		), signal, deadlineMs);
+		let password: string;
+		try {
+			password = await this.resolveSecretValue(this.#reference(
+				verified.vaultId,
+				verified.itemId,
+				verified.passwordFieldId,
+				verified.passwordSectionId,
+			), signal, deadlineMs);
+		} catch (error) {
+			// Drop the first resolved value before returning a fixed failure.
+			throw error;
+		}
+		return { username, password };
+	}
+
 	createDynamicSecretGrant(
 		candidate: VerifiedDynamicSelection,
 		signal?: AbortSignal,
@@ -586,12 +724,12 @@ export class OnePasswordManager {
 			if (verified.epoch !== requestEpoch) throw new PublicError("lifecycle");
 			const validate = this.#sdkSurface?.validateSecretReference;
 			if (validate === undefined) throw new PublicError("lifecycle");
-			const vaultSegment = encodeURIComponent(verified.vaultId);
-			const itemSegment = encodeURIComponent(verified.itemId);
-			const fieldSegment = encodeURIComponent(verified.fieldId);
-			const reference = verified.sectionId === undefined
-				? `op://${vaultSegment}/${itemSegment}/${fieldSegment}`
-				: `op://${vaultSegment}/${itemSegment}/${encodeURIComponent(verified.sectionId)}/${fieldSegment}`;
+			const reference = this.#reference(
+				verified.vaultId,
+				verified.itemId,
+				verified.fieldId,
+				verified.sectionId,
+			);
 			try {
 				validate(reference);
 			} catch {
@@ -683,6 +821,43 @@ export class OnePasswordManager {
 		}
 	}
 
+	async #fetchLoginMetadata(
+		cached: CachedClient,
+		vaultId: string,
+		itemId: string,
+		requestEpoch: number,
+		gate: CancellationGate,
+	): Promise<LoginItemMetadata> {
+		const { owner, method } = this.#itemGetMethod(cached);
+		let response: unknown;
+		try {
+			try { response = await Reflect.apply(method, owner, [vaultId, itemId]); }
+			catch { throw new PublicError("request"); }
+			this.#assertOperationActive(requestEpoch, gate);
+			return mapLoginItemMetadata(response, vaultId, itemId);
+		} finally {
+			response = undefined;
+		}
+	}
+
+	#loginRecord(candidate: VerifiedLoginSelection): VerifiedLoginRecord {
+		const verified = typeof candidate === "object" && candidate !== null ? verifiedLogins.get(candidate) : undefined;
+		if (
+			verified === undefined || verified.owner !== this.#ownerToken ||
+			verified.epoch !== this.#epoch || this.#stopped
+		) throw new PublicError("lifecycle");
+		return verified;
+	}
+
+	#reference(vaultId: string, itemId: string, fieldId: string, sectionId?: string): string {
+		const vaultSegment = encodeURIComponent(vaultId);
+		const itemSegment = encodeURIComponent(itemId);
+		const fieldSegment = encodeURIComponent(fieldId);
+		return sectionId === undefined
+			? `op://${vaultSegment}/${itemSegment}/${fieldSegment}`
+			: `op://${vaultSegment}/${itemSegment}/${encodeURIComponent(sectionId)}/${fieldSegment}`;
+	}
+
 	#vaultListMethod(cached: CachedClient): { owner: object; method: Function } {
 		if (cached.vaults !== undefined && cached.listVaults !== undefined) {
 			return { owner: cached.vaults, method: cached.listVaults };
@@ -745,7 +920,6 @@ export class OnePasswordManager {
 	#releaseSurface(surface: CachedSdkSurface | undefined): void {
 		if (surface === undefined) return;
 		surface.createClient = undefined;
-		surface.createDesktopAuth = undefined;
 		surface.validateSecretReference = undefined;
 	}
 
@@ -813,7 +987,6 @@ export class OnePasswordManager {
 			this.#assertOperationActive(requestEpoch, gate);
 			const cached: CachedSdkSurface = {
 				createClient: loaded.createClient,
-				createDesktopAuth: loaded.createDesktopAuth,
 				validateSecretReference: loaded.validateSecretReference,
 			};
 			this.#sdkSurface = cached;
@@ -864,19 +1037,11 @@ export class OnePasswordManager {
 	): Promise<CachedClient> {
 		const createClient = surface.createClient;
 		if (createClient === undefined) throw new PublicError("lifecycle");
-		let auth: unknown = authentication.value;
-		if (authentication.mode === "desktop") {
-			const createDesktopAuth = surface.createDesktopAuth;
-			if (createDesktopAuth === undefined) throw new PublicError("lifecycle");
-			auth = createDesktopAuth(authentication.value);
-			if (this.#stopped || requestEpoch !== this.#epoch) throw new PublicError("lifecycle");
-		}
 		const configuration: CreateClientConfiguration = {
-			auth,
+			auth: authentication.value,
 			integrationName: INTEGRATION_NAME,
 			integrationVersion: INTEGRATION_VERSION,
 		};
-		auth = undefined;
 		try {
 			const client = await createClient(configuration);
 			if (this.#stopped || requestEpoch !== this.#epoch) throw new PublicError("lifecycle");

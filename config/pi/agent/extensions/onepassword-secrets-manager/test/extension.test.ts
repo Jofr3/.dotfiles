@@ -3,7 +3,6 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 async function indexSource(): Promise<string> {
@@ -29,18 +28,23 @@ test("dynamic commands are explicit, UI-gated, mutually exclusive, and dynamic m
 	assert.match(branch, /resolver\.status\(\)\.enabled/u);
 });
 
-test("dynamic activation preserves unrelated tools and disable filters exactly the four fixed names", async () => {
+test("dynamic activation preserves unrelated tools and disable filters exactly the fixed dynamic names", async () => {
 	const source = await indexSource();
 	assert.match(source, /new Set\(\[\.\.\.pi\.getActiveTools\(\), \.\.\.DYNAMIC_TOOL_NAMES\]\)/u);
 	assert.match(source, /pi\.getActiveTools\(\)\.filter\(\(name\) => !dynamicNames\.has\(name\)\)/u);
 	assert.match(source, /const drain = disableResolverLifecycle\(resolver, manager, dynamic, requirements\)/u);
 	assert.match(source, /deactivateDynamicTools\(\);\n\t\tawait drain/u);
-	assert.match(source, /pi\.on\("turn_end", \(\) => \{ resolver\.armDynamicGrants\(\); \}\)/u);
+	assert.match(source, /resolver\.armDynamicGrants\(\)/u);
+	assert.match(source, /databaseProvider\?\.arm\(\)/u);
 	const names = [
 		"onepassword_list_vaults",
 		"onepassword_list_items",
+		"onepassword_search_items",
 		"onepassword_list_fields",
 		"onepassword_grant_secret",
+		"onepassword_grant_database_profile",
+		"onepassword_reveal_field",
+		"onepassword_fill_login",
 	];
 	for (const name of names) assert.equal(source.includes(`name: "${name}"`), true);
 });

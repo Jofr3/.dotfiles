@@ -97,6 +97,10 @@ const FULL_ITEM_KEYS = new Set([
 ]);
 const FIELD_KEYS = new Set(["id", "title", "sectionId", "fieldType", "value", "details"]);
 const SECTION_KEYS = new Set(["id", "title"]);
+const WEBSITE_KEYS = new Set(["url", "label", "autofillBehavior"]);
+const WEBSITE_REQUIRED = ["url", "label", "autofillBehavior"] as const;
+const AUTOFILL_BEHAVIORS = new Set(["AnywhereOnWebsite", "ExactDomain", "Never"]);
+const STANDARD_USERNAME_TITLES = new Set(["username", "user name", "email", "email address", "login", "user"]);
 
 const VAULT_REQUIRED = [
 	"id",
@@ -170,6 +174,28 @@ export interface FullItemMetadata {
 	readonly title: string;
 	readonly category: string;
 	readonly fields: readonly FieldMetadata[];
+}
+
+export interface SearchItemMetadata extends ItemMetadata {
+	readonly vaultId: string;
+	readonly vaultTitle: string;
+}
+
+export interface LoginWebsitePolicy {
+	readonly origin: string;
+	readonly hostname: string;
+	readonly port: string;
+	readonly protocol: "https:";
+	readonly behavior: "AnywhereOnWebsite" | "ExactDomain";
+}
+
+export interface LoginItemMetadata {
+	readonly id: string;
+	readonly vaultId: string;
+	readonly title: string;
+	readonly usernameField: FieldMetadata;
+	readonly passwordField: FieldMetadata;
+	readonly websites: readonly LoginWebsitePolicy[];
 }
 
 function responseFailure(): never {
@@ -302,9 +328,13 @@ function mapField(value: unknown, sections: ReadonlyMap<string, SectionMetadata>
 	const fieldType = safeEnum(selectedValue(descriptors, "fieldType"), FIELD_TYPES);
 	let section: SectionMetadata | undefined;
 	if (Object.hasOwn(descriptors, "sectionId")) {
-		const sectionId = safeMetadataId(selectedValue(descriptors, "sectionId"));
-		section = sections.get(sectionId);
-		if (section === undefined) responseFailure();
+		const rawSectionId = selectedValue(descriptors, "sectionId");
+		// The SDK JSON bridge emits null for sectionless built-in fields despite its optional declaration.
+		if (rawSectionId !== null) {
+			const sectionId = safeMetadataId(rawSectionId);
+			section = sections.get(sectionId);
+			if (section === undefined) responseFailure();
+		}
 	}
 	return Object.freeze({ id, title, fieldType, ...(section === undefined ? {} : { section }) });
 }
@@ -334,6 +364,91 @@ export function mapItemMetadataList(value: unknown, expectedVaultId: string): re
 		result.push(mapped);
 	}
 	return Object.freeze(result);
+}
+
+function normalizedFieldName(value: string): string {
+	return value.trim().toLowerCase().replace(/[_-]+/gu, " ").replace(/\s+/gu, " ");
+}
+
+function oneStandardField(
+	fields: readonly FieldMetadata[],
+	kind: "username" | "password",
+): FieldMetadata {
+	const preferredId = kind;
+	const byId = fields.filter((field) => normalizedFieldName(field.id) === preferredId);
+	if (byId.length > 0) {
+		if (byId.length !== 1) responseFailure();
+		const selected = byId[0]!;
+		if (kind === "password" ? selected.fieldType !== "Concealed" : selected.fieldType !== "Text" && selected.fieldType !== "Email") {
+			responseFailure();
+		}
+		return selected;
+	}
+	const candidates = fields.filter((field) => {
+		const title = normalizedFieldName(field.title);
+		if (kind === "password") return field.fieldType === "Concealed" && title === "password";
+		return (field.fieldType === "Text" || field.fieldType === "Email") && STANDARD_USERNAME_TITLES.has(title);
+	});
+	if (candidates.length !== 1) responseFailure();
+	return candidates[0]!;
+}
+
+function mapLoginWebsite(value: unknown): LoginWebsitePolicy | undefined {
+	const descriptors = recordDescriptors(value, WEBSITE_KEYS, WEBSITE_REQUIRED);
+	const rawUrl = safeMetadataText(selectedValue(descriptors, "url"));
+	// Validate the label even though it is intentionally not retained or exposed.
+	safeMetadataText(selectedValue(descriptors, "label"));
+	const behavior = safeEnum(selectedValue(descriptors, "autofillBehavior"), AUTOFILL_BEHAVIORS);
+	if (behavior === "Never") return undefined;
+	let url: URL;
+	try { url = new URL(rawUrl); }
+	catch { return responseFailure(); }
+	if (
+		url.protocol !== "https:" || url.username || url.password ||
+		Buffer.byteLength(url.toString(), "utf8") > 2_048
+	) responseFailure();
+	return Object.freeze({
+		origin: url.origin,
+		hostname: url.hostname.toLowerCase(),
+		port: url.port,
+		protocol: "https:" as const,
+		behavior: behavior as "AnywhereOnWebsite" | "ExactDomain",
+	});
+}
+
+/**
+ * Map only the metadata needed for login selection. Field values, notes, tags,
+ * files, and details are descriptor-validated but never read.
+ */
+export function mapLoginItemMetadata(
+	value: unknown,
+	expectedVaultId: string,
+	expectedItemId: string,
+): LoginItemMetadata {
+	const item = mapFullItemMetadata(value, expectedVaultId, expectedItemId);
+	if (item.category !== "Login") responseFailure();
+	const descriptors = recordDescriptors(value, FULL_ITEM_KEYS, FULL_ITEM_REQUIRED);
+	const rawWebsites = denseArrayValues(selectedValue(descriptors, "websites"));
+	if (rawWebsites.length > MAX_METADATA_RECORDS) responseFailure();
+	const websites: LoginWebsitePolicy[] = [];
+	const websiteKeys = new Set<string>();
+	for (const rawWebsite of rawWebsites) {
+		const website = mapLoginWebsite(rawWebsite);
+		if (website === undefined) continue;
+		const key = `${website.origin}\u0000${website.behavior}`;
+		if (websiteKeys.has(key)) continue;
+		websiteKeys.add(key);
+		websites.push(website);
+	}
+	if (websites.length === 0) responseFailure();
+	return Object.freeze({
+		id: item.id,
+		vaultId: item.vaultId,
+		title: item.title,
+		usernameField: oneStandardField(item.fields, "username"),
+		passwordField: oneStandardField(item.fields, "password"),
+		websites: Object.freeze(websites),
+	});
 }
 
 export function mapFullItemMetadata(
@@ -417,6 +532,14 @@ export function serializeItemMetadata(items: readonly ItemMetadata[]): string {
 	const records: string[] = [];
 	for (const item of items) {
 		records.push(`{"itemId":${quoteJson(item.id)},"title":${quoteJson(item.title)},"category":${quoteJson(item.category)},"state":${quoteJson(item.state)}}`);
+	}
+	return boundedOutput(`{"items":[${records.join(",")}]}`);
+}
+
+export function serializeSearchItemMetadata(items: readonly SearchItemMetadata[]): string {
+	const records: string[] = [];
+	for (const item of items) {
+		records.push(`{"vaultId":${quoteJson(item.vaultId)},"vaultTitle":${quoteJson(item.vaultTitle)},"itemId":${quoteJson(item.id)},"title":${quoteJson(item.title)},"category":${quoteJson(item.category)},"state":${quoteJson(item.state)}}`);
 	}
 	return boundedOutput(`{"items":[${records.join(",")}]}`);
 }

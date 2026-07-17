@@ -6,9 +6,11 @@ import {
 	MAX_METADATA_TEXT_BYTES,
 	serializeFieldMetadata,
 	serializeItemMetadata,
+	serializeSearchItemMetadata,
 	serializeVaultMetadata,
 	type FieldMetadata,
 	type ItemMetadata,
+	type SearchItemMetadata,
 	type VaultMetadata,
 } from "./metadata.ts";
 import {
@@ -30,14 +32,19 @@ import { PublicError, REQUEST_DEADLINE_MS } from "./safety.ts";
 export const DYNAMIC_TOOL_NAMES = Object.freeze([
 	"onepassword_list_vaults",
 	"onepassword_list_items",
+	"onepassword_search_items",
 	"onepassword_list_fields",
 	"onepassword_grant_secret",
+	"onepassword_grant_database_profile",
+	"onepassword_reveal_field",
+	"onepassword_fill_login",
 ] as const);
 export const DEFAULT_METADATA_RESULT_LIMIT = 20;
 
 const ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u;
 const UNSAFE_INPUT_TEXT = /[\p{Cc}\p{Cf}\p{Cs}\u2028\u2029]/u;
 const VAULT_INPUT_KEYS = new Set(["query", "limit"]);
+const SEARCH_INPUT_KEYS = new Set(["query", "state", "limit"]);
 const ITEM_INPUT_KEYS = new Set(["vaultId", "query", "state", "limit"]);
 const FIELD_INPUT_KEYS = new Set(["vaultId", "itemId", "query", "limit"]);
 const GRANT_INPUT_KEYS = new Set(["vaultId", "itemId", "fieldId", "requirementId"]);
@@ -93,6 +100,11 @@ interface ItemListInput extends ListInput {
 interface FieldListInput extends ListInput {
 	vaultId: string;
 	itemId: string;
+}
+
+interface SearchInput extends ListInput {
+	query: string;
+	state: "active" | "archived" | "all";
 }
 
 interface GrantInput {
@@ -152,6 +164,14 @@ function inputLimit(value: unknown): number {
 function parseVaultInput(value: unknown): ListInput {
 	const descriptors = inputDescriptors(value, VAULT_INPUT_KEYS);
 	return { query: inputQuery(inputValue(descriptors, "query")), limit: inputLimit(inputValue(descriptors, "limit")) };
+}
+
+function parseSearchInput(value: unknown): SearchInput {
+	const descriptors = inputDescriptors(value, SEARCH_INPUT_KEYS);
+	const query = inputQuery(inputValue(descriptors, "query"));
+	const state = inputValue(descriptors, "state") ?? "active";
+	if (query === undefined || (state !== "active" && state !== "archived" && state !== "all")) inputFailure();
+	return { query, state, limit: inputLimit(inputValue(descriptors, "limit")) };
 }
 
 function parseItemInput(value: unknown): ItemListInput {
@@ -287,6 +307,16 @@ interface FieldSelection {
 	readonly field: FieldMetadata;
 }
 
+export interface DynamicFieldChoice {
+	readonly vault: VaultMetadata;
+	readonly selection: Awaited<ReturnType<OnePasswordManager["verifyDynamicFieldSelection"]>>;
+}
+
+export interface DynamicLoginChoice {
+	readonly vault: VaultMetadata;
+	readonly selection: Awaited<ReturnType<OnePasswordManager["prepareLoginSelection"]>>;
+}
+
 function grantKey(requirementId: string, purpose: DynamicResolverPurpose): string {
 	return `${requirementId}\u0000${purpose}`;
 }
@@ -377,6 +407,50 @@ export class DynamicSelectionSession {
 		}
 	}
 
+	async searchItems(input: unknown, signal?: AbortSignal): Promise<DynamicToolResult> {
+		try {
+			const parsed = parseSearchInput(input);
+			const epoch = this.#start(signal);
+			const searched = await this.#manager.searchItemMetadata(parsed.query, parsed.state, signal);
+			this.#assertCurrent(epoch, signal);
+			const selected = searched.items.slice(0, parsed.limit);
+			const display: SearchItemMetadata[] = [];
+			for (const item of selected) {
+				const vaultHandle = this.#handle("opv", item.vaultId);
+				const itemHandle = this.#handle("opi", item.vaultId, item.id);
+				const vault = Object.freeze({
+					id: item.vaultId,
+					title: item.vaultTitle,
+					vaultType: "unsupported",
+					activeItemCount: 0,
+				});
+				this.#vaults.set(vaultHandle, vault);
+				this.#items.set(itemHandle, Object.freeze({
+					vaultHandle,
+					item: Object.freeze({ id: item.id, title: item.title, category: item.category, state: item.state }),
+				}));
+				display.push(Object.freeze({
+					...item,
+					id: itemHandle,
+					vaultId: vaultHandle,
+				}));
+			}
+			const text = serializeSearchItemMetadata(Object.freeze(display));
+			return Object.freeze({
+				content: Object.freeze([{ type: "text" as const, text }]),
+				details: Object.freeze({
+					ok: true,
+					recordCount: display.length,
+					scannedVaults: searched.scannedVaults,
+					omittedVaults: searched.omittedVaults,
+					scannedItems: searched.scannedItems,
+				}),
+			}) as DynamicToolResult;
+		} catch (error) {
+			return failureResult(error);
+		}
+	}
+
 	async listFields(input: unknown, signal?: AbortSignal): Promise<DynamicToolResult> {
 		try {
 			const parsed = parseFieldInput(input);
@@ -418,6 +492,41 @@ export class DynamicSelectionSession {
 		} catch (error) {
 			return failureResult(error);
 		}
+	}
+
+	async verifyFieldChoice(
+		vaultId: string,
+		itemId: string,
+		fieldId: string,
+		signal?: AbortSignal,
+	): Promise<DynamicFieldChoice> {
+		const epoch = this.#start(signal);
+		const vault = this.#vaults.get(inputId(vaultId));
+		const item = this.#items.get(inputId(itemId));
+		const field = this.#fields.get(inputId(fieldId));
+		if (
+			vault === undefined || item === undefined || field === undefined ||
+			item.vaultHandle !== vaultId || field.vaultHandle !== vaultId || field.itemHandle !== itemId
+		) throw new DynamicFailure("invalid_input");
+		const selection = await this.#manager.verifyDynamicFieldSelection(vault.id, item.item.id, field.field.id, signal);
+		this.#assertCurrent(epoch, signal);
+		return Object.freeze({ vault, selection });
+	}
+
+	async prepareLoginChoice(
+		vaultId: string,
+		itemId: string,
+		signal?: AbortSignal,
+	): Promise<DynamicLoginChoice> {
+		const epoch = this.#start(signal);
+		const vault = this.#vaults.get(inputId(vaultId));
+		const item = this.#items.get(inputId(itemId));
+		if (vault === undefined || item === undefined || item.vaultHandle !== vaultId) {
+			throw new DynamicFailure("invalid_input");
+		}
+		const selection = await this.#manager.prepareLoginSelection(vault.id, item.item.id, signal);
+		this.#assertCurrent(epoch, signal);
+		return Object.freeze({ vault, selection });
 	}
 
 	async grantSecret(

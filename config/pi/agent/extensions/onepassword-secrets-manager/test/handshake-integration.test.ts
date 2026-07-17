@@ -1,30 +1,43 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import test from "node:test";
-import {
-	ConfigStore,
-	createInvocationSnapshot,
-	parseConfig,
-} from "../../mcp-toolbox/src/config.ts";
-import { resolveCredentialMaterial } from "../../mcp-toolbox/src/credentials.ts";
-import { ToolboxManager } from "../../mcp-toolbox/src/manager.ts";
-import {
-	createRequirementInvalidationEvent,
-	deriveRequirementId,
-	MCP_TOOLBOX_REQUIREMENTS_CHANNEL,
-} from "../../mcp-toolbox/src/requirements.ts";
-import { discoverRequirements } from "../../mcp-toolbox/src/requirements-tool.ts";
-import {
-	CredentialResolverError,
-	SECRET_RESOLVER_V2_REQUEST_CHANNEL,
-	SecretResolverConsumer,
-} from "../../mcp-toolbox/src/resolver.ts";
 import { DynamicSelectionSession, type DynamicToolContext } from "../src/dynamic.ts";
 import { OnePasswordManager } from "../src/manager.ts";
 import { RequirementMetadataCache } from "../src/requirements.ts";
 import { SecretResolverProvider } from "../src/resolver.ts";
 
+const MCP_ROOT = new URL("../../mcp-toolbox/src/", import.meta.url);
+const MCP_AVAILABLE = existsSync(new URL("requirements.ts", MCP_ROOT));
+let ConfigStore: any;
+let createInvocationSnapshot: any;
+let parseConfig: any;
+let resolveCredentialMaterial: any;
+let ToolboxManager: any;
+let createRequirementInvalidationEvent: any;
+let deriveRequirementId: any;
+let MCP_TOOLBOX_REQUIREMENTS_CHANNEL: any;
+let discoverRequirements: any;
+let CredentialResolverError: any;
+let SECRET_RESOLVER_V2_REQUEST_CHANNEL: any;
+let SecretResolverConsumer: any;
+if (MCP_AVAILABLE) {
+	const [config, credentials, manager, requirements, requirementsTool, resolver] = await Promise.all([
+		import(new URL("config.ts", MCP_ROOT).href),
+		import(new URL("credentials.ts", MCP_ROOT).href),
+		import(new URL("manager.ts", MCP_ROOT).href),
+		import(new URL("requirements.ts", MCP_ROOT).href),
+		import(new URL("requirements-tool.ts", MCP_ROOT).href),
+		import(new URL("resolver.ts", MCP_ROOT).href),
+	]);
+	({ ConfigStore, createInvocationSnapshot, parseConfig } = config);
+	({ resolveCredentialMaterial } = credentials);
+	({ ToolboxManager } = manager);
+	({ createRequirementInvalidationEvent, deriveRequirementId, MCP_TOOLBOX_REQUIREMENTS_CHANNEL } = requirements);
+	({ discoverRequirements } = requirementsTool);
+	({ CredentialResolverError, SECRET_RESOLVER_V2_REQUEST_CHANNEL, SecretResolverConsumer } = resolver);
+}
+
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 delete process.env.PI_MCP_TOOLBOX_CONFIG;
 
@@ -155,7 +168,7 @@ function assertPublicNoSecret(value: unknown): void {
 	}
 }
 
-test("actual MCP requirement planner and consumer complete an offline no-manual-slot 1Password one-shot flow", async () => {
+test("actual MCP requirement planner and consumer complete an offline no-manual-slot 1Password one-shot flow", { skip: !MCP_AVAILABLE }, async () => {
 	const bus = new SharedEventBus();
 	let vaultListCalls = 0;
 	let itemListCalls = 0;
@@ -165,7 +178,6 @@ test("actual MCP requirement planner and consumer complete an offline no-manual-
 	class Secrets {
 		static validateSecretReference(reference: string): void { validatedReferences.push(reference); }
 	}
-	class DesktopAuth { constructor(_account: string) {} }
 	const client = {
 		secrets: {
 			resolve: async (reference: string) => {
@@ -195,7 +207,6 @@ test("actual MCP requirement planner and consumer complete an offline no-manual-
 			return {
 				default: {
 					Secrets,
-					DesktopAuth,
 					createClient: async () => { clientCreations += 1; return client; },
 				},
 			};

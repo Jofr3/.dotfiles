@@ -3,12 +3,13 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 test("package README documents exact requirements-first workflow, persistence, one-shot behavior, and upstream limitation", async () => {
 	const readme = await readFile(new URL("../README.md", import.meta.url), "utf8");
 	for (const required of [
+		"supports **1Password service accounts only**",
+		"OP_SERVICE_ACCOUNT_TOKEN",
 		"/onepassword-sm dynamic-enable",
 		"/onepassword-sm dynamic-disable",
 		"mcp_toolbox_requirements",
@@ -41,12 +42,15 @@ test("package README documents exact requirements-first workflow, persistence, o
 	]) assert.equal(readme.includes(required), true, required);
 	assert.match(readme, /Static mappings remain reusable/u);
 	assert.match(readme, /A retry always needs another approved grant/u);
+	assert.doesNotMatch(readme, /PI_ONEPASSWORD_DESKTOP_ACCOUNT|DesktopAuth/u);
 	assert.match(readme, /no credential values, endpoint URLs, environment names, static slots/u);
 });
 
 test("global extension guide includes concise no-manual-slot dynamic warnings and canonical README link", async () => {
 	const guide = await readFile(new URL("../../../../EXTENSIONS.md", import.meta.url), "utf8");
 	for (const required of [
+		"service-account-only 1Password protected resolver",
+		"OP_SERVICE_ACCOUNT_TOKEN",
 		"### 1Password dynamic workflow",
 		"less restrictive than protected static bindings",
 		"active model",

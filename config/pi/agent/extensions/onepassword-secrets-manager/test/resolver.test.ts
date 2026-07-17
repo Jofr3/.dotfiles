@@ -16,7 +16,6 @@ import {
 import { PublicError } from "../src/safety.ts";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 const REFERENCE = "op://example-vault/example-item/password";

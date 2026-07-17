@@ -1,9 +1,17 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { DynamicSelectionSession, DYNAMIC_TOOL_NAMES } from "./dynamic.ts";
+import {
+	databaseGrantConfirmation,
+	DatabaseProfileGrantProvider,
+	DatabaseRequirementMetadataCache,
+	DATABASE_REQUIREMENT_ID_PATTERN,
+	type DatabaseProfileRequirementRecord,
+} from "./database-profile.ts";
 import { disableResolverLifecycle, shutdownLifecycle } from "./lifecycle.ts";
+import { LoginAutofillService } from "./login.ts";
 import { type LoadedResolverBindings, loadResolverBindings } from "./resolver-bindings.ts";
-import { OnePasswordManager } from "./manager.ts";
+import { OnePasswordManager, revokeDynamicSecretGrant } from "./manager.ts";
 import {
 	DYNAMIC_ENABLE_CONFIRMATION,
 	RESOLVER_ENABLE_CONFIRMATION,
@@ -15,12 +23,19 @@ import {
 	RequirementMetadataCache,
 } from "./requirements.ts";
 import { SecretResolverProvider } from "./resolver.ts";
+import { RevealRegistry, revealDynamicField } from "./reveal.ts";
 import { REQUEST_DEADLINE_MS } from "./safety.ts";
+import { EventStagehandLeaseClient, type StagehandLeaseSource } from "./stagehand-lease.ts";
 
 const METADATA_ID_SCHEMA = Type.String({
 	description: "Exact opaque session handle returned by a prior 1Password dynamic discovery tool",
 	pattern: "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
 	maxLength: 128,
+});
+const REQUIRED_QUERY_SCHEMA = Type.String({
+	description: "Local case-insensitive item-title search text; never sent to the 1Password SDK as a query",
+	minLength: 1,
+	maxLength: 256,
 });
 const QUERY_SCHEMA = Type.Optional(Type.String({
 	description: "Optional local case-insensitive title filter; no raw SDK query is created",
@@ -32,12 +47,45 @@ const LIMIT_SCHEMA = Type.Optional(Type.Integer({
 	minimum: 1,
 	maximum: 50,
 }));
+const SUBMIT_SCHEMA = (typeof (Type as unknown as { Boolean?: Function }).Boolean === "function"
+	? (Type as unknown as { Boolean(options: object): unknown }).Boolean({
+		description: "Submit the unambiguous login form automatically (default true)",
+	})
+	: { type: "boolean", description: "Submit the unambiguous login form automatically (default true)" }) as ReturnType<typeof Type.Boolean>;
+const DATABASE_PROFILE_ID_SCHEMA = Type.String({
+	description: "Exact opaque profileId returned by database_profile_requirements",
+	pattern: "^dbp1-P-[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$",
+	minLength: 50,
+	maxLength: 50,
+});
 const REQUIREMENT_ID_SCHEMA = Type.String({
 	description: "Exact opaque requirementId returned by a prior successful mcp_toolbox_requirements call",
 	pattern: "^mcp1-(H|A|B)-[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$",
 	minLength: 50,
 	maxLength: 50,
 });
+
+function exactToolInput(input: unknown, keys: readonly string[]): Record<string, unknown> {
+	if (typeof input !== "object" || input === null || Array.isArray(input)) throw new Error("invalid_input");
+	const prototype = Object.getPrototypeOf(input);
+	if (prototype !== Object.prototype && prototype !== null) throw new Error("invalid_input");
+	const descriptors = Object.getOwnPropertyDescriptors(input);
+	if (Reflect.ownKeys(descriptors).length !== keys.length) throw new Error("invalid_input");
+	const output: Record<string, unknown> = Object.create(null);
+	for (const key of keys) {
+		const descriptor = descriptors[key];
+		if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) throw new Error("invalid_input");
+		output[key] = descriptor.value;
+	}
+	return output;
+}
+
+function mutableToolResult<D>(result: Readonly<{
+	content: readonly Readonly<{ type: "text"; text: string }>[];
+	details: D;
+}>): { content: Array<{ type: "text"; text: string }>; details: D } {
+	return { content: result.content.map((entry) => ({ type: "text", text: entry.text })), details: result.details };
+}
 
 const DYNAMIC_GUIDANCE = [
 	"For dynamic 1Password selection, first call mcp_toolbox_requirements with the exact MCP server/tool and wait; use only a returned requirementId. Then call onepassword_list_vaults and wait; call onepassword_list_items with one emitted opaque vaultId handle and wait; call onepassword_list_fields with emitted opaque vaultId/itemId handles and wait; then call onepassword_grant_secret with the emitted opaque handles and that requirementId, and wait for successful approval output.",
@@ -48,6 +96,8 @@ const DYNAMIC_GUIDANCE = [
 export interface OnePasswordExtensionDependencies {
 	manager?: OnePasswordManager;
 	loadBindings?: () => Promise<LoadedResolverBindings>;
+	stagehandLeases?: StagehandLeaseSource;
+	revealRegistry?: RevealRegistry;
 }
 
 export function registerOnePasswordSecretsManagerExtension(
@@ -64,8 +114,20 @@ export function registerOnePasswordSecretsManagerExtension(
 	}, () => resolver.status().mode === "dynamic");
 	const dynamic = new DynamicSelectionSession(manager, resolver, requirements);
 	invalidateDynamicRequirements = (records) => { dynamic.invalidateRequirements(records); };
+	let databaseProvider: DatabaseProfileGrantProvider | undefined;
+	const databaseRequirements = new DatabaseRequirementMetadataCache((records) => {
+		databaseProvider?.revokeRequirements(records);
+		for (const record of records) databaseReservations.delete(record.requirementId);
+	});
+	databaseProvider = new DatabaseProfileGrantProvider(manager, databaseRequirements);
+	const revealRegistry = dependencies.revealRegistry ?? new RevealRegistry();
+	const stagehandLeases = dependencies.stagehandLeases ?? new EventStagehandLeaseClient(pi.events);
+	const login = new LoginAutofillService(dynamic, manager, stagehandLeases);
+	const databaseReservations = new Set<string>();
 	resolver.start(pi.events);
 	requirements.start(pi.events);
+	databaseRequirements.start(pi.events);
+	databaseProvider.start(pi.events);
 	let transition = 0;
 	let dynamicToolsRegistered = false;
 	const consentControllers = new Set<AbortController>();
@@ -92,6 +154,55 @@ export function registerOnePasswordSecretsManagerExtension(
 		}
 	};
 
+	const turnSucceeded = (event: unknown): boolean => {
+		if (typeof event !== "object" || event === null) return false;
+		try {
+			const descriptors = Object.getOwnPropertyDescriptors(event);
+			const message = descriptors.message && "value" in descriptors.message ? descriptors.message.value : undefined;
+			const toolResults = descriptors.toolResults && "value" in descriptors.toolResults ? descriptors.toolResults.value : undefined;
+			if (typeof message !== "object" || message === null || !Array.isArray(toolResults)) return false;
+			const stop = Object.getOwnPropertyDescriptor(message, "stopReason");
+			const stopReason = stop && "value" in stop ? stop.value : undefined;
+			if (stopReason !== "stop" && stopReason !== "toolUse") return false;
+			for (const toolResult of toolResults) {
+				if (typeof toolResult !== "object" || toolResult === null) return false;
+				const isError = Object.getOwnPropertyDescriptor(toolResult, "isError");
+				if (isError && "value" in isError && isError.value === true) return false;
+				const details = Object.getOwnPropertyDescriptor(toolResult, "details");
+				if (details && "value" in details && typeof details.value === "object" && details.value !== null) {
+					const ok = Object.getOwnPropertyDescriptor(details.value, "ok");
+					if (ok && "value" in ok && ok.value === false) return false;
+				}
+			}
+			return true;
+		} catch { return false; }
+	};
+	const agentFailedOrRetrying = (event: unknown): boolean => {
+		if (typeof event !== "object" || event === null) return true;
+		try {
+			const retry = Object.getOwnPropertyDescriptor(event, "willRetry");
+			if (retry && "value" in retry && retry.value === true) return true;
+			const messages = Object.getOwnPropertyDescriptor(event, "messages");
+			if (!messages || !("value" in messages) || !Array.isArray(messages.value)) return false;
+			return messages.value.some((message: unknown) => {
+				if (typeof message !== "object" || message === null) return false;
+				const stop = Object.getOwnPropertyDescriptor(message, "stopReason");
+				const reason = stop && "value" in stop ? stop.value : undefined;
+				return reason === "error" || reason === "aborted";
+			});
+		} catch { return true; }
+	};
+	const invalidateEphemeral = async (): Promise<void> => {
+		dynamic.reset();
+		requirements.invalidate();
+		databaseRequirements.invalidate();
+		databaseProvider?.revokeAll();
+		databaseReservations.clear();
+		revealRegistry.clear();
+		login.reset();
+		await manager.reset();
+	};
+
 	const deactivateDynamicTools = (): void => {
 		const dynamicNames = new Set<string>(DYNAMIC_TOOL_NAMES);
 		pi.setActiveTools(pi.getActiveTools().filter((name) => !dynamicNames.has(name)));
@@ -102,6 +213,11 @@ export function registerOnePasswordSecretsManagerExtension(
 	const disableAll = async (): Promise<void> => {
 		transition += 1;
 		abortPendingConsents();
+		databaseRequirements.disable();
+		databaseProvider?.disable();
+		databaseReservations.clear();
+		revealRegistry.clear();
+		login.reset();
 		const drain = disableResolverLifecycle(resolver, manager, dynamic, requirements);
 		deactivateDynamicTools();
 		await drain;
@@ -119,7 +235,7 @@ export function registerOnePasswordSecretsManagerExtension(
 			executionMode: "sequential",
 			parameters: Type.Object({ query: QUERY_SCHEMA, limit: LIMIT_SCHEMA }, { additionalProperties: false }),
 			async execute(_toolCallId, params, signal) {
-				return dynamic.listVaults(params, signal);
+				return mutableToolResult(await dynamic.listVaults(params, signal));
 			},
 		});
 		pi.registerTool({
@@ -135,7 +251,22 @@ export function registerOnePasswordSecretsManagerExtension(
 				limit: LIMIT_SCHEMA,
 			}, { additionalProperties: false }),
 			async execute(_toolCallId, params, signal) {
-				return dynamic.listItems(params, signal);
+				return mutableToolResult(await dynamic.listItems(params, signal));
+			},
+		});
+		pi.registerTool({
+			name: "onepassword_search_items",
+			label: "1Password Search Items",
+			description: "Search item titles locally across at most 20 accessible vaults and 1,000 item overviews, returning at most 50 sanitized metadata records with opaque session handles. The query is never sent to the SDK as a search expression.",
+			promptSnippet: "Boundedly search safe 1Password item metadata across accessible vaults",
+			executionMode: "sequential",
+			parameters: Type.Object({
+				query: REQUIRED_QUERY_SCHEMA,
+				state: Type.Optional(Type.String({ enum: ["active", "archived", "all"] })),
+				limit: LIMIT_SCHEMA,
+			}, { additionalProperties: false }),
+			async execute(_toolCallId, params, signal) {
+				return mutableToolResult(await dynamic.searchItems(params, signal));
 			},
 		});
 		pi.registerTool({
@@ -151,7 +282,7 @@ export function registerOnePasswordSecretsManagerExtension(
 				limit: LIMIT_SCHEMA,
 			}, { additionalProperties: false }),
 			async execute(_toolCallId, params, signal) {
-				return dynamic.listFields(params, signal);
+				return mutableToolResult(await dynamic.listFields(params, signal));
 			},
 		});
 		pi.registerTool({
@@ -167,7 +298,112 @@ export function registerOnePasswordSecretsManagerExtension(
 				requirementId: REQUIREMENT_ID_SCHEMA,
 			}, { additionalProperties: false }),
 			async execute(_toolCallId, params, signal, _onUpdate, ctx) {
-				return dynamic.grantSecret(params, signal, ctx);
+				return mutableToolResult(await dynamic.grantSecret(params, signal, ctx));
+			},
+		});
+		pi.registerTool({
+			name: "onepassword_grant_database_profile",
+			label: "1Password Grant Database Profile",
+			description: "Verify one discovered field against one exact cached database profile requirement, request explicit approval for the canonical project/profile/field metadata, and stage one in-memory later-turn grant. Never returns the field value or private reference.",
+			promptSnippet: "Approve one exact one-shot database connection-profile field",
+			executionMode: "sequential",
+			parameters: Type.Object({
+				vaultId: METADATA_ID_SCHEMA,
+				itemId: METADATA_ID_SCHEMA,
+				fieldId: METADATA_ID_SCHEMA,
+				profileId: DATABASE_PROFILE_ID_SCHEMA,
+			}, { additionalProperties: false }),
+			async execute(_toolCallId, params, signal, _onUpdate, ctx) {
+				let capability: Awaited<ReturnType<OnePasswordManager["createDynamicSecretGrant"]>> | undefined;
+				let installed = false;
+				let requirement: DatabaseProfileRequirementRecord | undefined;
+				try {
+					const parsed = exactToolInput(params, ["vaultId", "itemId", "fieldId", "profileId"]);
+					if (
+						typeof parsed.vaultId !== "string" || typeof parsed.itemId !== "string" ||
+						typeof parsed.fieldId !== "string" || typeof parsed.profileId !== "string" ||
+						!DATABASE_REQUIREMENT_ID_PATTERN.test(parsed.profileId)
+					) throw new Error("invalid");
+					requirement = databaseRequirements.lookup(parsed.profileId);
+					if (requirement === undefined) throw new Error("invalid");
+					if (databaseReservations.has(requirement.requirementId)) {
+						return {
+							content: [{ type: "text" as const, text: "1Password database profile grant failed (busy)." }],
+							details: Object.freeze({ ok: false, code: "busy" }),
+						};
+					}
+					databaseReservations.add(requirement.requirementId);
+					databaseProvider?.revoke(requirement.requirementId);
+					if (ctx.hasUI !== true) throw new Error("approval_required");
+					const choice = await dynamic.verifyFieldChoice(parsed.vaultId, parsed.itemId, parsed.fieldId, signal);
+					if (!databaseRequirements.isCurrent(requirement)) throw new Error("lifecycle");
+					const controller = new AbortController();
+					const onAbort = () => { try { controller.abort("database-grant-cancelled"); } catch { /* Deny below. */ } };
+					if (signal !== undefined) signal.addEventListener("abort", onAbort, { once: true });
+					let approved = false;
+					try {
+						approved = await ctx.ui.confirm(
+							"Approve one-shot 1Password database profile",
+							databaseGrantConfirmation(choice.vault, choice.selection, requirement),
+							{ timeout: REQUEST_DEADLINE_MS, signal: controller.signal },
+						);
+					} catch { approved = false; }
+					finally {
+						if (signal !== undefined) {
+							try { signal.removeEventListener("abort", onAbort); } catch { /* Fixed denial. */ }
+						}
+					}
+					if (approved !== true) throw new Error("approval_denied");
+					if (!databaseRequirements.isCurrent(requirement)) throw new Error("lifecycle");
+					capability = await manager.createDynamicSecretGrant(choice.selection, signal);
+					if (!databaseRequirements.isCurrent(requirement)) throw new Error("lifecycle");
+					databaseProvider!.install(requirement, capability);
+					installed = true;
+					return {
+						content: [{ type: "text" as const, text: "One-shot database profile grant approved. It becomes usable only after this successful tool turn; call database_query with the exact profileId in a later turn." }],
+						details: Object.freeze({ ok: true, grantCount: databaseProvider!.status().grantCount }),
+					};
+				} catch (error) {
+					const marker = error instanceof Error ? error.message : "request_failed";
+					const code = ["approval_required", "approval_denied", "lifecycle"].includes(marker) ? marker : "request_failed";
+					return {
+						content: [{ type: "text" as const, text: `1Password database profile grant failed (${code}).` }],
+						details: Object.freeze({ ok: false, code }),
+					};
+				} finally {
+					if (!installed && capability !== undefined) revokeDynamicSecretGrant(capability);
+					if (requirement !== undefined) databaseReservations.delete(requirement.requirementId);
+				}
+			},
+		});
+		pi.registerTool({
+			name: "onepassword_reveal_field",
+			label: "1Password Reveal Field",
+			description: "After explicit confirmation, re-resolve one discovered field and show it only in a TUI popup for at most 30 seconds. The value is never returned in tool content/details, events, progress, or session state. RPC/JSON/print modes fail closed.",
+			promptSnippet: "Request a temporary TUI-only reveal of one discovered 1Password field",
+			executionMode: "sequential",
+			parameters: Type.Object({
+				vaultId: METADATA_ID_SCHEMA,
+				itemId: METADATA_ID_SCHEMA,
+				fieldId: METADATA_ID_SCHEMA,
+			}, { additionalProperties: false }),
+			async execute(_toolCallId, params, signal, _onUpdate, ctx) {
+				return mutableToolResult(await revealDynamicField(dynamic, manager, revealRegistry, params, signal, ctx));
+			},
+		});
+		pi.registerTool({
+			name: "onepassword_fill_login",
+			label: "1Password Fill Login",
+			description: "Re-fetch and strictly map a standard Login item, verify the current Stagehand page and form action against the item's HTTPS website policy, explicitly confirm, re-resolve username/password for this use, fill through a revocable session-wide Stagehand lease, and submit by default. MFA is detected but never automated; redirects to unapproved origins are rejected.",
+			promptSnippet: "Safely fill and optionally submit a discovered Login item in the current Stagehand page",
+			executionMode: "sequential",
+			parameters: Type.Object({
+				vaultId: METADATA_ID_SCHEMA,
+				itemId: METADATA_ID_SCHEMA,
+				submit: Type.Optional(SUBMIT_SCHEMA),
+			}, { additionalProperties: false }),
+			async execute(_toolCallId, params, signal, _onUpdate, ctx) {
+				return mutableToolResult(await login.fill(params, signal, ctx));
 			},
 		});
 	};
@@ -254,6 +490,8 @@ export function registerOnePasswordSecretsManagerExtension(
 					dynamic.reset();
 					resolver.enableDynamic();
 					requirements.enable();
+					databaseRequirements.enable();
+					databaseProvider?.enable();
 					registerDynamicTools();
 					activateDynamicTools();
 					ctx.ui.notify(
@@ -285,12 +523,39 @@ export function registerOnePasswordSecretsManagerExtension(
 		},
 	});
 
-	pi.on("turn_end", () => { resolver.armDynamicGrants(); });
+	pi.on("turn_end", async (event) => {
+		if (turnSucceeded(event)) {
+			resolver.armDynamicGrants();
+			databaseProvider?.arm();
+			return;
+		}
+		if (resolver.status().mode === "dynamic") {
+			await invalidateEphemeral();
+		} else {
+			resolver.revokeAllDynamicGrants();
+			databaseProvider?.revokeAll();
+			databaseReservations.clear();
+		}
+	});
+	pi.on("agent_end", async (event) => {
+		if (agentFailedOrRetrying(event) && resolver.status().mode === "dynamic") await invalidateEphemeral();
+	});
+	pi.on("session_before_tree", async () => {
+		if (resolver.status().mode === "dynamic") await invalidateEphemeral();
+	});
+	pi.on("session_before_compact", async () => {
+		if (resolver.status().mode === "dynamic") await invalidateEphemeral();
+	});
 	pi.on("session_before_switch", async () => { await disableAll(); });
 	pi.on("session_before_fork", async () => { await disableAll(); });
 	pi.on("session_shutdown", async (_event, ctx) => {
 		transition += 1;
 		abortPendingConsents();
+		databaseRequirements.shutdown();
+		databaseProvider?.shutdown();
+		databaseReservations.clear();
+		revealRegistry.shutdown();
+		login.shutdown();
 		const drain = shutdownLifecycle(resolver, manager, dynamic, requirements);
 		deactivateDynamicTools();
 		await drain;

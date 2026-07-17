@@ -150,14 +150,15 @@ function exactFrozenDenseArray(value: unknown): readonly unknown[] {
 	try {
 		if (!Object.isFrozen(value) || Object.getPrototypeOf(value) !== Array.prototype) admissionFailure();
 		const descriptors = Object.getOwnPropertyDescriptors(value);
-		const lengthDescriptor = descriptors.length;
+		const lengthDescriptor = Object.getOwnPropertyDescriptor(value, "length");
+		const lengthValue = lengthDescriptor && "value" in lengthDescriptor ? lengthDescriptor.value : undefined;
 		if (
-			!lengthDescriptor || !("value" in lengthDescriptor) ||
-			!Number.isSafeInteger(lengthDescriptor.value) || lengthDescriptor.value < 0 ||
-			lengthDescriptor.value > MAX_REQUIREMENTS_PER_EVENT || lengthDescriptor.enumerable ||
+			!lengthDescriptor || !("value" in lengthDescriptor) || typeof lengthValue !== "number" ||
+			!Number.isSafeInteger(lengthValue) || lengthValue < 0 ||
+			lengthValue > MAX_REQUIREMENTS_PER_EVENT || lengthDescriptor.enumerable ||
 			lengthDescriptor.configurable !== false || lengthDescriptor.writable !== false
 		) admissionFailure();
-		const length = lengthDescriptor.value as number;
+		const length = lengthValue as number;
 		const ownKeys = Reflect.ownKeys(descriptors);
 		if (ownKeys.length !== length + 1) admissionFailure();
 		for (let index = 0; index < length; index += 1) {
@@ -379,7 +380,7 @@ export class RequirementMetadataCache {
 			throw new Error("Requirement metadata listener could not be registered");
 		}
 		if (typeof unsubscribe !== "function") throw new Error("Requirement metadata listener could not be registered");
-		this.#unsubscribe = unsubscribe;
+		this.#unsubscribe = unsubscribe as () => void;
 	}
 
 	enable(): void {
@@ -389,6 +390,8 @@ export class RequirementMetadataCache {
 		this.#clear();
 		this.#enabled = true;
 	}
+
+	invalidate(): void { this.#clear(); }
 
 	disable(): void {
 		this.#enabled = false;

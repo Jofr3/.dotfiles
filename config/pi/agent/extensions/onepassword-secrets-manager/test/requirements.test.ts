@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
 import test from "node:test";
-import {
-	createRequirementArtifacts,
-	deriveRequirementId,
-	MCP_TOOLBOX_REQUIREMENTS_PROTOCOL as PRODUCER_PROTOCOL,
-} from "../../mcp-toolbox/src/requirements.ts";
 import {
 	MAX_CACHED_REQUIREMENT_SCOPES,
 	MAX_REQUIREMENTS_PER_EVENT,
@@ -15,10 +12,32 @@ import {
 } from "../src/requirements.ts";
 
 delete process.env.OP_SERVICE_ACCOUNT_TOKEN;
-delete process.env.PI_ONEPASSWORD_DESKTOP_ACCOUNT;
 delete process.env.PI_ONEPASSWORD_RESOLVER_BINDINGS;
 
 const VECTOR_ID = "mcp1-B-agZKwxZncAXfB6p1TMx7g0dZQk97793GMxXC_ky7E_A";
+const MCP_SOURCE = new URL("../../mcp-toolbox/src/requirements.ts", import.meta.url);
+const MCP_AVAILABLE = existsSync(MCP_SOURCE);
+const REQUIREMENT_PREFIX = { header: "mcp1-H-", "auth-token": "mcp1-A-", "bound-param": "mcp1-B-" } as const;
+
+function frame(value: string): Buffer {
+	const bytes = Buffer.from(value, "utf8");
+	const length = Buffer.alloc(4);
+	length.writeUInt32BE(bytes.byteLength, 0);
+	return Buffer.concat([length, bytes]);
+}
+
+function deriveRequirementId(
+	server: string,
+	tool: string,
+	targetKind: "header" | "auth-token" | "bound-param",
+	targetName: string,
+): string {
+	const suffix = createHash("sha256").update(Buffer.concat([
+		Buffer.from("pi.mcp-toolbox.requirement-id\0", "ascii"),
+		frame("1"), frame(server), frame(tool), frame(targetKind), frame(targetName),
+	])).digest("base64url");
+	return `${REQUIREMENT_PREFIX[targetKind]}${suffix}`;
+}
 
 function requirementId(marker: "H" | "A" | "B", seed: number): string {
 	const digest = Buffer.alloc(32);
@@ -87,8 +106,9 @@ function assertRetained(
 	assert.equal(cache.status().requirementCount, 1);
 }
 
-test("consumer constants and strict ID/purpose parser match the completed MCP producer", () => {
-	assert.equal(MCP_TOOLBOX_REQUIREMENTS_PROTOCOL, PRODUCER_PROTOCOL);
+test("consumer constants and strict ID/purpose parser match the completed MCP producer", { skip: !MCP_AVAILABLE }, async () => {
+	const producer = await import(MCP_SOURCE.href);
+	assert.equal(MCP_TOOLBOX_REQUIREMENTS_PROTOCOL, producer.MCP_TOOLBOX_REQUIREMENTS_PROTOCOL);
 	assert.equal(MCP_TOOLBOX_REQUIREMENTS_CHANNEL, "pi:mcp-toolbox:requirements:v1");
 	assert.deepEqual(parseDynamicRequirementId(VECTOR_ID), {
 		targetKind: "bound-param",
@@ -123,7 +143,8 @@ test("listener checks live resolver mode and does not inspect events outside dyn
 	assert.equal(cache.status().enabled, true);
 });
 
-test("actual MCP artifact is admitted only while enabled and becomes detached frozen exact metadata", () => {
+test("actual MCP artifact is admitted only while enabled and becomes detached frozen exact metadata", { skip: !MCP_AVAILABLE }, async () => {
+	const { createRequirementArtifacts } = await import(MCP_SOURCE.href);
 	let disabledGetter = 0;
 	const disabledEvent = {} as Record<string, unknown>;
 	Object.defineProperty(disabledEvent, "protocol", {

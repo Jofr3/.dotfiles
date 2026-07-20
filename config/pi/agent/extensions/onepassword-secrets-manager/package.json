@@ -1,9 +1,9 @@
 {
   "name": "pi-onepassword-secrets-manager-extension",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Service-account-backed 1Password metadata, protected resolution, TUI reveal, and Stagehand Login autofill for Pi",
+  "description": "Default-on dynamic 1Password metadata and one-shot resolution, TUI reveal, and Stagehand Login autofill for Pi",
   "keywords": [
     "pi-package"
   ],

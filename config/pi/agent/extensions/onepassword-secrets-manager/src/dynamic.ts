@@ -4,6 +4,8 @@ import {
 	type FullItemMetadata,
 	MAX_METADATA_RECORDS,
 	MAX_METADATA_TEXT_BYTES,
+	MetadataResponseError,
+	type MetadataResponseDiagnostic,
 	serializeFieldMetadata,
 	serializeItemMetadata,
 	serializeSearchItemMetadata,
@@ -70,6 +72,7 @@ export interface DynamicToolResult {
 	readonly details: Readonly<{
 		ok: boolean;
 		code?: DynamicToolFailureCode;
+		diagnostic?: MetadataResponseDiagnostic;
 		recordCount?: number;
 		grantCount?: number;
 	}>;
@@ -241,9 +244,11 @@ function fixedFailureCode(error: unknown): DynamicToolFailureCode {
 
 function failureResult(error: unknown): DynamicToolResult {
 	const code = fixedFailureCode(error);
+	const diagnostic = error instanceof MetadataResponseError ? error.diagnostic : undefined;
+	const suffix = diagnostic === undefined ? code : `${code}:${diagnostic}`;
 	return Object.freeze({
-		content: Object.freeze([{ type: "text" as const, text: `1Password dynamic request failed (${code}).` }]),
-		details: Object.freeze({ ok: false, code }),
+		content: Object.freeze([{ type: "text" as const, text: `1Password dynamic request failed (${suffix}).` }]),
+		details: Object.freeze({ ok: false, code, ...(diagnostic === undefined ? {} : { diagnostic }) }),
 	});
 }
 

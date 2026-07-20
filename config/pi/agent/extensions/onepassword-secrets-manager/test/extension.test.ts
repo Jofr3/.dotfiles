@@ -9,23 +9,19 @@ async function indexSource(): Promise<string> {
 	return readFile(new URL("../src/index.ts", import.meta.url), "utf8");
 }
 
-test("dynamic commands are explicit, UI-gated, mutually exclusive, and dynamic mode never loads bindings", async () => {
+test("dynamic mode is enabled by default, remains offline, and exposes no static credential mode", async () => {
 	const source = await indexSource();
-	for (const action of ["status", "resolver-enable", "resolver-disable", "dynamic-enable", "dynamic-disable"]) {
-		assert.equal(source.includes(`"${action}"`), true);
-	}
-	const dynamicStart = source.indexOf('if (action === "dynamic-enable")');
-	const dynamicEnd = source.indexOf('if (action === "resolver-disable"', dynamicStart);
-	const branch = source.slice(dynamicStart, dynamicEnd);
-	assert.match(branch, /if \(!ctx\.hasUI\) return/u);
-	assert.match(branch, /DYNAMIC_ENABLE_CONFIRMATION/u);
-	assert.match(branch, /await ctx\.waitForIdle\(\)/u);
-	assert.match(branch, /resolver\.enableDynamic\(\)/u);
-	assert.match(branch, /registerDynamicTools\(\)/u);
-	assert.match(branch, /activateDynamicTools\(\)/u);
-	assert.doesNotMatch(branch, /loadBindings|loadResolverBindings/u);
-	assert.doesNotMatch(branch, /import\("@1password\/sdk"\)/u);
-	assert.match(branch, /resolver\.status\(\)\.enabled/u);
+	assert.match(source, /const enableDynamic = \(activateTools: boolean\): void =>/u);
+	assert.match(source, /resolver\.enableDynamic\(\)/u);
+	assert.match(source, /requirements\.enable\(\)/u);
+	assert.match(source, /registerDynamicTools\(\)/u);
+	assert.match(source, /activateDynamicTools\(\)/u);
+	assert.match(source, /\/\/ Dynamic discovery is the only credential mode[\s\S]*enableDynamic\(false\);/u);
+	assert.match(source, /pi\.on\("session_start"[\s\S]*activateDynamicTools\(\)/u);
+	assert.match(source, /const values = \["status", "enable", "disable"\]/u);
+	assert.doesNotMatch(source, /resolver-enable|resolver-disable|dynamic-enable|dynamic-disable/u);
+	assert.doesNotMatch(source, /loadBindings|loadResolverBindings|RESOLVER_ENABLE_CONFIRMATION|DYNAMIC_ENABLE_CONFIRMATION/u);
+	assert.doesNotMatch(source, /import\("@1password\/sdk"\)/u);
 });
 
 test("dynamic activation preserves unrelated tools and disable filters exactly the fixed dynamic names", async () => {
@@ -82,7 +78,7 @@ test("active-tool guidance enforces requirements-first discovery, wait boundarie
 	]) assert.equal(source.includes(text), true, text);
 });
 
-test("status and dynamic enable remain offline while static enable alone reads the protected binding file", async () => {
+test("status and default dynamic activation remain offline and never read binding files", async () => {
 	const source = await indexSource();
 	const statusStart = source.indexOf('name: "onepassword_sm_status"');
 	const commandStart = source.indexOf('pi.registerCommand("onepassword-sm"', statusStart);
@@ -90,8 +86,8 @@ test("status and dynamic enable remain offline while static enable alone reads t
 	assert.match(status, /manager\.status\(\)/u);
 	assert.match(status, /resolver\.status\(\)/u);
 	assert.doesNotMatch(status, /loadBindings|resolveSecretValue|listVaultMetadata|import\(/u);
-	const staticStart = source.indexOf('if (action === "resolver-enable")');
-	const dynamicStart = source.indexOf('if (action === "dynamic-enable")');
-	const staticBranch = source.slice(staticStart, dynamicStart);
-	assert.match(staticBranch, /const loaded = await loadBindings\(\)/u);
+	const activationStart = source.indexOf("const enableDynamic");
+	const activationEnd = source.indexOf('pi.registerTool({\n\t\tname: "onepassword_sm_status"', activationStart);
+	const activation = source.slice(activationStart, activationEnd);
+	assert.doesNotMatch(activation, /loadBindings|resolveSecretValue|listVaultMetadata|import\(/u);
 });

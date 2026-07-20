@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "requestTimeoutMs": 30000,
+  "servers": [
+    {
+      "id": "production",
+      "url": "https://toolbox.example.com",
+      "protocol": "2025-11-25",
+      "denyTools": []
+    }
+  ]
+}

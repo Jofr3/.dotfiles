@@ -1,0 +1,14 @@
+kind: source
+name: pi-managed-source
+type: mssql
+host: ${PI_MCP_DB_HOST}
+port: ${PI_MCP_DB_PORT}
+database: ${PI_MCP_DB_DATABASE}
+user: ${PI_MCP_DB_USER}
+password: ${PI_MCP_DB_PASSWORD}
+---
+kind: tool
+name: execute_sql
+type: mssql-execute-sql
+source: pi-managed-source
+description: Execute one SQL statement against the explicitly approved 1Password database fields.

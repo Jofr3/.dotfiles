@@ -10,14 +10,8 @@ import {
 } from "./database-profile.ts";
 import { disableResolverLifecycle, shutdownLifecycle } from "./lifecycle.ts";
 import { LoginAutofillService } from "./login.ts";
-import { type LoadedResolverBindings, loadResolverBindings } from "./resolver-bindings.ts";
 import { OnePasswordManager, revokeDynamicSecretGrant } from "./manager.ts";
-import {
-	DYNAMIC_ENABLE_CONFIRMATION,
-	RESOLVER_ENABLE_CONFIRMATION,
-	statusPayload,
-	statusText,
-} from "./presentation.ts";
+import { statusPayload, statusText } from "./presentation.ts";
 import {
 	type CachedRequirementRecord,
 	RequirementMetadataCache,
@@ -95,7 +89,6 @@ const DYNAMIC_GUIDANCE = [
 
 export interface OnePasswordExtensionDependencies {
 	manager?: OnePasswordManager;
-	loadBindings?: () => Promise<LoadedResolverBindings>;
 	stagehandLeases?: StagehandLeaseSource;
 	revealRegistry?: RevealRegistry;
 }
@@ -105,7 +98,6 @@ export function registerOnePasswordSecretsManagerExtension(
 	dependencies: OnePasswordExtensionDependencies = {},
 ): void {
 	const manager = dependencies.manager ?? new OnePasswordManager();
-	const loadBindings = dependencies.loadBindings ?? (() => loadResolverBindings());
 	const resolver = new SecretResolverProvider(manager);
 	let invalidateDynamicRequirements: ((records: readonly CachedRequirementRecord[]) => void) | undefined;
 	const requirements = new RequirementMetadataCache((records) => {
@@ -128,31 +120,7 @@ export function registerOnePasswordSecretsManagerExtension(
 	requirements.start(pi.events);
 	databaseRequirements.start(pi.events);
 	databaseProvider.start(pi.events);
-	let transition = 0;
 	let dynamicToolsRegistered = false;
-	const consentControllers = new Set<AbortController>();
-
-	const abortPendingConsents = (): void => {
-		for (const controller of consentControllers) {
-			try { Reflect.apply(AbortController.prototype.abort, controller, ["onepassword-mode-transition"]); } catch { /* Transition ticket remains authoritative. */ }
-		}
-		consentControllers.clear();
-	};
-	const requestConsent = async (
-		confirm: (title: string, message: string, options: { timeout: number; signal: AbortSignal }) => Promise<boolean>,
-		title: string,
-		message: string,
-	): Promise<boolean> => {
-		const controller = new AbortController();
-		consentControllers.add(controller);
-		try {
-			return await confirm(title, message, { timeout: REQUEST_DEADLINE_MS, signal: controller.signal });
-		} catch {
-			return false;
-		} finally {
-			consentControllers.delete(controller);
-		}
-	};
 
 	const turnSucceeded = (event: unknown): boolean => {
 		if (typeof event !== "object" || event === null) return false;
@@ -211,8 +179,6 @@ export function registerOnePasswordSecretsManagerExtension(
 		pi.setActiveTools([...new Set([...pi.getActiveTools(), ...DYNAMIC_TOOL_NAMES])]);
 	};
 	const disableAll = async (): Promise<void> => {
-		transition += 1;
-		abortPendingConsents();
 		databaseRequirements.disable();
 		databaseProvider?.disable();
 		databaseReservations.clear();
@@ -229,8 +195,8 @@ export function registerOnePasswordSecretsManagerExtension(
 		pi.registerTool({
 			name: "onepassword_list_vaults",
 			label: "1Password List Vaults",
-			description: "List at most 50 accessible vault metadata records after dynamic consent. Emits only an opaque session handle, title, vault type, and active item count; supports a local title query and limit.",
-			promptSnippet: "List bounded safe 1Password vault metadata after dynamic consent",
+			description: "List at most 50 accessible vault metadata records in the default dynamic mode. Emits only an opaque session handle, title, vault type, and active item count; supports a local title query and limit.",
+			promptSnippet: "List bounded safe 1Password vault metadata in default dynamic mode",
 			promptGuidelines: DYNAMIC_GUIDANCE,
 			executionMode: "sequential",
 			parameters: Type.Object({ query: QUERY_SCHEMA, limit: LIMIT_SCHEMA }, { additionalProperties: false }),
@@ -408,11 +374,32 @@ export function registerOnePasswordSecretsManagerExtension(
 		});
 	};
 
+	const enableDynamic = (activateTools: boolean): void => {
+		if (resolver.status().mode === "dynamic") {
+			registerDynamicTools();
+			if (activateTools) activateDynamicTools();
+			return;
+		}
+		if (resolver.status().mode !== "disabled") throw new Error("Dynamic 1Password mode is unavailable");
+		dynamic.reset();
+		resolver.enableDynamic();
+		requirements.enable();
+		databaseRequirements.enable();
+		databaseProvider?.enable();
+		registerDynamicTools();
+		if (activateTools) activateDynamicTools();
+	};
+
+	// Dynamic discovery is the only credential mode and is enabled in-memory at
+	// extension registration. Tool activation is deferred until session_start;
+	// Pi action methods are unavailable while extension modules are loading.
+	enableDynamic(false);
+
 	pi.registerTool({
 		name: "onepassword_sm_status",
 		label: "1Password SM Status",
-		description: "Report safe, offline 1Password resolver status. Never reads bindings, initializes the SDK, authenticates, or contacts 1Password.",
-		promptSnippet: "Inspect offline 1Password resolver configuration and aggregate state",
+		description: "Report safe, offline status for the default dynamic-only 1Password mode. Never reads binding files, initializes the SDK, authenticates, or contacts 1Password.",
+		promptSnippet: "Inspect offline default dynamic 1Password state and aggregate counters",
 		parameters: Type.Object({}, { additionalProperties: false }),
 		async execute() {
 			const payload = statusPayload(manager.status(), resolver.status());
@@ -421,9 +408,9 @@ export function registerOnePasswordSecretsManagerExtension(
 	});
 
 	pi.registerCommand("onepassword-sm", {
-		description: "Manage static or dynamic consent-gated in-memory 1Password resolution",
+		description: "Inspect, enable, or disable the default dynamic-only 1Password mode",
 		getArgumentCompletions: (prefix) => {
-			const values = ["status", "resolver-enable", "resolver-disable", "dynamic-enable", "dynamic-disable"];
+			const values = ["status", "enable", "disable"];
 			const matches = values.filter((value) => value.startsWith(prefix.trim()));
 			return matches.length > 0 ? matches.map((value) => ({ value, label: value })) : null;
 		},
@@ -433,96 +420,34 @@ export function registerOnePasswordSecretsManagerExtension(
 				if (ctx.hasUI) ctx.ui.notify(statusText(manager.status(), resolver.status()), "info");
 				return;
 			}
-			if (action === "resolver-enable") {
-				if (!ctx.hasUI) return;
-				if (resolver.status().enabled) {
-					ctx.ui.notify("The 1Password secret resolver is already enabled for this session; disable it before changing modes.", "info");
-					return;
-				}
-				abortPendingConsents();
-				const ticket = ++transition;
-				const approved = await requestConsent(
-					ctx.ui.confirm.bind(ctx.ui),
-					"Enable protected static 1Password resolver",
-					RESOLVER_ENABLE_CONFIRMATION,
-				);
-				if (!approved || ticket !== transition) {
-					ctx.ui.notify("The 1Password secret resolver remains disabled.", "info");
-					return;
-				}
+			if (action === "enable") {
 				try {
 					await ctx.waitForIdle();
-					if (ticket !== transition || resolver.status().mode !== "disabled") return;
-					const loaded = await loadBindings();
-					if (ticket !== transition || resolver.status().mode !== "disabled") return;
-					resolver.enable(loaded.config);
-					deactivateDynamicTools();
-					ctx.ui.notify(
-						`1Password static resolver enabled for this session with ${loaded.config.bindings.length} protected binding(s). Authentication remains lazy until the first accepted secret resolution.`,
-						"warning",
-					);
+					enableDynamic(true);
+					if (ctx.hasUI) ctx.ui.notify("Default dynamic 1Password mode enabled. Authentication remains lazy and every secret handoff still requires an exact one-shot approval.", "info");
 				} catch {
-					if (ticket === transition) await disableAll();
-					ctx.ui.notify("The protected resolver binding configuration is missing, invalid, or unsafe; the resolver remains disabled.", "error");
+					await disableAll();
+					if (ctx.hasUI) ctx.ui.notify("Dynamic 1Password mode could not be enabled safely.", "error");
 				}
 				return;
 			}
-			if (action === "dynamic-enable") {
-				if (!ctx.hasUI) return;
-				if (resolver.status().enabled) {
-					ctx.ui.notify("The 1Password secret resolver is already enabled for this session; disable it before changing modes.", "info");
-					return;
-				}
-				abortPendingConsents();
-				const ticket = ++transition;
-				const approved = await requestConsent(
-					ctx.ui.confirm.bind(ctx.ui),
-					"Enable dynamic 1Password selection",
-					DYNAMIC_ENABLE_CONFIRMATION,
-				);
-				if (!approved || ticket !== transition) {
-					ctx.ui.notify("Dynamic 1Password selection remains disabled.", "info");
-					return;
-				}
-				try {
-					await ctx.waitForIdle();
-					if (ticket !== transition || resolver.status().mode !== "disabled") return;
-					dynamic.reset();
-					resolver.enableDynamic();
-					requirements.enable();
-					databaseRequirements.enable();
-					databaseProvider?.enable();
-					registerDynamicTools();
-					activateDynamicTools();
-					ctx.ui.notify(
-						"Dynamic 1Password selection enabled for this session. Safe 1Password and MCP requirement metadata is model/event/session-visible; each exact cached-requirement one-shot grant still requires separate approval. Authentication remains lazy.",
-						"warning",
-					);
-				} catch {
-					if (ticket === transition) await disableAll();
-					ctx.ui.notify("Dynamic 1Password selection could not be enabled safely.", "error");
-				}
-				return;
-			}
-			if (action === "resolver-disable" || action === "dynamic-disable") {
+			if (action === "disable") {
 				await disableAll();
 				if (ctx.hasUI) {
 					ctx.ui.notify(
-						"1Password resolution disabled; cached MCP requirements, discoveries, and one-shot grants were cleared, pending callbacks were revoked, and cached SDK/client references were released.",
+						"1Password dynamic mode disabled; cached requirements, discoveries, and one-shot grants were cleared, pending callbacks were revoked, and cached SDK/client references were released.",
 						"info",
 					);
 				}
 				return;
 			}
-			if (ctx.hasUI) {
-				ctx.ui.notify(
-					"Usage: /onepassword-sm [status|resolver-enable|resolver-disable|dynamic-enable|dynamic-disable]",
-					"warning",
-				);
-			}
+			if (ctx.hasUI) ctx.ui.notify("Usage: /onepassword-sm [status|enable|disable]", "warning");
 		},
 	});
 
+	pi.on("session_start", async () => {
+		if (resolver.status().mode === "dynamic") activateDynamicTools();
+	});
 	pi.on("turn_end", async (event) => {
 		if (turnSucceeded(event)) {
 			resolver.armDynamicGrants();
@@ -549,8 +474,6 @@ export function registerOnePasswordSecretsManagerExtension(
 	pi.on("session_before_switch", async () => { await disableAll(); });
 	pi.on("session_before_fork", async () => { await disableAll(); });
 	pi.on("session_shutdown", async (_event, ctx) => {
-		transition += 1;
-		abortPendingConsents();
 		databaseRequirements.shutdown();
 		databaseProvider?.shutdown();
 		databaseReservations.clear();

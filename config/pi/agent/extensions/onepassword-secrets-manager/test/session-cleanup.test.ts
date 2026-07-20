@@ -85,21 +85,22 @@ test("session switch, fork, reload, and shutdown synchronously revoke resources 
 	registerOnePasswordSecretsManagerExtension(pi as never, { manager, stagehandLeases: leases });
 	assert.equal(bus.count(), 4, "resolver, MCP requirement, database requirement, and database profile listeners must be registered");
 	const command = commands.get("onepassword-sm")!;
+	assert.equal(active.includes("onepassword_fill_login"), false, "action methods must not run during extension loading");
 	const lifecycle = async (name: string, event: unknown = {}) => {
 		for (const handler of handlers.get(name) ?? []) await handler(event, ctx);
 	};
 
-	await command.handler("dynamic-enable", ctx);
-	assert.equal(active.includes("onepassword_fill_login"), true);
+	await lifecycle("session_start", { reason: "startup" });
+	assert.equal(active.includes("onepassword_fill_login"), true, "dynamic tools must activate at session start");
 	await lifecycle("session_before_switch", { reason: "resume" });
 	assert.equal(leases.resetCalls, 1);
 	assert.equal(active.includes("onepassword_fill_login"), false);
 
-	await command.handler("dynamic-enable", ctx);
+	await command.handler("enable", ctx);
 	await lifecycle("session_before_fork", { position: "before" });
 	assert.equal(leases.resetCalls, 2);
 
-	await command.handler("dynamic-enable", ctx);
+	await command.handler("enable", ctx);
 	await lifecycle("session_shutdown", { reason: "reload" });
 	assert.equal(leases.shutdownCalls, 1);
 	assert.equal(bus.count(), 0, "reload/shutdown must remove every process-local listener");

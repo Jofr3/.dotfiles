@@ -147,8 +147,73 @@ test("pinned SDK Login null-section shape lists fields and passes reveal verific
 	}
 });
 
-test("literal null compatibility does not admit other malformed section IDs", () => {
-	for (const sectionId of [undefined, false, 0, "missing-section"]) {
+test("field listing emits only a fixed safe diagnostic for rejected SDK metadata", async () => {
+	class Secrets { static validateSecretReference(): void {} }
+	const malformed = fullLoginItem();
+	(malformed.fields[0] as Record<string, unknown>).unexpected = SECRET;
+	const client = {
+		secrets: { resolve: async () => SECRET },
+		vaults: { list: async () => [{
+			id: RAW_VAULT_ID,
+			title: "Fake Login Vault",
+			description: SECRET,
+			vaultType: "userCreated",
+			activeItemCount: 1,
+			contentVersion: 1,
+			attributeVersion: 1,
+			createdAt: new Date(0),
+			updatedAt: new Date(0),
+		}] },
+		items: {
+			list: async () => [{
+				id: RAW_ITEM_ID,
+				title: "Fake SDK Login",
+				category: "Login",
+				vaultId: RAW_VAULT_ID,
+				websites: [],
+				tags: [SECRET],
+				createdAt: new Date(0),
+				updatedAt: new Date(0),
+				state: "active",
+			}],
+			get: async () => malformed,
+		},
+	};
+	const manager = new OnePasswordManager({
+		readEnvironment: () => ({ OP_SERVICE_ACCOUNT_TOKEN: TOKEN }),
+		loadSdk: async () => ({ default: { Secrets, createClient: async () => client } }),
+	});
+	const resolver = new SecretResolverProvider(manager);
+	const requirements = new RequirementMetadataCache();
+	const dynamic = new DynamicSelectionSession(manager, resolver, requirements);
+	resolver.enableDynamic();
+	try {
+		const vaultResult = await dynamic.listVaults({ limit: 20 });
+		const vaultId = JSON.parse(vaultResult.content[0]!.text).vaults[0].vaultId as string;
+		const itemResult = await dynamic.listItems({ vaultId, state: "active", limit: 20 });
+		const itemId = JSON.parse(itemResult.content[0]!.text).items[0].itemId as string;
+		const fieldResult = await dynamic.listFields({ vaultId, itemId, limit: 20 });
+		assert.deepEqual(fieldResult.details, {
+			ok: false,
+			code: "response_rejected",
+			diagnostic: "field_record",
+		});
+		assert.equal(fieldResult.content[0]!.text, "1Password dynamic request failed (response_rejected:field_record).");
+		assert.equal(JSON.stringify(fieldResult).includes(SECRET), false);
+		assert.equal(JSON.stringify(fieldResult).includes(RAW_VAULT_ID), false);
+		assert.equal(JSON.stringify(fieldResult).includes(RAW_ITEM_ID), false);
+	} finally {
+		requirements.shutdown();
+		await resolver.shutdown();
+		await manager.shutdown();
+	}
+});
+
+test("literal null and own undefined compatibility do not admit other malformed section IDs", () => {
+	const undefinedSection = fullLoginItem();
+	undefinedSection.fields[0]!.sectionId = undefined;
+	assert.equal(mapFullItemMetadata(undefinedSection, RAW_VAULT_ID, RAW_ITEM_ID).fields[0]!.section, undefined);
+	for (const sectionId of [false, 0, "missing-section"]) {
 		const item = fullLoginItem();
 		item.fields[0]!.sectionId = sectionId;
 		assert.throws(
@@ -156,4 +221,26 @@ test("literal null compatibility does not admit other malformed section IDs", ()
 			(error: unknown) => error instanceof PublicError && error.code === "response",
 		);
 	}
+});
+
+test("Database metadata does not require unused or secret-bearing SDK members", () => {
+	const item = {
+		id: RAW_ITEM_ID,
+		title: "Fake SDK Database",
+		category: "Database",
+		vaultId: RAW_VAULT_ID,
+		fields: [
+			{ id: "database_type", title: "Type", fieldType: "Menu" },
+			{ id: "server", title: "Server", sectionId: null, fieldType: "Text" },
+			{ id: "password", title: "Password", fieldType: "Concealed" },
+		],
+		sections: [],
+	};
+	const metadata = mapFullItemMetadata(item, RAW_VAULT_ID, RAW_ITEM_ID);
+	assert.equal(metadata.category, "Database");
+	assert.deepEqual(metadata.fields, [
+		{ id: "database_type", title: "Type", fieldType: "Menu" },
+		{ id: "server", title: "Server", fieldType: "Text" },
+		{ id: "password", title: "Password", fieldType: "Concealed" },
+	]);
 });

@@ -4,12 +4,6 @@ import type { CachedRequirementRecord } from "./requirements.ts";
 import type { ResolverProviderStatus } from "./resolver.ts";
 import { SDK_PACKAGE, SDK_VERSION } from "./safety.ts";
 
-export const RESOLVER_ENABLE_CONFIRMATION =
-	"Load the protected global binding file and allow only its exact consumer/slot/purpose tuples to resolve 1Password values in memory for trusted extensions? Values cross only through one-shot callbacks and are not shown by this extension. Service-account authentication remains lazy until the first accepted secret resolution; OP_SERVICE_ACCOUNT_TOKEN must be configured in Pi's launch environment. Pi's process-wide event bus is not an authentication boundary; enable only when every loaded extension is trusted. Enablement ends on disable, reload, session replacement, shutdown, or restart.";
-
-export const DYNAMIC_ENABLE_CONFIRMATION =
-	"Enable dynamic 1Password selection for this Pi session? Safe vault metadata (opaque session handle, title, type, item count), item metadata (opaque session handle, title, category, state), field metadata (opaque session handle, title, type, section title/opaque handle), bounded local all-vault title-search results, MCP requirement metadata (server/tool, target kind/name, opaque requirement ID, and derived purpose), and database profile requirement metadata (canonical project/scope, profile label, fixed consumer/tool/purpose/role/contract, opaque profile ID) returned by tools will be sent to the active model, included in Pi tool and RPC events, and normally persisted in the Pi session. Requirement metadata is also published on cooperative process-local event channels visible to loaded extensions. Dynamic mode is less restrictive than protected static bindings: the model may select any metadata-visible field allowed by the authenticated account, although every consumer grant, temporary TUI reveal, or Stagehand Login fill requires separate approval. Reveal values appear only in a 30-second TUI popup; Login values are re-resolved per use and sent only through a revocable Stagehand credential lease after HTTPS origin/form checks. Use a dedicated least-privilege service account restricted to the required vaults and items. Field discovery calls items.get, which decrypts the full item—including values, notes, websites, tags, details, and files—inside the official SDK; this extension reads and emits only strict field/section metadata and promptly releases the full response. Authentication remains lazy. Dynamic mode does not read resolver-bindings.json. Consent, requirement metadata, discoveries, popup timers, browser leases, and grants end on disable, reload, session replacement, shutdown, or restart. Pi's process-wide event bus is cooperative and is not an authentication boundary; enable only when every loaded extension is trusted.";
-
 function quotedMetadata(value: string): string {
 	return `"${value.replaceAll("\\", "\\\\").replaceAll('"', '\\"')}"`;
 }
@@ -50,7 +44,6 @@ export function statusPayload(status: ManagerStatus, resolver: ResolverProviderS
 		authenticationMode: status.authenticationMode,
 		resolverMode: resolver.mode,
 		resolverEnabled: resolver.enabled,
-		resolverBindingCount: resolver.bindingCount,
 		dynamicGrantCount: resolver.grantCount,
 		metadataEnabled: resolver.metadataEnabled,
 		metadataCallsUsed: status.metadataCallsUsed,
@@ -78,7 +71,6 @@ export function statusText(status: ManagerStatus, resolver: ResolverProviderStat
 		`Authentication mode: ${payload.authenticationMode}`,
 		`OP_SERVICE_ACCOUNT_TOKEN configured: ${payload.serviceAccountTokenConfigured ? "yes" : "no"}`,
 		`Resolver mode: ${payload.resolverMode}`,
-		`Active protected bindings: ${payload.resolverBindingCount}`,
 		`Active one-shot grants: ${payload.dynamicGrantCount}`,
 		`Metadata discovery: ${payload.metadataEnabled ? "enabled" : "disabled"}`,
 		`Metadata calls: ${payload.metadataCallsUsed}/${payload.metadataCallLimit}`,

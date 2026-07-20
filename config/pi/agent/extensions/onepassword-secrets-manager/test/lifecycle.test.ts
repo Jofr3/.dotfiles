@@ -104,13 +104,12 @@ test("requirement cache is synchronously cleared before resolver and manager lif
 	]);
 });
 
-test("command and session lifecycle stay disabled by default and revoke without an idle gap", async () => {
+test("default dynamic-only command and session lifecycle revoke without an idle gap", async () => {
 	const source = await readFile(new URL("../src/index.ts", import.meta.url), "utf8");
-	assert.match(source, /if \(!ctx\.hasUI\) return;/u);
-	assert.match(source, /await requestConsent\(/u);
-	assert.match(source, /abortPendingConsents\(\)/u);
-	assert.match(source, /const loaded = await loadBindings\(\)/u);
-	const disableBranch = source.match(/if \(action === "resolver-disable" \|\| action === "dynamic-disable"\) \{([\s\S]*?)\n\t\t\t\}/u)?.[1] ?? "";
+	assert.match(source, /Dynamic discovery is the only credential mode[\s\S]*enableDynamic\(false\);/u);
+	assert.match(source, /pi\.on\("session_start"[\s\S]*activateDynamicTools\(\)/u);
+	assert.doesNotMatch(source, /requestConsent|abortPendingConsents|loadBindings|resolver-enable|dynamic-enable/u);
+	const disableBranch = source.match(/if \(action === "disable"\) \{([\s\S]*?)\n\t\t\t\}/u)?.[1] ?? "";
 	assert.match(disableBranch, /await disableAll\(\)/u);
 	assert.doesNotMatch(disableBranch, /waitForIdle/u);
 	assert.match(source, /const drain = disableResolverLifecycle\(resolver, manager, dynamic, requirements\)/u);

@@ -26,6 +26,7 @@
     { "name": "ateinsa", "path": "~/lsw/ateinsa" },
     { "name": "ateinsa new", "path": "~/lsw/ateinsa_new" },
     { "name": "renovacions", "path": "~/lsw/renovacions" },
+    { "name": "vicfires", "path": "~/lsw/vicfires" },
     { "name": "beques", "path": "~/lsw/beques" },
     { "name": "local", "path": "~/lsw/local" }
   ]

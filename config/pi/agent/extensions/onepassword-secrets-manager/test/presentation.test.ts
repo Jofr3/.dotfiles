@@ -3,9 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import type { ManagerStatus } from "../src/manager.ts";
 import {
-	DYNAMIC_ENABLE_CONFIRMATION,
 	dynamicGrantConfirmation,
-	RESOLVER_ENABLE_CONFIRMATION,
 	statusPayload,
 	statusText,
 } from "../src/presentation.ts";
@@ -67,30 +65,17 @@ test("status presentation exposes only service-account presence and a safe mode 
 	}
 });
 
-test("resolver confirmation explains lazy service-account authentication without interpolating a credential", async () => {
-	assert.match(RESOLVER_ENABLE_CONFIRMATION, /Service-account authentication remains lazy until the first accepted secret resolution/u);
-	assert.match(RESOLVER_ENABLE_CONFIRMATION, /OP_SERVICE_ACCOUNT_TOKEN must be configured/u);
-	assert.equal(RESOLVER_ENABLE_CONFIRMATION.includes(ACCOUNT_DISCLOSURE_SENTINEL), false);
-
+test("default dynamic activation and status remain lazy without credential interpolation", async () => {
 	const source = await readFile(new URL("../src/index.ts", import.meta.url), "utf8");
 	assert.match(source, /statusPayload\(manager\.status\(\), resolver\.status\(\)\)/u);
 	assert.match(source, /statusText\(manager\.status\(\), resolver\.status\(\)\)/u);
-	assert.match(source, /RESOLVER_ENABLE_CONFIRMATION/u);
-	assert.match(source, /Authentication remains lazy until the first accepted secret resolution/u);
+	assert.match(source, /Dynamic discovery is the only credential mode/u);
+	assert.match(source, /Authentication remains lazy/u);
+	assert.doesNotMatch(source, /RESOLVER_ENABLE_CONFIRMATION|DYNAMIC_ENABLE_CONFIRMATION|loadResolverBindings/u);
 	assert.equal(source.includes(ACCOUNT_DISCLOSURE_SENTINEL), false);
 });
 
-test("dynamic consent and grant presentation disclose verified metadata but no secret material", () => {
-	assert.match(DYNAMIC_ENABLE_CONFIRMATION, /active model/u);
-	assert.match(DYNAMIC_ENABLE_CONFIRMATION, /tool and RPC events/u);
-	assert.match(DYNAMIC_ENABLE_CONFIRMATION, /persisted in the Pi session/u);
-	assert.match(DYNAMIC_ENABLE_CONFIRMATION, /opaque session handle/u);
-	assert.match(DYNAMIC_ENABLE_CONFIRMATION, /process-local event channel/u);
-	assert.match(DYNAMIC_ENABLE_CONFIRMATION, /cooperative/u);
-	assert.match(DYNAMIC_ENABLE_CONFIRMATION, /less restrictive than protected static bindings/u);
-	assert.match(DYNAMIC_ENABLE_CONFIRMATION, /items\.get/u);
-	assert.match(DYNAMIC_ENABLE_CONFIRMATION, /decrypts the full item/u);
-	assert.match(DYNAMIC_ENABLE_CONFIRMATION, /does not read resolver-bindings\.json/u);
+test("dynamic grant presentation discloses verified metadata but no secret material", () => {
 	const requirement = {
 		requirementId: "mcp1-B-agZKwxZncAXfB6p1TMx7g0dZQk97793GMxXC_ky7E_A",
 		server: "production",

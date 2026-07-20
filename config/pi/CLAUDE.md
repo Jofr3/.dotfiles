@@ -34,8 +34,8 @@ Extension packages may have their own pinned `package.json`, lockfile, `node_mod
 - `agent/extensions/database.ts` + `database-query/` — secure direct `database_query` for MySQL/MariaDB and SQL Server/MSSQL. Supports approved one-shot 1Password JSON profiles and protected legacy static configuration. Tools: `database_profile_requirements`, `database_query`; commands: `/database`, `/database-profile-clear`.
 - `agent/extensions/dynamic-fleet.ts` — task-specific dynamic subagent orchestration via `dynamic_fleet`.
 - `agent/extensions/firecrawl/` — lazy bounded Firecrawl SDK tools; `/firecrawl status`.
-- `agent/extensions/mcp-toolbox/` — operator-allowlisted MCP Toolbox dispatcher with protected/dynamic resolver support; `/mcp-toolbox`.
-- `agent/extensions/onepassword-secrets-manager/` — service-account-only protected static resolver, bounded metadata/search, TUI-only timed reveal, revocable Stagehand Login autofill, and distinct one-shot MCP/database grants; `/onepassword-sm`.
+- `agent/extensions/mcp-toolbox/` — MCP Toolbox SDK dispatcher using dynamic 1Password as its only credential source; `/mcp-toolbox`. When the user explicitly requests MCP Toolbox, honor that choice and do not substitute direct `database_query`. With no protected config, `mcp_toolbox_list` locally defines `onepassword-db/execute_sql`; map its six requirements (`database_type`, `server`, `port`, `database`, `username`, `password`) to fields from one 1Password Database item, approve every grant, then call it only in a later turn with `{sql: ...}`. The pinned managed Google Toolbox child starts on a random loopback port only for that confirmed call and is then terminated. `/mcp-toolbox discover-local` remains the explicit path for a separately running service.
+- `agent/extensions/onepassword-secrets-manager/` — default-on dynamic, service-account-only metadata/search with TUI reveal, revocable Stagehand Login autofill, and distinct one-shot MCP/database grants; `/onepassword-sm`.
 - `agent/extensions/push.ts` — `/push` Conventional Commit/push workflow and `/ship` staging-to-main merge/push.
 - `agent/extensions/resource-toggler.ts` — `/toggle` session-only tool/skill/context prompt exposure controls; it does not unload modules.
 - `agent/extensions/safeguard.ts` — configurable tool-call allow/block/confirm policy engine.
@@ -48,7 +48,7 @@ See `EXTENSIONS.md` for the authoring guide and current workflow inventory.
 
 The preferred database flow is direct; MCP Toolbox configuration is unnecessary and must remain unchanged:
 
-1. `/onepassword-sm dynamic-enable` with user metadata-disclosure approval.
+1. Dynamic 1Password mode is enabled in memory by default; ensure the least-privilege service-account token is present in Pi's launch environment.
 2. `database_profile_requirements({ profileName })`; wait.
 3. Sequential `onepassword_list_vaults` → `onepassword_list_items` → `onepassword_list_fields`, using only emitted opaque handles.
 4. The model chooses the one field containing the documented atomic `pi.database.connection-profile/v1` JSON profile.

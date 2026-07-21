@@ -27,3 +27,4 @@ history.jsonl
 settings.local.json
 .credentials.json
 stats-cache.json
+.last-cleanup

@@ -16,6 +16,7 @@
     { "name": "kitty config", "path": "~/.dotfiles/config/kitty" },
     { "name": "senditum", "path": "~/lsw/senditum" },
     { "name": "senditum app", "path": "~/lsw/senditum_app" },
+    { "name": "compartium app", "path": "~/lsw/compartium_app" },
     { "name": "myclientum", "path": "~/lsw/myclientum" },
     { "name": "myclientum app", "path": "~/lsw/myclientum_app" },
     { "name": "mydocumentium api", "path": "~/lsw/mydocumentium_api" },

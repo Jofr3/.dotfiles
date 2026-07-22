@@ -18,6 +18,8 @@ import {
 } from "./usage-ledger.ts";
 import type {
 	AgentLifecycleState,
+	AgentReportState,
+	AgentReportSubmission,
 	AgentRuntimeActivity,
 	AgentRuntimePhase,
 	AgentStateCounts,
@@ -34,6 +36,7 @@ import type {
 	ModelRoute,
 	ModelRouteStep,
 	NotificationState,
+	PendingModelReconfiguration,
 	SessionGeneration,
 	SubAgentId,
 	SubAgentManagerSummary,
@@ -66,6 +69,7 @@ const CHILD_TOOL_NAMES = new Set(["read", "grep", "find", "ls", "edit", "write",
 const WORKSPACE_MODES = new Set(["shared", "worktree"]);
 const BASH_POLICIES = new Set(["disabled", "workspace-exclusive"]);
 const NOTIFICATION_STATES = new Set(["idle", "blocked", "failed"]);
+const AGENT_REPORT_STATES = new Set(["progress", "blocked", "result"]);
 const MODEL_ROUTE_STEP_SOURCES = new Set(["tier", "inherit", "explicit"]);
 const MODEL_ROUTE_STEP_OUTCOMES = new Set(["unavailable", "selected"]);
 const RUNTIME_PHASES = new Set([
@@ -288,6 +292,17 @@ function cloneAssignment(assignment: AssignmentRecord | undefined): AssignmentRe
 		: undefined;
 }
 
+function clonePendingModelReconfiguration(
+	pending: PendingModelReconfiguration | undefined,
+): PendingModelReconfiguration | undefined {
+	return pending
+		? {
+				...pending,
+				route: cloneModelRoute(pending.route)!,
+			}
+		: undefined;
+}
+
 function cloneRuntimeActivity(runtime: AgentRuntimeActivity): AgentRuntimeActivity {
 	return {
 		phase: runtime.phase,
@@ -326,6 +341,10 @@ function snapshotRecord(record: ManagedRecord): ManagedSubAgentSnapshot {
 		latestReport: cloneReport(record.latestReport),
 		latestResult: cloneResult(record.latestResult),
 		modelRoute: cloneModelRoute(record.modelRoute),
+		effectiveThinkingLevel: record.effectiveThinkingLevel,
+		pendingModelReconfiguration: clonePendingModelReconfiguration(
+			record.pendingModelReconfiguration,
+		),
 		lastError: record.lastError,
 		events: record.events.map((event) => ({ ...event })),
 		omittedEventCount: record.omittedEventCount,
@@ -683,6 +702,12 @@ export class SubAgentManager {
 			if (record.state !== "creating" && record.state !== "idle") {
 				throw new InvalidAgentTransitionError(record.state, "running");
 			}
+			if (record.pendingModelReconfiguration) {
+				throw new SubAgentManagerError(
+					"A queued model reconfiguration must finish before another assignment starts",
+					"model_reconfiguration_pending",
+				);
+			}
 			const assignmentCount = record.assignmentCount + 1;
 			if (!Number.isSafeInteger(assignmentCount)) {
 				throw new SubAgentManagerError("Assignment count exceeds its supported range", "invalid_usage");
@@ -698,6 +723,7 @@ export class SubAgentManager {
 			record.runtime = createRuntimeActivity("streaming");
 			record.assignmentCount = assignmentCount;
 			record.usage = usage;
+			record.latestReport = undefined;
 			record.currentAssignment = {
 				id: `${record.id}:assignment:${assignmentCount.toString(36)}`,
 				sequence: assignmentCount,
@@ -763,6 +789,7 @@ export class SubAgentManager {
 			const message = safeErrorMessage(error);
 			this.#transition(record, "failed");
 			record.runtime = createRuntimeActivity("settled");
+			record.pendingModelReconfiguration = undefined;
 			record.lastError = message;
 			if (record.currentAssignment?.state === "running" || record.currentAssignment?.state === "blocked") {
 				record.currentAssignment.state = "failed";
@@ -776,7 +803,7 @@ export class SubAgentManager {
 
 	recordReport(
 		id: SubAgentId,
-		report: Omit<BoundedAgentReport, "timestamp" | "files"> & { files?: string[]; timestamp?: number },
+		report: AgentReportSubmission & { timestamp?: number },
 	): Promise<ManagedSubAgentSnapshot> {
 		this.#assertOpen();
 		return this.#enqueue(id, (record) => {
@@ -784,13 +811,20 @@ export class SubAgentManager {
 				throw new SubAgentManagerError("A sub-agent can report only during an active assignment", "agent_not_active");
 			}
 			const bounded: BoundedAgentReport = {
-				state: report.state,
+				state: requireChoice<AgentReportState>(
+					report.state,
+					AGENT_REPORT_STATES,
+					"report.state",
+				),
 				summary: requireBoundedText(report.summary, "report.summary", SUB_AGENT_BOUNDS.reportSummaryChars),
 				details: optionalBoundedText(report.details, "report.details", SUB_AGENT_BOUNDS.reportDetailsChars),
 				files:
 					boundedUniqueStrings(report.files, "report.files", SUB_AGENT_BOUNDS.reportFiles, 4_096) ?? [],
 				needs: optionalBoundedText(report.needs, "report.needs", SUB_AGENT_BOUNDS.reportNeedsChars),
-				timestamp: report.timestamp ?? this.#now(),
+				timestamp: nonNegativeNumber(
+					report.timestamp ?? this.#now(),
+					"report.timestamp",
+				),
 			};
 			record.latestReport = bounded;
 			this.#appendEvent(record, "report", `${bounded.state}: ${bounded.summary}`);
@@ -843,8 +877,24 @@ export class SubAgentManager {
 	}
 
 	recordModelRoute(id: SubAgentId, route: ModelRoute): Promise<ManagedSubAgentSnapshot> {
+		return this.recordModelConfiguration(id, route);
+	}
+
+	recordModelConfiguration(
+		id: SubAgentId,
+		route: ModelRoute,
+		effectiveThinkingLevel?: ThinkingLevel,
+	): Promise<ManagedSubAgentSnapshot> {
 		this.#assertOpen();
 		const normalized = normalizeModelRoute(route);
+		const thinkingLevel =
+			effectiveThinkingLevel === undefined
+				? undefined
+				: requireChoice<ThinkingLevel>(
+						effectiveThinkingLevel,
+						THINKING_LEVELS,
+						"effectiveThinkingLevel",
+					);
 		return this.#enqueue(id, (record) => {
 			if (record.state !== "creating" && record.state !== "idle") {
 				throw new SubAgentManagerError(
@@ -853,11 +903,128 @@ export class SubAgentManager {
 				);
 			}
 			record.modelRoute = normalized;
+			if (thinkingLevel !== undefined) record.effectiveThinkingLevel = thinkingLevel;
+			record.pendingModelReconfiguration = undefined;
+			record.lastError = undefined;
 			this.#appendEvent(
 				record,
 				"model",
-				`Selected model ${normalized.selectedModel.provider}/${normalized.selectedModel.id}`,
+				`Selected model ${normalized.selectedModel.provider}/${normalized.selectedModel.id}` +
+					(thinkingLevel === undefined ? "" : ` with thinking ${thinkingLevel}`),
 			);
+			return snapshotRecord(record);
+		});
+	}
+
+	recordEffectiveThinkingLevel(
+		id: SubAgentId,
+		effectiveThinkingLevel: ThinkingLevel,
+	): Promise<ManagedSubAgentSnapshot> {
+		this.#assertOpen();
+		const thinkingLevel = requireChoice<ThinkingLevel>(
+			effectiveThinkingLevel,
+			THINKING_LEVELS,
+			"effectiveThinkingLevel",
+		);
+		return this.#enqueue(id, (record) => {
+			if (record.state !== "creating" && record.state !== "idle") {
+				throw new SubAgentManagerError(
+					`Thinking level can be recorded only at a safe assignment boundary: ${record.state}`,
+					"model_route_boundary",
+				);
+			}
+			record.effectiveThinkingLevel = thinkingLevel;
+			record.updatedAt = this.#now();
+			return snapshotRecord(record);
+		});
+	}
+
+	queueModelReconfiguration(
+		id: SubAgentId,
+		request: {
+			afterAssignmentId: string;
+			route: ModelRoute;
+			requestedThinkingLevel?: ThinkingLevel;
+		},
+	): Promise<ManagedSubAgentSnapshot> {
+		this.#assertOpen();
+		const route = normalizeModelRoute(request.route);
+		const afterAssignmentId = requireBoundedText(
+			request.afterAssignmentId,
+			"afterAssignmentId",
+			SUB_AGENT_BOUNDS.agentIdChars + 40,
+		);
+		const requestedThinkingLevel =
+			request.requestedThinkingLevel === undefined
+				? undefined
+				: requireChoice<ThinkingLevel>(
+						request.requestedThinkingLevel,
+						THINKING_LEVELS,
+						"requestedThinkingLevel",
+					);
+		return this.#enqueue(id, (record) => {
+			if (
+				record.state !== "running" ||
+				!record.currentAssignment ||
+				record.currentAssignment.id !== afterAssignmentId
+			) {
+				throw new SubAgentManagerError(
+					"A model reconfiguration can be queued only for the exact running assignment",
+					"model_route_boundary",
+				);
+			}
+			record.pendingModelReconfiguration = {
+				afterAssignmentId,
+				requestedAt: this.#now(),
+				route,
+				requestedThinkingLevel,
+			};
+			this.#appendEvent(
+				record,
+				"model",
+				`Queued model ${route.selectedModel.provider}/${route.selectedModel.id} after assignment ${record.currentAssignment.sequence}`,
+			);
+			return snapshotRecord(record);
+		});
+	}
+
+	cancelModelReconfiguration(
+		id: SubAgentId,
+		reason = "Queued model reconfiguration was not applied",
+	): Promise<ManagedSubAgentSnapshot> {
+		this.#assertOpen();
+		const message = boundText(reason, SUB_AGENT_BOUNDS.errorChars) || "Queued model reconfiguration was not applied";
+		return this.#enqueue(id, (record) => {
+			if (!record.pendingModelReconfiguration) return snapshotRecord(record);
+			record.pendingModelReconfiguration = undefined;
+			record.lastError = message;
+			this.#appendEvent(record, "model", message);
+			return snapshotRecord(record);
+		});
+	}
+
+	interruptAssignmentForReconfiguration(
+		id: SubAgentId,
+		reason = "Assignment aborted for model reconfiguration",
+	): Promise<ManagedSubAgentSnapshot> {
+		this.#assertOpen();
+		const message = boundText(reason, SUB_AGENT_BOUNDS.eventSummaryChars) || "Assignment aborted for model reconfiguration";
+		return this.#enqueue(id, (record) => {
+			if (record.state === "stopping" || record.state === "removed") return snapshotRecord(record);
+			if (record.state === "idle") return snapshotRecord(record);
+			if (record.state !== "running" || !record.currentAssignment) {
+				throw new SubAgentManagerError(
+					"The child assignment is not running at the intentional abort boundary",
+					"model_route_boundary",
+				);
+			}
+			this.#transition(record, "idle");
+			record.runtime = createRuntimeActivity("settled");
+			record.currentAssignment.state = "aborted";
+			record.currentAssignment.endedAt = this.#now();
+			record.currentAssignment.result = undefined;
+			record.currentAssignment.error = undefined;
+			this.#appendEvent(record, "assignment", message);
 			return snapshotRecord(record);
 		});
 	}
@@ -955,6 +1122,7 @@ export class SubAgentManager {
 				this.#transition(record, "stopping");
 				record.removalReason = boundedReason;
 			}
+			record.pendingModelReconfiguration = undefined;
 			record.resources.cleanupPromise ??= this.#cleanupRecord(record);
 			// Wrap the promise so the per-agent queue does not await cleanup while
 			// background rejection handlers still need that same queue to settle.

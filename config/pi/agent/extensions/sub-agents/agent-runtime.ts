@@ -16,6 +16,11 @@ import {
 	type CreateSubAgentResourceLoaderOptions,
 	type ParentContextSnapshotV1,
 } from "./resource-loader.ts";
+import {
+	createReportToParentTool,
+	REPORT_TO_PARENT_TOOL_NAME,
+	type ReportToParentHandler,
+} from "./tools/report-to-parent.ts";
 import type {
 	ChildToolName,
 	DynamicAgentSpec,
@@ -33,6 +38,9 @@ export const READ_ONLY_CHILD_TOOL_NAMES = Object.freeze([
 ] as const);
 
 export type ReadOnlyChildToolName = (typeof READ_ONLY_CHILD_TOOL_NAMES)[number];
+export type ChildSessionToolName =
+	| ReadOnlyChildToolName
+	| typeof REPORT_TO_PARENT_TOOL_NAME;
 
 const READ_ONLY_CHILD_TOOLS = new Set<string>(READ_ONLY_CHILD_TOOL_NAMES);
 const MUTATING_CHILD_TOOLS = new Set<string>(["edit", "write", "bash"]);
@@ -84,6 +92,7 @@ export interface CreateSubAgentSessionOptions {
 	resolvedModel: ResolvedChildModel;
 	parentContext?: ParentContextSnapshotV1;
 	onEvent: AgentSessionEventListener;
+	onReport: ReportToParentHandler;
 	dependencies?: SubAgentSessionFactoryDependencies;
 }
 
@@ -101,8 +110,7 @@ export class SubAgentSessionRuntime {
 	readonly sessionManager: SessionManager;
 	readonly settingsManager: SettingsManager;
 	readonly resourceLoader: ResourceLoader;
-	readonly selectedTools: readonly ReadOnlyChildToolName[];
-	readonly modelRef: Readonly<{ provider: string; id: string }>;
+	readonly selectedTools: readonly ChildSessionToolName[];
 
 	#unsubscribe?: () => void;
 	#disposed = false;
@@ -116,8 +124,7 @@ export class SubAgentSessionRuntime {
 		sessionManager: SessionManager;
 		settingsManager: SettingsManager;
 		resourceLoader: ResourceLoader;
-		selectedTools: readonly ReadOnlyChildToolName[];
-		modelRef: Readonly<{ provider: string; id: string }>;
+		selectedTools: readonly ChildSessionToolName[];
 		unsubscribe: () => void;
 	}) {
 		this.id = options.id;
@@ -128,7 +135,6 @@ export class SubAgentSessionRuntime {
 		this.settingsManager = options.settingsManager;
 		this.resourceLoader = options.resourceLoader;
 		this.selectedTools = Object.freeze([...options.selectedTools]);
-		this.modelRef = Object.freeze({ ...options.modelRef });
 		this.#unsubscribe = options.unsubscribe;
 	}
 
@@ -136,8 +142,59 @@ export class SubAgentSessionRuntime {
 		return this.#disposed;
 	}
 
+	get modelRef(): Readonly<{ provider: string; id: string }> {
+		const model = this.session.model;
+		if (!model) {
+			throw new SubAgentSessionFactoryError(
+				"session_validation_failed",
+				"The child session has no selected model",
+			);
+		}
+		return Object.freeze({ provider: model.provider, id: model.id });
+	}
+
 	get thinkingLevel(): ThinkingLevel {
 		return this.session.thinkingLevel as ThinkingLevel;
+	}
+
+	async reconfigureModel(
+		resolvedModel: ResolvedChildModel,
+		requestedThinkingLevel?: ThinkingLevel,
+	): Promise<{
+		modelRef: Readonly<{ provider: string; id: string }>;
+		thinkingLevel: ThinkingLevel;
+	}> {
+		if (
+			!resolvedModel?.runtime ||
+			!resolvedModel.model ||
+			resolvedModel.runtime !== this.session.modelRuntime
+		) {
+			throw new SubAgentSessionFactoryError(
+				"invalid_runtime_request",
+				"The replacement model does not belong to this child runtime",
+			);
+		}
+		if (requestedThinkingLevel !== undefined && !THINKING_LEVELS.has(requestedThinkingLevel)) {
+			throw new SubAgentSessionFactoryError(
+				"invalid_runtime_request",
+				"The replacement thinking level is invalid",
+			);
+		}
+		try {
+			await this.session.setModel(resolvedModel.model);
+			if (requestedThinkingLevel !== undefined) {
+				this.session.setThinkingLevel(requestedThinkingLevel);
+			}
+			return {
+				modelRef: this.modelRef,
+				thinkingLevel: this.thinkingLevel,
+			};
+		} catch {
+			throw new SubAgentSessionFactoryError(
+				"session_validation_failed",
+				"Could not apply the replacement child model configuration",
+			);
+		}
 	}
 
 	abort(): Promise<void> {
@@ -331,7 +388,7 @@ function validateInitializedSession(options: {
 	settingsManager: SettingsManager;
 	resourceLoader: ResourceLoader;
 	resolvedModel: ResolvedChildModel;
-	selectedTools: readonly ReadOnlyChildToolName[];
+	selectedTools: readonly ChildSessionToolName[];
 	cwd: string;
 }): void {
 	const {
@@ -408,6 +465,12 @@ export async function createSubAgentSession(
 			"A child session event listener is required",
 		);
 	}
+	if (typeof options.onReport !== "function") {
+		throw new SubAgentSessionFactoryError(
+			"invalid_runtime_request",
+			"A child parent-report handler is required",
+		);
+	}
 	if (!options.resolvedModel?.runtime || !options.resolvedModel?.model || !options.resolvedModel?.ref) {
 		throw new SubAgentSessionFactoryError(
 			"invalid_runtime_request",
@@ -420,7 +483,12 @@ export async function createSubAgentSession(
 	const createSessionManager = dependencies.createSessionManager ?? ((cwd) => SessionManager.inMemory(cwd));
 	const createSettingsManager = dependencies.createSettingsManager ?? (() => SettingsManager.inMemory());
 	const createResourceLoader = dependencies.createResourceLoader ?? createSubAgentResourceLoader;
-	const selectedTools = resolveReadOnlyChildTools(options.spec.tools);
+	const selectedReadOnlyTools = resolveReadOnlyChildTools(options.spec.tools);
+	const selectedTools: readonly ChildSessionToolName[] = Object.freeze([
+		...selectedReadOnlyTools,
+		REPORT_TO_PARENT_TOOL_NAME,
+	]);
+	const reportToParentTool = createReportToParentTool(options.onReport);
 	const requestedThinkingLevel = resolveRequestedThinkingLevel(options.spec);
 	const cwd = await resolveChildWorkspaceCwd(options.cwd, options.spec);
 
@@ -440,6 +508,7 @@ export async function createSubAgentSession(
 			model: options.resolvedModel.model,
 			thinkingLevel: requestedThinkingLevel,
 			modelRuntime: options.resolvedModel.runtime,
+			customTools: [reportToParentTool],
 			tools: [...selectedTools],
 			resourceLoader,
 			sessionManager,
@@ -473,7 +542,6 @@ export async function createSubAgentSession(
 			settingsManager,
 			resourceLoader,
 			selectedTools,
-			modelRef: options.resolvedModel.ref,
 			unsubscribe,
 		});
 	} catch (error) {

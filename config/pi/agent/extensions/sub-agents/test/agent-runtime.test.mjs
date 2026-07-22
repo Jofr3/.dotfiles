@@ -93,6 +93,7 @@ test("the child session factory creates one isolated reusable in-memory read-onl
 			resolvedModel,
 			parentContext,
 			onEvent: (event) => events.push(event.type),
+			onReport() {},
 		});
 
 		assert.equal(child.cwd, resolve(nested));
@@ -104,9 +105,17 @@ test("the child session factory creates one isolated reusable in-memory read-onl
 		assert.strictEqual(child.session.resourceLoader, child.resourceLoader);
 		assert.strictEqual(child.session.modelRuntime, resolvedModel.runtime);
 		assert.deepEqual(child.modelRef, resolvedModel.ref);
-		assert.deepEqual(child.selectedTools, ["read", "grep"]);
-		assert.deepEqual(child.session.getAllTools().map((tool) => tool.name).sort(), ["grep", "read"]);
-		assert.deepEqual(child.session.getActiveToolNames().sort(), ["grep", "read"]);
+		assert.deepEqual(child.selectedTools, ["read", "grep", "report_to_parent"]);
+		assert.deepEqual(child.session.getAllTools().map((tool) => tool.name).sort(), [
+			"grep",
+			"read",
+			"report_to_parent",
+		]);
+		assert.deepEqual(child.session.getActiveToolNames().sort(), [
+			"grep",
+			"read",
+			"report_to_parent",
+		]);
 		assert.equal(child.thinkingLevel, "off");
 		assert.ok(Object.isFrozen(child.selectedTools));
 		assert.ok(Object.isFrozen(child.modelRef));
@@ -159,6 +168,7 @@ test("read-only selection and workspace validation fail closed before child sess
 			cwd: project,
 			resolvedModel,
 			onEvent() {},
+			onReport() {},
 			dependencies: { createSession },
 		};
 
@@ -258,6 +268,7 @@ test("partial child initialization unsubscribes, aborts, waits, and disposes wit
 				spec: childSpec({ tools: ["read"] }),
 				resolvedModel,
 				onEvent() {},
+				onReport() {},
 				dependencies: {
 					async createSession(options) {
 						capturedOptions = options;
@@ -279,6 +290,7 @@ test("partial child initialization unsubscribes, aborts, waits, and disposes wit
 				spec: childSpec(),
 				resolvedModel,
 				onEvent() {},
+				onReport() {},
 				dependencies: {
 					async createSession() {
 						throw new Error(PRIVATE_FAILURE_MARKER);

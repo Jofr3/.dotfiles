@@ -14,6 +14,7 @@ import {
 	type ResolvedChildModel,
 } from "./model-runtime.ts";
 import {
+	ManagerClosedError,
 	SubAgentManager,
 	SubAgentManagerError,
 } from "./manager.ts";
@@ -39,7 +40,10 @@ export type SubAgentAssignmentRunnerErrorCode =
 	| "assignment_rejected"
 	| "assignment_execution_failed"
 	| "assignment_changed"
-	| "assignment_abort_failed";
+	| "assignment_abort_failed"
+	| "invalid_reconfiguration"
+	| "reconfiguration_not_available"
+	| "reconfiguration_failed";
 
 export class SubAgentAssignmentRunnerError extends Error {
 	readonly code: SubAgentAssignmentRunnerErrorCode;
@@ -82,15 +86,43 @@ export interface ActiveAssignmentMessageResult {
 	pendingMessageCount: number;
 }
 
+export type ReconfigurationRunningBehavior = "queue" | "abort-and-switch";
+export type ModelReconfigurationAction = "applied" | "queued" | "aborted-and-applied";
+
+export interface ModelReconfigurationResult {
+	id: SubAgentId;
+	action: ModelReconfigurationAction;
+	oldRoute?: ModelRoute;
+	newRoute: ModelRoute;
+	oldThinkingLevel: ManagedSubAgentSnapshot["effectiveThinkingLevel"];
+	requestedThinkingLevel?: ManagedSubAgentSnapshot["effectiveThinkingLevel"];
+	effectiveThinkingLevel?: ManagedSubAgentSnapshot["effectiveThinkingLevel"];
+	afterAssignmentId?: AssignmentId;
+	afterAssignmentSequence?: number;
+	snapshot: ManagedSubAgentSnapshot;
+}
+
 interface AssignmentRun {
 	assignmentId: AssignmentId;
 	completion: Promise<void>;
+}
+
+interface PendingRuntimeModelReconfiguration {
+	sequence: number;
+	afterAssignmentId: AssignmentId;
+	resolvedModel: ResolvedChildModel & { route: ModelRoute };
+	requestedThinkingLevel?: ManagedSubAgentSnapshot["effectiveThinkingLevel"];
+	oldRoute?: ModelRoute;
+	oldThinkingLevel: ManagedSubAgentSnapshot["effectiveThinkingLevel"];
 }
 
 interface LiveChildRuntime {
 	runtime: SubAgentSessionRuntime;
 	translator: ChildEventTranslator;
 	currentRun?: AssignmentRun;
+	pendingReconfiguration?: PendingRuntimeModelReconfiguration;
+	pendingApplyTask?: Promise<void>;
+	pendingSequence: number;
 }
 
 export interface SubAgentAssignmentRunnerDependencies {
@@ -218,7 +250,11 @@ export class SubAgentAssignmentRunner {
 		const text = boundedAssignmentText(objective, "assignment objective");
 		return this.#enqueue(id, async () => {
 			const live = this.#requireLive(id);
-			const before = this.manager.getAgent(id);
+			let before = this.manager.getAgent(id);
+			if (before.state === "idle" && live.pendingReconfiguration) {
+				await this.#applyModelReconfiguration(live, live.pendingReconfiguration, "applied");
+				before = this.manager.getAgent(id);
+			}
 			if (before.state !== "creating" && before.state !== "idle") {
 				throw new SubAgentAssignmentRunnerError(
 					"assignment_not_idle",
@@ -265,6 +301,7 @@ export class SubAgentAssignmentRunner {
 			);
 		}
 		return this.#enqueue(id, async () => {
+			if (this.manager.closed) throw new ManagerClosedError();
 			const live = this.#requireLive(id);
 			let snapshot = this.manager.getAgent(id);
 			if (snapshot.state !== "running" || !snapshot.currentAssignment) {
@@ -297,6 +334,149 @@ export class SubAgentAssignmentRunner {
 		});
 	}
 
+	/** Change or queue the model configuration while retaining the child transcript. */
+	reconfigure(
+		id: SubAgentId,
+		resolvedModel: ResolvedChildModel & { route: ModelRoute },
+		requestedThinkingLevel: ManagedSubAgentSnapshot["effectiveThinkingLevel"],
+		runningBehavior: ReconfigurationRunningBehavior = "queue",
+	): Promise<ModelReconfigurationResult> {
+		if (!resolvedModel?.runtime || !resolvedModel.model || !resolvedModel.route) {
+			return Promise.reject(
+				new SubAgentAssignmentRunnerError(
+					"invalid_reconfiguration",
+					"A routed replacement child model is required",
+					id,
+				),
+			);
+		}
+		if (runningBehavior !== "queue" && runningBehavior !== "abort-and-switch") {
+			return Promise.reject(
+				new SubAgentAssignmentRunnerError(
+					"invalid_reconfiguration",
+					"Running reconfiguration behavior must be queue or abort-and-switch",
+					id,
+				),
+			);
+		}
+
+		return this.#enqueue(id, async () => {
+			if (this.manager.closed) throw new ManagerClosedError();
+			const live = this.#requireLive(id);
+			let snapshot = this.manager.getAgent(id);
+			if (snapshot.state === "idle") {
+				const pending = this.#createPendingReconfiguration(
+					live,
+					snapshot,
+					resolvedModel,
+					requestedThinkingLevel,
+					snapshot.currentAssignment?.id,
+				);
+				return this.#applyModelReconfiguration(live, pending, "applied");
+			}
+			if (snapshot.state !== "running" || !snapshot.currentAssignment) {
+				throw new SubAgentAssignmentRunnerError(
+					"reconfiguration_not_available",
+					`Sub-agent cannot change model configuration from state: ${snapshot.state}`,
+					id,
+				);
+			}
+			if (!live.runtime.session.isStreaming || !live.currentRun) {
+				await live.translator.flush();
+				snapshot = this.manager.getAgent(id);
+				if (snapshot.state === "idle") {
+					const pending = this.#createPendingReconfiguration(
+						live,
+						snapshot,
+						resolvedModel,
+						requestedThinkingLevel,
+						snapshot.currentAssignment?.id,
+					);
+					return this.#applyModelReconfiguration(live, pending, "applied");
+				}
+				throw new SubAgentAssignmentRunnerError(
+					"reconfiguration_not_available",
+					"The child session has not reached a safe model-change boundary",
+					id,
+				);
+			}
+
+			const assignment = snapshot.currentAssignment;
+			const pending = this.#createPendingReconfiguration(
+				live,
+				snapshot,
+				resolvedModel,
+				requestedThinkingLevel,
+				assignment.id,
+			);
+			await this.manager.queueModelReconfiguration(id, {
+				afterAssignmentId: assignment.id,
+				route: resolvedModel.route,
+				requestedThinkingLevel,
+			});
+			live.pendingReconfiguration = pending;
+
+			if (runningBehavior === "queue") {
+				this.#schedulePendingReconfiguration(live, live.currentRun);
+				return {
+					id,
+					action: "queued",
+					oldRoute: pending.oldRoute,
+					newRoute: resolvedModel.route,
+					oldThinkingLevel: pending.oldThinkingLevel,
+					requestedThinkingLevel,
+					afterAssignmentId: assignment.id,
+					afterAssignmentSequence: assignment.sequence,
+					snapshot: this.manager.getAgent(id),
+				};
+			}
+
+			try {
+				live.runtime.session.clearQueue();
+				live.translator.expectReconfigurationAbort();
+				await live.runtime.abort();
+				await live.currentRun?.completion;
+				await live.translator.flush();
+				live.translator.cancelExpectedReconfigurationAbort();
+			} catch {
+				live.translator.cancelExpectedReconfigurationAbort();
+				if (live.pendingReconfiguration?.sequence === pending.sequence) {
+					live.pendingReconfiguration = undefined;
+				}
+				await this.manager.cancelModelReconfiguration(
+					id,
+					"Abort-and-switch model reconfiguration failed",
+				).catch(() => undefined);
+				throw new SubAgentAssignmentRunnerError(
+					"reconfiguration_failed",
+					"Could not interrupt the running child assignment for model reconfiguration",
+					id,
+				);
+			}
+			snapshot = this.manager.getAgent(id);
+			if (snapshot.state !== "idle") {
+				if (live.pendingReconfiguration?.sequence === pending.sequence) {
+					live.pendingReconfiguration = undefined;
+				}
+				await this.manager.cancelModelReconfiguration(
+					id,
+					"Abort-and-switch reached no reusable idle boundary",
+				).catch(() => undefined);
+				throw new SubAgentAssignmentRunnerError(
+					"reconfiguration_failed",
+					`The interrupted child did not reach a reusable idle boundary: ${snapshot.state}`,
+					id,
+				);
+			}
+			const action =
+				snapshot.currentAssignment?.id === assignment.id &&
+				snapshot.currentAssignment.state === "aborted"
+					? "aborted-and-applied"
+					: "applied";
+			return this.#applyModelReconfiguration(live, pending, action);
+		});
+	}
+
 	/** Wait for the current assignment runner and translator to reach a stable boundary. */
 	async waitForAssignment(
 		id: SubAgentId,
@@ -316,7 +496,10 @@ export class SubAgentAssignmentRunner {
 		if (run && (!assignmentId || run.assignmentId === assignmentId)) {
 			await run.completion;
 		}
-		if (live) await live.translator.flush();
+		if (live) {
+			await live.translator.flush();
+			await live.pendingApplyTask;
+		}
 		snapshot = this.manager.getAgent(id);
 		if (assignmentId && snapshot.currentAssignment?.id !== assignmentId) {
 			throw new SubAgentAssignmentRunnerError(
@@ -388,8 +571,13 @@ export class SubAgentAssignmentRunner {
 					resolvedModel,
 					parentContext: this.manager.getParentContextSnapshot(),
 					onEvent: translator.listener,
+					onReport: (report) => translator.recordReport(report),
 				});
-				const live: LiveChildRuntime = { runtime, translator };
+				await this.manager.recordEffectiveThinkingLevel(
+					id,
+					runtime.thinkingLevel ?? snapshot.spec.thinkingLevel ?? "medium",
+				);
+				const live: LiveChildRuntime = { runtime, translator, pendingSequence: 0 };
 				this.manager.registerRuntimeCleanup(id, {
 					abort: () => runtime!.abort(),
 					waitForIdle: async () => {
@@ -510,6 +698,113 @@ export class SubAgentAssignmentRunner {
 			accepted: true,
 			snapshot: this.manager.getAgent(id),
 		};
+	}
+
+	#createPendingReconfiguration(
+		live: LiveChildRuntime,
+		snapshot: ManagedSubAgentSnapshot,
+		resolvedModel: ResolvedChildModel & { route: ModelRoute },
+		requestedThinkingLevel: ManagedSubAgentSnapshot["effectiveThinkingLevel"],
+		afterAssignmentId: AssignmentId | undefined,
+	): PendingRuntimeModelReconfiguration {
+		live.pendingSequence += 1;
+		return {
+			sequence: live.pendingSequence,
+			afterAssignmentId: afterAssignmentId ?? `${snapshot.id}:assignment:${snapshot.assignmentCount}`,
+			resolvedModel,
+			requestedThinkingLevel,
+			oldRoute: snapshot.modelRoute,
+			oldThinkingLevel: live.runtime.thinkingLevel,
+		};
+	}
+
+	async #applyModelReconfiguration(
+		live: LiveChildRuntime,
+		pending: PendingRuntimeModelReconfiguration,
+		action: Exclude<ModelReconfigurationAction, "queued">,
+	): Promise<ModelReconfigurationResult> {
+		const id = live.runtime.id;
+		const before = this.manager.getAgent(id);
+		if (before.state !== "idle" || !live.runtime.session.isIdle) {
+			throw new SubAgentAssignmentRunnerError(
+				"reconfiguration_not_available",
+				`The child is not at an idle model-change boundary: ${before.state}`,
+				id,
+			);
+		}
+		let applied: Awaited<ReturnType<SubAgentSessionRuntime["reconfigureModel"]>>;
+		try {
+			applied = await live.runtime.reconfigureModel(
+				pending.resolvedModel,
+				pending.requestedThinkingLevel,
+			);
+			await this.manager.recordModelConfiguration(
+				id,
+				pending.resolvedModel.route,
+				applied.thinkingLevel,
+			);
+		} catch {
+			if (live.pendingReconfiguration?.sequence === pending.sequence) {
+				live.pendingReconfiguration = undefined;
+			}
+			await this.manager.cancelModelReconfiguration(
+				id,
+				"Child model reconfiguration failed",
+			).catch(() => undefined);
+			throw new SubAgentAssignmentRunnerError(
+				"reconfiguration_failed",
+				"Could not apply the replacement child model configuration",
+				id,
+			);
+		}
+		if (live.pendingReconfiguration?.sequence === pending.sequence) {
+			live.pendingReconfiguration = undefined;
+		}
+		const snapshot = this.manager.getAgent(id);
+		return {
+			id,
+			action,
+			oldRoute: pending.oldRoute,
+			newRoute: pending.resolvedModel.route,
+			oldThinkingLevel: pending.oldThinkingLevel,
+			requestedThinkingLevel: pending.requestedThinkingLevel,
+			effectiveThinkingLevel: applied.thinkingLevel,
+			afterAssignmentId: pending.afterAssignmentId,
+			afterAssignmentSequence: snapshot.currentAssignment?.sequence,
+			snapshot,
+		};
+	}
+
+	#schedulePendingReconfiguration(live: LiveChildRuntime, run: AssignmentRun): void {
+		if (live.pendingApplyTask) return;
+		const id = live.runtime.id;
+		let task!: Promise<void>;
+		task = run.completion
+			.then(() => this.#enqueue(id, async () => {
+				const pending = live.pendingReconfiguration;
+				if (!pending || pending.afterAssignmentId !== run.assignmentId) return;
+				const snapshot = this.manager.getAgent(id);
+				if (snapshot.state !== "idle") {
+					live.pendingReconfiguration = undefined;
+					await this.manager.cancelModelReconfiguration(
+						id,
+						"Queued model reconfiguration reached no reusable idle boundary",
+					).catch(() => undefined);
+					return;
+				}
+				await this.#applyModelReconfiguration(live, pending, "applied");
+			}))
+			.catch(async () => {
+				live.pendingReconfiguration = undefined;
+				await this.manager.cancelModelReconfiguration(
+					id,
+					"Queued model reconfiguration failed",
+				).catch(() => undefined);
+			})
+			.finally(() => {
+				if (live.pendingApplyTask === task) live.pendingApplyTask = undefined;
+			});
+		live.pendingApplyTask = task;
 	}
 
 	#requireLive(id: SubAgentId): LiveChildRuntime {

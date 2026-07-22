@@ -1,11 +1,37 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { SubAgentAssignmentRunner } from "./assignment-runner.ts";
 import { SubAgentManager } from "./manager.ts";
+import { SubAgentModelRouter } from "./model-router.ts";
 import type { ParentContextFile } from "./resource-loader.ts";
+import {
+	createSubAgentsReconfigureTool,
+	type SubAgentsReconfigureRuntime,
+} from "./tools/reconfigure.ts";
+import {
+	createSubAgentsRemoveTool,
+	type SubAgentsRemoveRuntime,
+} from "./tools/remove.ts";
+import {
+	createSubAgentsSendTool,
+	type SubAgentsSendRuntime,
+} from "./tools/send.ts";
+import {
+	createSubAgentsSpawnTool,
+	type SubAgentsSpawnRuntime,
+} from "./tools/spawn.ts";
+import {
+	createSubAgentsStatusTool,
+	type SubAgentsStatusRuntime,
+} from "./tools/status.ts";
+import {
+	createSubAgentsWaitTool,
+	type SubAgentsWaitRuntime,
+} from "./tools/wait.ts";
 import type { SubAgentManagerSummary } from "./types.ts";
 
 const STATUS_ORDER = ["creating", "running", "idle", "blocked", "failed", "stopping"] as const;
 
-interface ManagerLifecycle {
+export interface ManagerLifecycle {
 	readonly generation: string;
 	getSummary(): SubAgentManagerSummary;
 	captureParentContext(contextFiles: readonly ParentContextFile[] | undefined, trusted: boolean): unknown;
@@ -14,6 +40,21 @@ interface ManagerLifecycle {
 
 export interface SubAgentsExtensionDependencies {
 	createManager?: (cwd: string) => ManagerLifecycle;
+	createSpawnRuntime?: (manager: ManagerLifecycle) => SubAgentsSpawnRuntime | undefined;
+	createStatusRuntime?: (manager: ManagerLifecycle) => SubAgentsStatusRuntime | undefined;
+	createSendRuntime?: (
+		manager: ManagerLifecycle,
+		spawnRuntime: SubAgentsSpawnRuntime | undefined,
+	) => SubAgentsSendRuntime | undefined;
+	createReconfigureRuntime?: (
+		manager: ManagerLifecycle,
+		spawnRuntime: SubAgentsSpawnRuntime | undefined,
+	) => SubAgentsReconfigureRuntime | undefined;
+	createWaitRuntime?: (manager: ManagerLifecycle) => SubAgentsWaitRuntime | undefined;
+	createRemoveRuntime?: (
+		manager: ManagerLifecycle,
+		spawnRuntime: SubAgentsSpawnRuntime | undefined,
+	) => SubAgentsRemoveRuntime | undefined;
 }
 
 export function formatSubAgentsStatus(summary: SubAgentManagerSummary | undefined): string {
@@ -24,7 +65,7 @@ export function formatSubAgentsStatus(summary: SubAgentManagerSummary | undefine
 		`${summary.active} active · ${summary.historical} historical · ${states}`,
 		summary.closed
 			? "manager closed"
-			: "manager ready (Phase 2 dynamic child runtime and routing complete; Phase 3 public control tools not enabled yet)",
+			: "manager ready (spawn/status/send/reconfigure/wait/remove enabled)",
 	].join("\n");
 }
 
@@ -33,7 +74,66 @@ export function registerSubAgentsExtension(
 	dependencies: SubAgentsExtensionDependencies = {},
 ): void {
 	const createManager = dependencies.createManager ?? ((cwd: string) => new SubAgentManager({ cwd }));
+	const createSpawnRuntime =
+		dependencies.createSpawnRuntime ??
+		((current: ManagerLifecycle): SubAgentsSpawnRuntime | undefined => {
+			if (!(current instanceof SubAgentManager)) return undefined;
+			return {
+				manager: current,
+				runner: new SubAgentAssignmentRunner(current),
+				router: new SubAgentModelRouter(current.modelRuntime),
+			};
+		});
+	const createStatusRuntime =
+		dependencies.createStatusRuntime ??
+		((current: ManagerLifecycle): SubAgentsStatusRuntime | undefined => {
+			if (!(current instanceof SubAgentManager)) return undefined;
+			return { manager: current };
+		});
+	const createSendRuntime =
+		dependencies.createSendRuntime ??
+		((
+			current: ManagerLifecycle,
+			currentSpawnRuntime: SubAgentsSpawnRuntime | undefined,
+		): SubAgentsSendRuntime | undefined => {
+			if (!(current instanceof SubAgentManager) || !currentSpawnRuntime) return undefined;
+			return { manager: current, runner: currentSpawnRuntime.runner };
+		});
+	const createReconfigureRuntime =
+		dependencies.createReconfigureRuntime ??
+		((
+			current: ManagerLifecycle,
+			currentSpawnRuntime: SubAgentsSpawnRuntime | undefined,
+		): SubAgentsReconfigureRuntime | undefined => {
+			if (!(current instanceof SubAgentManager) || !currentSpawnRuntime) return undefined;
+			return {
+				manager: current,
+				runner: currentSpawnRuntime.runner,
+				router: currentSpawnRuntime.router,
+			};
+		});
+	const createWaitRuntime =
+		dependencies.createWaitRuntime ??
+		((current: ManagerLifecycle): SubAgentsWaitRuntime | undefined => {
+			if (!(current instanceof SubAgentManager)) return undefined;
+			return { manager: current };
+		});
+	const createRemoveRuntime =
+		dependencies.createRemoveRuntime ??
+		((
+			current: ManagerLifecycle,
+			currentSpawnRuntime: SubAgentsSpawnRuntime | undefined,
+		): SubAgentsRemoveRuntime | undefined => {
+			if (!(current instanceof SubAgentManager) || !currentSpawnRuntime) return undefined;
+			return { manager: current, runner: currentSpawnRuntime.runner };
+		});
 	let manager: ManagerLifecycle | undefined;
+	let spawnRuntime: SubAgentsSpawnRuntime | undefined;
+	let statusRuntime: SubAgentsStatusRuntime | undefined;
+	let sendRuntime: SubAgentsSendRuntime | undefined;
+	let reconfigureRuntime: SubAgentsReconfigureRuntime | undefined;
+	let waitRuntime: SubAgentsWaitRuntime | undefined;
+	let removeRuntime: SubAgentsRemoveRuntime | undefined;
 	let lifecycleTail: Promise<void> = Promise.resolve();
 
 	const serializeLifecycle = (operation: () => void | Promise<void>): Promise<void> => {
@@ -46,16 +146,43 @@ export function registerSubAgentsExtension(
 		serializeLifecycle(async () => {
 			const previous = manager;
 			manager = undefined;
+			spawnRuntime = undefined;
+			statusRuntime = undefined;
+			sendRuntime = undefined;
+			reconfigureRuntime = undefined;
+			waitRuntime = undefined;
+			removeRuntime = undefined;
 			if (previous) await previous.disposeAll(reason);
-			manager = createManager(cwd);
+			const next = createManager(cwd);
+			const nextSpawnRuntime = createSpawnRuntime(next);
+			manager = next;
+			spawnRuntime = nextSpawnRuntime;
+			statusRuntime = createStatusRuntime(next);
+			sendRuntime = createSendRuntime(next, nextSpawnRuntime);
+			reconfigureRuntime = createReconfigureRuntime(next, nextSpawnRuntime);
+			waitRuntime = createWaitRuntime(next);
+			removeRuntime = createRemoveRuntime(next, nextSpawnRuntime);
 		});
 
 	const shutdownManager = (reason: string): Promise<void> =>
 		serializeLifecycle(async () => {
 			const previous = manager;
 			manager = undefined;
+			spawnRuntime = undefined;
+			statusRuntime = undefined;
+			sendRuntime = undefined;
+			reconfigureRuntime = undefined;
+			waitRuntime = undefined;
+			removeRuntime = undefined;
 			if (previous) await previous.disposeAll(reason);
 		});
+
+	pi.registerTool(createSubAgentsSpawnTool(() => spawnRuntime));
+	pi.registerTool(createSubAgentsStatusTool(() => statusRuntime));
+	pi.registerTool(createSubAgentsSendTool(() => sendRuntime));
+	pi.registerTool(createSubAgentsReconfigureTool(() => reconfigureRuntime));
+	pi.registerTool(createSubAgentsWaitTool(() => waitRuntime));
+	pi.registerTool(createSubAgentsRemoveTool(() => removeRuntime));
 
 	pi.on("session_start", async (event, ctx) => {
 		await replaceManager(ctx.cwd, `session start: ${event.reason}`);

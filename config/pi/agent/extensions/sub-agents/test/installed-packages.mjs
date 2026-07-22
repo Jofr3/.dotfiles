@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const PI_PACKAGE_NAME = "@earendil-works/pi-coding-agent";
 const PI_AI_PACKAGE_NAME = "@earendil-works/pi-ai";
+const PI_TUI_PACKAGE_NAME = "@earendil-works/pi-tui";
 
 function readPackageName(directory) {
 	try {
@@ -59,23 +60,42 @@ function resolvePiPackageDirectory() {
 	return packageDirectory;
 }
 
-function resolvePiAiPackageDirectory(piPackageDirectory) {
-	const configured = process.env.PI_AI_PACKAGE_DIR;
-	if (configured) {
-		const resolved = realpathSync(configured);
-		assert.equal(readPackageName(resolved), PI_AI_PACKAGE_NAME, "PI_AI_PACKAGE_DIR points to the wrong package");
+function resolveSiblingPackageDirectory(piPackageDirectory, packageName, directoryName, configuredPath, configuredName) {
+	if (configuredPath) {
+		const resolved = realpathSync(configuredPath);
+		assert.equal(readPackageName(resolved), packageName, `${configuredName} points to the wrong package`);
 		return resolved;
 	}
 
 	let current = piPackageDirectory;
 	while (true) {
-		const candidate = join(current, "node_modules", "@earendil-works", "pi-ai");
-		if (readPackageName(candidate) === PI_AI_PACKAGE_NAME) return candidate;
+		const candidate = join(current, "node_modules", "@earendil-works", directoryName);
+		if (readPackageName(candidate) === packageName) return candidate;
 		const parent = dirname(current);
 		if (parent === current || current === parse(current).root) break;
 		current = parent;
 	}
-	throw new Error(`Could not locate ${PI_AI_PACKAGE_NAME} from ${piPackageDirectory}; set PI_AI_PACKAGE_DIR`);
+	throw new Error(`Could not locate ${packageName} from ${piPackageDirectory}; set ${configuredName}`);
+}
+
+function resolvePiAiPackageDirectory(piPackageDirectory) {
+	return resolveSiblingPackageDirectory(
+		piPackageDirectory,
+		PI_AI_PACKAGE_NAME,
+		"pi-ai",
+		process.env.PI_AI_PACKAGE_DIR,
+		"PI_AI_PACKAGE_DIR",
+	);
+}
+
+function resolvePiTuiPackageDirectory(piPackageDirectory) {
+	return resolveSiblingPackageDirectory(
+		piPackageDirectory,
+		PI_TUI_PACKAGE_NAME,
+		"pi-tui",
+		process.env.PI_TUI_PACKAGE_DIR,
+		"PI_TUI_PACKAGE_DIR",
+	);
 }
 
 export async function importInstalledPackages() {
@@ -99,6 +119,7 @@ async function getSubAgentsJiti() {
 	subAgentsJitiPromise = (async () => {
 		const piPackageDirectory = resolvePiPackageDirectory();
 		const piAiPackageDirectory = resolvePiAiPackageDirectory(piPackageDirectory);
+		const piTuiPackageDirectory = resolvePiTuiPackageDirectory(piPackageDirectory);
 		const typeBoxModule = join(piPackageDirectory, "node_modules", "typebox", "build", "index.mjs");
 		const jitiModule = await import(
 			pathToFileURL(join(piPackageDirectory, "node_modules", "jiti", "lib", "jiti.mjs")).href
@@ -108,6 +129,7 @@ async function getSubAgentsJiti() {
 			alias: {
 				"@earendil-works/pi-coding-agent": join(piPackageDirectory, "dist", "index.js"),
 				"@earendil-works/pi-ai": join(piAiPackageDirectory, "dist", "compat.js"),
+				"@earendil-works/pi-tui": join(piTuiPackageDirectory, "dist", "index.js"),
 				typebox: typeBoxModule,
 			},
 		});

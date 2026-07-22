@@ -1,6 +1,6 @@
 # `sub-agents` Pi Extension — Architecture and Multi-Phase Implementation Specification
 
-**Status:** Design approved; Phase 0 validation, Phase 1 skeleton, and Phase 2 dynamic in-process runtime are complete; Phase 3 control-plane work is underway with strict public schemas complete
+**Status:** Design approved; Phase 0 validation, Phase 1 skeleton, Phase 2 dynamic in-process runtime, and the validated Phase 3 main-agent control plane are complete; Phase 4 notifications and observability are underway, with the child reporting boundary complete and event coalescing next
 
 **Extension name:** `sub-agents`
 
@@ -264,6 +264,8 @@ Key behavior:
 - Uses `executionMode: "parallel"` so independent spawn/control calls do not serialize unnecessarily; internal registry operations must be race-safe.
 - Bounds one `sub_agents_spawn` call to 64 specifications for input/result transport safety. This is not an active-pool or concurrency ceiling: additional calls may keep adding children, and every valid entry in each call starts without a worker semaphore.
 
+`SA-301` implements this control boundary with one parallel-execution tool over the session-generation manager, router, and assignment runner. It maps every request entry to an independent launch promise before awaiting the ordered outcome array, so validation/model/runtime failures remain per child and never prevent valid siblings from starting. Successful prompt preflight returns the exact opaque child ID without waiting for completion. Model-visible content and structured details omit prompts/conversations, known errors are bounded, unknown internal errors are replaced, and compact/expanded renderers sanitize control characters. Session lifecycle replacement clears the active spawn runtime before manager disposal.
+
 Example conceptual request:
 
 ```json
@@ -311,6 +313,8 @@ Fields should include:
 
 The default response is compact. An optional detail level may include a bounded recent event timeline, never an unbounded message history. Status reports usage totals without draining by default; `drainUsage: true` explicitly advances the atomic reported watermark.
 
+`SA-302` implements this boundary as one parallel current-generation inspection tool. Omitted IDs select a live-first all-agent view capped to the shared 100-record control transport bound; exact selected IDs preserve request order and return bounded per-target stale, unknown, or removed-excluded outcomes. Compact structured state covers bounded identity/role/tags, lifecycle and elapsed time, current assignment, requested and selected route/thinking metadata, active tools, pending messages, leases, latest report/result, blocker/error, and total/reported usage. Timeline mode round-robins only recent bounded manager events and never exposes child messages. A minimal exact-ID plus bounded-name/state record is preserved for every returned child while richer details and model-visible text independently fit below 48 KiB. Observation leaves reported watermarks unchanged; explicit drains serialize through each manager queue, aggregate into Pi `Usage`, and remain one-time under concurrent status calls. Session replacement clears the status runtime before disposing its manager, and unknown internal lookup text is replaced.
+
 ### 8.3 `sub_agents_send`
 
 Purpose: Redirect or extend one or more existing children.
@@ -323,6 +327,8 @@ Behavior:
 - Report acceptance per child.
 - Preserve each child's prior context.
 - Do not silently create a replacement if the target is absent or removed.
+
+`SA-303` implements this boundary as one parallel bounded per-target delivery tool over the same assignment runner used by `sub_agents_spawn`. Every unique ID is dispatched independently: idle children start a fresh assignment through `prompt()`, while running children receive `followUp` by default or explicit `steer`. Duplicate IDs in one call all fail before delivery so a batch cannot race two messages against one child. Assignment-boundary races are retried only after recognized pre-delivery `assignment_not_idle`/`assignment_not_running` outcomes and a runner synchronization attempt; unknown or potentially side-effecting failures are never retried. Blocked, failed, stopping, and removed children return explicit bounded outcomes, stale/unknown IDs remain per-target failures, and message text is omitted from content, details, and renderers. Session lifecycle replacement clears the send runtime before old-manager disposal, and the shared runner rejects active-message dispatch once its manager has closed.
 
 ### 8.4 `sub_agents_reconfigure`
 
@@ -338,6 +344,8 @@ Behavior:
 - Permit escalation from Luna → Terra → Sol when a task proves harder than expected and de-escalation for later simple follow-up work.
 - Do not change workspace or tool capabilities in the first version.
 
+`SA-306` implements this boundary as one parallel per-target tool over the current manager, shared model router, and persistent assignment runner. Idle children call the supported `AgentSession.setModel()`/`setThinkingLevel()` path immediately and retain their in-memory transcript. Running children default to a manager-visible pending route bound to the exact current assignment; the latest accepted queued request for that assignment replaces an older unapplied request and is applied by the runner only after translator settlement reaches reusable `idle`. New prompts fail closed behind a pending route. Explicit `abort-and-switch` arms an intentional-abort translation before aborting, records the interrupted assignment as `aborted` without fabricating a result, then applies the replacement at the resulting idle boundary. Removed/stopping/failed/blocked children do not switch, removal clears pending state, unknown routing/runtime errors are replaced, and compact/full result views fit independently below 48 KiB. The manager records the active route, effective SDK-clamped thinking level, bounded pending route, and model/assignment timeline events; each completed assignment keeps the route that was active when it started.
+
 ### 8.5 `sub_agents_wait`
 
 Purpose: Establish an explicit synchronization barrier while streaming status.
@@ -351,6 +359,8 @@ Behavior:
 - Drain only previously unreported usage into the tool result to prevent double counting.
 - Waiting does not remove the children.
 
+`SA-304` implements this boundary as one parallel, bounded polling barrier over a fixed call-start target set. Exact IDs preserve request order and per-target stale/unknown failures; omitted IDs capture at most the shared 100-record current live set and never absorb later spawns. `any`/`all` evaluate only resolvable targets against the requested states, while an empty resolvable set returns `no_targets` rather than hanging. State/tool/queue changes stream through bounded `onUpdate` records, caller abort fails before accounting side effects, and timeout returns current bounded state. Once final atomic per-child usage drains begin, the tool completes its result so already advanced watermarks are not hidden by a late cancellation. Final structured details preserve every exact ID, fit richer result/report/error metadata below 48 KiB, attach only newly accrued aggregate Pi usage, report drain failures without exposing internal errors, and leave every child/runtime intact.
+
 ### 8.6 `sub_agents_remove`
 
 Purpose: Stop and dispose selected children or all children.
@@ -361,6 +371,8 @@ Modes:
 - `abort`: immediately call `session.abort()`, await settlement, dispose, release leases, and mark removed.
 
 The result must include any final bounded output and unreported usage available before disposal.
+
+`SA-305` implements this boundary as one parallel selected/all control tool over the production manager and shared assignment runner. Graceful mode sends one fixed nonsecret steering request to a running child, waits only until the shared bounded call deadline, and escalates still-active work through the manager's idempotent abort/wait/dispose cleanup; creating children cannot accept a final instruction and escalate immediately. Abort mode enters cleanup without messaging. Exact selected IDs preserve bounded per-target historical/idempotent outcomes. `scope=all` captures and acts on every live call-start child even beyond the 100-record result transport cap, while visible outcomes prioritize failures and report omissions. Cancellation fails before side effects, but after cleanup begins it only shortens graceful waiting so disposal and atomic usage-drain effects are never hidden. Final result/report/error and usage metadata fit independent 48 KiB content/details bounds, unknown internal errors and the fixed graceful instruction are omitted, and manager cleanup releases runtime subscriptions, timers, abort controllers, sessions, translators, and leases before retaining a bounded removed record.
 
 ### 8.7 Optional later control tools
 
@@ -422,7 +434,7 @@ Each child uses:
 - dynamic system prompt;
 - only selected guarded tools and internal reporting tools.
 
-`SA-203` implements the child construction boundary in `createSubAgentSession()`. It accepts an already resolved model/runtime, realpath-canonicalizes an existing shared child cwd beneath the realpath-canonical parent cwd, creates `SessionManager.inMemory(childCwd)` and `SettingsManager.inMemory()`, supplies the explicit loader, and exposes only an exact read-only built-in allowlist. Omitted tools default to `read`, `grep`, `find`, and `ls`; explicit subsets or no tools are allowed. Mutation-capable tools/policies and worktree mode fail closed until their safety phases. The factory validates the resulting public session ownership/model/tool contract, requires an event subscription before success, and performs best-effort unsubscribe, abort, idle settlement, and disposal after every partial post-creation failure. Returned `SubAgentSessionRuntime` cleanup is idempotent.
+`SA-203` implements the child construction boundary in `createSubAgentSession()`. It accepts an already resolved model/runtime, realpath-canonicalizes an existing shared child cwd beneath the realpath-canonical parent cwd, creates `SessionManager.inMemory(childCwd)` and `SettingsManager.inMemory()`, supplies the explicit loader, and exposes only an exact read-only built-in allowlist. Omitted tools default to `read`, `grep`, `find`, and `ls`; explicit subsets or no built-ins are allowed. Mutation-capable tools/policies and worktree mode fail closed until their safety phases. The factory validates the resulting public session ownership/model/tool contract, requires an event subscription before success, and performs best-effort unsubscribe, abort, idle settlement, and disposal after every partial post-creation failure. Returned `SubAgentSessionRuntime` cleanup is idempotent. `SA-400` extends every initialized child with the one fixed internal `report_to_parent` custom tool without exposing any parent `sub_agents_*` control tool.
 
 ### 10.2 Resource isolation
 
@@ -477,7 +489,7 @@ The router is deterministic policy over models visible through the mirrored regi
 
 Offline installed metadata confirms that `gpt-5.6-luna`, `gpt-5.6-terra`, and `gpt-5.6-sol` are canonical IDs under multiple providers, including `openai` and `openai-codex`. The ID alone therefore cannot choose the subscription provider safely. The router must not inspect subscription credentials, make a classification model call, or hardcode a provider name; unresolved ambiguity requires an explicit provider/model choice.
 
-`SA-207` implements this policy in `SubAgentModelRouter`. Missing or known-unavailable exact IDs advance through the documented tier order; ambiguous exact-ID matches and model-runtime infrastructure failures fail closed. Every success returns immutable bounded `ModelRoute` metadata with the requested policy/complexity, selected provider/ID/tier, attempted fallback path, fallback flag, and nonsecret reason. The assignment runner records a defensive manager-owned copy before the first child assignment, and each assignment snapshots the route active at its safe boundary. The exported `SUB_AGENT_MODEL_ROUTING_PROMPT_GUIDELINES` remains dormant until the Phase 3 `sub_agents_spawn` tool registers it; no global parent prompt is injected.
+`SA-207` implements this policy in `SubAgentModelRouter`. Missing or known-unavailable exact IDs advance through the documented tier order; ambiguous exact-ID matches and model-runtime infrastructure failures fail closed. Every success returns immutable bounded `ModelRoute` metadata with the requested policy/complexity, selected provider/ID/tier, attempted fallback path, fallback flag, and nonsecret reason. The assignment runner records a defensive manager-owned copy before the first child assignment, and each assignment snapshots the route active at its safe boundary. `SA-301` activates the exported `SUB_AGENT_MODEL_ROUTING_PROMPT_GUIDELINES` only with the registered `sub_agents_spawn` tool; no separate global parent prompt is injected.
 
 ### 10.5 Background execution
 
@@ -710,6 +722,8 @@ Rules:
 
 If the child never calls `report_to_parent`, its final assistant text becomes the fallback result.
 
+`SA-400` implements this boundary as one strict child-only `report_to_parent` definition whose schema has no target ID or manager/peer-control field. The runtime binds its handler to the exact owning translator through a closure, always includes it alongside the selected read-only built-ins, and rejects missing handlers before session creation. Progress updates only the bounded latest report. A blocker records the complete bounded report and moves the current assignment to `blocked`; a result remains assignment-scoped until successful agent settlement, then supplies summary/details/files to the final result. A successful final assistant response remains the fallback when no result report was made, including later assignments after an earlier structured result. Tool acknowledgements and unknown sink failures never echo the report body or internal error text.
+
 ## 16. Usage and Cost Accounting
 
 ### 16.1 Per-agent ledger
@@ -733,7 +747,8 @@ Solution:
 
 - Every management tool drains newly accrued, previously unreported child usage into its own result `usage` when applicable.
 - `sub_agents_wait` and `sub_agents_remove` are the primary accounting boundaries.
-- `sub_agents_status` may optionally drain usage; this must be explicit to avoid surprising repeated totals.
+- `sub_agents_status` may optionally drain usage; this is implemented only through explicit `drainUsage: true` to avoid surprising repeated totals.
+- Status also exposes the current effective thinking level and any bounded model route queued for an exact running assignment without treating the pending route as already active.
 - Usage deltas must be marked reported atomically so retries or repeated status calls cannot double count.
 - Any unreported usage remaining at shutdown is preserved in bounded custom state/history but may not appear in Pi's built-in session totals; document this limitation.
 
@@ -998,6 +1013,8 @@ Exit criteria:
 - Running and idle children can be redirected.
 - Idle children can change model immediately; running children can queue a safe-boundary model change.
 - Wait/abort/reconfigure races do not leak sessions.
+
+`SA-307` and `SA-309` validate the completed Phase 3 boundary offline. The dedicated cross-control suite drives all six public tools through deterministic initialization, settlement, reconfiguration, abort, removal, wait, cancellation, and usage-drain races using the production manager and assignment runner. It proves that unrelated children retain their runtimes, removal wins unsafe model-change races, usage drains remain exactly-once across tools, outputs stay bounded, complexity routing remains available for escalation/de-escalation, and no fixed live-child concurrency gate exists.
 
 ### Phase 4 — Notifications and observability
 

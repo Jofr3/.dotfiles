@@ -10,8 +10,10 @@ import type {
 import type { SubAgentManager } from "./manager.ts";
 import type {
 	ActiveToolCallSummary,
+	AgentReportSubmission,
 	AgentRuntimeActivity,
 	AgentRuntimePhase,
+	BoundedAgentReport,
 	SubAgentId,
 	UsageCounters,
 } from "./types.ts";
@@ -27,6 +29,8 @@ export type ChildEventTranslatorManager = Pick<
 	| "completeAssignment"
 	| "failAgent"
 	| "getAgent"
+	| "interruptAssignmentForReconfiguration"
+	| "recordReport"
 	| "recordRuntimeEvent"
 	| "updateRuntimeActivity"
 >;
@@ -201,11 +205,13 @@ export class ChildEventTranslator {
 	#activeTools = new Map<string, ActiveToolCallSummary>();
 	#pendingMessageCount = 0;
 	#terminal?: TerminalAssistantState;
+	#reportedResult?: BoundedAgentReport;
 	#operationTail: Promise<void> = Promise.resolve();
 	#pendingActivity?: AgentRuntimeActivity;
 	#activityTaskQueued = false;
 	#closed = false;
 	#error?: ChildEventTranslatorError;
+	#intentionalAbortReason?: string;
 
 	constructor(options: ChildEventTranslatorOptions) {
 		this.id = options.id;
@@ -228,6 +234,7 @@ export class ChildEventTranslator {
 		switch (event.type) {
 			case "agent_start":
 				this.#terminal = undefined;
+				this.#reportedResult = undefined;
 				this.#preview = undefined;
 				this.#activeToolCount = 0;
 				this.#activeTools.clear();
@@ -334,6 +341,7 @@ export class ChildEventTranslator {
 			case "agent_end":
 				this.#terminal = lastAssistant(event.messages) ?? this.#terminal;
 				if (event.willRetry) {
+					this.#reportedResult = undefined;
 					this.#phase = "retrying";
 					this.#queueActivity();
 					this.#recordRuntimeEvent("Agent run ended; retry pending");
@@ -342,6 +350,10 @@ export class ChildEventTranslator {
 
 			case "agent_settled": {
 				const terminal = this.#terminal;
+				const reportedResult = this.#reportedResult;
+				const intentionalAbortReason = this.#intentionalAbortReason;
+				this.#reportedResult = undefined;
+				this.#intentionalAbortReason = undefined;
 				this.#settleActivity();
 				this.#enqueue(async () => {
 					const snapshot = this.#manager.getAgent(this.id);
@@ -358,14 +370,26 @@ export class ChildEventTranslator {
 						return;
 					}
 					if (terminal?.stopReason === "aborted") {
-						await this.#manager.failAgent(this.id, DEFAULT_ABORT_FAILURE);
+						if (intentionalAbortReason) {
+							await this.#manager.interruptAssignmentForReconfiguration(
+								this.id,
+								intentionalAbortReason,
+							);
+						} else {
+							await this.#manager.failAgent(this.id, DEFAULT_ABORT_FAILURE);
+						}
 						return;
 					}
 					const summary = boundedHead(
-						terminal?.text?.trim() || DEFAULT_COMPLETION_SUMMARY,
+						reportedResult?.summary || terminal?.text?.trim() || DEFAULT_COMPLETION_SUMMARY,
 						SUB_AGENT_BOUNDS.resultSummaryChars,
 					);
-					await this.#manager.completeAssignment(this.id, { state: "idle", summary });
+					await this.#manager.completeAssignment(this.id, {
+						state: "idle",
+						summary,
+						details: reportedResult?.details,
+						files: reportedResult?.files,
+					});
 				});
 				break;
 			}
@@ -435,30 +459,62 @@ export class ChildEventTranslator {
 		}
 	}
 
-	/** Marks an explicit child-reported blocker without inferring one from tool errors. */
-	recordBlocker(blocker: ChildBlocker): Promise<void> {
-		if (this.#closed) return this.flush();
-		const summary = boundedHead(
-			typeof blocker?.summary === "string" && blocker.summary.trim()
-				? blocker.summary.trim()
-				: "The child reported a blocker.",
-			SUB_AGENT_BOUNDS.resultSummaryChars,
+	/** Mark the next aborted terminal event as an intentional safe-boundary interruption. */
+	expectReconfigurationAbort(
+		reason = "Assignment aborted for model reconfiguration",
+	): void {
+		if (this.#closed) throw new ChildEventTranslatorError();
+		this.#intentionalAbortReason = boundedHead(
+			typeof reason === "string" && reason.trim()
+				? reason.trim()
+				: "Assignment aborted for model reconfiguration",
+			SUB_AGENT_BOUNDS.eventSummaryChars,
 		);
-		const needs =
-			typeof blocker?.needs === "string" && blocker.needs.trim()
-				? boundedHead(blocker.needs.trim(), SUB_AGENT_BOUNDS.reportNeedsChars)
-				: undefined;
-		this.#settleActivity();
+	}
+
+	cancelExpectedReconfigurationAbort(): void {
+		this.#intentionalAbortReason = undefined;
+	}
+
+	/** Records one bounded assignment-scoped child report. */
+	recordReport(report: AgentReportSubmission): Promise<void> {
+		if (this.#closed) return Promise.reject(new ChildEventTranslatorError());
+		if (report?.state === "blocked") this.#settleActivity();
 		this.#enqueue(async () => {
-			const snapshot = this.#manager.getAgent(this.id);
-			if (snapshot.state !== "running") return;
+			const snapshot = await this.#manager.recordReport(this.id, report);
+			const bounded = snapshot.latestReport;
+			if (!bounded) throw new ChildEventTranslatorError();
+			if (bounded.state === "result") {
+				this.#reportedResult = { ...bounded, files: [...bounded.files] };
+				return;
+			}
+			if (bounded.state !== "blocked") return;
+			const current = this.#manager.getAgent(this.id);
+			if (current.state !== "running") return;
 			await this.#manager.completeAssignment(this.id, {
 				state: "blocked",
-				summary,
-				needs,
+				summary: bounded.summary,
+				details: bounded.details,
+				files: bounded.files,
+				needs: bounded.needs,
 			});
 		});
 		return this.flush();
+	}
+
+	/** Marks an explicit child-reported blocker without inferring one from tool errors. */
+	recordBlocker(blocker: ChildBlocker): Promise<void> {
+		return this.recordReport({
+			state: "blocked",
+			summary:
+				typeof blocker?.summary === "string" && blocker.summary.trim()
+					? boundedHead(blocker.summary.trim(), SUB_AGENT_BOUNDS.reportSummaryChars)
+					: "The child reported a blocker.",
+			needs:
+				typeof blocker?.needs === "string" && blocker.needs.trim()
+					? boundedHead(blocker.needs.trim(), SUB_AGENT_BOUNDS.reportNeedsChars)
+					: undefined,
+		});
 	}
 
 	async flush(): Promise<void> {

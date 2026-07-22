@@ -2,11 +2,11 @@
 
 **Specification:** [`SPEC.md`](./SPEC.md)
 
-**Current stage:** Phase 3 main-agent control-plane work is in progress; strict public schemas are complete
+**Current stage:** Phase 4 notifications and observability are in progress; the child reporting boundary is complete and event coalescing is next
 
-**Current milestone:** Phase 3 — main-agent control plane
+**Current milestone:** Phase 4 — notifications and observability
 
-**Next recommended item:** `SA-301`
+**Next recommended item:** `SA-401`
 
 This file is the resumable source of truth for implementation progress. Future sessions should update it before stopping so another session can continue without reconstructing decisions from conversation history.
 
@@ -66,7 +66,7 @@ Future changes to these require an explicit spec and decision-log update.
 
 These notes prevent future sessions from accidentally overwriting unrelated work.
 
-- The `sub-agents/` directory now contains the production Phase 1 entry point/state manager, the complete Phase 2 shared child runtime (model adapter/router, bounded prompt/resources, read-only session factory, event translator, reusable assignment runner, and atomic usage ledger), focused production/integration tests, planning documentation, and the five offline Phase 0 SDK spike suites.
+- The `sub-agents/` directory now contains the production Phase 1 entry point/state manager, the complete Phase 2 shared child runtime (model adapter/router, bounded prompt/resources, read-only session factory, event translator, reusable assignment runner, and atomic usage ledger), the validated six-tool Phase 3 control plane, the Phase 4 child-only `report_to_parent` boundary, focused production/integration/race tests, planning documentation, and the five offline Phase 0 SDK spike suites.
 - At planning time, git reported `agent/extensions/dynamic-fleet.ts` as deleted in the pre-existing working tree. Do not restore or repurpose it unless the user explicitly asks.
 - At planning time, `agent/models-store.json` and `agent/settings.json` already had unrelated modifications. Do not overwrite or revert them.
 - No dependencies have been installed for `sub-agents`.
@@ -79,10 +79,10 @@ These notes prevent future sessions from accidentally overwriting unrelated work
 | 0 | Technical validation | DONE | SDK assumptions proven offline |
 | 1 | Skeleton and state model | DONE | Lifecycle manager works without real model calls |
 | 2 | Dynamic in-process runtime | DONE | Concurrent reusable read-only children work |
-| 3 | Main-agent control tools | IN PROGRESS | Main can incrementally manage pool |
-| 4 | Notifications and observability | BLOCKED by Phase 3 | Bounded event delivery and TUI work |
-| 5 | Shared-workspace mutations | BLOCKED by Phase 3 | Same-file/main-child collisions prevented |
-| 6 | Persistence/session correctness | BLOCKED by Phases 3–5 | Historical state is branch-safe; live state invalidates |
+| 3 | Main-agent control tools | DONE | Main can incrementally manage pool |
+| 4 | Notifications and observability | IN PROGRESS | Bounded event delivery and TUI work |
+| 5 | Shared-workspace mutations | READY | Same-file/main-child collisions prevented |
+| 6 | Persistence/session correctness | BLOCKED by Phases 4–5 | Historical state is branch-safe; live state invalidates |
 | 7 | Hardening and docs | BLOCKED by Phases 0–6 | First stable shared-workspace release |
 | 8 | Git worktrees | DEFERRED | Isolated writers supported safely |
 | 9 | Advanced capabilities | DEFERRED | Evaluated from real usage, not speculation |
@@ -687,96 +687,192 @@ Artifacts:
 
 ## `SA-301` `sub_agents_spawn`
 
-**Status:** NEXT
+**Status:** DONE
 
-- [ ] Accept one or many dynamic specs.
-- [ ] Per-child validation/outcome.
-- [ ] Apply complexity-based model routing unless explicitly overridden.
-- [ ] Start all valid children without a count limit/semaphore.
-- [ ] Return IDs immediately after launch.
-- [ ] Handle partial initialization failure.
-- [ ] Compact/expanded renderer.
+- [x] Accept one or many dynamic specs.
+- [x] Per-child validation/outcome.
+- [x] Apply complexity-based model routing unless explicitly overridden.
+- [x] Start all valid children without a count limit/semaphore.
+- [x] Return IDs immediately after launch.
+- [x] Handle partial initialization failure.
+- [x] Compact/expanded renderer.
+
+Implementation notes:
+
+- `tools/spawn.ts` registers the strict schema with `executionMode: "parallel"`, activates the canonical complexity-routing guidance, and resolves every child through the session-generation manager, shared router, and persistent assignment runner.
+- One mapped promise is created per request entry before the batch is awaited. Outcomes retain request order while child validation, routing, runtime initialization, and prompt launch remain independent; no active-count check, worker queue, semaphore, or scheduler was added.
+- Each valid child returns its exact opaque ID after prompt preflight accepts. Known manager/runner failures become bounded per-child outcomes, unknown runtime errors are replaced with a generic message, and a failed child never rejects successful siblings.
+- Model-visible content includes every started ID and compact route/failure metadata under UTF-8 display bounds. Structured details omit prompts and conversations, while compact and expanded `Text` renderers sanitize control characters and reuse the prior component.
+- Offline tests prove whole-batch overlap with a deterministic barrier, lifecycle registration, inactive-generation cancellation, unknown-error redaction, renderer behavior, and production manager/router/runner partial success with a fake provider.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/spawn.test.mjs`
 
 ## `SA-302` `sub_agents_status`
 
-**Status:** READY
+**Status:** DONE
 
-- [ ] All or selected IDs.
-- [ ] Compact default.
-- [ ] Bounded timeline detail.
-- [ ] Lease/model/usage/assignment state.
-- [ ] Optional explicit usage drain, default decided and documented.
+- [x] All or selected IDs.
+- [x] Compact default.
+- [x] Bounded timeline detail.
+- [x] Lease/model/usage/assignment state.
+- [x] Optional explicit usage drain, default decided and documented.
+
+Implementation notes:
+
+- `tools/status.ts` registers a parallel compact/timeline inspection tool over the current session-generation manager. Omitted IDs select a live-first bounded all-agent view; explicit IDs preserve request order and return bounded per-target stale/unknown/removed-excluded outcomes without replacing them.
+- Compact snapshots expose bounded identity/role/tags, lifecycle and elapsed time, current assignment, requested/selected model route, runtime/tool/queue state, leases, latest report/result, errors/blockers, and total/reported usage. Timeline mode adds only recent bounded milestones and never child message history.
+- All-agent results cap transport at 100 records and report overflow. Structured details first preserve a minimal exact-ID plus bounded-name/state outcome for every returned record, then fit richer snapshots and round-robin timeline events under 48 KiB; model-visible content is independently capped under the same byte limit.
+- Status is observational by default. `drainUsage: true` runs each selected manager drain on its atomic per-child queue, attaches the aggregate newly reported delta as Pi tool usage, and concurrent drains cannot double count.
+- Unknown internal lookup text is replaced, manager lifecycle replacement clears the status runtime before disposal, and compact/expanded `Text` renderers reuse prior components.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/test/status.test.mjs`
 
 ## `SA-303` `sub_agents_send`
 
-**Status:** READY
+**Status:** DONE
 
-- [ ] Per-target messages.
-- [ ] Idle `prompt()` path.
-- [ ] Running steer/follow-up path.
-- [ ] Missing/stale/removed target errors.
-- [ ] Per-target acceptance.
+- [x] Per-target messages.
+- [x] Idle `prompt()` path.
+- [x] Running steer/follow-up path.
+- [x] Missing/stale/removed target errors.
+- [x] Per-target acceptance.
+
+Implementation notes:
+
+- `tools/send.ts` registers a parallel bounded per-target tool over the same production assignment runner created for `sub_agents_spawn`. Idle children start a new prompt assignment; running children receive `followUp` by default or an explicitly requested `steer` message.
+- Every unique target dispatches independently and outcomes retain request order. If an ID occurs more than once in one call, all of its entries fail before runner dispatch so one batch cannot race two messages against one child while unrelated unique targets still proceed.
+- Recognized pre-delivery assignment-boundary races synchronize and re-read manager state before a bounded retry. Unknown or potentially side-effecting failures are not retried, so the tool never guesses whether a rejected delivery took effect.
+- Blocked, failed, stopping, removed, stale, and unknown targets return bounded per-target failures. Unknown internal errors are replaced, message text never appears in result content, structured details, or renderers, and the shared runner rejects active-message dispatch after manager closure.
+- Offline tests cover concurrent idle/running delivery, duplicates, both settlement race directions, inactive/cancelled generations, unknown-error redaction, maximum transport bounds, lifecycle invalidation, and retained-context production runner reuse with a fake provider.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/tools/send.ts`
+- `agent/extensions/sub-agents/test/send.test.mjs`
 
 ## `SA-304` `sub_agents_wait`
 
-**Status:** READY
+**Status:** DONE
 
-- [ ] `any` and `all` conditions.
-- [ ] Selected IDs/all active.
-- [ ] Caller timeout and abort support.
-- [ ] Partial `onUpdate` status.
-- [ ] Bounded outputs.
-- [ ] Usage-delta drain.
-- [ ] Does not remove children.
+- [x] `any` and `all` conditions.
+- [x] Selected IDs/all active.
+- [x] Caller timeout and abort support.
+- [x] Partial `onUpdate` status.
+- [x] Bounded outputs.
+- [x] Usage-delta drain.
+- [x] Does not remove children.
+
+Implementation notes:
+
+- `tools/wait.ts` registers a parallel bounded barrier over a fixed call-start target set. Exact IDs preserve order and return per-target stale/unknown failures; omitted IDs capture the current live set once, cap it to the shared 100-record transport bound, and do not absorb later spawns.
+- `any` and `all` evaluate only resolvable targets against the requested terminal states. An empty resolvable set returns `no_targets`, while caller deadlines return `timed_out` with the latest bounded snapshots rather than throwing or removing children.
+- A bounded poll loop emits `onUpdate` only when lifecycle, assignment, active-tool, or queued-message state changes. Abort-aware timers clean up listeners; cancellation is honored before accounting begins.
+- Final result/report/blocker/error metadata is UTF-8 bounded. Minimal exact-ID records are preserved for every returned target while richer details fit below 48 KiB, and compact/expanded renderers reuse the previous `Text` component.
+- Every valid selected child is drained through the manager's atomic usage watermark when the barrier returns, including on timeout. Drains start only after a final cancellation check; once they start, the tool completes so advanced watermarks remain visible in the returned Pi usage. Concurrent/repeated management drains cannot double count.
+- Offline tests cover any/all state changes, partial updates, timeout, abort-before-drain, empty/unknown selections, maximum output transport, lifecycle invalidation, error redaction, production in-process settlement, and repeated one-time usage accounting.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/tools/wait.ts`
+- `agent/extensions/sub-agents/test/wait.test.mjs`
 
 ## `SA-305` `sub_agents_remove`
 
-**Status:** READY
+**Status:** DONE
 
-- [ ] Graceful mode.
-- [ ] Forced abort mode.
-- [ ] Bounded grace period.
-- [ ] Unsubscribe/dispose/release.
-- [ ] Final output and usage delta.
-- [ ] Idempotent repeated removal.
+- [x] Graceful mode.
+- [x] Forced abort mode.
+- [x] Bounded grace period.
+- [x] Unsubscribe/dispose/release.
+- [x] Final output and usage delta.
+- [x] Idempotent repeated removal.
+
+Implementation notes:
+
+- `tools/remove.ts` registers a parallel selected/all removal tool over the same production manager and assignment runner used by spawn/send. Graceful removal sends one fixed nonsecret steering instruction to a running child, waits only until the shared call deadline, and escalates creating, timed-out, request-failed, or caller-cancelled work to the manager's abort/wait/dispose cleanup path. Abort mode skips the graceful request.
+- Exact selected IDs preserve per-target outcomes and support idempotent repeated removal of historical records. `scope=all` captures every currently live call-start child and removes all of them even when the active pool exceeds the 100-record result transport bound; bounded visible outcomes prioritize failures and report omissions.
+- Once per-target cleanup begins, caller cancellation shortens graceful waiting but does not hide eventual disposal or usage accounting. Final result/report/error metadata is UTF-8 bounded, content and details independently remain below 48 KiB, unknown cleanup/request/drain errors are replaced, and graceful instruction text never enters tool results.
+- Every successfully removed target atomically drains only newly accrued usage after manager cleanup. Concurrent/repeated drains share the manager watermark, already removed targets remain successful and return zero until new usage exists, and drain failures do not misreport cleanup failure.
+- Manager cleanup clears timers/controllers/subscriptions, aborts and settles the child, disposes its session/translator, releases runtime state/leases, and leaves a bounded historical record. Lifecycle replacement clears the remove runtime before disposing the old manager.
+- Offline tests cover graceful completion, immediate abort, timeout/cancellation escalation, partial and redacted failures, semantic selected/all validation, repeated idempotency, more-than-100 all-scope cleanup with bounded output, lifecycle invalidation, and production in-process session disposal.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/tools/remove.ts`
+- `agent/extensions/sub-agents/test/remove.test.mjs`
 
 ## `SA-306` `sub_agents_reconfigure`
 
-**Status:** READY
+**Status:** DONE
 
-- [ ] Switch an idle child with `session.setModel()` while retaining context.
-- [ ] Update thinking level through the supported SDK API.
-- [ ] Accept `auto`, `inherit`, or explicit model policy.
-- [ ] Queue a running child's change for its next safe assignment boundary.
-- [ ] Support explicit abort-and-switch without pretending the interrupted assignment completed.
-- [ ] Record old/new route and reason.
-- [ ] Support Luna → Terra → Sol escalation and later de-escalation.
-- [ ] Do not change workspace/tool capabilities in the first version.
+- [x] Switch an idle child with `session.setModel()` while retaining context.
+- [x] Update thinking level through the supported SDK API.
+- [x] Accept `auto`, `inherit`, or explicit model policy.
+- [x] Queue a running child's change for its next safe assignment boundary.
+- [x] Support explicit abort-and-switch without pretending the interrupted assignment completed.
+- [x] Record old/new route and reason.
+- [x] Support Luna → Terra → Sol escalation and later de-escalation.
+- [x] Do not change workspace/tool capabilities in the first version.
+
+Implementation notes:
+
+- `tools/reconfigure.ts` registers the sixth parallel Phase 3 control tool over the current generation's manager, shared router, and persistent assignment runner. Every unique ID resolves and changes independently; duplicate IDs fail before routing or runtime effects, stale/unavailable states remain per-target failures, and unknown route/runtime text is replaced.
+- Idle children change immediately through the installed public `AgentSession.setModel()` and `setThinkingLevel()` APIs. The session transcript remains in memory, SDK thinking-level clamping is recorded as the effective value, and the next assignment snapshots the new route while the completed assignment retains its original route.
+- Running children default to an exact-assignment pending route in bounded manager state. The latest accepted queued request replaces an older unapplied request for that assignment, status exposes it as pending rather than active, new prompts fail closed until it applies, and the runner applies it only after translator settlement reaches reusable `idle`.
+- `abort-and-switch` arms an intentional translator boundary before aborting. A genuinely aborted run becomes an `aborted` assignment with no fabricated result, returns the child to reusable `idle`, and only then applies the replacement. Removal/stopping wins races safely and clears pending state.
+- Active route, effective thinking, pending route, model events, and assignment-boundary metadata are bounded and defensively copied. Model-visible content and details fit independently below 48 KiB; large results preserve every exact ID with compact old/new selected-model records and explicit truncation counters.
+- Offline tests cover production idle context retention, queued replacement (including latest-wins semantics), SDK thinking clamping, intentional abort assignment semantics, lifecycle invalidation, duplicate and partial outcomes, unknown-error redaction, and maximum 100-target transport bounds.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/tools/reconfigure.ts`
+- `agent/extensions/sub-agents/test/reconfigure.test.mjs`
 
 ## `SA-307` Control-call race tests
 
-**Status:** BLOCKED by `SA-301`–`SA-306`
+**Status:** DONE
 
-- [ ] Spawn and immediate status.
-- [ ] Spawn and remove during initialization.
-- [ ] Send while child settles.
-- [ ] Two concurrent sends to one child.
-- [ ] Reconfigure idle child and retain context.
-- [ ] Reconfigure running child at the safe boundary.
-- [ ] Reconfigure/remove and reconfigure/abort races.
-- [ ] Wait and remove race.
-- [ ] Parent abort during wait.
-- [ ] Concurrent usage drains.
+- [x] Spawn and immediate status.
+- [x] Spawn and remove during initialization.
+- [x] Send while child settles.
+- [x] Two concurrent sends to one child.
+- [x] Reconfigure idle child and retain context.
+- [x] Reconfigure running child at the safe boundary.
+- [x] Reconfigure/remove and reconfigure/abort races.
+- [x] Wait and remove race.
+- [x] Parent abort during wait.
+- [x] Concurrent usage drains.
+
+Implementation notes:
+
+- `test/control-races.test.mjs` uses deterministic in-process child sessions, exact barriers, and the production manager/runner plus all six public control tools. It proves initialization removal, settlement redirection without duplicate delivery, unrelated-runtime stability, removal winning delayed and abort-and-switch reconfiguration races, wait/remove convergence, cancellation before drains, and atomic cross-tool usage accounting.
+- Existing production tests in `send.test.mjs`, `reconfigure.test.mjs`, `status.test.mjs`, `wait.test.mjs`, and `usage-ledger.test.mjs` supply the retained-context, exact safe-boundary, concurrent-drain, and real in-process session coverage that complements the dedicated race matrix.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/test/control-races.test.mjs`
 
 ## `SA-309` Phase 3 validation
 
-**Status:** BLOCKED by `SA-301`–`SA-307`
+**Status:** DONE
 
-- [ ] Main can evolve pool incrementally.
-- [ ] No operation rebuilds unrelated children.
-- [ ] Faster models handle simple tasks by default while stronger models remain available for escalation.
-- [ ] Tool outputs stay within Pi bounds.
-- [ ] No fixed concurrency count exists in code/config.
+- [x] Main can evolve pool incrementally.
+- [x] No operation rebuilds unrelated children.
+- [x] Faster models handle simple tasks by default while stronger models remain available for escalation.
+- [x] Tool outputs stay within Pi bounds.
+- [x] No fixed concurrency count exists in code/config.
+
+Validation notes:
+
+- The complete spawn/status/send/reconfigure/wait/remove suite and the cross-control matrix exercise incremental creation, retained-context reuse, reconfiguration, barriers, removal, and unrelated-child stability.
+- Deterministic router tests prove Luna/Terra/Sol defaults and explicit escalation/de-escalation; maximum-size fixtures keep every tool's model-visible content and structured details within their documented transport budgets.
+- The manager accepts more than the control transport batch size, has no child-count gate, and a production-source scan found no semaphore, active-pool limit, or concurrency ceiling. Per-call schema bounds are transport limits, not live-pool limits.
 
 ---
 
@@ -784,17 +880,30 @@ Artifacts:
 
 ## `SA-400` Child `report_to_parent` tool
 
-**Status:** BLOCKED by Phase 3
+**Status:** DONE
 
-- [ ] Bounded schema.
-- [ ] Progress/blocker/result states.
-- [ ] Fallback to final assistant output.
-- [ ] Child-only registration.
-- [ ] Cannot control peers or manager.
+- [x] Bounded schema.
+- [x] Progress/blocker/result states.
+- [x] Fallback to final assistant output.
+- [x] Child-only registration.
+- [x] Cannot control peers or manager.
+
+Implementation notes:
+
+- `tools/report-to-parent.ts` defines one strict `additionalProperties: false` schema with provider-compatible `StringEnum` states and the existing report summary/details/files/needs bounds. Its model-visible parameters contain no child ID, peer target, manager operation, callback, or executable routing field.
+- Every production child receives exactly one custom `report_to_parent` tool in addition to its selected read-only built-ins. The assignment runner binds the tool to that child's exact translator through an in-memory closure; the parent Pi extension does not register this internal tool, and a missing handler fails session creation before runtime startup.
+- Progress updates the manager's bounded current-assignment report only. Blocked reports retain summary/details/files/needs and explicitly move the assignment to `blocked` without guessing from tool errors. Result reports remain translator-owned for the exact active run and become the final bounded result only after successful settlement.
+- A final assistant response remains the fallback when no result report exists. Starting another assignment clears stale manager report state, and each child `agent_start` clears the translator's prior structured result, so an older result can never override a later fallback.
+- The child-facing acknowledgement contains only the controlled report state. Unknown manager/translator failures are replaced and never echo report content or internal error text.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/tools/report-to-parent.ts`
+- `agent/extensions/sub-agents/test/report-to-parent.test.mjs`
 
 ## `SA-401` Event inbox and coalescer
 
-**Status:** BLOCKED by `SA-014`, `SA-400`
+**Status:** NEXT
 
 - [ ] Bounded queue/ring buffer.
 - [ ] One flush timer.
@@ -814,7 +923,7 @@ Artifacts:
 
 ## `SA-403` Persistent status widget
 
-**Status:** BLOCKED by Phase 3
+**Status:** READY
 
 - [ ] Counts and aggregate usage.
 - [ ] Bounded child rows.
@@ -825,7 +934,7 @@ Artifacts:
 
 ## `SA-404` Management tool renderers
 
-**Status:** BLOCKED by Phase 3
+**Status:** READY
 
 - [ ] Compact call/result.
 - [ ] Expanded detail.
@@ -846,7 +955,7 @@ Artifacts:
 
 ## `SA-409` Phase 4 validation
 
-**Status:** BLOCKED by `SA-400`–`SA-405`
+**Status:** BLOCKED by `SA-401`–`SA-405`
 
 - [ ] Completion storm coalesces.
 - [ ] No token delta enters parent context.
@@ -859,7 +968,7 @@ Artifacts:
 
 ## `SA-500` Canonical workspace/path utilities
 
-**Status:** BLOCKED by Phase 3 and `SA-013`
+**Status:** READY
 
 - [ ] Resolve cwd and trusted root.
 - [ ] Strip leading `@`.
@@ -964,7 +1073,7 @@ Artifacts:
 
 ## `SA-600` Versioned historical snapshot schema
 
-**Status:** BLOCKED by Phases 3–5
+**Status:** BLOCKED by Phases 4–5
 
 - [ ] `sub-agents-state-v1` shape.
 - [ ] Strict bounds.
@@ -2023,3 +2132,387 @@ Append one entry at the end of every work session.
 - modified `agent/settings.json`
 
 **Recommended next item:** `SA-301` — register and implement `sub_agents_spawn` using the new schema, production manager/router/runner, per-child outcomes, and no active-count gate.
+
+## Handoff 017 — `sub_agents_spawn` control tool
+
+**Completed:**
+
+- `SA-301`
+- Registered the first model-callable Phase 3 control tool and connected it to the production dynamic child runtime.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/spawn.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/test/installed-packages.mjs`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 52 tests passed, 0 failed.
+- `git diff --check -- agent/extensions/sub-agents`
+- Result: passed.
+- Tests used only fake providers, in-memory model/settings/session state, deterministic barriers, and temporary workspaces.
+- No network, live provider, external service, real credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- `sub_agents_spawn` accepts a bounded batch, creates every per-child launch promise without an active-pool gate, and preserves request order only in its result—not execution.
+- Automatic, inherited, and explicit routes run through the production router against the current parent registry/model. Successful prompt preflight returns the exact opaque child ID without awaiting completion.
+- Semantic/model/runtime failures are isolated into bounded per-child outcomes; unknown internal error text is not exposed. One production-path test launches a valid child while an unavailable explicit-model sibling fails independently.
+- The registered tool uses parallel execution mode, canonical routing prompt guidance, bounded model-visible output, and compact/expanded sanitized renderers.
+- Session replacement clears the spawn runtime before disposing its manager, so stale calls fail through the manager generation rather than attaching to a replacement.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- untracked unrelated `agent/extensions/bitwarden-secrets-manager/`
+
+**Recommended next item:** `SA-302` — implement bounded `sub_agents_status` snapshots, selected/all lookup, timeline detail, and optional atomic usage draining.
+
+## Handoff 018 — `sub_agents_status` control tool
+
+**Completed:**
+
+- `SA-302`
+- Registered bounded current-generation child inspection and explicit atomic status-time usage accounting.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/test/status.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 56 tests passed, 0 failed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents` plus `git diff --no-index --check /dev/null` for the two new status files.
+- Result: passed.
+- Tests used deterministic manager state, synthetic bounded snapshots/timelines, fake providers already present in the suite, and temporary workspaces only.
+- No network, live provider, external service, real credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- `sub_agents_status` returns compact selected/all snapshots by default and bounded recent timelines on request. Exact selected IDs preserve request order and produce per-target removed/stale/unknown outcomes.
+- Compact state covers assignment, requested/selected route, thinking level, active tool and pending-message state, leases, report/result, blocker/error, elapsed time, and total/reported usage without exposing child conversations.
+- All-agent views prefer live records, cap one result at 100 records, and preserve a minimal exact-ID plus bounded-name/state result for every returned child while fitting richer detail and timeline events under 48 KiB transport limits.
+- Status does not drain by default. Explicit `drainUsage: true` attaches newly accrued child usage to the status tool result, and concurrent drains share the manager's atomic watermark without duplicate reporting.
+- Session replacement invalidates the status runtime before manager disposal; unknown internal lookup errors are redacted; compact/expanded renderers reuse their `Text` component.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- untracked unrelated `agent/extensions/bitwarden-secrets-manager/`
+
+**Recommended next item:** `SA-303` — implement per-target `sub_agents_send` for idle prompts and running steer/follow-up delivery.
+
+## Handoff 019 — `sub_agents_send` control tool
+
+**Completed:**
+
+- `SA-303`
+- Registered bounded reusable-child message delivery for idle and running assignment states.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/tools/send.ts`
+- `agent/extensions/sub-agents/test/send.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 62 tests passed, 0 failed.
+- Whitespace checks covered tracked documentation/source plus the two new send files.
+- Result: passed.
+- Tests used only fake providers, in-memory model/settings/session state, deterministic barriers, and temporary workspaces.
+- No network, live provider, external service, real credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- `sub_agents_send` starts a new prompt on idle children and defaults to `followUp` for running children, with explicit `steer` available for immediate redirection.
+- Unique targets dispatch independently and preserve request order only in outcomes. Every occurrence of a duplicate ID fails before dispatch while unrelated unique targets continue.
+- Recognized pre-delivery settlement races synchronize and re-read state before a bounded retry; unknown or potentially side-effecting failures are never retried.
+- Removed/stale/unknown and other non-messageable states produce per-target bounded errors. Unknown failures and all supplied message text are omitted from content, details, and renderers.
+- Production wiring reuses the exact assignment runner created for spawn, invalidates send access on lifecycle replacement, and rejects active delivery after manager closure.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- untracked unrelated `agent/extensions/bitwarden-secrets-manager/`
+
+**Recommended next item:** `SA-304` — implement bounded `sub_agents_wait` barriers with partial updates, cancellation/timeout handling, result collection, and atomic usage draining.
+
+## Handoff 020 — `sub_agents_wait` control tool
+
+**Completed:**
+
+- `SA-304`
+- Registered bounded selected/current-live synchronization barriers with streamed state updates and atomic usage collection.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/tools/wait.ts`
+- `agent/extensions/sub-agents/test/wait.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 68 tests passed, 0 failed.
+- Whitespace checks covered tracked documentation/source plus the two new wait files.
+- Result: passed.
+- Tests used only fake providers, in-memory model/settings/session state, bounded synthetic snapshots, timers, and temporary workspaces.
+- No network, live provider, external service, real credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- `sub_agents_wait` supports fixed-target `any`/`all` barriers for exact IDs or the bounded live set present at call start; later spawns do not silently join an existing barrier.
+- Compact partial updates are emitted only for changed lifecycle/assignment/tool/queue state. Timeout returns current state, while caller abort cancels before usage drains and clears its polling timer/listener.
+- Final result/report/blocker/error views preserve every exact ID under independent 48 KiB content/details bounds; unknown manager and usage-drain failures are redacted.
+- Every valid selected child atomically drains only newly accrued usage when the wait returns, including timeout. Once drains start, the result completes so advanced watermarks are not hidden; repeated waits report zero until new usage accrues.
+- Waiting never removes or replaces children, and lifecycle replacement clears the active wait runtime before old-manager disposal.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- untracked unrelated `agent/extensions/bitwarden-secrets-manager/`
+
+**Recommended next item:** `SA-305` — implement graceful/abort `sub_agents_remove` with bounded escalation, final output, usage draining, and idempotent cleanup.
+
+## Handoff 021 — `sub_agents_remove` control tool
+
+**Completed:**
+
+- `SA-305`
+- Registered bounded graceful/abort child disposal with final output and atomic usage collection.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/tools/remove.ts`
+- `agent/extensions/sub-agents/test/remove.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 73 tests passed, 0 failed.
+- Whitespace checks covered tracked documentation/source plus the new remove files.
+- Result: passed.
+- Tests used only fake providers, in-memory model/settings/session state, bounded synthetic snapshots, timers, and temporary workspaces.
+- No network, live provider, external service, real credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- `sub_agents_remove` supports exact selected IDs and every current live child, with independently concurrent per-target outcomes and no active-pool count gate. More-than-100 all-scope cleanup still acts on every call-start child while bounded visible details prioritize failures.
+- Graceful mode queues one fixed steering request for a concise final boundary, waits only for the shared bounded deadline, then escalates active work to the manager's abort/wait/dispose path. Abort mode immediately enters cleanup.
+- Caller cancellation fails before side effects, but after cleanup starts it only shortens graceful waiting; the tool completes so disposal and advanced usage watermarks remain visible.
+- Final result/report/error views and all outcome/details text are bounded below 48 KiB with unknown internal request/removal/drain errors redacted. The fixed graceful instruction is never returned.
+- Repeated exact-ID removal is successful and does not double-report usage. Production-path validation proves the manager cleanup removes the runner's live session and disposes the in-process child while retaining bounded historical output.
+- Session replacement invalidates the remove runtime before old-manager disposal, and compact/expanded renderers reuse their `Text` component.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- untracked unrelated `agent/extensions/bitwarden-secrets-manager/`
+
+**Recommended next item:** `SA-306` — implement safe-boundary model/thinking reconfiguration with queued running changes and explicit abort-and-switch.
+
+## Handoff 022 — `sub_agents_reconfigure` control tool
+
+**Completed:**
+
+- `SA-306`
+- Registered safe-boundary model/thinking reconfiguration for idle and running reusable children.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/tools/reconfigure.ts`
+- `agent/extensions/sub-agents/test/reconfigure.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/event-translator.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/tools/send.ts`
+- `agent/extensions/sub-agents/tools/wait.ts`
+- `agent/extensions/sub-agents/tools/remove.ts`
+- `agent/extensions/sub-agents/test/status.test.mjs`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 79 tests passed, 0 failed.
+- Installed-package jiti imports passed for the modified production entry point, manager, runtime, translator, runner, and reconfigure tool.
+- Whitespace validation passed for the sub-agent tree and root extension documentation.
+- Tests used only fake providers/models, in-memory model/settings/session state, deterministic barriers, bounded synthetic state, and temporary workspaces.
+- No network, live provider, external service, real credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Idle children switch models and SDK-clamped thinking levels immediately while retaining their isolated transcript.
+- Running children default to an exact-assignment queued route; latest accepted queued configuration wins and applies only after reusable idle settlement.
+- Explicit abort-and-switch records an interrupted assignment as aborted with no synthetic result before applying the replacement route.
+- Manager snapshots/status now distinguish active and pending model routes and record effective thinking levels; prompt starts fail closed behind pending reconfiguration.
+- Per-target results are independent, duplicate-safe, redacted, rendered compactly, lifecycle-invalidated, and bounded under 48 KiB for 100 exact IDs.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- untracked unrelated `agent/extensions/bitwarden-secrets-manager/`
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-307` — add the dedicated cross-control race matrix for spawn/status/send/reconfigure/wait/remove interactions.
+
+## Handoff 023 — Phase 3 race matrix and exit validation
+
+**Completed:**
+
+- `SA-307`
+- `SA-309`
+- Completed the Phase 3 main-agent control-plane milestone and unblocked Phase 4 and Phase 5.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/control-races.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --test agent/extensions/sub-agents/test/control-races.test.mjs`
+- Result: 6 tests passed, 0 failed; the deterministic race suite also passed 5/5 repeated runs.
+- `node --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 85 tests passed, 0 failed.
+- Installed-package jiti imports passed for the production manager, assignment runner, and all six control tools used by the new race suite.
+- A production-source scan found no active-pool concurrency cap, semaphore, or worker limit; only bounded per-call transport metadata remains.
+- `git diff --check -- agent/extensions/sub-agents CLAUDE.md EXTENSIONS.md`
+- Tests used only deterministic fake sessions/providers, in-memory state, barriers, bounded synthetic data, and temporary workspaces. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key validation results:**
+
+- Creating children are immediately observable, and removal during initialization closes the late runtime without leaking manager or runner state.
+- Concurrent sends serialize per child; a settlement boundary redirects only the later message into a fresh assignment without duplicate delivery.
+- Idle reconfiguration retains the target child transcript/runtime and leaves unrelated children untouched.
+- Removal wins delayed routing and in-flight abort-and-switch races without applying a replacement to a disposed child.
+- Wait/remove races converge on removed state, parent cancellation stops before drains, and simultaneous cross-tool drains report each usage delta exactly once.
+- The full Phase 3 suite validates incremental pool evolution, deterministic complexity routing, bounded output, and the absence of a fixed live-child concurrency gate.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- untracked unrelated `agent/extensions/bitwarden-secrets-manager/`
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-400` — add the bounded child-only `report_to_parent` tool and fallback reporting boundary.
+
+## Handoff 024 — Child `report_to_parent` boundary
+
+**Completed:**
+
+- `SA-400`
+- Began Phase 4 with the bounded child-only structured reporting path.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/tools/report-to-parent.ts`
+- `agent/extensions/sub-agents/test/report-to-parent.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/event-translator.ts`
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --test agent/extensions/sub-agents/test/report-to-parent.test.mjs agent/extensions/sub-agents/test/event-translator.test.mjs agent/extensions/sub-agents/test/agent-runtime.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 12 tests passed, 0 failed.
+- `node --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 87 tests passed, 0 failed.
+- Installed-package jiti imports passed for the new report tool and the production runtime, translator, runner, manager, and entry point.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Tests used only fake providers/models, in-memory managers, bounded synthetic reports, and temporary workspaces. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Every production child now receives one exact `report_to_parent` custom tool alongside its selected read-only built-ins; the parent control plane still exposes only the six Phase 3 management tools.
+- The strict report schema supports progress, blocked, and result states with bounded summary/details/files/needs and no peer ID or manager-control field.
+- Assignment-scoped result reports override successful final assistant text, while absent/progress-only reports use final assistant fallback. Retry and new-assignment boundaries clear stale structured results.
+- Blocked reports retain their bounded metadata and explicitly transition the current assignment to `blocked`; ordinary tool errors still do not fabricate blockers.
+- Child acknowledgements and unknown sink failures omit report bodies and private manager/runtime error text.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- untracked unrelated `agent/extensions/bitwarden-secrets-manager/`
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-401` — implement the bounded event inbox, state-event deduplication, one coalescing timer, and lifecycle cleanup.

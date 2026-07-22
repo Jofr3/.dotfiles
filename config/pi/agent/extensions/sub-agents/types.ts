@@ -85,6 +85,14 @@ export interface ModelRoute {
 	readonly reason: string;
 }
 
+/** Bounded model change waiting for the end of one exact running assignment. */
+export interface PendingModelReconfiguration {
+	afterAssignmentId: AssignmentId;
+	requestedAt: number;
+	route: ModelRoute;
+	requestedThinkingLevel?: ThinkingLevel;
+}
+
 export interface DynamicWorkspaceSpec {
 	mode: WorkspaceMode;
 	cwd?: string;
@@ -124,6 +132,15 @@ export interface AssignmentRecord {
 }
 
 export type AgentReportState = "progress" | "blocked" | "result";
+
+/** Assignment-scoped child report before manager-owned timestamping and cloning. */
+export interface AgentReportSubmission {
+	state: AgentReportState;
+	summary: string;
+	details?: string;
+	files?: string[];
+	needs?: string;
+}
 
 export interface BoundedAgentReport {
 	state: AgentReportState;
@@ -243,6 +260,8 @@ export interface ManagedSubAgentSnapshot {
 	latestReport?: BoundedAgentReport;
 	latestResult?: BoundedAgentResult;
 	modelRoute?: ModelRoute;
+	effectiveThinkingLevel?: ThinkingLevel;
+	pendingModelReconfiguration?: PendingModelReconfiguration;
 	lastError?: string;
 	events: BoundedAgentEvent[];
 	omittedEventCount: number;

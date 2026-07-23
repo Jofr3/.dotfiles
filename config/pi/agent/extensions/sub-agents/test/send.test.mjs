@@ -100,7 +100,7 @@ test("sub_agents_send dispatches idle prompts and running messages concurrently 
 		runner: {
 			async prompt(id, message) {
 				starts.push({ id, method: "prompt" });
-				if (starts.length === 2) bothStarted.resolve();
+				if (starts.length === 3) bothStarted.resolve();
 				await bothStarted.promise;
 				delivered.push({ id, message, delivery: "prompt" });
 				const next = snapshot(id, "running", 2);
@@ -112,9 +112,23 @@ test("sub_agents_send dispatches idle prompts and running messages concurrently 
 					snapshot: next,
 				};
 			},
+			async resumeBlocked(id, message) {
+				starts.push({ id, method: "resume" });
+				if (starts.length === 3) bothStarted.resolve();
+				await bothStarted.promise;
+				delivered.push({ id, message, delivery: "resume" });
+				const next = snapshot(id, "running", 1);
+				snapshots.set(id, next);
+				return {
+					id,
+					assignmentId: next.currentAssignment.id,
+					accepted: true,
+					snapshot: next,
+				};
+			},
 			async send(id, message, delivery) {
 				starts.push({ id, method: delivery });
-				if (starts.length === 2) bothStarted.resolve();
+				if (starts.length === 3) bothStarted.resolve();
 				await bothStarted.promise;
 				delivered.push({ id, message, delivery });
 				return {
@@ -141,7 +155,7 @@ test("sub_agents_send dispatches idle prompts and running messages concurrently 
 	const tool = createSubAgentsSendTool(() => runtime);
 	const result = await tool.execute("send-unit", input, undefined, undefined, {});
 
-	assert.equal(starts.length, 2, "the two valid targets must cross the shared start barrier");
+	assert.equal(starts.length, 3, "the three valid targets must cross the shared start barrier");
 	assert.deepEqual(
 		delivered
 			.map(({ id, delivery }) => ({ id, delivery }))
@@ -149,17 +163,19 @@ test("sub_agents_send dispatches idle prompts and running messages concurrently 
 		[
 			{ id: ids.idle, delivery: "prompt" },
 			{ id: ids.running, delivery: "steer" },
+			{ id: ids.blocked, delivery: "resume" },
 		],
 	);
 	assert.equal(result.details.requested, 4);
-	assert.equal(result.details.accepted, 2);
-	assert.equal(result.details.failed, 2);
+	assert.equal(result.details.accepted, 3);
+	assert.equal(result.details.failed, 1);
 	assert.deepEqual(result.details.outcomes.map((outcome) => outcome.index), [0, 1, 2, 3]);
 	assert.equal(result.details.outcomes[0].dispatch, "prompt");
 	assert.equal(result.details.outcomes[0].assignmentSequence, 2);
 	assert.equal(result.details.outcomes[1].dispatch, "steer");
 	assert.equal(result.details.outcomes[1].pendingMessageCount, 3);
-	assert.equal(result.details.outcomes[2].code, "target_blocked");
+	assert.equal(result.details.outcomes[2].dispatch, "resume");
+	assert.equal(result.details.outcomes[2].assignmentSequence, 1);
 	assert.equal(result.details.outcomes[3].code, "unknown_agent");
 	assert.doesNotMatch(JSON.stringify(result), /MESSAGE_PRIVATE/);
 
@@ -174,8 +190,8 @@ test("sub_agents_send dispatches idle prompts and running messages concurrently 
 		renderContext(input),
 	);
 	const rendered = resultComponent.render(300).join("\n");
-	assert.match(rendered, /2 accepted/);
-	assert.match(rendered, /target_blocked/);
+	assert.match(rendered, /3 accepted/);
+	assert.match(rendered, /resume/);
 });
 
 test("duplicate targets fail closed while independent targets still dispatch", async () => {

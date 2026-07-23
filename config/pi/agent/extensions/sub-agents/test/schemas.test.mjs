@@ -8,6 +8,7 @@ import {
 const {
 	dynamicAgentSpecSchema,
 	subAgentsReconfigureSchema,
+	subAgentsReleaseSchema,
 	subAgentsRemoveSchema,
 	subAgentsSendSchema,
 	subAgentsSpawnSchema,
@@ -58,6 +59,7 @@ test("all public control schemas are strict at every object boundary", () => {
 		subAgentsSpawnSchema,
 		subAgentsStatusSchema,
 		subAgentsSendSchema,
+		subAgentsReleaseSchema,
 		subAgentsReconfigureSchema,
 		subAgentsWaitSchema,
 		subAgentsRemoveSchema,
@@ -199,6 +201,14 @@ test("send and reconfigure use bounded per-target arrays and provider-compatible
 		{ changes: [{ id: AGENT_ID, modelPolicy: "inherit", secret: "must-not-pass" }] },
 		"unknown reconfigure field",
 	);
+});
+
+test("release requires a bounded unique exact-ID selection", () => {
+	assertAccepted(subAgentsReleaseSchema, { ids: [AGENT_ID] }, "single release target");
+	assertRejected(subAgentsReleaseSchema, { ids: [] }, "empty release target set");
+	assertRejected(subAgentsReleaseSchema, { ids: [AGENT_ID, AGENT_ID] }, "duplicate release targets");
+	assertRejected(subAgentsReleaseSchema, { ids: ["not-an-agent-id"] }, "malformed release target");
+	assertRejected(subAgentsReleaseSchema, { ids: [AGENT_ID], extra: true }, "unknown release field");
 });
 
 test("wait and remove expose bounded barriers, timeouts, and explicit removal scope", () => {

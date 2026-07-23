@@ -1,6 +1,9 @@
 import { Buffer } from "node:buffer";
 import { defineTool, type ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { Text } from "@earendil-works/pi-tui";
+import {
+	renderSpawnCall,
+	renderSpawnResult,
+} from "../ui/renderers.ts";
 import {
 	SubAgentAssignmentRunnerError,
 	type SubAgentAssignmentRunner,
@@ -326,9 +329,9 @@ export function createSubAgentsSpawnTool(
 		name: "sub_agents_spawn",
 		label: "Spawn Sub-Agents",
 		description:
-			"Create and launch 1-64 independent dynamic in-process sub-agents. Each valid child is routed and initialized independently, starts in the background, and returns an opaque ID without waiting for completion. The current release exposes read-only child tools only.",
+			"Create and launch 1-64 independent dynamic in-process sub-agents. Each valid child is routed and initialized independently, starts in the background, and returns an opaque ID without waiting for completion. Shared children support read-only tools, guarded edit/write, and workspace-exclusive bash; worktrees remain unavailable.",
 		promptSnippet:
-			"Create one or more dynamic read-only background sub-agents and return their opaque IDs",
+			"Create dynamic background sub-agents with read-only tools, guarded edit/write, or workspace-exclusive bash and return their opaque IDs",
 		promptGuidelines: [
 			...SUB_AGENT_MODEL_ROUTING_PROMPT_GUIDELINES,
 			"Use sub_agents_spawn for genuinely useful independent assignments while the main agent remains responsible for orchestration and final decisions.",
@@ -339,58 +342,7 @@ export function createSubAgentsSpawnTool(
 		async execute(_toolCallId, params, signal, _onUpdate, ctx) {
 			return executeSubAgentsSpawn(params, signal, ctx, getRuntime());
 		},
-		renderCall(args, theme, context) {
-			const agents = Array.isArray(args.agents) ? args.agents : [];
-			const names = agents
-				.slice(0, 3)
-				.map((agent) => boundUtf8Line(agent?.name, DISPLAY_NAME_BYTES))
-				.filter(Boolean);
-			const overflow = agents.length > names.length ? ` +${agents.length - names.length}` : "";
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			component.setText(
-				theme.fg("toolTitle", theme.bold("sub_agents_spawn ")) +
-					theme.fg("muted", `${agents.length} agent${agents.length === 1 ? "" : "s"}`) +
-					(names.length > 0 ? theme.fg("dim", ` · ${names.join(", ")}${overflow}`) : ""),
-			);
-			return component;
-		},
-		renderResult(result, { expanded, isPartial }, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			if (isPartial) {
-				component.setText(theme.fg("warning", "Launching sub-agents…"));
-				return component;
-			}
-			const details = result.details;
-			if (!details || !Array.isArray(details.outcomes)) {
-				const first = result.content[0];
-				component.setText(first?.type === "text" ? first.text : "");
-				return component;
-			}
-
-			let text =
-				theme.fg("success", `${details.started} started`) +
-				" · " +
-				(details.failed > 0
-					? theme.fg("error", `${details.failed} failed`)
-					: theme.fg("muted", "0 failed"));
-			if (expanded) {
-				for (const outcome of details.outcomes) {
-					const name =
-						boundUtf8Line(context.args.agents[outcome.index]?.name, DISPLAY_NAME_BYTES) ||
-						`agent ${outcome.index + 1}`;
-					if (outcome.ok) {
-						text +=
-							`\n${theme.fg("success", "✓")} ${theme.fg("muted", name)} ` +
-							theme.fg("accent", outcome.id);
-					} else {
-						text +=
-							`\n${theme.fg("error", "✗")} ${theme.fg("muted", name)} ` +
-							theme.fg("error", `${outcome.code}: ${outcome.message}`);
-					}
-				}
-			}
-			component.setText(text);
-			return component;
-		},
+		renderCall: renderSpawnCall,
+		renderResult: renderSpawnResult,
 	});
 }

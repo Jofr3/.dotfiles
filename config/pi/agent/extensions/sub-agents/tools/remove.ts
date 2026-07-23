@@ -1,7 +1,10 @@
 import { Buffer } from "node:buffer";
 import { defineTool } from "@earendil-works/pi-coding-agent";
 import type { Usage } from "@earendil-works/pi-ai";
-import { Text } from "@earendil-works/pi-tui";
+import {
+	renderRemoveCall,
+	renderRemoveResult,
+} from "../ui/renderers.ts";
 import {
 	SubAgentAssignmentRunnerError,
 	type SubAgentAssignmentRunner,
@@ -625,6 +628,18 @@ async function removeOne(
 		return knownFailure(index, id, error, runtime);
 	}
 
+	if (initial.restoredHistory) {
+		return buildSuccessView(
+			index,
+			initial,
+			initial,
+			mode,
+			undefined,
+			undefined,
+			undefined,
+		).full;
+	}
+
 	let grace: GraceAttempt | undefined;
 	if (mode === "graceful") {
 		if (initial.state === "running") {
@@ -932,55 +947,7 @@ export function createSubAgentsRemoveTool(
 		async execute(_toolCallId, params, signal) {
 			return executeSubAgentsRemove(params, signal, getRuntime());
 		},
-		renderCall(args, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			const target = args.scope === "selected"
-				? `${args.ids?.length ?? 0} selected`
-				: "all live";
-			const mode = args.mode ?? "graceful";
-			component.setText(
-				theme.fg("toolTitle", theme.bold("sub_agents_remove ")) +
-					theme.fg(mode === "abort" ? "warning" : "muted", `${mode} · ${target}`) +
-					(mode === "graceful"
-						? theme.fg("dim", ` · ${args.gracePeriodSeconds ?? DEFAULT_GRACE_PERIOD_SECONDS}s grace`)
-						: ""),
-			);
-			return component;
-		},
-		renderResult(result, { expanded, isPartial }, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			if (isPartial) {
-				component.setText(theme.fg("warning", "Removing sub-agents…"));
-				return component;
-			}
-			const details = result.details;
-			if (!details || !Array.isArray(details.outcomes)) {
-				const first = result.content[0];
-				component.setText(first?.type === "text" ? first.text : "");
-				return component;
-			}
-			let text =
-				theme.fg("success", `${details.newlyRemoved} removed`) +
-				" · " +
-				theme.fg("muted", `${details.alreadyRemoved} already removed`) +
-				(details.failed ? theme.fg("error", ` · ${details.failed} failed`) : "") +
-				(details.forcedAborts ? theme.fg("warning", ` · ${details.forcedAborts} forced`) : "");
-			if (expanded) {
-				for (const outcome of details.outcomes) {
-					if (!outcome.ok) {
-						text += `\n${theme.fg("error", "✗")} ${theme.fg("accent", outcome.id)} ${theme.fg("error", outcome.code)}`;
-						continue;
-					}
-					text +=
-						`\n${theme.fg("success", "✓")} ` +
-						theme.fg("muted", `${outcome.name} `) +
-						theme.fg("accent", outcome.id) +
-						theme.fg("dim", outcome.forcedAbort ? " · forced abort" : " · removed");
-					if (outcome.output?.summary) text += `\n  ${theme.fg("dim", outcome.output.summary)}`;
-				}
-			}
-			component.setText(text);
-			return component;
-		},
+		renderCall: renderRemoveCall,
+		renderResult: renderRemoveResult,
 	});
 }

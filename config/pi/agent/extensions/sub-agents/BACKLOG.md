@@ -2,11 +2,11 @@
 
 **Specification:** [`SPEC.md`](./SPEC.md)
 
-**Current stage:** Phase 4 notifications and observability are in progress; the child reporting boundary is complete and event coalescing is next
+**Current stage:** Phases 0–5 are complete; Phase 6 persistence/session correctness is in progress
 
-**Current milestone:** Phase 4 — notifications and observability
+**Current milestone:** Phase 6 — persistence and session correctness
 
-**Next recommended item:** `SA-401`
+**Next recommended item:** `SA-603`
 
 This file is the resumable source of truth for implementation progress. Future sessions should update it before stopping so another session can continue without reconstructing decisions from conversation history.
 
@@ -66,7 +66,7 @@ Future changes to these require an explicit spec and decision-log update.
 
 These notes prevent future sessions from accidentally overwriting unrelated work.
 
-- The `sub-agents/` directory now contains the production Phase 1 entry point/state manager, the complete Phase 2 shared child runtime (model adapter/router, bounded prompt/resources, read-only session factory, event translator, reusable assignment runner, and atomic usage ledger), the validated six-tool Phase 3 control plane, the Phase 4 child-only `report_to_parent` boundary, focused production/integration/race tests, planning documentation, and the five offline Phase 0 SDK spike suites.
+- The `sub-agents/` directory now contains the production Phase 1 entry point/state manager, the complete Phase 2 shared child runtime (model adapter/router, bounded prompt/resources, read-only session factory, event translator, reusable assignment runner, and atomic usage ledger), the validated six-tool Phase 3 control plane, complete Phase 4 observability (child `report_to_parent`, bounded coalesced parent notifications, persistent status widget, shared management-tool renderers, and the `/sub-agents` dashboard), the validated Phase 5 shared-workspace safety boundary, and Phase 6's strict historical schema, meaningful bounded checkpoint appends, and branch-aware immutable historical restoration. Restoration reads only the active branch, keeps old IDs out of the live registry, preserves old unreported usage observationally, and publishes no old runtime or lease authority. The lifecycle boundary matrix is next.
 - At planning time, git reported `agent/extensions/dynamic-fleet.ts` as deleted in the pre-existing working tree. Do not restore or repurpose it unless the user explicitly asks.
 - At planning time, `agent/models-store.json` and `agent/settings.json` already had unrelated modifications. Do not overwrite or revert them.
 - No dependencies have been installed for `sub-agents`.
@@ -80,9 +80,9 @@ These notes prevent future sessions from accidentally overwriting unrelated work
 | 1 | Skeleton and state model | DONE | Lifecycle manager works without real model calls |
 | 2 | Dynamic in-process runtime | DONE | Concurrent reusable read-only children work |
 | 3 | Main-agent control tools | DONE | Main can incrementally manage pool |
-| 4 | Notifications and observability | IN PROGRESS | Bounded event delivery and TUI work |
-| 5 | Shared-workspace mutations | READY | Same-file/main-child collisions prevented |
-| 6 | Persistence/session correctness | BLOCKED by Phases 4–5 | Historical state is branch-safe; live state invalidates |
+| 4 | Notifications and observability | DONE | Bounded event delivery and TUI work |
+| 5 | Shared-workspace mutations | DONE | Same-file/main-child collisions prevented |
+| 6 | Persistence/session correctness | IN PROGRESS | Historical state is branch-safe; live state invalidates |
 | 7 | Hardening and docs | BLOCKED by Phases 0–6 | First stable shared-workspace release |
 | 8 | Git worktrees | DEFERRED | Isolated writers supported safely |
 | 9 | Advanced capabilities | DEFERRED | Evaluated from real usage, not speculation |
@@ -522,7 +522,7 @@ Artifacts:
 Implementation notes:
 
 - `createSubAgentSession()` accepts one already resolved child model/runtime, creates an in-memory transcript and settings manager, attaches the explicit isolated resource loader, passes an exact read-only tool allowlist, validates the resulting public `AgentSession` contract, and subscribes the required child event listener before returning.
-- Omitted tools default to `read`, `grep`, `find`, and `ls`; explicit subsets, including an empty set, are supported. `edit`, `write`, `bash`, write scopes, workspace-exclusive bash, and worktree mode fail closed until their later safety phases.
+- Omitted tools default to `read`, `grep`, `find`, and `ls`; explicit subsets, including an empty set, are supported. Guarded `edit`, `write`, and workspace-exclusive `bash` are enabled by `SA-502`–`SA-504`; disabled-policy bash and worktree mode fail closed.
 - The effective shared child cwd is realpath-canonicalized, must be an existing directory, and must remain beneath the realpath-canonical parent cwd. Existing symlink escapes and `..` escapes are rejected before session construction.
 - `SubAgentSessionRuntime` exposes idempotent abort/wait/dispose/close ownership. Any failure after `AgentSession` creation attempts unsubscribe, abort, idle settlement, and disposal, while the authoritative factory error omits underlying runtime details.
 - Offline production tests cover exact model/runtime/manager/resource ownership, thinking state, tool isolation, trusted context, event delivery, canonical workspace containment, mutator rejection, and cleanup after subscription or creation failure.
@@ -903,64 +903,133 @@ Artifacts:
 
 ## `SA-401` Event inbox and coalescer
 
-**Status:** NEXT
+**Status:** DONE
 
-- [ ] Bounded queue/ring buffer.
-- [ ] One flush timer.
-- [ ] Batch by safe boundary/window.
-- [ ] Deduplicate repeated state events.
-- [ ] Cleanup on shutdown.
+- [x] Bounded queue/ring buffer.
+- [x] One flush timer.
+- [x] Batch by safe boundary/window.
+- [x] Deduplicate repeated state events.
+- [x] Cleanup on shutdown.
+
+Implementation notes:
+
+- `notifications.ts` owns one generation-scoped 20-event inbox with one 50 ms flush timer. Repeated child/assignment/state keys replace their pending predecessor; distinct overflow evicts the oldest event and increments a bounded omission counter.
+- Manager observers receive frozen defensive identity/state/event records with an explicit notification marker only on authoritative completion, blocker, or failure writes. Ordinary later runtime events in a failed/idle state cannot fabricate another notification. Observer exceptions never alter authoritative child state, and manager disposal clears every observer before child cleanup.
+- Inbox fields sanitize controls, collapse line breaks, and apply character plus UTF-8 byte limits. `flushNow()` supplies a deterministic safe boundary, and shutdown idempotently clears the timer, pending records, and manager subscription.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/notifications.ts`
+- `agent/extensions/sub-agents/test/notifications.test.mjs`
 
 ## `SA-402` Main-agent event delivery
 
-**Status:** BLOCKED by `SA-401`
+**Status:** DONE
 
-- [ ] Idle/running parent delivery policy.
-- [ ] `customType: "sub-agents-event"`.
-- [ ] Trigger only configured important events.
-- [ ] Prevent extension-message loops.
-- [ ] Bound summaries and event count.
+- [x] Idle/running parent delivery policy.
+- [x] `customType: "sub-agents-event"`.
+- [x] Trigger only configured important events.
+- [x] Prevent extension-message loops.
+- [x] Bound summaries and event count.
+
+Implementation notes:
+
+- The production bridge selects only states listed in each child's `notifyOn`: completed idle results, explicit blockers, and failures. Progress, unrelated runtime/model events, unconfigured states, and idle transitions without a result remain internal.
+- Every batch is sent as one displayed `sub-agents-event` custom message with `{ deliverAs: "followUp", triggerTurn: true }`, so a busy parent is not steered and an idle parent wakes once.
+- Only manager events feed the bridge; parent custom messages cannot re-enter it. Content and structured details are independently bounded below 48 KiB at the maximum 20-event batch, and delivery exceptions are contained without exposing underlying text.
+- Session replacement shuts down the old bridge before manager disposal, cancelling its timer and subscription. New manager/runtime construction is transactional, so any notification/runtime initialization failure disposes the unpublished manager generation without leaving a bridge alive. The Phase 0 busy/idle AgentSession spike now exercises the production coalescer and delivery bridge rather than a local prototype.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/notifications.ts`
+- `agent/extensions/sub-agents/test/notifications.test.mjs`
+- `agent/extensions/sub-agents/test/notification-spike.test.mjs`
 
 ## `SA-403` Persistent status widget
 
-**Status:** READY
+**Status:** DONE
 
-- [ ] Counts and aggregate usage.
-- [ ] Bounded child rows.
-- [ ] Running tool/blocker preview.
-- [ ] Narrow-width behavior.
-- [ ] Theme invalidation.
-- [ ] Remove/clear lifecycle.
+- [x] Counts and aggregate usage.
+- [x] Bounded child rows.
+- [x] Running tool/blocker preview.
+- [x] Narrow-width behavior.
+- [x] Theme invalidation.
+- [x] Remove/clear lifecycle.
+
+Implementation notes:
+
+- `ui/widget.ts` owns one interactive-TUI-only generation runtime and custom component above the editor. It installs only when a live child exists, clears at zero live children, and is stopped before notification/manager disposal at every lifecycle replacement boundary.
+- `SubAgentManager.getOverview()` aggregates bounded usage and selects at most five live rows without cloning timelines or conversations. Blocked, failed, running, creating, stopping, then idle rows are prioritized; visible metadata is limited to identity/name, state, active tool names/counts, queue state, result readiness, and explicit blocker needs.
+- One 50 ms refresh timer coalesces manager change storms before the uncapped pool is scanned. Token-only streaming preview updates do not repaint, delayed widget factories bind the latest overview, and timer/listener cleanup is idempotent.
+- Every rendered line uses callback-supplied theme colors and ANSI-aware width truncation. Cached themed content clears on `invalidate()`, narrow widths split counts from usage, overflow is one summary row, and raw objectives/results/errors/streaming previews never enter the widget.
+- Component factories are never created in RPC, JSON, or print mode. Widget initialization is transactional with notification/runtime initialization, and shutdown clears the widget even when no manager replacement follows.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/ui/widget.ts`
+- `agent/extensions/sub-agents/test/widget.test.mjs`
 
 ## `SA-404` Management tool renderers
 
-**Status:** READY
+**Status:** DONE
 
-- [ ] Compact call/result.
-- [ ] Expanded detail.
-- [ ] Partial wait updates.
-- [ ] Reuse `lastComponent` when useful.
-- [ ] Width-safe output.
+- [x] Compact call/result.
+- [x] Expanded detail.
+- [x] Partial wait updates.
+- [x] Reuse `lastComponent` when useful.
+- [x] Width-safe output.
+
+Implementation notes:
+
+- `ui/renderers.ts` owns the shared renderer layer for all six public management tools. Compact calls/results stay one logical summary line, while expanded results expose only the already-bounded structured outcome metadata appropriate to each operation.
+- Every renderer sanitizes dynamic fields and fallback content before styling, strips terminal escapes/control characters, and never renders `sub_agents_send` message bodies or child assignment objectives. Existing per-tool model-visible transport bounds remain unchanged.
+- The shared `updateRendererText()` helper reuses the exact row-local `Text` instance from `context.lastComponent`; rerenders replace themed content so theme changes cannot retain stale strings. Pi TUI's ANSI-aware `Text` wrapping keeps every rendered line within the supplied terminal width.
+- `sub_agents_wait` partial updates now have a compact aggregate and an expanded per-target state/tool/queue view. The same component is reused as progress changes and again at final settlement.
+- Dedicated offline tests cover all six compact/expanded paths, route/output/error detail, one-column through wide ANSI output, control sanitization, fallback rendering, privacy boundaries, theme replacement, and partial-wait component reuse.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/ui/renderers.ts`
+- `agent/extensions/sub-agents/test/renderers.test.mjs`
 
 ## `SA-405` `/sub-agents` dashboard
 
-**Status:** BLOCKED by `SA-403`
+**Status:** DONE
 
-- [ ] Agent list and detail view.
-- [ ] Bounded recent events.
-- [ ] Human stop/remove action with confirmation.
-- [ ] Manual message action.
-- [ ] Usage and lease view.
-- [ ] TUI-only guard/fallback.
+- [x] Agent list and detail view.
+- [x] Bounded recent events.
+- [x] Human stop/remove action with confirmation.
+- [x] Manual message action.
+- [x] Usage and lease view.
+- [x] TUI-only guard/fallback.
+
+Implementation notes:
+
+- `ui/dashboard.ts` owns one interactive list/detail component over a manager-provided lightweight snapshot capped at 100 prioritized records. Exact selected detail shows bounded route/runtime/report/result/error metadata, aggregate and per-child usage, at most 12 leases, and at most 12 recent events; assignment objectives remain hidden.
+- Configured selection keybindings drive navigation, every line uses ANSI-aware truncation, the visible list is paged to 12 rows, and one 50 ms timer coalesces child-event storms before rescanning the uncapped pool.
+- Manual messaging temporarily closes the component for Pi's editor and running-delivery selector, dispatches through the production `executeSubAgentsSend` boundary, and reopens the dashboard. Message text is not persisted by dashboard state.
+- Selected and captured-all removal require explicit confirmation, capture all targets through lightweight exact IDs, and call manager-owned immediate cleanup without draining usage outside a tool result. Historical rows remain inspectable and may be hidden interactively.
+- Child-controlled names are sanitized before dialog/notification use. RPC mode receives compact status notification; JSON/print modes do not create a component. Dashboard shutdown closes an active custom panel before manager lifecycle disposal.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/ui/dashboard.ts`
+- `agent/extensions/sub-agents/test/dashboard.test.mjs`
 
 ## `SA-409` Phase 4 validation
 
-**Status:** BLOCKED by `SA-401`–`SA-405`
+**Status:** DONE
 
-- [ ] Completion storm coalesces.
-- [ ] No token delta enters parent context.
-- [ ] UI remains responsive under simulated high event volume.
-- [ ] Theme/narrow terminal tests pass.
+- [x] Completion storm coalesces.
+- [x] No token delta enters parent context.
+- [x] UI remains responsive under simulated high event volume.
+- [x] Theme/narrow terminal tests pass.
+
+Validation notes:
+
+- Production notification tests keep completion batches bounded and prove progress/token deltas never enter parent delivery.
+- Widget and dashboard tests coalesce 1,000-event bursts, keep uncapped-pool scans off the synchronous event path, and pass one-column through wide-width rendering.
+- The complete offline suite passes with fake providers/sessions/themes/TUI hosts and no network or credential access.
 
 ---
 
@@ -968,104 +1037,255 @@ Artifacts:
 
 ## `SA-500` Canonical workspace/path utilities
 
-**Status:** READY
+**Status:** DONE
 
-- [ ] Resolve cwd and trusted root.
-- [ ] Strip leading `@`.
-- [ ] Existing-path `realpath()` canonicalization.
-- [ ] New-path absolute identity.
-- [ ] Symlink alias handling.
-- [ ] Write-scope validation.
-- [ ] Reject traversal/out-of-root paths.
-- [ ] Workspace identity type supporting future worktrees.
+- [x] Resolve cwd and trusted root.
+- [x] Strip leading `@`.
+- [x] Existing-path `realpath()` canonicalization.
+- [x] New-path absolute identity.
+- [x] Symlink alias handling.
+- [x] Write-scope validation.
+- [x] Reject traversal/out-of-root paths.
+- [x] Workspace identity type supporting future worktrees.
+
+Implementation notes:
+
+- `workspace/paths.ts` owns canonical shared-root/cwd identity, one-leading-`@` normalization, containment checks, existing-target `realpath()` identity, and missing-target identity derived from the nearest canonical existing directory.
+- Missing descendants reached through an existing inside-root symlink converge on the target directory and carry their canonical nearest-existing-directory `provisionalNamespace`; the lease phase can conservatively coordinate unresolved names on case-insensitive or Unicode-normalizing filesystems. Outside-root aliases, dangling/unresolved components, non-directory ancestors, lexical traversal, malformed/NUL paths, and unavailable roots/cwds fail closed with bounded nonsecret error codes.
+- Optional declared write scopes are workspace-root-relative exact paths. They canonicalize aliases, deduplicate, sort deterministically for later atomic claims, enforce the 100-path bound, and distinguish omitted unrestricted scope from an explicitly empty scope.
+- The child session factory uses this common resolver and retains one frozen shared `WorkspaceIdentity` on every runtime. The `SA-501` authority binds to the manager's canonical root and revalidates these targets at claim time; `SA-502` and `SA-503` enable guarded existing-file `edit` plus existing/new-file `write` over that authority.
+- Path resolution deliberately does not claim a lease by itself. Guarded edit/write bind existing identity to descriptor-based I/O, and guarded write revalidates and reconciles missing/new identity after creation.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/workspace/paths.ts`
+- `agent/extensions/sub-agents/test/workspace-paths.test.mjs`
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/test/agent-runtime.test.mjs`
 
 ## `SA-501` File/workspace lease manager
 
-**Status:** BLOCKED by `SA-500`
+**Status:** DONE
 
-- [ ] File lease ownership.
-- [ ] Workspace-exclusive ownership.
-- [ ] Parent per-tool reservations.
-- [ ] Atomic sorted multi-path claims.
-- [ ] Non-blocking dynamic claims.
-- [ ] Conflict metadata without sensitive content.
-- [ ] Idempotent release.
-- [ ] Generation invalidation.
-- [ ] Invariant/assertion tests.
+- [x] File lease ownership.
+- [x] Workspace-exclusive ownership.
+- [x] Parent per-tool reservations.
+- [x] Atomic sorted multi-path claims.
+- [x] Non-blocking dynamic claims.
+- [x] Conflict metadata without sensitive content.
+- [x] Idempotent release.
+- [x] Generation invalidation.
+- [x] Invariant/assertion tests.
+
+Implementation notes:
+
+- `workspace/leases.ts` owns one synchronous, generation-scoped coordinator bound to the manager's `realpath()`-canonical root. It structurally validates and synchronously revalidates target identity at claim time. Sorted multi-file checks and commits contain no await point, contested sets retain no partial ownership, and same-child exact claims are idempotent.
+- The symmetric matrix covers child file/workspace leases and parent file/workspace reservations. Different existing files can coexist, while workspace ownership conflicts with every other owner in that workspace. Missing targets coordinate through symmetric provisional-namespace ancestry, including partial-creation transitions between provisional and exact descendants.
+- Parent reservations reject duplicate live tool-call IDs and return opaque one-acquisition tokens. Release accepts only the token, so stale cleanup cannot clear a later reservation that reuses the external ID. Tokens, reservation IDs, absolute canonical paths, and absolute workspace keys do not enter lease snapshots or conflict messages.
+- The session manager privately owns the coordinator, exposes bounded claim/reserve/release seams used by guarded tools and parent interception, and derives child snapshot leases from the authoritative store. Proven-settled terminal failures release immediately; uncertain failures and rejected/timed-out removal settlement retain ownership until a fulfilled idle boundary or generation disposal. Fulfilled removal and generation disposal close the corresponding child/parent claims.
+- Idle children retain leases. `SA-506` exposes the existing idle or runtime-settled blocked boundary through exact `sub_agents_release` model control and a separately confirmed dashboard action; neither control resumes work implicitly.
+- `SA-501` alone enabled no mutator or parent interception. `SA-502`–`SA-504` bind guarded child `edit`/`write` and workspace-exclusive `bash` to this authority, including new-file reconciliation and per-assignment workspace reacquisition; `SA-505` binds parent built-in `edit`/`write`/`bash`, while blocker controls remain later Phase 5 work.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/workspace/leases.ts`
+- `agent/extensions/sub-agents/test/leases.test.mjs`
+- `agent/extensions/sub-agents/workspace/paths.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/types.ts`
 
 ## `SA-502` Guarded child `edit`
 
-**Status:** BLOCKED by `SA-501`, `SA-013`
+**Status:** DONE
 
-- [ ] Validate scope/canonical path.
-- [ ] Acquire/verify child lease.
-- [ ] Run entire operation in `withFileMutationQueue()`.
-- [ ] Preserve exact edit result/details.
-- [ ] Update reported files/leases.
-- [ ] Block cleanly on conflict.
+- [x] Validate scope/canonical path.
+- [x] Acquire/verify child lease.
+- [x] Run the complete access/read/write window in the built-in `withFileMutationQueue()`.
+- [x] Preserve exact edit result/details shape and requested-path output.
+- [x] Update bounded reported files/leases.
+- [x] Block cleanly on conflict.
+
+Implementation notes:
+
+- `workspace/guarded-tools.ts` spreads the public built-in edit definition and overrides only execution. The child runtime supplies it as an SDK custom tool with the same `edit` name, so it replaces the unguarded child built-in while retaining Pi's schema, argument preparation, prompt metadata, renderers, diff/patch details, and sole built-in mutation queue.
+- Nonempty declared exact-file scopes canonicalize and claim atomically before child session construction. Omitted scope uses per-call dynamic claims; an explicitly empty scope rejects every guarded file mutation. `SA-504` separately enables coarse workspace-exclusive bash, while worktrees still fail closed.
+- Each edit resolves an existing in-root target, validates exact scope, claims through the generation manager, and re-resolves the model path after claim. The built-in mutation window opens the canonical target `O_RDWR | O_NOFOLLOW`, compares device/inode identity, reads/writes through that file descriptor, and verifies the path still names the same inode after writing. This binds actual I/O to the claimed target without a deadlocking second queue.
+- Successful result content and unified-patch headers use the original requested path rather than the internal canonical absolute path. Lease conflicts expose only bounded root-relative target and parent/child owner metadata; rejected scope/conflict/identity claims never reach edit I/O.
+- The manager records canonical root-relative guarded mutation files only while the exact child lease exists, merges them into bounded reports/final results, and keeps leases through idle until explicit release/removal. A write-started operation records the file even if a post-write abort/error occurs; such outcomes return explicit inspect/do-not-retry guidance rather than a deceptively retryable abort.
+- Focused offline tests cover metadata/result preservation, declared-scope preclaim/runtime override, successful reporting, out-of-scope rejection, child conflict, leading-`@`, alias swaps, descriptor-time replacement, already-aborted calls, and post-write abort accounting.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/tools/schemas.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/guarded-edit.test.mjs`
+- `agent/extensions/sub-agents/test/agent-runtime.test.mjs`
 
 ## `SA-503` Guarded child `write`
 
-**Status:** BLOCKED by `SA-501`, `SA-013`
+**Status:** DONE
 
-- [ ] Same protections as edit.
-- [ ] Correct new-file identity and post-create reconciliation.
-- [ ] Preserve built-in result shape.
+- [x] Same protections as edit.
+- [x] Correct new-file identity and post-create reconciliation.
+- [x] Preserve built-in result shape.
+
+Implementation notes:
+
+- `workspace/guarded-tools.ts` spreads Pi's public `createWriteToolDefinition()` and overrides only execution. The child tool preserves the original schema, prompt metadata, renderers, undefined-details success shape, requested-path output, abort/update propagation, and sole built-in `withFileMutationQueue()` window.
+- Existing canonical targets use `O_WRONLY | O_NOFOLLOW`, pre-truncation device/inode comparison, descriptor-bound whole-file output, and post-write path/inode verification. Missing targets retain a provisional lease through recursive parent creation and use `O_CREAT | O_EXCL | O_NOFOLLOW`, preventing silent overwrite of a newly appeared final component.
+- Parent-directory preparation and target identity are revalidated inside the built-in queue. Successful in-root file/directory aliases converge on canonical lease/report paths, while model-visible success and sanitized pre-mutation errors retain requested paths rather than canonical absolute directories.
+- `WorkspaceLeaseManager.reconcileChildFile()` atomically narrows only one exact same-owner provisional lease after a verified existing identity; it cannot retarget or acquire ownership after mutation. Failed reconciliation keeps conservative ownership and returns explicit uncertainty.
+- File writes that started are recorded even across post-write abort/error/close/reconciliation failure. Recursive parent creation that may have changed the workspace before file creation returns a separate inspect/do-not-retry uncertainty without falsely recording file content as modified.
+- Removal cleanup distinguishes fulfilled idle settlement from rejection/timeout. Unproven settlement retains visible conflicting leases until generation disposal instead of allowing a potentially late guarded mutation under a new owner.
+- Offline tests cover built-in contract preservation, runtime same-name override and declared missing-scope preclaim, existing overwrite, new nested creation, successful in-root aliases, scope/conflict rejection, canonical error privacy, claim/inode/parent races, lease narrowing, reconciliation failure, abort before claim, abort after mkdir, and abort after file output.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/workspace/leases.ts`
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/tools/schemas.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/guarded-write.test.mjs`
+- `agent/extensions/sub-agents/test/leases.test.mjs`
+- `agent/extensions/sub-agents/test/agent-runtime.test.mjs`
 
 ## `SA-504` Guarded child `bash`
 
-**Status:** BLOCKED by `SA-501`, `SA-013`
+**Status:** DONE
 
-- [ ] `disabled` policy.
-- [ ] `workspace-exclusive` policy.
-- [ ] Acquire full-assignment workspace lease before mutating bash use.
-- [ ] Abort propagation.
-- [ ] Document/reject detached process behavior as feasible.
-- [ ] Preserve built-in bash details/truncation.
+- [x] `disabled` policy.
+- [x] `workspace-exclusive` policy.
+- [x] Acquire full-assignment workspace lease before mutating bash use.
+- [x] Abort propagation.
+- [x] Document/reject detached process behavior as feasible.
+- [x] Preserve built-in bash details/truncation.
+
+Implementation notes:
+
+- `workspace/guarded-tools.ts` spreads Pi's public `createBashToolDefinition()` and overrides only execution. The child keeps the exact bash schema, prompt metadata, renderers, streaming updates, timeout/abort semantics, tail truncation, optional full-output temp-file details, and original result/detail shape.
+- Bash is exposed only when the exact `bash` tool and `workspace.bashPolicy: "workspace-exclusive"` are both present. Disabled policy with bash, exclusive policy without bash, missing generation lease callbacks, and worktree mode fail before session creation.
+- The child runtime claims the complete shared workspace before session construction. `SubAgentAssignmentRunner` reclaims it before every later prompt so an explicit idle release cannot start a new bash-capable assignment without whole-workspace ownership. Each guarded bash call idempotently re-verifies the lease before delegating.
+- Coarse workspace ownership is claimed before any declared exact-file scope for a mixed bash/edit/write child. Once the workspace claim succeeds, same-owner file claims cannot conflict with another participant; `writeScope` remains an edit/write authorization boundary and does not purport to constrain arbitrary bash.
+- Guarded bash sets Pi's public `executionMode: "sequential"`. Any sibling batch containing bash therefore runs in source order, preventing one child from overlapping its own arbitrary bash mutation with guarded edit/write or another bash call while preserving parallel different-file edit/write batches that contain no bash.
+- Already-aborted calls perform no claim or execution; in-flight signals and `onUpdate` pass through to Pi's backend. Lease conflicts reach no bash operation and expose only bounded parent/child ownership metadata.
+- An obvious unquoted shell `&` job-control operator is rejected before claim/execution. Quoted/escaped ampersands, `&&`, `|&`, and redirection forms remain available. The invariant child prompt forbids all detached/background launch mechanisms. This is defense in depth, not a shell sandbox: invoked programs may still daemonize, so deliberately detached descendants remain a documented residual risk while retained workspace ownership is the enforceable coordination boundary.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/prompt-builder.ts`
+- `agent/extensions/sub-agents/tools/schemas.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/guarded-bash.test.mjs`
+- `agent/extensions/sub-agents/test/agent-runtime.test.mjs`
+- `agent/extensions/sub-agents/test/assignment-runner.test.mjs`
 
 ## `SA-505` Main-agent built-in mutation interception
 
-**Status:** BLOCKED by `SA-501`
+**Status:** DONE
 
-- [ ] `tool_call` handling for main edit/write/bash.
-- [ ] Reserve per target/workspace before execution.
-- [ ] Block with owner ID/name on conflict.
-- [ ] `tool_result` and execution-end cleanup.
-- [ ] Handle blocked/errored/aborted calls.
-- [ ] Avoid stale reservation leaks.
+- [x] `tool_call` handling for main edit/write/bash.
+- [x] Reserve per target/workspace before execution.
+- [x] Block with owner ID/name on conflict.
+- [x] `tool_result` and execution-end cleanup.
+- [x] Handle blocked/errored/aborted calls.
+- [x] Avoid stale reservation leaks.
+
+Implementation notes:
+
+- `workspace/parent-mutations.ts` owns one parent-session-generation interceptor. It resolves parent `edit` against an existing canonical file, parent `write` against an existing or missing canonical identity, and parent `bash` against the complete shared workspace before Pi executes the tool.
+- File claims make the exact model-validated `event.input` reference and its `path` property non-replaceable/non-writable after reservation. This preserves other mutable arguments while preventing later cooperative `tool_call` handlers from retargeting the actual built-in call after the lease decision.
+- Child conflicts produce bounded control-sanitized owner ID/name and root-relative path guidance; path/manager failures fail closed without absolute canonical path, token, or internal-error disclosure. Parent-parent file/workspace conflicts are also non-blocking and deterministic.
+- Executed calls release through `tool_result`; `tool_execution_end` retries failed cleanup and is the fallback for later-extension blocks, pre-execution aborts, validation/immediate errors, and other paths without a tool result. Exact opaque tokens remain manager-private.
+- `index.ts` records the exact interceptor generation and tool name for every accepted tool-call ID. Completion events route to that owner rather than whichever generation is current, ID reuse remains blocked until matching execution end, and mismatched stale events cannot release another call.
+- Lifecycle shutdown closes the interceptor to new claims but retains accepted reservations until `waitForIdle()` observes their matching result/end. Manager disposal and replacement publication occur only afterward, so a late old-generation parent tool cannot overlap a new child/parent owner.
+- Offline tests cover child↔parent and parent↔parent conflict symmetry, existing/missing paths, alias convergence, same-target/distinct-target/bash concurrent preflight, post-reservation retarget rejection, blocked/aborted/error cleanup, release retry, stale cross-generation completion routing, and lifecycle quiescence. A separate installed-Pi fake-provider test proves successful built-in `edit`/`write`/`bash` mutations are complete before `tool_result` and `tool_execution_end`, while blocked calls skip `tool_result` but still emit execution end.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/workspace/parent-mutations.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/test/parent-mutations.test.mjs`
+- `agent/extensions/sub-agents/test/parent-hook-order.test.mjs`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
 
 ## `SA-506` Lease blocker events and main controls
 
-**Status:** BLOCKED by `SA-501`, Phase 4
+**Status:** DONE
 
-- [ ] Child conflict moves to blocked.
-- [ ] Coalesced parent event.
-- [ ] Status/dashboard show ownership.
-- [ ] Define explicit release behavior/API if remove is insufficient.
-- [ ] Resume/redirect after resolution.
+- [x] Child conflict moves to blocked.
+- [x] Coalesced parent event.
+- [x] Status/dashboard show ownership.
+- [x] Define explicit release behavior/API if remove is insufficient.
+- [x] Resume/redirect after resolution.
+
+Implementation notes:
+
+- Production child file/workspace claim callbacks now structurally recognize `WorkspaceLeaseConflictError`, record one bounded blocker through the exact child's translator, and then rethrow the original guarded-tool conflict. The report contains only the requested root-relative target/`shared` label and sanitized child owner ID/name or active-parent ownership; no canonical path, reservation token, or private error enters manager/model/UI state.
+- The existing authoritative blocked transition drives configured coalesced parent notification, while status/widget/dashboard expose the blocker report and retained lease ownership. Runtime-initialization preclaim conflicts remain bounded initialization failures because no reusable session exists yet.
+- Added strict parallel `sub_agents_release({ ids })` with independent exact-ID outcomes. It releases all retained ownership only for idle or runtime-settled blocked children, keeps transcript/runtime/state/usage alive, is idempotent, fails before side effects on cancellation/inactive generations, redacts unknown errors, and preserves 100 exact outcomes below independent 48 KiB content/details budgets.
+- `/sub-agents` adds a confirmed `l` release action. Human release warns that cooperating mutators may proceed and future guarded work must reacquire ownership.
+- `sub_agents_send` now resumes a settled blocked child in the same assignment ID/count with retained context. The runner waits for the prior child run/translator boundary, atomically establishes the resume boundary before guarded ownership preparation, clears the stale blocker report only when resuming, and launches a fresh prompt run without fabricating completion. A preparation conflict returns the exact assignment to `blocked`, and blocked children cannot claim new ownership before explicit resume.
+- Guarded ownership preparation now runs before every later mutating assignment, not only bash, so explicitly released declared edit/write scopes are reacquired atomically before model work. Declared missing targets refresh current existence/provisional metadata from the originally authorized canonical absolute identity before reacquisition; a path alias cannot retarget the scope.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/tools/release.ts`
+- `agent/extensions/sub-agents/test/release.test.mjs`
+- `agent/extensions/sub-agents/test/lease-blockers.test.mjs`
+- updated runner/manager/send/schema/index/renderers/dashboard and focused lifecycle/UI tests
 
 ## `SA-507` Deterministic concurrency test suite
 
-**Status:** BLOCKED by `SA-502`–`SA-506`
+**Status:** DONE
 
-- [ ] Same file child-child conflict.
-- [ ] Edit/write cross-conflict.
-- [ ] Symlink alias conflict.
-- [ ] New file conflict.
-- [ ] Different files overlap successfully.
-- [ ] Workspace bash blocks all child mutations.
-- [ ] Child lease blocks main mutation.
-- [ ] Main reservation blocks child claim.
-- [ ] Abort/failure/shutdown release all ownership.
-- [ ] Atomic multi-file claim avoids partial deadlock.
+- [x] Same file child-child conflict.
+- [x] Edit/write cross-conflict.
+- [x] Symlink alias conflict.
+- [x] New file conflict.
+- [x] Different files overlap successfully.
+- [x] Workspace bash blocks all child mutations.
+- [x] Child lease blocks main mutation.
+- [x] Main reservation blocks child claim.
+- [x] Abort/failure/shutdown release all ownership.
+- [x] Atomic multi-file claim avoids partial deadlock.
+
+Implementation notes:
+
+- `test/workspace-concurrency.test.mjs` drives the production manager, guarded edit/write/bash definitions, canonical path resolver, and parent interceptor through one offline end-to-end matrix. Explicit mutation holds prove contenders are rejected while the winning same-file, edit/write, existing-alias, or aliased-new-file mutation window is still active rather than relying on retained leases after sequential completion.
+- A two-party rendezvous proves distinct-file edit windows overlap. A held fake foreground bash operation proves whole-workspace ownership blocks existing-file edit, missing-file write, and a sibling guarded bash before any contender executes.
+- Main-child symmetry is exercised in both directions, including release/completion retry boundaries. Settled abort cleanup, terminal failure, and generation disposal prove ownership cleanup; the shutdown case also proves abort/wait/dispose ordering before a replacement generation claims the path.
+- Opposing reversed-order multi-file requests admit one complete sorted owner, leave the loser with no partial lease, and allow the loser to acquire the complete set after settled winner release.
+- The focused matrix uses deterministic barriers with watchdogs only for fail-fast diagnostics and passes repeated offline runs without a live model, network, credentials, or external service.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/test/workspace-concurrency.test.mjs`
 
 ## `SA-509` Phase 5 validation
 
-**Status:** BLOCKED by `SA-500`–`SA-507`
+**Status:** DONE
 
-- [ ] Required same-file safety guarantee proven.
-- [ ] Residual unknown-tool/external-process limitations documented.
-- [ ] No claim is based solely on prompt compliance.
+- [x] Required same-file safety guarantee proven.
+- [x] Residual unknown-tool/external-process limitations documented.
+- [x] No claim is based solely on prompt compliance.
+
+Validation notes:
+
+- The cooperative same-file guarantee is enforced by restricted child capabilities, canonical path/scope validation, generation-scoped file/workspace leases, Pi's mutation queue, descriptor-bound edit/write I/O, parent reservations, and lifecycle settlement—not by model instructions.
+- Final review found and fixed two production gaps: a declared missing-file scope now refreshes current existence metadata from its originally authorized canonical identity before reacquisition, and any child tool batch containing guarded bash executes sequentially so same-owner bash cannot overlap sibling edit/write/bash mutations.
+- Unknown differently named parent extension mutators, `user_bash`, external editors/processes, and daemonized or otherwise abort-ignoring descendants remain outside the lease protocol and are explicit residual limitations.
+- Proven-settled cleanup releases ownership. Uncertain operations intentionally remain conflicting until a later proven settlement or complete generation disposal.
 
 ---
 
@@ -1073,35 +1293,84 @@ Artifacts:
 
 ## `SA-600` Versioned historical snapshot schema
 
-**Status:** BLOCKED by Phases 4–5
+**Status:** DONE
 
-- [ ] `sub-agents-state-v1` shape.
-- [ ] Strict bounds.
-- [ ] No raw messages/runtime objects/auth.
-- [ ] Persist dynamic role/objective summary, result, usage, files, timestamps.
+- [x] `sub-agents-state-v1` shape.
+- [x] Strict bounds.
+- [x] No raw messages/runtime objects/auth.
+- [x] Persist dynamic role/objective summary, result, usage, files, timestamps.
+
+Implementation notes:
+
+- `persistence.ts` defines one strict `additionalProperties: false` per-agent custom-entry payload under the exact `sub-agents-state-v1` custom type and explicit data `version: 1`. Per-agent checkpoints make later active-branch replay a latest-record-per-opaque-ID reduction instead of requiring one ever-growing pool snapshot.
+- `createPersistedSubAgentHistoryV1()` accepts only manager-owned terminal/history boundaries (`idle`, `blocked`, `failed`, or `removed`) and copies a fixed allowlist: opaque identity, bounded name/role/current-objective summary, terminal status/result, nonsecret model route, created/updated/removed timestamps, removal reason, aggregate usage plus its explicit unreported delta, and deduplicated reported/modified/leased file paths.
+- Instructions, dynamic context, runtime activity/streaming previews, event timelines, child messages, tool arguments, lease authority/tokens, provider configuration, auth, and unknown snapshot properties are never copied. Every nested schema object is strict.
+- Objective/result/status fields have persistence-specific caps. File metadata is deterministically omitted with an explicit count until the serialized UTF-8 payload fits below 48 KiB; a non-file payload that still exceeds the budget fails closed.
+- Focused offline tests cover strict nested validation, privacy exclusions, defensive copies, explicit unreported usage, route/timestamp/state consistency, worst-case JSON/multibyte byte fitting, and malformed live/usage/route rejection.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/persistence.ts`
+- `agent/extensions/sub-agents/test/persistence.test.mjs`
+- `agent/extensions/sub-agents/types.ts`
 
 ## `SA-601` Append bounded state checkpoints
 
-**Status:** BLOCKED by `SA-600`
+**Status:** DONE
 
-- [ ] Meaningful state-change checkpoints only.
-- [ ] Avoid one entry per streaming event.
-- [ ] Persist removal/failure summaries.
-- [ ] Persist unreported usage amount.
+- [x] Meaningful state-change checkpoints only.
+- [x] Avoid one entry per streaming event.
+- [x] Persist removal/failure summaries.
+- [x] Persist unreported usage amount.
+
+Implementation notes:
+
+- `SubAgentPersistenceRuntime` subscribes only to explicit manager `historicalCheckpoint` markers. Complete idle, blocked, failed, intentional-abort, and removed boundaries append one strict `sub-agents-state-v1` record; progress, previews, active tools, running usage, and ordinary runtime events never append.
+- Persisted-field changes at an already historical boundary also mark checkpoints: nonzero usage drains, idle model-route changes, blocked report/file updates, and retained lease release/settled failure cleanup. Exact duplicate semantics ignore `updatedAt`-only churn, and a fingerprint advances only after `pi.appendEntry()` succeeds.
+- Reduction now binds result/files to the current assignment so later failed/removed work cannot inherit stale prior output. Runtime/provider/tool error strings are replaced with fixed failure summaries before persistence, while removal reason and the fact of prior failure remain visible.
+- Compaction and old-session shutdown bulk-checkpoint final deduplicated removed snapshots after cleanup and before closing the persistence bridge. Tree navigation stops the old bridge synchronously and skips post-navigation bulk writes, preventing abandoned-generation records from landing on the selected branch.
+- Focused tests cover 50-event streaming/progress storms with zero entries, idle/block/fail/abort/remove boundaries, model/report/lease updates, usage watermark refresh, semantic dedupe, append retry, byte limits/privacy, post-dispose bulk capture, and tree lifecycle ordering.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/persistence.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/test/persistence-checkpoints.test.mjs`
+- `agent/extensions/sub-agents/test/persistence.test.mjs`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
 
 ## `SA-602` Branch-aware restoration
 
-**Status:** BLOCKED by `SA-601`
+**Status:** DONE
 
-- [ ] Reconstruct from active branch.
-- [ ] Respect compaction/tree semantics.
-- [ ] Historical records only.
-- [ ] Mark former live children terminated.
-- [ ] Reject old active IDs.
+- [x] Reconstruct from active branch.
+- [x] Respect compaction/tree semantics.
+- [x] Historical records only.
+- [x] Mark former live children terminated.
+- [x] Reject old active IDs.
+
+Implementation notes:
+
+- `parsePersistedSubAgentHistoryV1()` strictly validates and defensively clones untrusted session payloads, including exact nested properties, ID/generation consistency, timestamps, routes, explicit unreported usage, unique files, and the 48 KiB cap.
+- `reconstructSubAgentHistoryFromBranch()` scans only `SessionManager.getBranch()` newest-first, chooses one latest checkpoint per recognizable opaque ID, suppresses fallback after a malformed latest record, and bounds restoration to 500 histories. Abandoned sibling records never enter the input branch; compaction remains compatible with normal path ordering.
+- `SubAgentManager` keeps restored checkpoints in a separate immutable history map. Inspection projects them as removed/settled snapshots with original checkpoint metadata, no runtime resources, no leases, and an explicit `restoredHistory` marker. The live registry and new opaque-ID allocator remain current-generation only.
+- Status/dashboard expose restored history. Status, wait, and repeated remove preserve old usage observationally and never drain it into the replacement Pi session. Active assignment/mutation paths reject restored IDs with `historical_agent` rather than reviving them.
+- Session start, compaction, and tree replacement resolve the active-branch getter only after prior cleanup/checkpoint ordering. Restoration completes before the replacement generation's notification/UI/control runtimes are published.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/persistence.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/test/persistence-restoration.test.mjs`
+- focused lifecycle/status/wait/remove/dashboard integration changes
 
 ## `SA-603` Lifecycle boundary matrix
 
-**Status:** BLOCKED by `SA-602`
+**Status:** NEXT
 
 Test:
 
@@ -1116,7 +1385,7 @@ Test:
 
 ## `SA-609` Phase 6 validation
 
-**Status:** BLOCKED by `SA-600`–`SA-603`
+**Status:** BLOCKED by `SA-603`
 
 - [ ] Historical view is branch-correct.
 - [ ] No live runtime survives or is represented as live.
@@ -1185,7 +1454,7 @@ Test:
 
 ## `SA-705` Manual TUI validation checklist
 
-**Status:** BLOCKED by Phase 4
+**Status:** BLOCKED by Phases 5–6
 
 - [ ] Narrow/wide terminal.
 - [ ] Expanded/collapsed tools.
@@ -1336,9 +1605,9 @@ At each parent `before_agent_start`, capture the already loaded `systemPromptOpt
 
 ## `Q-003` Should idle children retain file leases?
 
-**Status:** Proposed yes; finalize in Phase 5.
+**Status:** Resolved yes by `SA-501`.
 
-Reason: retained context often implies follow-up ownership. Cost: it may block unrelated writers. Dashboard and control tools must make this visible; an explicit release operation may be needed.
+Retained context implies follow-up ownership, so idle children keep declared/dynamic leases until removal or explicit release. `SA-506` exposes exact model release plus separately confirmed dashboard release only at idle or runtime-settled blocked state, keeps ownership visible, and requires later guarded assignments/resumes to establish their assignment boundary and reacquire declared/workspace authority before model work starts.
 
 ## `Q-004` Should status drain usage by default?
 
@@ -1354,15 +1623,15 @@ Coalesce configured idle/completion, blocked, and failed child events into one b
 
 ## `Q-006` Can guarded bash provide a strong no-detached-mutation guarantee?
 
-**Status:** Open; investigate in `SA-013`/`SA-504`.
+**Status:** Resolved as an explicit limitation by `SA-504`.
 
-Until proven, shared-workspace bash remains workspace-exclusive and documented as a residual risk for deliberately detached processes.
+No. Shared-workspace bash retains coarse workspace-exclusive ownership and rejects the ordinary unquoted `&` background-job operator, while the child protocol forbids detached launchers. Static command inspection is not a sandbox and an invoked program can still daemonize, so deliberately detached descendants remain a documented residual risk rather than a claimed guarantee.
 
 ## `Q-007` How are main-agent unknown custom mutators handled?
 
-**Status:** Open limitation.
+**Status:** Resolved as an explicit Phase 5 limitation by `SA-509`.
 
-Possible future approach: event-bus lease protocol for cooperating extensions. Initial guarantee covers guarded children plus main built-in edit/write/bash interception.
+The enforceable guarantee covers guarded children plus intercepted parent tools named `edit`, `write`, and `bash`. Differently named mutating extension tools, `user_bash`, and external processes do not participate. A future event-bus lease protocol may let cooperating extensions opt in, but Phase 5 does not imply coordination with them.
 
 ## `Q-008` What are the exact provider and canonical IDs for the GPT 5.6 subscription tiers?
 
@@ -1440,6 +1709,13 @@ Append changes; do not rewrite history without reason.
 - No fixed product decision changed.
 
 ---
+
+## Guarded write and uncertain cleanup boundary
+
+- Guarded child `write` uses the public built-in definition as metadata/result/queue authority while custom local operations bind existing and new targets to verified regular-file descriptors.
+- Missing-target leases remain conservative through directory creation and narrow only through an exact same-owner post-create reconciliation; reconciliation cannot acquire or retarget ownership.
+- Parent-directory creation that may have completed before a later error is an explicit mutation-uncertainty boundary even when no file content was recorded.
+- Cleanup releases file ownership only after fulfilled idle settlement. Rejected or timed-out settlement retains ownership until generation disposal; this revises the earlier assumption that removal alone always proves safe release.
 
 # Session Handoff Log
 
@@ -2516,3 +2792,788 @@ Append one entry at the end of every work session.
 - unrelated changes under `../claude/`
 
 **Recommended next item:** `SA-401` — implement the bounded event inbox, state-event deduplication, one coalescing timer, and lifecycle cleanup.
+
+## Handoff 025 — Bounded coalesced parent notifications
+
+**Completed:**
+
+- `SA-401`
+- `SA-402`
+- Added the production generation-scoped event inbox, authoritative terminal-event bridge, and safe parent custom-message delivery.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/notifications.ts`
+- `agent/extensions/sub-agents/test/notifications.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/test/notification-spike.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 93 tests passed, 0 failed.
+- Installed-package jiti imports passed for `types.ts`, `manager.ts`, `notifications.ts`, and `index.ts`.
+- Whitespace checks passed for root extension documentation, the complete sub-agent diff, and both new files.
+- A separate read-only sub-agent review identified three issues—repeat failed-state runtime notifications, worst-case UTF-8/JSON transport size, and partial runtime-initialization cleanup. All three were fixed and the targeted re-review passed.
+- Tests used only fake providers/models, in-memory managers/sessions, bounded synthetic state, timers, and temporary workspaces. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Each parent-session generation owns one 20-event inbox and one 50 ms timer. Pending duplicate child/assignment/state records replace their predecessor; distinct overflow evicts the oldest event and reports omissions.
+- Manager observers receive frozen defensive events. Only explicit authoritative markers for completed idle results, blockers, and failures can enter parent notification delivery, so later ordinary events in an already terminal state cannot wake the parent again.
+- Configured batches are delivered as one displayed `sub-agents-event` with `{ deliverAs: "followUp", triggerTurn: true }`; progress and unconfigured states remain internal, and parent custom messages cannot loop back into the manager-only source.
+- Notification content/details sanitize controls, use character and UTF-8 field limits, and remain independently below 48 KiB at the 20-event maximum, including mixed worst-case JSON-escaping and multibyte fixtures.
+- Lifecycle replacement cancels the notification timer/subscription before old-manager disposal. New manager/runtime construction is transactional and disposes an unpublished generation after initialization failure.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-403` — implement the persistent bounded status widget and lifecycle/theme-safe refresh path.
+
+## Handoff 026 — Persistent bounded TUI status widget
+
+**Completed:**
+
+- `SA-403`
+- Added the interactive-only persistent status widget, manager overview/change boundary, bounded event-storm refresh path, and lifecycle integration.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/ui/widget.ts`
+- `agent/extensions/sub-agents/test/widget.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 99 tests passed, 0 failed.
+- Installed-package jiti imports passed through the widget, lifecycle, manager, notification, runtime, and control-tool suites.
+- Whitespace validation passed for the root extension documentation and complete sub-agent diff.
+- Two read-only reviews covered installed Pi/TUI APIs and the implementation. One found no API/lifecycle/ANSI/theme/disposal defect; the other found delayed-factory staleness and per-event uncapped-pool scans. The widget now binds the latest overview and coalesces changes through one 50 ms timer; targeted re-review confirmed both fixes.
+- Tests used only fake themes/TUI hosts, in-memory managers/sessions, bounded synthetic state, timers, fake providers/models, and temporary workspaces. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- The widget appears above the editor only in TUI mode and only while at least one live child exists. It clears at zero live children and before manager disposal on compaction, tree navigation, session replacement, reload, or shutdown.
+- A manager-owned overview aggregates tokens/cost and maintains a five-row prioritized live view without copying timelines or child conversations. Overflow is summarized and the live pool remains uncapped.
+- Rows show bounded names/IDs, lifecycle, active tool names/counts, queue state, result readiness, and explicit blocker needs. Objectives, final result text, errors, and streaming previews remain hidden.
+- One 50 ms refresh timer coalesces event storms; token-only previews do not repaint. Delayed factories consume the newest overview, and shutdown cancels the timer and listener.
+- Callback-supplied theme colors, cache invalidation, and ANSI-aware truncation keep every line valid from one-column through wide terminals.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-404` — finish the management-tool renderer pass with compact/expanded/partial width-safe behavior and `lastComponent` reuse.
+
+## Handoff 027 — Shared management tool renderer pass
+
+**Completed:**
+
+- `SA-404`
+- Added the shared compact/expanded management renderer layer, expanded wait progress rendering, ANSI/control sanitization, and width/reuse validation.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/ui/renderers.ts`
+- `agent/extensions/sub-agents/test/renderers.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/tools/send.ts`
+- `agent/extensions/sub-agents/tools/reconfigure.ts`
+- `agent/extensions/sub-agents/tools/wait.ts`
+- `agent/extensions/sub-agents/tools/remove.ts`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 102 tests passed, 0 failed.
+- Installed-package jiti imports passed through the shared renderer module and all six management-tool suites.
+- Compact/expanded rendering, `lastComponent` identity reuse, expanded partial-wait updates, ANSI/control sanitization, privacy exclusions, fallback rendering, theme replacement, and one-column through wide terminal bounds have dedicated offline coverage.
+- A separate read-only review found one objective-leak path in expanded status rendering; assignment summaries were removed from the TUI layer and a regression fixture now proves child objectives stay hidden.
+- Whitespace validation passed for the complete sub-agent diff and root extension documentation.
+- Tests used only fake themes, bounded synthetic tool results, in-memory managers/sessions, fake providers/models, timers, and temporary workspaces. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- All six tools delegate call/result display to `ui/renderers.ts`, removing duplicated inline renderer bodies while preserving their existing tool definitions and execution contracts.
+- Compact views show bounded operation summaries. Expanded views add operation-specific route, lifecycle, assignment state, runtime, report/result, error, usage, grace, and timeline metadata without exposing send message bodies or child assignment objectives.
+- Wait progress can expand to exact per-target matched/state/assignment/tool/queue rows and mutates the same `Text` component through later progress/final renders.
+- Dynamic fields and fallback text strip terminal escapes and controls before styling. Reused `Text` instances receive newly themed content on every renderer call, and Pi TUI ANSI-aware wrapping keeps all lines width-safe.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-405` — implement the TUI-only `/sub-agents` dashboard with bounded list/detail, confirmed stop/remove actions, manual messaging, usage/lease views, and a non-TUI fallback.
+
+## Handoff 028 — `/sub-agents` dashboard and Phase 4 exit
+
+**Completed:**
+
+- `SA-405`
+- `SA-409`
+- Completed the Phase 4 notifications and observability milestone and made Phase 5 the active milestone.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/ui/dashboard.ts`
+- `agent/extensions/sub-agents/test/dashboard.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 107 tests passed, 0 failed.
+- Installed-package jiti imports passed for `types.ts`, `manager.ts`, `ui/dashboard.ts`, and `index.ts`.
+- Dedicated dashboard tests cover bounded manager scans, lightweight/defensive rows, list/detail navigation, exact selected detail, recent-event and lease limits, width/control safety, event-storm coalescing, manual messaging, selected/all confirmed removal, and RPC fallback.
+- Existing notification/widget suites prove completion coalescing, token-preview exclusion, theme invalidation, and narrow terminal behavior.
+- Whitespace validation passed for tracked files and both new dashboard files.
+- A separate read-only implementation review found child-name control injection, stale active panels across lifecycle replacement, unbounded full-snapshot cloning for remove-all, and silent vertical truncation. Dialog names are now sanitized, dashboard shutdown closes active panels before disposal, remove-all captures lightweight IDs, and vertical bounding preserves help with an explicit omission marker; the reviewer reported no remaining SA-405 blocker.
+- Tests used only fake themes/TUI hosts, in-memory managers/sessions, fake providers/models, timers, and temporary workspaces. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- `/sub-agents` opens an interactive TUI list/detail panel with configured selection keybindings, 12-row paging, hidden/showable history, bounded exact detail, usage, model/runtime/report/result state, leases, and recent events.
+- The manager supplies at most 100 prioritized lightweight rows without cloning every child timeline; detail cloning occurs only for the selected child. A 50 ms timer coalesces event storms before rescanning the uncapped pool.
+- Manual messages reuse the production send executor after Pi's editor and running-delivery selector. Selected/all immediate removal requires confirmation and preserves usage watermarks for later model-callable accounting.
+- Assignment objectives remain hidden, terminal controls are stripped, every line is ANSI-width bounded, and non-TUI modes never create the custom component.
+- Dashboard references rotate with the same session-generation lifecycle as every control runtime; active panels close before old-manager disposal, and dialog labels sanitize child-controlled names.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-500` — implement canonical workspace/path utilities as the foundation for shared-workspace mutation safety.
+
+## Handoff 029 — Canonical workspace/path foundation
+
+**Completed:**
+
+- `SA-500`
+- Began Phase 5 with shared-root/cwd identity, canonical existing/new path resolution, write-scope validation, and read-only runtime integration.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/workspace/paths.ts`
+- `agent/extensions/sub-agents/test/workspace-paths.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/test/agent-runtime.test.mjs`
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 111 tests passed, 0 failed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents` plus `git diff --no-index --check /dev/null` for both new SA-500 files.
+- Result: passed.
+- Two read-only sub-agent reviews covered path/security design, integration, scope boundaries, and tests. Review found double leading-`@` normalization in declared scopes and unresolved missing-name alias risk on case-insensitive/Unicode-normalizing filesystems; the scope now strips exactly once, and missing identities carry a canonical provisional namespace for conservative lease coordination. Re-review found no integration blocker.
+- Tests used only Node temporary workspaces/files/symlinks and the existing offline fake SDK infrastructure. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Every shared child runtime now retains one frozen canonical `{ mode, root, key }` workspace identity, and its existing cwd is realpath-constrained beneath that root.
+- Existing aliases converge through `realpath()`. Missing paths derive from the nearest canonical existing directory, preserve that provisional namespace, and reject outside-root, dangling, non-directory, malformed, NUL, traversal, and unavailable cases before child session creation or future mutation delegation.
+- Optional workspace-root-relative exact write scopes canonicalize aliases, deduplicate, sort deterministically, enforce bounds, and distinguish omitted unrestricted scope from an explicitly empty scope.
+- No mutation capability or ownership claim was enabled. The known claim-to-delegation and post-create reconciliation boundaries remain explicit work for guarded edit/write integration.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-501` — implement the generation-scoped file/workspace lease manager and parent reservations over the SA-500 identities.
+
+## Handoff 030 — Generation-scoped workspace lease manager
+
+**Completed:**
+
+- `SA-501`
+- Added the private session-generation ownership coordinator for child file/workspace leases and exact parent tool-call reservations.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/workspace/leases.ts`
+- `agent/extensions/sub-agents/test/leases.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/workspace/paths.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/event-translator.ts`
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 118 tests passed, 0 failed after the final reviewer hardening pass.
+- Targeted lease/path/manager/translator/runner suites passed after every hardening change.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents` plus no-index whitespace checks for both new files.
+- Two read-only sub-agent reviews covered conflict symmetry, provisional namespaces, root/target revalidation, snapshot authority, uncertain-failure release, selective-release identity, parent reservation ABA safety, and metadata exposure. Every reported blocker was addressed; both final re-reviews returned `NO BLOCKERS` before the final full-suite run.
+- Tests used only Node temporary workspaces/files/symlinks and existing in-memory fake SDK infrastructure. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- File/workspace and parent/child conflicts are checked synchronously and atomically over canonical sorted inputs; a failed multi-target claim commits nothing and does not wait.
+- The coordinator binds to one canonical root and revalidates resolver metadata at claim time, rejecting stale-created/deleted targets, root substitution, dangling components, and inconsistent canonical identity. Existing aliases converge canonically; provisional/exact descendants coordinate symmetrically during partial creation.
+- Parent reservations reject duplicate live call IDs and use opaque per-acquisition release tokens, preventing stale release from clearing a later reservation. Model-visible lease metadata contains root-relative paths and the non-path `shared` label only.
+- The session manager privately owns the authority and derives defensive child snapshots from it. Proven-settled failures release immediately; rejected/timed-out settlement retains ownership until authoritative cleanup. Removal/generation disposal release all ownership, while idle leases remain until explicit idle or runtime-settled blocked release.
+- No mutating child tool or parent interception was enabled; claim-to-delegation binding remains the `SA-502`/`SA-503` boundary.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-502` — implement guarded child `edit` over the canonical path/scope and lease authority while preserving Pi's built-in edit mutation queue and result shape.
+
+## Handoff 031 — Guarded child `edit`
+
+**Completed:**
+
+- `SA-502`
+- Enabled exact shared-workspace child `edit` through canonical scopes, retained child leases, descriptor-bound local I/O, and Pi's built-in mutation queue/result contract.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/test/guarded-edit.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/tools/schemas.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/agent-runtime.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 126 tests passed, 0 failed.
+- Installed-package jiti imports passed for `workspace/guarded-tools.ts`, `agent-runtime.ts`, `assignment-runner.ts`, `manager.ts`, `tools/schemas.ts`, `tools/spawn.ts`, and `index.ts`.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Two read-only review passes covered path/lease TOCTOU, same-name SDK override behavior, built-in queue ownership, result/path privacy, post-write aborts, reporting, and lifecycle races. After descriptor binding and explicit uncertain-outcome handling, both reviewers returned `APPROVE` with no remaining concrete `SA-502` blocker.
+- Tests used only Node temporary workspaces/files/symlinks, in-memory managers/settings/sessions/credentials, fake providers/models, and public installed Pi APIs. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Shared children may now request `edit`; `write`, `bash`, workspace-exclusive bash, and worktree mode remain fail-closed. Omitted tool selection remains read-only by default.
+- Declared write scopes preclaim atomically before session construction. Dynamic edits resolve, scope-check, claim, and rebind the canonical existing target before any edit I/O.
+- The guarded custom definition overrides the unguarded built-in `edit` inside the child while preserving Pi's schema, prompt metadata, renderers, argument preparation, diff/patch result, and sole built-in `withFileMutationQueue()` window.
+- `O_NOFOLLOW` plus device/inode-bound file-descriptor operations prevent post-claim alias/replacement changes from redirecting actual I/O. Normal results retain the model-requested path instead of exposing canonical absolute paths.
+- Manager snapshots retain exact root-relative leases and bounded `modifiedFiles`; reports and final results merge confirmed guarded mutations. Any operation that began writing records the target, and later abort/error returns explicit inspect/do-not-retry guidance.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-503` — implement guarded child `write`, including missing/new-file identity and post-create reconciliation while preserving the built-in write result shape.
+
+## Handoff 032 — Guarded child `write`
+
+**Completed:**
+
+- `SA-503`
+- Enabled guarded existing/new-file child `write` and advanced the Phase 5 recommendation to guarded workspace-exclusive `bash`.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/guarded-write.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/workspace/leases.ts`
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/tools/schemas.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/agent-runtime.test.mjs`
+- `agent/extensions/sub-agents/test/leases.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 142 tests passed, 0 failed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Installed-package imports exercised the production guarded tool/runtime/manager modules through the existing jiti-based offline harness.
+- Two independent read-only sub-agent reviews covered built-in API compatibility, path/result privacy, descriptor and parent-directory races, provisional reconciliation, cleanup settlement, runtime override wiring, and test completeness. After fixes for canonical mkdir-error exposure, parent-directory mutation uncertainty, and unproven cleanup release, both final reviews returned `NO BLOCKERS`.
+- Tests used only Node temporary workspaces/files/symlinks, in-memory managers/settings/sessions/credentials, fake providers/models, and public installed Pi APIs. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Guarded `write` preserves Pi's public write schema, prompt metadata, renderers, requested-path success text, undefined details, abort/update propagation, and sole built-in mutation queue.
+- Existing overwrites and new creates use no-follow descriptor binding with device/inode checks; new targets add exclusive creation and exact post-create canonical reconciliation.
+- Provisional leases narrow atomically only after verified creation. Reconciliation failure stays conservative and every file-write-started error records bounded mutation metadata before an explicit inspect/do-not-retry outcome.
+- Recursive parent creation is separately treated as uncertain when a later boundary fails, without falsely reporting file content as changed.
+- Rejected or timed-out idle cleanup no longer releases ownership early; retained leases remain visible/conflicting until generation disposal.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-504` — implement guarded child `bash` with full-assignment workspace-exclusive ownership, abort propagation, built-in result/truncation preservation, and an explicit detached-process policy.
+
+## Handoff 033 — Guarded child `bash`
+
+**Completed:**
+
+- `SA-504`
+- Enabled guarded shared-workspace child `bash` under mandatory workspace-exclusive ownership and advanced Phase 5 to parent built-in mutation interception.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/guarded-bash.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/prompt-builder.ts`
+- `agent/extensions/sub-agents/tools/schemas.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/agent-runtime.test.mjs`
+- `agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 149 tests passed, 0 failed after the final review fixes.
+- Final targeted guarded-bash/runtime/runner/spawn tests passed: 20 tests, 0 failed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Two independent read-only reviews covered lease timing, policy cross-fields, lifecycle/cleanup, public Pi bash API compatibility, abort/update forwarding, truncation/details, detached-process limitations, and test completeness. The security review approved; the API review found stale spawn-tool wording and a missing failed-initialization lease-release test, both fixed before the final full-suite run.
+- Tests used only fake providers/models, in-memory managers/settings/sessions/credentials, deterministic custom bash operations, temporary workspaces, and public installed Pi APIs. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Child bash is unavailable by default and requires both the exact `bash` tool and `workspace.bashPolicy: "workspace-exclusive"`; mismatched policy/tool combinations fail before session construction.
+- The complete workspace is claimed before runtime startup, retained through idle, reacquired before every later assignment after explicit release, and reverified before each command.
+- The same-name wrapper preserves Pi's bash schema, prompt metadata, renderers, streaming updates, timeout/abort behavior, tail truncation, full-output temp-file details, and result shape.
+- Already-aborted calls do not claim or execute; in-flight abort signals pass to Pi's backend. Conflicts prevent command execution and retain bounded ownership metadata.
+- The ordinary unquoted `&` background-job operator is rejected, and the child protocol forbids detached launchers. Arbitrary programs can still daemonize, so detached descendants remain a documented residual limitation rather than a false shell-inspection guarantee.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-505` — intercept main-agent built-in `edit`/`write`/`bash` calls with canonical parent reservations and exact release-token cleanup.
+
+## Handoff 034 — Parent built-in mutation interception
+
+**Completed:**
+
+- `SA-505`
+- Added generation-scoped parent `edit`/`write`/`bash` reservations and advanced Phase 5 to lease blocker events and controls.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/workspace/parent-mutations.ts`
+- `agent/extensions/sub-agents/test/parent-mutations.test.mjs`
+- `agent/extensions/sub-agents/test/parent-hook-order.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 159 tests passed, 0 failed.
+- Targeted parent-mutation/lifecycle suite passed after every safety hardening change.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Three independent read-only sub-agent reviews covered Pi event ordering, later-handler argument mutation, stale generation events, lifecycle quiescence, conflict privacy, and the concurrency test matrix. Retargeting, stale-owner routing, and premature shutdown release findings were fixed; final security/API reviews approved the boundary.
+- Tests used only temporary workspaces/files/symlinks, in-memory managers, fake lifecycle hosts, and public installed Pi APIs. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Parent `edit`/`write` reserve canonical file identities and parent `bash` reserves the complete shared workspace before execution. Conflicts fail closed with bounded sanitized child ownership guidance.
+- File targets are locked after reservation so later cooperative `tool_call` handlers cannot retarget the built-in operation while leaving non-path arguments mutable.
+- `tool_result` and `tool_execution_end` release the exact opaque reservation; failed releases retry, blocked/aborted/immediate outcomes clean up, and external ID reuse stays blocked through finalization.
+- Completion routing stays bound to the exact owning interceptor generation. Lifecycle replacement closes new claims and waits for accepted parent mutations to settle before disposing the old manager or publishing a replacement.
+- Concurrent preflight tests prove same canonical aliases and workspace/file combinations conflict while distinct existing files can reserve independently.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-506` — translate child lease conflicts into blockers/notifications and expose confirmed retained-lease controls.
+
+## Handoff 035 — Lease blockers, explicit release, and blocked resume
+
+**Completed:**
+
+- `SA-506`
+- Added runtime lease-conflict blocker translation, configured coalesced parent notification, exact release controls, and same-assignment blocked resume.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/tools/release.ts`
+- `agent/extensions/sub-agents/test/release.test.mjs`
+- `agent/extensions/sub-agents/test/lease-blockers.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/tools/schemas.ts`
+- `agent/extensions/sub-agents/tools/send.ts`
+- `agent/extensions/sub-agents/ui/renderers.ts`
+- `agent/extensions/sub-agents/ui/dashboard.ts`
+- focused schema/send/renderer/dashboard/lifecycle tests
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 166 tests passed, 0 failed.
+- `git diff --check -- agent/extensions/sub-agents CLAUDE.md EXTENSIONS.md`
+- Result: passed.
+- Three early read-only sub-agent reviews covered conflict flow/security, control API/UX, and deterministic test planning. A final security review found pre-prompt preparation and premature blocked-settlement races; the assignment/claim/release gates and regressions were corrected, and a focused re-review approved the result.
+- Tests used only temporary workspaces/files, in-memory managers/settings/sessions/credentials, fake providers/models, and public installed Pi APIs. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Guarded child edit/write/bash claims share one blocker translation boundary; blocked reports identify exact child ownership or an active parent mutation through bounded safe metadata and reuse Phase 4 notification coalescing.
+- Exact release is model-callable without silently resuming and human-callable only after dashboard confirmation. It preserves reusable context and state while dropping only retained ownership.
+- A later `sub_agents_send` to a blocked child resumes its exact assignment after prior runtime settlement; assignment count and transcript remain intact. The runner establishes the resume boundary before ownership preparation so any new conflict returns the same assignment to a settled blocker.
+- Explicitly released declared edit/write scopes now reacquire before every later mutating assignment, closing the prior bash-only preparation gap. Blocked children cannot retry lease claims before resume, and release waits for authoritative runtime settlement.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-507` — complete the deterministic child-child/main-child concurrency matrix across edit/write/bash, aliases/new files, release, abort/failure, shutdown, and atomic multi-file claims.
+
+## Handoff 036 — Deterministic shared-workspace concurrency matrix
+
+**Completed:**
+
+- `SA-507`
+- Added the dedicated production-path child-child/main-child deterministic concurrency matrix and advanced Phase 5 to final validation.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/workspace-concurrency.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/workspace-concurrency.test.mjs`
+- Result: 8 tests passed, 0 failed; the final matrix passed 5/5 repeated runs.
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 174 tests passed, 0 failed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Three independent read-only reviews covered the matrix design, guarded mutation strength, and lifecycle rollover semantics. Early findings about sequential false positives, aliased missing targets, uncertain shutdown ordering, and sibling bash coverage were corrected; all final reviewers approved `SA-507`.
+- Tests used only temporary workspaces/files/symlinks, in-memory managers, deterministic barriers, fake foreground bash operations, and public installed Pi APIs. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Same-file edit/edit, edit/write, existing symlink-alias, and aliased new-file contenders now race while one winner is barrier-held inside its mutation window; exactly one retained owner succeeds and every loser is rejected before mutation.
+- Independent files reach a two-party rendezvous concurrently, while a held workspace-exclusive bash blocks guarded edit, write, and sibling bash before contender execution.
+- Child-to-main and main-to-child conflicts are symmetric and retry only after explicit release or parent completion.
+- Settled abort cleanup, terminal failure, uncertain shutdown abort/wait/dispose ordering, and replacement-generation acquisition are covered explicitly; the documented abort-ignoring/detached-process limitation remains outside cooperative coordination.
+- Reversed-order atomic multi-file claims leave no partial loser ownership and retry without deadlock after the winner reaches a settled release boundary.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-509` — perform final Phase 5 validation, reconcile the implementation with exit criteria, and document residual unknown-tool/external-process limitations.
+
+## Handoff 037 — Final Phase 5 validation
+
+**Completed:**
+
+- `SA-509`
+- Closed the Phase 5 shared-workspace mutation milestone and advanced the backlog to Phase 6 persistence/session correctness.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/test/agent-runtime.test.mjs`
+- `agent/extensions/sub-agents/test/guarded-bash.test.mjs`
+- `agent/extensions/sub-agents/test/guarded-write.test.mjs`
+- `agent/extensions/sub-agents/test/lease-blockers.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 176 tests passed, 0 failed.
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/workspace-concurrency.test.mjs`
+- Result: 8 tests passed, 0 failed in each of 5/5 repeated runs.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Three independent read-only reviews covered Phase 5 exit criteria, production/test gaps, and documentation reconciliation. Final focused re-reviews reported no remaining release blocker after the fixes below.
+- Tests used only temporary workspaces/files/symlinks, in-memory managers/settings/sessions/credentials, fake providers/models, fake foreground bash operations, and public installed Pi APIs. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Declared missing-file scopes refresh current existence/provisional metadata from their originally authorized canonical absolute identity before every reacquisition. A release/create/reacquire/rewrite production regression proves the scope remains usable without allowing alias retargeting.
+- Guarded bash now opts into Pi's public sequential tool-batch execution. An installed `AgentSession` regression proves one mixed bash/write child cannot start the sibling write while bash is still active.
+- Read-only children may explicitly declare an empty write scope, matching the strict public schema's documented no-mutation meaning; nonempty scopes still require guarded edit/write capability.
+- A non-ASCII guarded-write regression confirms successful result rewriting preserves Pi's installed result contract without exposing the internal canonical absolute path.
+- The specification now distinguishes the cooperative guarantee from unknown differently named extension mutators, `user_bash`, external processes/editors, and detached or abort-ignoring descendants. Prompt instructions remain defense in depth and are not part of the safety proof.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-600` — define the strict versioned historical snapshot schema for Phase 6.
+
+## Handoff 038 — Versioned historical snapshot schema
+
+**Completed:**
+
+- `SA-600`
+- Defined and validated the strict bounded `sub-agents-state-v1` per-agent custom-entry payload.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/persistence.ts`
+- `agent/extensions/sub-agents/test/persistence.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 180 tests passed, 0 failed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- A separate read-only review found opaque-ID and removal-timestamp consistency gaps. Both were fixed with regressions; the final re-review returned `APPROVE`.
+- Tests used only bounded synthetic snapshots and the existing offline fake/in-memory SDK infrastructure. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Each custom entry checkpoints one terminal/history child record, enabling later active-branch latest-record-per-ID restoration without persisting one unbounded whole-pool object.
+- The reducer persists bounded identity, dynamic role/current objective summary, status/result, nonsecret route, usage plus explicit unreported delta, file metadata, and timestamps under a 48 KiB UTF-8 cap.
+- Live runtime state, prompts/instructions/context, event streams, child messages, tool arguments, lease authority, provider configuration, auth, and unknown properties are excluded by construction and strict nested schemas.
+- Invalid live states, malformed IDs/routes/usage, inconsistent created/result/removed/updated times, and irreducible byte overflow fail closed.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-601` — append bounded per-agent checkpoints only at meaningful terminal/history state changes and preserve unreported usage without draining it.
+
+## Handoff 039 — Bounded historical checkpoint appends
+
+**Completed:**
+
+- `SA-601`
+- Wired strict per-agent history reduction to meaningful branch-local Pi custom entries.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/persistence-checkpoints.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/persistence.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/test/persistence.test.mjs`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 184 tests passed, 0 failed.
+- Installed-package imports passed for `types.ts`, `manager.ts`, `persistence.ts`, and `index.ts` through `test/installed-packages.mjs`.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Independent manager/API/security reviews covered marker timing, append semantics, lifecycle ordering, tree placement, dedupe, stale results/files, raw runtime errors, and persisted-field updates. Final focused manager and security re-reviews returned `APPROVE`.
+- Tests used only in-memory managers, bounded synthetic snapshots, temporary local workspace paths, fake lifecycle hosts, and the existing offline fake SDK infrastructure. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- One session-generation persistence bridge listens only for explicit complete historical markers and appends strict `sub-agents-state-v1` entries synchronously. Fifty progress/streaming updates produce zero checkpoints.
+- Idle, blocked, failed, intentional-abort, removed, nonzero usage-drain, idle model-route, blocked report/file, and retained-lease changes refresh history. Semantic dedupe ignores `updatedAt`-only churn and records a fingerprint only after append success.
+- Results/files are bound to the current assignment, preventing later failed or removed work from inheriting stale prior output. Raw runtime/provider/tool error strings are replaced with fixed persisted failure summaries.
+- Compaction and old-session shutdown bulk-checkpoint final removed snapshots after cleanup. Tree navigation closes the persistence listener before any wait and skips post-navigation bulk appends so abandoned-generation history cannot land on the selected branch.
+- Persisted usage always carries totals, reported counters, and the explicit remaining unreported delta; post-terminal management drains create a fresh checkpoint only when that watermark changes.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-602` — reconstruct bounded historical records from the active branch without reviving old child runtimes or IDs.
+
+## Handoff 040 — Branch-aware immutable historical restoration
+
+**Completed:**
+
+- `SA-602`
+- Added strict active-branch restoration without reviving prior-generation runtimes, leases, usage drains, or active IDs.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/persistence-restoration.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/persistence.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/tools/wait.ts`
+- `agent/extensions/sub-agents/tools/remove.ts`
+- `agent/extensions/sub-agents/ui/dashboard.ts`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 191 tests passed, 0 failed.
+- Focused restoration tests cover strict untrusted parsing, ID/generation consistency, malformed-latest suppression, active/abandoned branches, compaction path ordering, the restored-set cap, immutable manager history, old-ID rejection, observational old usage, production `session_start`, and lazy cleanup/tree restoration ordering.
+- Tests used only `SessionManager.inMemory()`, fake extension hosts, bounded synthetic state, temporary/local project paths, and the existing offline fake SDK infrastructure. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Active-branch custom entries reduce newest-first to one latest valid checkpoint per opaque ID, with a conservative malformed-latest rule and a 500-history cap.
+- Restored records are stored separately from live `ManagedRecord`s and projected only as terminated inspection snapshots. No prior runtime, subscription, abort controller, timer, lease, or active state is recreated.
+- Historical IDs remain inspectable but cannot start assignments or drain usage. Status, wait, remove, and dashboard paths preserve old unreported usage as observational history only.
+- Compaction cleanup checkpoints are visible to the replacement generation because branch resolution is lazy after cleanup. Tree navigation closes persistence before abandoned cleanup and restores only the newly selected active branch.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- unrelated Bitwarden cache/dependency deletions
+- unrelated changes under `../claude/`
+
+**Recommended next item:** `SA-603` — complete the reload/new/resume/fork/tree/compaction/shutdown/partial-failure lifecycle boundary matrix.

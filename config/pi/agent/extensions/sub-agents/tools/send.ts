@@ -1,6 +1,9 @@
 import { Buffer } from "node:buffer";
 import { defineTool } from "@earendil-works/pi-coding-agent";
-import { Text } from "@earendil-works/pi-tui";
+import {
+	renderSendCall,
+	renderSendResult,
+} from "../ui/renderers.ts";
 import {
 	SubAgentAssignmentRunnerError,
 	type ActiveAssignmentDelivery,
@@ -32,6 +35,7 @@ const RUNNER_ERROR_CODES = new Set([
 	"runtime_missing",
 	"assignment_not_idle",
 	"assignment_not_running",
+	"assignment_not_settled",
 	"assignment_rejected",
 	"assignment_execution_failed",
 	"assignment_changed",
@@ -62,11 +66,11 @@ export interface SubAgentsSendRuntime {
 	readonly manager: Pick<SubAgentManager, "generation" | "getAgent">;
 	readonly runner: Pick<
 		SubAgentAssignmentRunner,
-		"prompt" | "send" | "waitForAssignment"
+		"prompt" | "resumeBlocked" | "send" | "waitForAssignment"
 	>;
 }
 
-export type SendDispatch = "prompt" | ActiveAssignmentDelivery;
+export type SendDispatch = "prompt" | "resume" | ActiveAssignmentDelivery;
 
 export interface SendSuccessOutcome {
 	index: number;
@@ -185,8 +189,9 @@ function knownFailure(
 			invalid_assignment: "The child message is invalid",
 			runtime_missing: "The sub-agent has no active child runtime",
 			assignment_not_idle: "The sub-agent is not at an idle assignment boundary",
-			assignment_not_running: "The sub-agent has no active streaming assignment",
-			assignment_rejected: "The new child assignment was rejected",
+			assignment_not_running: "The sub-agent has no active streaming or blocked assignment",
+			assignment_not_settled: "The blocked child has not reached a resumable idle runtime boundary",
+			assignment_rejected: "The new or resumed child assignment was rejected",
 			assignment_execution_failed: "The child assignment could not start",
 			assignment_changed: "The child assignment changed during delivery",
 		};
@@ -226,14 +231,10 @@ function knownFailure(
 }
 
 function stateFailure(index: number, snapshot: ManagedSubAgentSnapshot): SendFailureOutcome {
-	const failures: Record<Exclude<AgentLifecycleState, "idle" | "running">, { code: string; message: string }> = {
+	const failures: Record<Exclude<AgentLifecycleState, "idle" | "running" | "blocked">, { code: string; message: string }> = {
 		creating: {
 			code: "target_not_ready",
 			message: "Sub-agent initialization has not reached a messaging boundary",
-		},
-		blocked: {
-			code: "target_blocked",
-			message: "The blocked sub-agent cannot accept this message",
 		},
 		failed: {
 			code: "target_failed",
@@ -308,6 +309,23 @@ async function dispatchOne(
 						dispatch: accepted.delivery,
 						assignmentSequence: snapshot.currentAssignment?.sequence ?? snapshot.assignmentCount,
 						pendingMessageCount: accepted.pendingMessageCount,
+					};
+				} catch (error) {
+					if (!isRunnerBoundaryError(error, "assignment_not_running")) throw error;
+					await synchronizeBoundary(runtime, snapshot);
+					continue;
+				}
+			}
+			if (snapshot.state === "blocked") {
+				try {
+					const launch = await runtime.runner.resumeBlocked(target.id, target.message);
+					return {
+						index,
+						ok: true,
+						id: target.id,
+						state: launch.snapshot.state,
+						dispatch: "resume",
+						assignmentSequence: launch.snapshot.currentAssignment?.sequence ?? snapshot.assignmentCount,
 					};
 				} catch (error) {
 					if (!isRunnerBoundaryError(error, "assignment_not_running")) throw error;
@@ -422,11 +440,11 @@ export function createSubAgentsSendTool(
 		name: "sub_agents_send",
 		label: "Send to Sub-Agents",
 		description:
-			"Deliver one bounded message per exact current-generation sub-agent ID. Idle children start a new assignment. Running children receive a follow-up by default or an explicit steering message. Outcomes are independent and message text is omitted from results.",
+			"Deliver one bounded message per exact current-generation sub-agent ID. Idle children start a new assignment, running children receive a follow-up or steering message, and settled blocked children resume their current assignment. Outcomes are independent and message text is omitted from results.",
 		promptSnippet:
 			"Send bounded new assignments, follow-ups, or steering messages to existing sub-agents",
 		promptGuidelines: [
-			"Use sub_agents_send with exact IDs returned by sub_agents_spawn; an idle child starts a new assignment and a running child receives followUp unless delivery=steer is explicitly requested.",
+			"Use sub_agents_send with exact IDs returned by sub_agents_spawn; an idle child starts a new assignment, a running child receives followUp unless delivery=steer is explicit, and a blocked child resumes its current assignment after the ownership/blocker is resolved.",
 			"Use sub_agents_send delivery=steer only to redirect the current running assignment before its next model turn; prefer followUp for work that should run after current tool activity settles.",
 			"Never include credentials or secrets in sub_agents_send messages.",
 		],
@@ -435,50 +453,7 @@ export function createSubAgentsSendTool(
 		async execute(_toolCallId, params, signal) {
 			return executeSubAgentsSend(params, signal, getRuntime());
 		},
-		renderCall(args, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			const steering = args.messages?.filter((target) => target.delivery === "steer").length ?? 0;
-			const total = args.messages?.length ?? 0;
-			component.setText(
-				theme.fg("toolTitle", theme.bold("sub_agents_send ")) +
-					theme.fg("muted", `${total} target${total === 1 ? "" : "s"}`) +
-					(steering > 0 ? theme.fg("dim", ` · ${steering} steer`) : ""),
-			);
-			return component;
-		},
-		renderResult(result, { expanded, isPartial }, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			if (isPartial) {
-				component.setText(theme.fg("warning", "Delivering sub-agent messages…"));
-				return component;
-			}
-			const details = result.details;
-			if (!details || !Array.isArray(details.outcomes)) {
-				const first = result.content[0];
-				component.setText(first?.type === "text" ? first.text : "");
-				return component;
-			}
-			let text =
-				theme.fg("success", `${details.accepted} accepted`) +
-				" · " +
-				(details.failed > 0
-					? theme.fg("error", `${details.failed} failed`)
-					: theme.fg("muted", "0 failed"));
-			if (expanded) {
-				for (const outcome of details.outcomes) {
-					if (outcome.ok) {
-						text +=
-							`\n${theme.fg("success", "✓")} ${theme.fg("accent", outcome.id)} ` +
-							theme.fg("dim", `${outcome.dispatch} · assignment ${outcome.assignmentSequence}`);
-					} else {
-						text +=
-							`\n${theme.fg("error", "✗")} ${theme.fg("accent", outcome.id)} ` +
-							theme.fg("error", `${outcome.code}: ${outcome.message}`);
-					}
-				}
-			}
-			component.setText(text);
-			return component;
-		},
+		renderCall: renderSendCall,
+		renderResult: renderSendResult,
 	});
 }

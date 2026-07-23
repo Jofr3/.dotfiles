@@ -1,6 +1,9 @@
 import { Buffer } from "node:buffer";
 import { defineTool, type ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { Text } from "@earendil-works/pi-tui";
+import {
+	renderReconfigureCall,
+	renderReconfigureResult,
+} from "../ui/renderers.ts";
 import {
 	SubAgentAssignmentRunnerError,
 	type ModelReconfigurationResult,
@@ -563,52 +566,7 @@ export function createSubAgentsReconfigureTool(
 		async execute(_toolCallId, params, signal, _onUpdate, ctx) {
 			return executeSubAgentsReconfigure(params, signal, ctx, getRuntime());
 		},
-		renderCall(args, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			const aborting = args.changes?.filter(
-				(change) => change.runningBehavior === "abort-and-switch",
-			).length ?? 0;
-			const total = args.changes?.length ?? 0;
-			component.setText(
-				theme.fg("toolTitle", theme.bold("sub_agents_reconfigure ")) +
-					theme.fg("muted", `${total} target${total === 1 ? "" : "s"}`) +
-					(aborting ? theme.fg("warning", ` · ${aborting} abort-and-switch`) : ""),
-			);
-			return component;
-		},
-		renderResult(result, { expanded, isPartial }, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			if (isPartial) {
-				component.setText(theme.fg("warning", "Reconfiguring sub-agents…"));
-				return component;
-			}
-			const details = result.details;
-			if (!details || !Array.isArray(details.outcomes)) {
-				const first = result.content[0];
-				component.setText(first?.type === "text" ? first.text : "");
-				return component;
-			}
-			let text =
-				theme.fg("success", `${details.applied} applied`) +
-				" · " +
-				theme.fg("muted", `${details.queued} queued`) +
-				(details.abortedAndApplied
-					? theme.fg("warning", ` · ${details.abortedAndApplied} abort-and-switch`)
-					: "") +
-				(details.failed ? theme.fg("error", ` · ${details.failed} failed`) : "");
-			if (expanded) {
-				for (const outcome of details.outcomes) {
-					if (!outcome.ok) {
-						text += `\n${theme.fg("error", "✗")} ${theme.fg("accent", outcome.id)} ${theme.fg("error", outcome.code)}`;
-						continue;
-					}
-					text +=
-						`\n${theme.fg("success", "✓")} ${theme.fg("accent", outcome.id)} ` +
-						theme.fg("dim", `${outcome.action} · ${formatRoute(outcome.newRoute)}`);
-				}
-			}
-			component.setText(text);
-			return component;
-		},
+		renderCall: renderReconfigureCall,
+		renderResult: renderReconfigureResult,
 	});
 }

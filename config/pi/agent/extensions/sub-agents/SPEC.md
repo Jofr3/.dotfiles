@@ -1,6 +1,6 @@
 # `sub-agents` Pi Extension — Architecture and Multi-Phase Implementation Specification
 
-**Status:** Design approved; Phase 0 validation, Phase 1 skeleton, Phase 2 dynamic in-process runtime, and the validated Phase 3 main-agent control plane are complete; Phase 4 notifications and observability are underway, with the child reporting boundary complete and event coalescing next
+**Status:** Design approved; Phases 0–5 and `SA-600`–`SA-602` are complete, and the Phase 6 lifecycle boundary matrix is next
 
 **Extension name:** `sub-agents`
 
@@ -323,12 +323,13 @@ Behavior:
 
 - If a child is idle, use `session.prompt()` to start a new assignment.
 - If a child is streaming, use `session.steer()` or `session.followUp()` according to the request.
+- If a child is blocked and its runtime has settled, preserve the assignment ID/count and use a fresh `session.prompt()` run to resume that exact assignment with retained context.
 - Support one message per target so the main agent can specialize follow-ups.
 - Report acceptance per child.
 - Preserve each child's prior context.
 - Do not silently create a replacement if the target is absent or removed.
 
-`SA-303` implements this boundary as one parallel bounded per-target delivery tool over the same assignment runner used by `sub_agents_spawn`. Every unique ID is dispatched independently: idle children start a fresh assignment through `prompt()`, while running children receive `followUp` by default or explicit `steer`. Duplicate IDs in one call all fail before delivery so a batch cannot race two messages against one child. Assignment-boundary races are retried only after recognized pre-delivery `assignment_not_idle`/`assignment_not_running` outcomes and a runner synchronization attempt; unknown or potentially side-effecting failures are never retried. Blocked, failed, stopping, and removed children return explicit bounded outcomes, stale/unknown IDs remain per-target failures, and message text is omitted from content, details, and renderers. Session lifecycle replacement clears the send runtime before old-manager disposal, and the shared runner rejects active-message dispatch once its manager has closed.
+`SA-303` implements this boundary as one parallel bounded per-target delivery tool over the same assignment runner used by `sub_agents_spawn`. Every unique ID is dispatched independently: idle children start a fresh assignment through `prompt()`, while running children receive `followUp` by default or explicit `steer`. `SA-506` extends the same tool so a settled blocked child can resume its exact assignment after ownership/blocker resolution without incrementing the assignment count or replacing its retained transcript. Guarded runtime ownership is reacquired before every later or resumed mutating assignment. Duplicate IDs in one call all fail before delivery so a batch cannot race two messages against one child. Assignment-boundary races are retried only after recognized pre-delivery `assignment_not_idle`/`assignment_not_running` outcomes and a runner synchronization attempt; unknown or potentially side-effecting failures are never retried. Failed, stopping, and removed children return explicit bounded outcomes, stale/unknown IDs remain per-target failures, and message text is omitted from content, details, and renderers. Session lifecycle replacement clears the send runtime before old-manager disposal, and the shared runner rejects active-message dispatch once its manager has closed.
 
 ### 8.4 `sub_agents_reconfigure`
 
@@ -374,7 +375,22 @@ The result must include any final bounded output and unreported usage available 
 
 `SA-305` implements this boundary as one parallel selected/all control tool over the production manager and shared assignment runner. Graceful mode sends one fixed nonsecret steering request to a running child, waits only until the shared bounded call deadline, and escalates still-active work through the manager's idempotent abort/wait/dispose cleanup; creating children cannot accept a final instruction and escalate immediately. Abort mode enters cleanup without messaging. Exact selected IDs preserve bounded per-target historical/idempotent outcomes. `scope=all` captures and acts on every live call-start child even beyond the 100-record result transport cap, while visible outcomes prioritize failures and report omissions. Cancellation fails before side effects, but after cleanup begins it only shortens graceful waiting so disposal and atomic usage-drain effects are never hidden. Final result/report/error and usage metadata fit independent 48 KiB content/details bounds, unknown internal errors and the fixed graceful instruction are omitted, and manager cleanup releases runtime subscriptions, timers, abort controllers, sessions, translators, and leases before retaining a bounded removed record.
 
-### 8.7 Optional later control tools
+### 8.7 `sub_agents_release`
+
+Purpose: Release retained shared-workspace ownership without removing a reusable runtime-settled idle or blocked child.
+
+Behavior:
+
+- Accept one bounded set of exact current-generation IDs.
+- Release all file/workspace leases only at an idle or runtime-settled blocked manager boundary.
+- Keep the child runtime, transcript, assignment state, reports, and usage alive.
+- Return independent bounded released/no-op/failure outcomes without exposing canonical paths or private reservation tokens.
+- Do not resume blocked work automatically; the main agent resolves ownership first, then calls `sub_agents_send` with an exact resume message.
+- A later mutating assignment or blocked resume reacquires declared file scope and/or workspace-exclusive bash ownership before model work starts.
+
+`SA-506` implements this as a seventh parallel management tool with strict unique-ID schema, atomic per-child manager release results, compact/expanded shared renderers, pre-side-effect cancellation, lifecycle invalidation, and independent output/detail bounds below 48 KiB at the 100-target maximum. The `/sub-agents` dashboard exposes the same manager boundary behind explicit human confirmation with the `l` action.
+
+### 8.8 Optional later control tools
 
 Do not implement until justified by actual use:
 
@@ -434,7 +450,7 @@ Each child uses:
 - dynamic system prompt;
 - only selected guarded tools and internal reporting tools.
 
-`SA-203` implements the child construction boundary in `createSubAgentSession()`. It accepts an already resolved model/runtime, realpath-canonicalizes an existing shared child cwd beneath the realpath-canonical parent cwd, creates `SessionManager.inMemory(childCwd)` and `SettingsManager.inMemory()`, supplies the explicit loader, and exposes only an exact read-only built-in allowlist. Omitted tools default to `read`, `grep`, `find`, and `ls`; explicit subsets or no built-ins are allowed. Mutation-capable tools/policies and worktree mode fail closed until their safety phases. The factory validates the resulting public session ownership/model/tool contract, requires an event subscription before success, and performs best-effort unsubscribe, abort, idle settlement, and disposal after every partial post-creation failure. Returned `SubAgentSessionRuntime` cleanup is idempotent. `SA-400` extends every initialized child with the one fixed internal `report_to_parent` custom tool without exposing any parent `sub_agents_*` control tool.
+`SA-203` implements the child construction boundary in `createSubAgentSession()`. It accepts an already resolved model/runtime, realpath-canonicalizes an existing shared child cwd beneath the realpath-canonical parent cwd, creates `SessionManager.inMemory(childCwd)` and `SettingsManager.inMemory()`, supplies the explicit loader, and exposes only an exact approved built-in allowlist. Omitted tools default to `read`, `grep`, `find`, and `ls`; explicit subsets or no built-ins are allowed. `SA-502`–`SA-504` add guarded shared-workspace `edit`, `write`, and workspace-exclusive `bash` through SDK custom definitions that override the same-named built-ins, while disabled-policy bash and worktree mode fail closed. The factory validates the resulting public session ownership/model/tool contract, requires an event subscription before success, and performs best-effort unsubscribe, abort, idle settlement, and disposal after every partial post-creation failure. Returned `SubAgentSessionRuntime` cleanup is idempotent. `SA-400` extends every initialized child with the one fixed internal `report_to_parent` custom tool without exposing any parent `sub_agents_*` control tool.
 
 ### 10.2 Resource isolation
 
@@ -550,6 +566,10 @@ Use an extension custom message such as `customType: "sub-agents-event"`:
 - prevent notification loops by marking extension-origin messages and allowing only translated child-manager events into the inbox;
 - maintain one bounded inbox and one scheduled flush at a time, both cleared on shutdown.
 
+`SA-401` and `SA-402` implement this as one generation-scoped manager observer plus a 20-event bounded inbox. Only configured terminal manager events enter the inbox: successful idle results, explicit blockers, and failures. Repeated child/assignment/state records replace their pending predecessor; distinct overflow evicts the oldest event and advances an omission count. One 50 ms timer batches near-simultaneous changes, while `flushNow()` provides a deterministic safe boundary for tests and later UI controls. Every batch sanitizes controls, bounds UTF-8 summaries, and remains below an independent 48 KiB content/details budget at the maximum event count.
+
+Production delivery uses `customType: "sub-agents-event"` and always calls `pi.sendMessage(..., { deliverAs: "followUp", triggerTurn: true })`. The bridge subscribes only to defensive manager events carrying an explicit authoritative notification marker, so handling its own parent custom message cannot recursively enqueue another batch and later ordinary events in an already failed/idle state cannot fabricate repeats. Progress, unrelated runtime/model events, unconfigured states, and idle transitions without a completed result remain internal. Delivery failures are contained, lifecycle replacement shuts down the notification runtime—cancelling its timer and subscription—before disposing the old manager generation, and failed runtime construction transactionally disposes the unpublished manager.
+
 ## 12. Concurrency Model Without a Numeric Limit
 
 ### 12.1 Required behavior
@@ -608,8 +628,10 @@ Before lease decisions:
 2. Resolve relative to the child's effective `cwd`.
 3. Normalize to an absolute path.
 4. For existing paths, canonicalize through `realpath()`.
-5. For new files, use the resolved absolute path and later reconcile canonical identity after creation.
+5. For new files, use the canonical nearest existing directory plus the missing suffix and later reconcile canonical identity after creation.
 6. Reject paths outside the allowed workspace root/write scope.
+
+`SA-500` implements this foundation in `workspace/paths.ts`. Shared roots and existing child cwds are `realpath()`-canonical and produce one frozen mode/root/key identity that can later distinguish worktrees. Existing target aliases converge through `realpath()`; a missing target is based on its nearest canonical existing directory so missing descendants through an inside-root parent symlink also converge, and it retains that directory as a provisional namespace for conservative coordination of unresolved names. Outside-root aliases, dangling/unresolved components, non-directory ancestors, lexical traversal, malformed paths, and unavailable roots/cwds fail closed. Declared write scopes are optional workspace-root-relative exact paths, canonicalized, alias-deduplicated, and deterministically sorted for later all-or-nothing claims. Omitted scope is unrestricted within the root; an explicitly empty scope permits no exact target. Resolution alone grants no ownership. `SA-502` and `SA-503` bind existing edit/write targets to descriptor-based I/O, and guarded write reconciles a verified newly created identity back into the retained lease authority.
 
 ### 13.3 Lease types
 
@@ -643,20 +665,48 @@ Before lease decisions:
 - A failed dynamic claim returns a blocker rather than waiting indefinitely.
 - No agent waits for path B while retaining a newly acquired partial set from the same multi-path request.
 
+`SA-501` implements one synchronous `WorkspaceLeaseManager` owned privately by the parent session-generation manager. It binds itself to the manager's `realpath()`-canonical shared root, structurally validates and synchronously revalidates canonical targets at claim time, canonicalizes request order before one no-await conflict/commit section, and maintains symmetric child-file, child-workspace, parent-file, and parent-workspace ownership. File claims are idempotent for one child; a contested multi-file claim commits nothing. Missing paths coordinate conservatively through provisional-namespace ancestry in both directions so partial directory creation cannot open a second alias claim. Parent tool calls receive opaque per-acquisition tokens, duplicate live tool-call IDs fail closed, stale token release cannot clear a later reservation, and model-visible records expose only root-relative paths plus the non-path `shared` label. The sub-agent manager derives snapshot lease views from this private authority. Proven-settled terminal failures release ownership immediately; uncertain, rejected, or timed-out settlement retains ownership until a fulfilled idle boundary or generation disposal. Fulfilled removal releases the child's claims, generation disposal closes all child/parent ownership, and explicit retained-lease release is permitted only at idle or runtime-settled blocked boundaries. No child mutating tool or parent interception is enabled by `SA-501` alone.
+
 ### 13.5 Mutation queue
 
 Guarded child tools are built by spreading the public `createEditToolDefinition()`, `createWriteToolDefinition()`, and `createBashToolDefinition()` results and overriding only `execute()`. This preserves strict schemas, argument preparation, prompt metadata, result/detail shapes, and renderers. The override canonicalizes and claims the file/workspace lease before delegating. Rejected claims never reach built-in operations, and the original abort signal and update callback pass through unchanged.
 
-The built-in edit/write definitions already wrap the full access/read/write or mkdir/write window in Pi's `withFileMutationQueue()` and canonicalize existing symlink aliases. Do not add a second outer mutation queue around the delegated execute call. Leases protect ownership across agents; the built-in queue protects the actual per-file mutation window. Phase 5 must close the remaining claim-to-delegation path-identity race and reconcile new-file canonical identity after creation.
+The built-in edit/write definitions already wrap the full access/read/write or mkdir/write window in Pi's `withFileMutationQueue()` and canonicalize existing symlink aliases. Do not add a second outer mutation queue around the delegated execute call. Leases protect ownership across agents; the built-in queue protects the actual per-file mutation window. Guarded integration must bind canonical lease identity to actual I/O, while guarded `write` must additionally reconcile new-file canonical identity after creation.
+
+`SA-502` implements guarded child `edit` in `workspace/guarded-tools.ts`. The runtime atomically preclaims a nonempty declared exact-file scope before child session construction; omitted scope permits dynamic non-blocking claims, while an explicit empty scope permits no edits. Every call resolves an existing canonical target, validates exact scope, claims through the generation manager, re-resolves the model-supplied path, and delegates through Pi's public built-in edit definition. The definition's original schema, argument preparation, prompt metadata, renderers, result shape, and sole `withFileMutationQueue()` boundary remain intact.
+
+To close the claim-to-I/O replacement race without an outer queue, each delegated edit opens the claimed canonical target `O_RDWR | O_NOFOLLOW` inside the built-in mutation window, compares the opened regular file's device/inode with the post-claim identity, reads and writes through that bound file descriptor, and verifies that the workspace path still names the same inode after writing. Successful content and unified-patch headers are restored to the original requested path so canonical absolute paths do not leak through normal edit results. Any write-started path—including a post-write abort or later error—records the bounded canonical workspace-relative file before returning an explicit uncertain, do-not-retry failure. The manager verifies the exact file lease, merges guarded mutation files into bounded reports/final results, and retains ownership through idle until explicit release/removal.
+
+`SA-503` implements guarded child `write` through the same public-definition override boundary. Existing targets are opened `O_WRONLY | O_NOFOLLOW`, compared by device/inode before truncation, and rechecked after descriptor-bound whole-file output. Missing targets retain their conservative provisional lease while recursive parent creation is revalidated, then use `O_CREAT | O_EXCL | O_NOFOLLOW`; the opened regular inode and final canonical path must agree before the manager atomically narrows the same-owner provisional lease to the verified existing identity. Reconciliation never retargets or acquires ownership after mutation. Successful content keeps the original requested path and built-in undefined-details result shape, while canonical directory paths are removed from pre-mutation filesystem errors.
+
+A write-started error records the canonical workspace-relative file and returns an explicit inspect/do-not-retry outcome. A recursive parent-creation path that may have mutated before file creation also returns explicit uncertainty without falsely reporting file content as changed. Failed post-create reconciliation retains the broader provisional lease. Removal cleanup now releases ownership only after a fulfilled idle settlement boundary; rejected or timed-out settlement keeps the lease visible and conflicting until generation disposal rather than exposing a potentially late mutation. `SA-504` adds guarded `bash`; `SA-505` adds parent built-in mutation interception.
+
+`SA-504` exposes child `bash` only when the exact tool is selected with `bashPolicy: "workspace-exclusive"`. The runtime claims the complete shared workspace before session construction and reclaims it before every later assignment, while the same-name guarded definition re-verifies ownership before each command. The wrapper delegates to Pi's public bash definition unchanged for schema, prompt metadata, streaming updates, timeout/abort handling, tail truncation, temporary full-output details, and renderers, and sets the public `executionMode: "sequential"` so any sibling batch containing bash runs in source order. This prevents one child from overlapping its own arbitrary bash mutation with guarded edit/write or another bash call; batches containing only edit/write retain Pi's normal per-file parallelism. Disabled-policy bash and workspace-exclusive policy without the bash tool fail closed. `writeScope` continues to constrain only guarded edit/write; arbitrary bash receives coarse whole-workspace authority.
+
+The wrapper rejects the ordinary unquoted shell `&` background-job operator before claiming or executing as defense in depth, and the child protocol forbids background jobs, `nohup`, `disown`, `setsid`, daemon launchers, and schedulers. Static shell inspection is not a sandbox: an invoked program can still daemonize without obvious shell syntax. The retained workspace lease prevents other cooperating child/parent mutators from overlapping while ownership remains live, but deliberately detached descendants may outlive tool/assignment cleanup and are an explicit residual limitation.
+
+`SA-505` implements one generation-scoped `ParentMutationInterceptor` and wires it to the parent extension's `tool_call`, `tool_result`, and `tool_execution_end` events. Parent `edit` resolves and reserves one existing canonical file, parent `write` permits the canonical missing-target identity, and parent `bash` reserves the complete shared workspace. Conflicts fail before execution with bounded control-sanitized child ID/name/path guidance. Once a file reservation succeeds, the event's `input` object and exact `path` property become non-replaceable/non-writable so later cooperative `tool_call` handlers cannot retarget execution after the claim; unrelated arguments remain mutable.
+
+Accepted calls retain opaque release-token ownership through execution. `tool_result` releases after an executed tool returns, while `tool_execution_end` is the mandatory retry/fallback for blocked, aborted, immediate-error, or failed-release paths. The extension tracks each call's exact owning interceptor and tool name across generation rotation, blocks external ID reuse until the matching end event, and never routes a stale completion into a newer generation. Lifecycle shutdown first closes the interceptor to new claims and waits for every accepted parent mutation to settle before disposing the old lease manager or publishing a replacement generation, so uncertain late parent work cannot overlap a new child/parent owner.
+
+`SA-506` translates every production child file/workspace claim conflict through the exact owning `ChildEventTranslator`. The conflict becomes one bounded blocked report containing only the requested root-relative target (or `shared` workspace) plus a sanitized child owner ID/name or the fact of an active parent mutation. The manager transitions the current assignment to `blocked`, which drives the existing coalesced configured notification path and makes ownership visible in status, widget, and dashboard blocker/report views; the original guarded tool still throws its non-retryable conflict and never reaches mutation I/O. Declared-scope conflicts during runtime initialization remain bounded initialization failures because no reusable child session exists yet.
+
+After the parent releases/removes the owner or waits for its reservation to settle, `sub_agents_send` resumes a settled blocked child by reusing the same assignment ID/count and retained transcript in a new child `session.prompt()` run. Generic resume never fabricates completion. The runner establishes the new/resumed assignment boundary first so ownership-preparation conflicts become authoritative blockers, then reacquires exact declared file scopes or workspace-exclusive bash ownership before model work starts. A declared missing-file scope that became existing refreshes its current filesystem metadata from the originally authorized canonical absolute identity before reacquisition; alias changes cannot retarget authorization. Blocked children cannot make new lease claims until that explicit resume boundary. `sub_agents_release` and the confirmed dashboard `l` action expose full-child retained ownership release only at idle or runtime-settled blocked boundaries; neither control silently resumes work.
+
+`SA-507` validates the complete coordination boundary in `test/workspace-concurrency.test.mjs`. Barrier-held production guarded mutations prove same-file child-child, edit/write, existing symlink-alias, and aliased missing-file contenders fail while the winner is still inside its mutation window. A two-party rendezvous proves distinct files mutate concurrently, and a held fake foreground bash backend proves workspace ownership blocks guarded edit, write, and sibling bash before any contender executes. The same suite proves both main-child reservation directions, settled abort/failure/generation cleanup, replacement-generation acquisition only after old-runtime dispose, and all-or-nothing reversed-order multi-file claims. Generation rollover still relies on the installed `AgentSession.dispose()` synchronously aborting and disconnecting the old child after bounded settlement attempts; deliberately detached or otherwise abort-ignoring external descendants remain outside the cooperative guarantee documented above.
+
+`SA-509` closes the Phase 5 validation boundary. The enforceable guarantee covers guarded child `edit`/`write`/foreground `bash` and intercepted parent tools named `edit`/`write`/`bash` in the active Pi session generation. It is implemented by capability-restricted child sessions, canonical root/scope checks, generation-scoped leases, Pi's mutation queue, descriptor-bound file I/O, parent reservations, lifecycle quiescence, and sequential tool-batch execution whenever guarded bash is present. The child prompt is only defense-in-depth guidance and is not evidence for any safety claim.
+
+The guarantee does not coordinate unknown differently named parent extension tools, `user_bash`, external editors/processes, or programs that daemonize or otherwise continue mutating after cooperative tool settlement. Those actors can bypass the lease manager. Uncertain operations therefore retain ownership until a proven settlement or generation-disposal boundary; Phase 5 does not claim that every external side effect is cancellable or observable.
 
 ### 13.6 Bash policy
 
 Bash cannot be reliably classified as read-only from shell text. Therefore:
 
 - `bashPolicy: "disabled"` means no bash tool.
-- `bashPolicy: "workspace-exclusive"` exposes guarded bash only after the workspace lease is acquired.
-- Do not claim that regex command inspection makes arbitrary bash safe.
-- Reject or explicitly document detached/background commands that could continue mutating after a tool result.
+- `bashPolicy: "workspace-exclusive"` exposes guarded bash only after the workspace lease is acquired before child startup and every later assignment.
+- The guarded wrapper rejects an obvious unquoted `&` background-job operator, but does not claim that lexical shell inspection makes arbitrary bash safe.
+- Detached/background launchers are forbidden by the child protocol and documented as a residual risk because arbitrary programs can daemonize beyond shell-text inspection.
 - Worktree mode later permits concurrent bash across separate worktrees.
 
 ### 13.7 Read consistency
@@ -665,15 +715,15 @@ The initial hard guarantee concerns concurrent mutation. A later option may prov
 
 ### 13.8 Lease release
 
-Release all leases when:
+Release leases when:
 
 - the assignment is explicitly finalized and configured to release;
-- the main agent removes the child;
-- child initialization or execution fails terminally;
-- the child session is disposed;
-- Pi reloads, switches sessions, forks, navigates tree, or shuts down.
+- child removal reaches a fulfilled idle-settlement boundary;
+- child initialization or execution fails terminally with proven settlement;
+- the child session is disposed after proven settlement;
+- Pi reloads, switches sessions, forks, navigates tree, or shuts down and closes the complete generation.
 
-Whether idle children retain assignment leases must be explicit. Recommended default: retain declared/used leases while idle until the main agent removes the child or calls a future release operation, preventing another agent from interleaving edits with expected follow-up work.
+Idle children retain declared/used leases until removal or an explicit release at an idle or runtime-settled blocked boundary. Removal with a rejected or timed-out idle wait is not proof that a late filesystem operation stopped, so its historical removed record retains conflicting ownership until generation disposal rather than exposing the target to a new owner. This protects both retained-context follow-up coherence and uncertain cleanup. `SA-506` exposes the boundary through exact `sub_agents_release` model control and a separately confirmed dashboard action; release keeps the child/context alive, does not imply blocker resolution, and every later mutating assignment reacquires its required ownership before model work starts.
 
 ## 14. Worktree Mode
 
@@ -791,6 +841,14 @@ Never persist:
 - private runtime objects;
 - abort controllers, promises, subscriptions, or tool instances.
 
+`SA-600` defines the exact `sub-agents-state-v1` data boundary as one strict per-agent checkpoint. The payload carries `version: 1`, generation-scoped opaque identity, bounded dynamic name/role/current-objective summary, historical state/status/result, nonsecret model-route metadata, aggregate/reported/explicitly-unreported usage, deduplicated reported/modified/leased file paths, timestamps, and optional removal reason. Every nested schema object rejects unknown properties.
+
+The reducer accepts only `idle`, `blocked`, `failed`, or `removed` manager snapshots. It copies no spec instructions/context, runtime previews/tool activity, event timeline, child messages, tool arguments, lease authority/token, provider config, auth, or unknown source property. Persistence-specific text caps plus deterministic file omission keep serialized UTF-8 below 48 KiB; a non-file payload that cannot fit fails closed. Per-agent entries let branch restoration reduce the active branch to the latest checkpoint for each opaque child ID while bounding the restored set separately.
+
+`SA-601` wires that schema to one session-generation `SubAgentPersistenceRuntime`. The manager marks only complete historical boundaries after their authoritative fields are populated: idle completion, blockers, failure, intentional reconfiguration abort, removal, nonzero terminal usage drains, and persisted-field changes to an idle model route, blocked report, or retained lease set. Streaming previews, running usage, progress, ordinary runtime events, and timestamp-only churn never append entries. The runtime synchronously reduces the exact manager snapshot, semantically deduplicates while ignoring `updatedAt` alone, calls `pi.appendEntry("sub-agents-state-v1", payload)`, and marks a fingerprint only after append success so a later lifecycle bulk checkpoint can retry a failed append.
+
+Persisted result/file data is bound to the current assignment rather than a stale earlier `latestResult`, and provider/tool runtime error text is replaced by fixed failure summaries before persistence. Explicit removal and nonzero post-terminal usage drains therefore leave an accurate reported/unreported watermark without serializing raw errors. Compaction and old-session shutdown dispose the generation, append one final deduplicated removed checkpoint per reducible child, then close the persistence bridge. Tree navigation closes the old bridge synchronously before waiting for cleanup and deliberately skips post-navigation bulk appends so abandoned-generation records cannot be attached to the newly selected branch.
+
 ### 17.3 Restore semantics
 
 On parent `session_start`:
@@ -800,6 +858,12 @@ On parent `session_start`:
 - never pretend an in-process child survived restart;
 - do not reuse old opaque IDs as active IDs;
 - show history in `/sub-agents` without injecting it into the model unless requested.
+
+`SA-602` implements this with a strict parser plus a newest-first active-branch reducer over `ctx.sessionManager.getBranch()`. It accepts only exact `sub-agents-state-v1` custom entries, suppresses stale fallback when the latest recognizable record for an ID is malformed, keeps at most 500 latest unique histories, and never reads abandoned siblings. Compaction entries do not erase state entries from the active tree path; later checkpoints on that same path win normally.
+
+Restored checkpoints live in a separate immutable manager history map rather than the live runtime registry. They are projected as `removed`/settled inspection snapshots carrying the original checkpoint state, bounded status/files/results/model/usage, no leases, and no runtime resources. Old IDs remain inspectable through explicit history views but active mutations, assignments, usage drains, release, reconfiguration, and messaging cannot revive them. Restored unreported usage remains observational and is never attached to the replacement parent session. New children always receive the new manager generation's ID prefix.
+
+Lifecycle replacement evaluates the active-branch getter only after prior-generation cleanup and final checkpoint appends. Tree navigation first closes the abandoned branch's persistence bridge, performs cleanup without appending onto the newly selected leaf, then reconstructs from that selected branch. Restoration completes before notification, widget, dashboard, mutation, and management runtimes are published.
 
 ## 18. TUI and Commands
 
@@ -822,6 +886,10 @@ Requirements:
 - avoid exposing raw prompts or sensitive child output by default;
 - remove widget when no live/historical display is requested.
 
+`SA-403` implements the widget as one interactive-TUI-only, session-generation runtime above the editor. A manager-owned overview computes aggregate token/cost totals and a five-row prioritized live-child view without cloning timelines or conversations. Rows prioritize blocked, failed, running, creating, stopping, then idle children; expose only bounded names, lifecycle, active tool names/counts, queue state, result readiness, and explicit blocker needs; and never render objectives, final result text, errors, or streaming previews. Overflow becomes one bounded summary row.
+
+Manager mutation markers drive one coalesced 50 ms refresh timer, so event storms produce at most one uncapped-pool overview scan per window; token-only preview changes do not repaint. The component uses callback-supplied theme colors, invalidates cached themed output, applies ANSI-aware `truncateToWidth()` to every line at narrow and wide widths, and binds delayed factories to the latest overview. It installs only after the first live child, clears at zero live children, and unsubscribes/cancels/clears before manager disposal on compaction, tree navigation, session replacement, reload, or shutdown. RPC/JSON/print modes never create the component factory.
+
 ### 18.2 `/sub-agents`
 
 A user command opens a detailed TUI panel in interactive mode and prints/returns a compact status in non-TUI-compatible modes where possible.
@@ -838,9 +906,15 @@ Possible actions:
 
 The command is for the human operator. The model uses control-plane tools.
 
+`SA-405` implements the command as an interactive-TUI-only bounded list/detail dashboard. One manager scan selects at most 100 prioritized lightweight rows without cloning every child timeline; exact detail is fetched only for the selected child and shows bounded reports/results, up to 12 recent events, aggregate/per-child usage, model/runtime state, and up to 12 leases. The component uses configured selection keybindings, keeps every line width-safe, coalesces child-event refresh storms through one 50 ms timer, and hides assignment objectives.
+
+Manual messaging closes the panel for Pi's reviewable editor/delivery prompt, reuses the production send boundary, and then reopens the dashboard. Selected or captured-all removal requires explicit confirmation, captures all targets through lightweight exact IDs rather than cloned snapshots, and immediately uses manager-owned abort/wait/dispose cleanup without draining the usage watermark outside a model-callable tool result. Dialog labels sanitize child-controlled display names. The generation runtime closes any active custom panel before manager disposal; RPC mode receives a compact notification fallback, while JSON/print modes create no custom component.
+
 ### 18.3 Tool renderers
 
 Each management tool should have compact and expanded renderers. Renderers must support partial results for `sub_agents_wait`, reuse components where practical, and keep all lines within terminal width.
+
+`SA-404` implements this boundary through one shared `ui/renderers.ts` layer originally used by the six Phase 3 management tools; `SA-506` extends it to the seventh `sub_agents_release` tool. Calls and collapsed results remain compact; expanded results render operation-specific bounded structured metadata. Dynamic fields and fallback content are control/escape sanitized before theme styling, send message bodies and child assignment objectives remain excluded, and row-local `Text` instances are reused through `context.lastComponent`. Expanded wait progress exposes bounded per-target state/tool/queue rows and mutates the same component through later progress/final updates. Pi TUI's ANSI-aware `Text` wrapping provides width safety from one-column through wide terminals, with dedicated offline coverage for all seven tools.
 
 ## 19. Error Handling
 
@@ -891,6 +965,7 @@ agent/extensions/sub-agents/
 │   ├── paths.ts                 # Canonicalization and root/scope validation
 │   ├── leases.ts                # File/workspace/parent reservations
 │   ├── guarded-tools.ts         # Child read/edit/write/bash wrappers
+│   ├── parent-mutations.ts      # Parent built-in mutation reservations/interception
 │   └── worktrees.ts             # Later phase
 ├── tools/
 │   ├── schemas.ts               # TypeBox schemas
@@ -899,6 +974,7 @@ agent/extensions/sub-agents/
 │   ├── send.ts
 │   ├── reconfigure.ts
 │   ├── wait.ts
+│   ├── release.ts
 │   ├── remove.ts
 │   └── report-to-parent.ts      # Child-only internal tool
 ├── ui/
@@ -1002,6 +1078,7 @@ Deliverables:
 - `sub_agents_reconfigure`;
 - `sub_agents_wait`;
 - `sub_agents_remove`;
+- later Phase 5 `sub_agents_release` for retained ownership without child removal;
 - strict bounded TypeBox schemas using `StringEnum` where required;
 - per-child partial success reporting;
 - usage-delta draining;
@@ -1051,6 +1128,7 @@ Deliverables:
 - `withFileMutationQueue()` integration;
 - parent `tool_call`/`tool_result` reservations for edit/write/bash;
 - blocker events and lease display;
+- exact idle/blocked retained-lease release controls and blocked-assignment resume;
 - deterministic concurrency tests with barriers and symlink aliases.
 
 Exit criteria:
@@ -1058,7 +1136,7 @@ Exit criteria:
 - Two children cannot concurrently mutate the same canonical shared file.
 - Main and child mutations cannot overlap on a leased file/workspace.
 - Different files can be edited concurrently when no workspace lease exists.
-- Every failure/shutdown path releases ownership.
+- Proven-settled failure and shutdown paths release ownership; uncertain operations remain blocking until generation disposal.
 
 ### Phase 6 — Persistence and branch/session correctness
 

@@ -362,11 +362,19 @@ export class ChildEventTranslator {
 					}
 					if (snapshot.state === "stopping" || snapshot.state === "removed") return;
 					if (snapshot.state === "creating") {
-						await this.#manager.failAgent(this.id, "Child run settled before its assignment was started");
+						await this.#manager.failAgent(
+							this.id,
+							"Child run settled before its assignment was started",
+							{ runtimeSettled: true },
+						);
 						return;
 					}
 					if (terminal?.stopReason === "error") {
-						await this.#manager.failAgent(this.id, terminal.error ?? DEFAULT_MODEL_FAILURE);
+						await this.#manager.failAgent(
+							this.id,
+							terminal.error ?? DEFAULT_MODEL_FAILURE,
+							{ runtimeSettled: true },
+						);
 						return;
 					}
 					if (terminal?.stopReason === "aborted") {
@@ -376,7 +384,11 @@ export class ChildEventTranslator {
 								intentionalAbortReason,
 							);
 						} else {
-							await this.#manager.failAgent(this.id, DEFAULT_ABORT_FAILURE);
+							await this.#manager.failAgent(
+								this.id,
+								DEFAULT_ABORT_FAILURE,
+								{ runtimeSettled: true },
+							);
 						}
 						return;
 					}
@@ -479,7 +491,6 @@ export class ChildEventTranslator {
 	/** Records one bounded assignment-scoped child report. */
 	recordReport(report: AgentReportSubmission): Promise<void> {
 		if (this.#closed) return Promise.reject(new ChildEventTranslatorError());
-		if (report?.state === "blocked") this.#settleActivity();
 		this.#enqueue(async () => {
 			const snapshot = await this.#manager.recordReport(this.id, report);
 			const bounded = snapshot.latestReport;

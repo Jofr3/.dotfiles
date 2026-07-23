@@ -91,6 +91,12 @@ test("the lifecycle state machine supports reusable assignments and rejects inva
 	assert.equal(blocked.state, "blocked");
 	assert.equal(blocked.currentAssignment.state, "blocked");
 	assert.match(blocked.currentAssignment.blocker, /Choose/);
+	await manager.updateRuntimeActivity(created.id, {
+		phase: "settled",
+		activeToolCount: 0,
+		activeTools: [],
+		pendingMessageCount: 0,
+	});
 
 	const resumed = await manager.resumeBlockedAssignment(created.id);
 	assert.equal(resumed.state, "running");

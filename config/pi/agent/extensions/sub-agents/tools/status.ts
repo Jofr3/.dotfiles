@@ -1,7 +1,10 @@
 import { Buffer } from "node:buffer";
 import { defineTool } from "@earendil-works/pi-coding-agent";
 import type { Usage } from "@earendil-works/pi-ai";
-import { Text } from "@earendil-works/pi-tui";
+import {
+	renderStatusCall,
+	renderStatusResult,
+} from "../ui/renderers.ts";
 import {
 	SubAgentManagerError,
 	type SubAgentManager,
@@ -38,6 +41,7 @@ const MANAGER_ERROR_CODES = new Set([
 	"manager_closed",
 	"unknown_agent",
 	"stale_agent",
+	"historical_agent",
 	"invalid_transition",
 	"invalid_generation",
 	"invalid_spec",
@@ -90,6 +94,13 @@ export interface StatusAgentView {
 	createdAt?: number;
 	removedAt?: number;
 	elapsedMs?: number;
+	history?: {
+		sourceGeneration: string;
+		checkpointState: string;
+		statusSummary?: string;
+		files: string[];
+		omittedFileCount: number;
+	};
 	assignmentCount?: number;
 	assignment?: {
 		sequence: number;
@@ -343,6 +354,7 @@ function knownFailure(id: string, error: unknown): StatusFailureOutcome {
 			manager_closed: "The sub-agent manager generation is closed",
 			unknown_agent: "Unknown sub-agent ID",
 			stale_agent: "Sub-agent ID belongs to another session generation",
+			historical_agent: "Restored history has no active child runtime",
 			agent_stopping: "Sub-agent cleanup has started",
 		};
 		return {
@@ -467,6 +479,31 @@ function buildStatusView(
 		createdAt: safeNumber(snapshot.createdAt),
 		removedAt: snapshot.removedAt === undefined ? undefined : safeNumber(snapshot.removedAt),
 		elapsedMs: Math.max(0, safeNumber(endedAt) - safeNumber(snapshot.createdAt)),
+		history: snapshot.restoredHistory
+			? {
+					sourceGeneration: boundedField(
+						snapshot.restoredHistory.sourceGeneration,
+						96,
+						"history.sourceGeneration",
+						truncatedFields,
+					),
+					checkpointState: snapshot.restoredHistory.checkpointState,
+					statusSummary: snapshot.restoredHistory.statusSummary
+						? boundedField(
+								snapshot.restoredHistory.statusSummary,
+								176,
+								"history.statusSummary",
+								truncatedFields,
+							)
+						: undefined,
+					files: snapshot.restoredHistory.files.slice(0, 5).map((file) =>
+						boundedField(file, 112, "history.files", truncatedFields),
+					),
+					omittedFileCount:
+						snapshot.restoredHistory.omittedFileCount +
+						Math.max(0, snapshot.restoredHistory.files.length - 5),
+				}
+			: undefined,
 		assignmentCount: safeInteger(snapshot.assignmentCount),
 		assignment: assignment
 			? {
@@ -672,6 +709,9 @@ function formatStatusLine(outcome: StatusAgentOutcome): string {
 	if (outcome.pendingModel) {
 		parts.push(`queued model ${outcome.pendingModel.provider}/${outcome.pendingModel.id}`);
 	}
+	if (outcome.history) {
+		parts.push(`restored ${outcome.history.checkpointState} history`);
+	}
 	if (outcome.assignment) {
 		parts.push(`assignment ${outcome.assignment.sequence} ${outcome.assignment.state}`);
 	}
@@ -686,7 +726,7 @@ function formatStatusLine(outcome: StatusAgentOutcome): string {
 		);
 		if (outcome.usage.unreported) parts.push("usage unreported");
 	}
-	const latest = outcome.lastError ?? outcome.assignment?.blocker ?? outcome.report?.summary ?? outcome.result?.summary;
+	const latest = outcome.lastError ?? outcome.assignment?.blocker ?? outcome.report?.summary ?? outcome.result?.summary ?? outcome.history?.statusSummary;
 	if (latest) parts.push(boundUtf8Line(latest, 96));
 	if (outcome.truncated) parts.push("detail truncated");
 	return boundUtf8Line(parts.join(" · "), DISPLAY_LINE_BYTES);
@@ -765,7 +805,12 @@ export async function executeSubAgentsStatus(
 	let usageAggregateClamped = false;
 	const resolved = await Promise.all(
 		selection.selected.map(async (selected): Promise<SelectedAgent> => {
-			if (!selected.snapshot || selected.failure || !drainUsage) return selected;
+			if (
+				!selected.snapshot ||
+				selected.failure ||
+				!drainUsage ||
+				selected.snapshot.restoredHistory
+			) return selected;
 			try {
 				const delta = await runtime.manager.drainUsage(selected.id);
 				usageAggregateClamped = addCounters(drained, delta) || usageAggregateClamped;
@@ -848,67 +893,7 @@ export function createSubAgentsStatusTool(
 		async execute(_toolCallId, params, signal) {
 			return executeSubAgentsStatus(params, signal, getRuntime());
 		},
-		renderCall(args, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			const target = args.ids?.length
-				? `${args.ids.length} selected`
-				: args.includeRemoved
-					? "all + removed"
-					: "all live";
-			const detail = args.detail ?? "compact";
-			component.setText(
-				theme.fg("toolTitle", theme.bold("sub_agents_status ")) +
-					theme.fg("muted", `${target} · ${detail}`) +
-					(args.drainUsage ? theme.fg("dim", " · drain usage") : ""),
-			);
-			return component;
-		},
-		renderResult(result, { expanded, isPartial }, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			if (isPartial) {
-				component.setText(theme.fg("warning", "Reading sub-agent status…"));
-				return component;
-			}
-			const details = result.details;
-			if (!details || !Array.isArray(details.outcomes)) {
-				const first = result.content[0];
-				component.setText(first?.type === "text" ? first.text : "");
-				return component;
-			}
-			const counts = new Map<string, number>();
-			for (const outcome of details.outcomes) {
-				if (outcome.ok) counts.set(outcome.state, (counts.get(outcome.state) ?? 0) + 1);
-			}
-			let text =
-				theme.fg("success", `${details.succeeded} agents`) +
-				" · " +
-				(details.failed
-					? theme.fg("error", `${details.failed} errors`)
-					: theme.fg("muted", "0 errors"));
-			if (counts.size > 0) {
-				text += theme.fg(
-					"dim",
-					` · ${[...counts.entries()].map(([state, count]) => `${state} ${count}`).join(" · ")}`,
-				);
-			}
-			if (expanded) {
-				for (const outcome of details.outcomes) {
-					if (!outcome.ok) {
-						text += `\n${theme.fg("error", "✗")} ${theme.fg("accent", outcome.id)} ${theme.fg("error", outcome.code)}`;
-						continue;
-					}
-					text +=
-						`\n${theme.fg(outcome.state === "failed" ? "error" : "success", "•")} ` +
-						theme.fg("muted", `${outcome.name} `) +
-						theme.fg("accent", outcome.id) +
-						theme.fg("dim", ` · ${outcome.state}`);
-					for (const event of outcome.events ?? []) {
-						text += `\n  ${theme.fg("dim", `#${event.sequence} ${event.kind}: ${event.summary}`)}`;
-					}
-				}
-			}
-			component.setText(text);
-			return component;
-		},
+		renderCall: renderStatusCall,
+		renderResult: renderStatusResult,
 	});
 }

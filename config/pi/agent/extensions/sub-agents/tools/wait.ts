@@ -1,7 +1,10 @@
 import { Buffer } from "node:buffer";
 import { defineTool } from "@earendil-works/pi-coding-agent";
 import type { Usage } from "@earendil-works/pi-ai";
-import { Text } from "@earendil-works/pi-tui";
+import {
+	renderWaitCall,
+	renderWaitResult,
+} from "../ui/renderers.ts";
 import {
 	SubAgentManagerError,
 	type SubAgentManager,
@@ -482,7 +485,7 @@ async function drainSelectedUsage(
 	let clamped = false;
 	let failures = 0;
 	const targets = await Promise.all(inspected.map(async (target): Promise<InspectedTarget> => {
-		if (!target.snapshot) return target;
+		if (!target.snapshot || target.snapshot.restoredHistory) return target;
 		try {
 			const usageDrained = cloneCounters(await runtime.manager.drainUsage(target.id));
 			clamped = addCounters(aggregate, usageDrained) || clamped;
@@ -799,58 +802,7 @@ export function createSubAgentsWaitTool(
 		async execute(_toolCallId, params, signal, onUpdate) {
 			return executeSubAgentsWait(params, signal, onUpdate, getRuntime());
 		},
-		renderCall(args, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			const target = args.ids?.length ? `${args.ids.length} selected` : "current live set";
-			const condition = args.condition ?? "all";
-			const states = args.states ?? ["idle", "blocked", "failed", "removed"];
-			component.setText(
-				theme.fg("toolTitle", theme.bold("sub_agents_wait ")) +
-					theme.fg("muted", `${condition} of ${target}`) +
-					theme.fg("dim", ` · ${states.join("|")} · ${args.timeoutSeconds ?? DEFAULT_TIMEOUT_SECONDS}s`),
-			);
-			return component;
-		},
-		renderResult(result, { expanded, isPartial }, theme, context) {
-			const component = (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
-			const details = result.details;
-			if (isPartial || details?.phase === "waiting") {
-				const progress = details?.phase === "waiting" ? details : undefined;
-				component.setText(
-					theme.fg("warning", "Waiting for sub-agents…") +
-						(progress
-							? theme.fg("dim", ` ${progress.matched}/${progress.returned - progress.failed} matched · ${progress.failed} errors`)
-							: ""),
-				);
-				return component;
-			}
-			if (!details || details.phase !== "complete") {
-				const first = result.content[0];
-				component.setText(first?.type === "text" ? first.text : "");
-				return component;
-			}
-			const color = details.timedOut ? "warning" : details.completion === "satisfied" ? "success" : "muted";
-			let text =
-				theme.fg(color, details.completion) +
-				" · " +
-				theme.fg("muted", `${details.matched}/${details.succeeded} matched`) +
-				(details.failed ? theme.fg("error", ` · ${details.failed} errors`) : "");
-			if (expanded) {
-				for (const outcome of details.outcomes) {
-					if (!outcome.ok) {
-						text += `\n${theme.fg("error", "✗")} ${theme.fg("accent", outcome.id)} ${theme.fg("error", outcome.code)}`;
-						continue;
-					}
-					text +=
-						`\n${theme.fg(outcome.matched ? "success" : "warning", outcome.matched ? "✓" : "•")} ` +
-						theme.fg("muted", `${outcome.name} `) +
-						theme.fg("accent", outcome.id) +
-						theme.fg("dim", ` · ${outcome.state}`);
-					if (outcome.output?.summary) text += `\n  ${theme.fg("dim", outcome.output.summary)}`;
-				}
-			}
-			component.setText(text);
-			return component;
-		},
+		renderCall: renderWaitCall,
+		renderResult: renderWaitResult,
 	});
 }

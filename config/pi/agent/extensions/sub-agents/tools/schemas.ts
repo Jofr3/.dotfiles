@@ -55,7 +55,7 @@ const workspaceSchema = Type.Object(
 	{
 		mode: StringEnum(WORKSPACE_MODES, {
 			description:
-				"Workspace isolation mode. shared is supported by the read-only control-plane release; worktree remains unavailable until its later safety phase.",
+				"Workspace isolation mode. shared supports read-only tools plus guarded edit/write and workspace-exclusive bash; worktree remains unavailable until its later safety phase.",
 		}),
 		cwd: Type.Optional(
 			requiredText(
@@ -65,10 +65,10 @@ const workspaceSchema = Type.Object(
 		),
 		writeScope: Type.Optional(
 			Type.Array(
-				requiredText(SUB_AGENT_BOUNDS.contextPathChars, "Workspace-relative path eligible for a future guarded write lease."),
+				requiredText(SUB_AGENT_BOUNDS.contextPathChars, "Workspace-relative exact file path eligible for a guarded edit/write lease."),
 				{
 					description:
-						"Declared shared-workspace write scope. Mutation-capable children remain unavailable until lease enforcement is enabled.",
+						"Optional exact shared-workspace file scope for guarded edit/write. The scope is claimed atomically before child startup; an empty scope permits no file mutations.",
 					maxItems: SUB_AGENT_BOUNDS.writeScopePaths,
 					uniqueItems: true,
 				},
@@ -77,7 +77,7 @@ const workspaceSchema = Type.Object(
 		bashPolicy: Type.Optional(
 			StringEnum(BASH_POLICIES, {
 				description:
-					"Bash policy (default disabled). workspace-exclusive remains unavailable until shared-workspace leases are enabled.",
+					"Bash policy (default disabled). workspace-exclusive is required with the bash tool, claims the whole shared workspace before each assignment, and is not constrained by writeScope.",
 			}),
 		),
 	},
@@ -117,7 +117,7 @@ export const dynamicAgentSpecSchema = Type.Object(
 		tools: Type.Optional(
 			Type.Array(StringEnum(CHILD_TOOL_NAMES), {
 				description:
-					"Exact child tool allowlist. Omit for read, grep, find, and ls defaults; edit, write, and bash remain unavailable until lease enforcement.",
+					"Exact child tool allowlist. Omit for read, grep, find, and ls defaults. edit/write use canonical retained file leases; bash requires workspace-exclusive policy and whole-workspace ownership.",
 				maxItems: SUB_AGENT_BOUNDS.tools,
 				uniqueItems: true,
 			}),
@@ -191,11 +191,11 @@ export const subAgentsStatusSchema = Type.Object(
 const sendMessageSchema = Type.Object(
 	{
 		id: agentIdSchema,
-		message: requiredText(SUB_AGENT_BOUNDS.objectiveChars, "New assignment or active-assignment message."),
+		message: requiredText(SUB_AGENT_BOUNDS.objectiveChars, "New assignment, active-assignment, or blocked-resume message."),
 		delivery: Type.Optional(
 			StringEnum(ACTIVE_DELIVERIES, {
 				description:
-					"Delivery while the child is running (default followUp). An idle child always starts a new assignment with this message.",
+					"Delivery while running (default followUp). Idle starts a new assignment; blocked resumes its current assignment after resolution.",
 			}),
 		),
 	},
@@ -205,7 +205,7 @@ const sendMessageSchema = Type.Object(
 export const subAgentsSendSchema = Type.Object(
 	{
 		messages: Type.Array(sendMessageSchema, {
-			description: "One task-specific message per target child; duplicate target IDs are rejected semantically.",
+			description: "One task-specific new, active, or blocked-resume message per target child; duplicate target IDs are rejected semantically.",
 			minItems: 1,
 			maxItems: SUB_AGENT_BOUNDS.controlTargets,
 		}),
@@ -232,6 +232,13 @@ const reconfigureChangeSchema = Type.Object(
 					"For a running child, queue the change for its next safe assignment boundary (default) or explicitly abort the current assignment before switching.",
 			}),
 		),
+	},
+	{ additionalProperties: false },
+);
+
+export const subAgentsReleaseSchema = Type.Object(
+	{
+		ids: agentIdsSchema,
 	},
 	{ additionalProperties: false },
 );
@@ -300,6 +307,7 @@ export type DynamicAgentSpecInput = Static<typeof dynamicAgentSpecSchema>;
 export type SubAgentsSpawnInput = Static<typeof subAgentsSpawnSchema>;
 export type SubAgentsStatusInput = Static<typeof subAgentsStatusSchema>;
 export type SubAgentsSendInput = Static<typeof subAgentsSendSchema>;
+export type SubAgentsReleaseInput = Static<typeof subAgentsReleaseSchema>;
 export type SubAgentsReconfigureInput = Static<typeof subAgentsReconfigureSchema>;
 export type SubAgentsWaitInput = Static<typeof subAgentsWaitSchema>;
 export type SubAgentsRemoveInput = Static<typeof subAgentsRemoveSchema>;

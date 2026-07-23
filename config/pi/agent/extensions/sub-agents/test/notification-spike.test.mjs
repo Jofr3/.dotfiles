@@ -3,11 +3,12 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { importInstalledPackages } from "./installed-packages.mjs";
+import { importInstalledPackages, importSubAgentsModule } from "./installed-packages.mjs";
 
-const IMPORTANT_STATES = new Set(["idle", "blocked", "failed"]);
-const MAX_EVENTS = 20;
-const MAX_SUMMARY_CHARS = 400;
+const {
+	SubAgentNotificationInbox,
+	createSubAgentNotificationRuntime,
+} = await importSubAgentsModule("notifications.ts");
 
 function deferred() {
 	let resolvePromise;
@@ -31,96 +32,40 @@ function textFromContent(content) {
 		.join("\n");
 }
 
-class BackgroundNotificationInbox {
-	#sendMessage;
-	#flushDelayMs;
-	#events = [];
-	#omitted = 0;
-	#timer;
-	#closed = false;
-	#batchSequence = 0;
-
-	constructor({ sendMessage, flushDelayMs = 10 }) {
-		this.#sendMessage = sendMessage;
-		this.#flushDelayMs = flushDelayMs;
-	}
-
-	get pendingCount() {
-		return this.#events.length;
-	}
-
-	get hasScheduledFlush() {
-		return this.#timer !== undefined;
-	}
-
-	enqueue(event) {
-		if (this.#closed || !IMPORTANT_STATES.has(event.state)) return false;
-		const bounded = {
-			id: String(event.id).slice(0, 80),
-			name: String(event.name).slice(0, 120),
-			state: event.state,
-			summary: String(event.summary ?? "").slice(0, MAX_SUMMARY_CHARS),
-		};
-		if (this.#events.length === MAX_EVENTS) {
-			this.#events.shift();
-			this.#omitted += 1;
-		}
-		this.#events.push(bounded);
-		this.#schedule();
-		return true;
-	}
-
-	#schedule() {
-		if (this.#timer !== undefined || this.#closed) return;
-		this.#timer = setTimeout(() => {
-			this.#timer = undefined;
-			this.flushNow();
-		}, this.#flushDelayMs);
-		this.#timer.unref?.();
-	}
-
-	flushNow() {
-		if (this.#closed || this.#events.length === 0) return false;
-		if (this.#timer !== undefined) {
-			clearTimeout(this.#timer);
-			this.#timer = undefined;
-		}
-		const events = this.#events;
-		const omitted = this.#omitted;
-		this.#events = [];
-		this.#omitted = 0;
-		this.#batchSequence += 1;
-
-		const lines = events.map((event) => `- ${event.id} ${event.name}: ${event.state} — ${event.summary || "(no summary)"}`);
-		if (omitted > 0) lines.push(`- ${omitted} earlier event(s) omitted by the bounded inbox`);
-		this.#sendMessage(
-			{
-				customType: "sub-agents-event",
-				content: `[sub-agents event batch ${this.#batchSequence}]\n${lines.join("\n")}`,
-				display: true,
-				details: {
-					version: 1,
-					source: "sub-agents",
-					count: events.length,
-					omitted,
-				},
+function createNotificationSource() {
+	let listener;
+	return {
+		source: {
+			generation: "sag1-notification-spike",
+			subscribeEvents(next) {
+				listener = next;
+				return () => {
+					if (listener === next) listener = undefined;
+				};
 			},
-			// This single policy is race-safe for both parent states. While the
-			// parent streams it cannot steer the current turn; while idle,
-			// triggerTurn starts one model turn for the coalesced batch.
-			{ deliverAs: "followUp", triggerTurn: true },
-		);
-		return true;
-	}
-
-	shutdown() {
-		if (this.#closed) return;
-		this.#closed = true;
-		if (this.#timer !== undefined) clearTimeout(this.#timer);
-		this.#timer = undefined;
-		this.#events = [];
-		this.#omitted = 0;
-	}
+		},
+		emit({ id, name, state, summary }) {
+			const lifecycleState = state === "progress" ? "running" : state;
+			const kind = state === "progress" ? "report" : state === "failed" ? "runtime" : "assignment";
+			listener?.({
+				generation: "sag1-notification-spike",
+				id,
+				name,
+				state: lifecycleState,
+				assignmentId: `${id}:assignment:1`,
+				notifyOn: ["idle", "blocked", "failed"],
+				notificationState: state === "progress" ? undefined : state,
+				notificationSummary: summary,
+				event: {
+					sequence: 1,
+					kind,
+					state: lifecycleState,
+					summary,
+					timestamp: Date.now(),
+				},
+			});
+		},
+	};
 }
 
 test("background completions coalesce into one follow-up while the parent streams and one triggered turn while idle", async () => {
@@ -128,6 +73,7 @@ test("background completions coalesce into one follow-up while the parent stream
 	const root = await mkdtemp(join(tmpdir(), "pi-sub-agents-notifications-"));
 	let session;
 	let inbox;
+	let emitNotification;
 
 	try {
 		const streamEntered = deferred();
@@ -181,7 +127,10 @@ test("background completions coalesce into one follow-up while the parent stream
 					name: "notification-spike",
 					factory(pi) {
 						extensionApi = pi;
-						inbox = new BackgroundNotificationInbox({
+						const notificationSource = createNotificationSource();
+						emitNotification = notificationSource.emit;
+						inbox = createSubAgentNotificationRuntime({
+							manager: notificationSource.source,
 							sendMessage: (message, options) => {
 								dispatchedNotifications.push({ message, options });
 								pi.sendMessage(message, options);
@@ -195,6 +144,7 @@ test("background completions coalesce into one follow-up while the parent stream
 		await loader.reload();
 		assert.ok(extensionApi);
 		assert.ok(inbox);
+		assert.ok(emitNotification);
 
 		const result = await codingAgent.createAgentSession({
 			cwd: root,
@@ -216,15 +166,12 @@ test("background completions coalesce into one follow-up while the parent stream
 		await streamEntered.promise;
 		assert.equal(session.isStreaming, true);
 		for (let index = 0; index < 10; index += 1) {
-			assert.equal(
-				inbox.enqueue({
-					id: `child-${index}`,
-					name: `worker-${index}`,
-					state: "idle",
-					summary: `result ${index}`,
-				}),
-				true,
-			);
+			emitNotification({
+				id: `child-${index}`,
+				name: `worker-${index}`,
+				state: "idle",
+				summary: `result ${index}`,
+			});
 		}
 		assert.equal(inbox.pendingCount, 10);
 		assert.equal(inbox.hasScheduledFlush, true);
@@ -250,15 +197,10 @@ test("background completions coalesce into one follow-up while the parent stream
 		assert.equal(customMessages[0].details.source, "sub-agents");
 		assert.equal((customMessages[0].content.match(/child-/g) ?? []).length, 10);
 
-		assert.equal(
-			inbox.enqueue({ id: "progress-only", name: "progress", state: "progress", summary: "do not wake" }),
-			false,
-		);
-		assert.equal(
-			inbox.enqueue({ id: "child-idle", name: "later-worker", state: "blocked", summary: "needs orchestration" }),
-			true,
-		);
-		assert.equal(inbox.flushNow(), true);
+		emitNotification({ id: "progress-only", name: "progress", state: "progress", summary: "do not wake" });
+		assert.equal(inbox.pendingCount, 0);
+		emitNotification({ id: "child-idle", name: "later-worker", state: "blocked", summary: "needs orchestration" });
+		assert.ok(inbox.flushNow());
 		await idleBatchHandled.promise;
 		await session.waitForIdle();
 		assert.equal(session.isIdle, true);
@@ -289,8 +231,9 @@ test("background completions coalesce into one follow-up while the parent stream
 
 test("notification shutdown clears the sole scheduled flush and rejects later events", async () => {
 	const sent = [];
-	const inbox = new BackgroundNotificationInbox({
-		sendMessage: (...args) => sent.push(args),
+	const inbox = new SubAgentNotificationInbox({
+		generation: "sag1-notification-shutdown",
+		onBatch: (batch) => sent.push(batch),
 		flushDelayMs: 5,
 	});
 	assert.equal(inbox.enqueue({ id: "child", name: "worker", state: "failed", summary: "failure" }), true);

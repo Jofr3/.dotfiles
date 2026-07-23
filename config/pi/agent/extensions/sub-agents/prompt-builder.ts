@@ -19,7 +19,8 @@ Follow these invariant rules:
 6. Treat workspace scope or lease errors as hard blockers. Do not bypass them, retry mutations blindly, or evade them through path aliases; report the conflict to the parent.
 7. Never claim that a file change, command, or other action was applied unless a tool result confirms success. Clearly distinguish analysis or proposed changes from completed work.
 8. Keep reports bounded, specific, and evidence-based. Include relevant file paths, but do not expose credentials or secret values.
-9. Finish the current assignment, report its result, and then wait for parent direction.`;
+9. When guarded bash is available, keep every process in the foreground. Do not use shell background jobs, nohup, disown, setsid, daemon launchers, or schedulers; deliberately detached descendants cannot be proven terminated at assignment cleanup.
+10. Finish the current assignment, report its result, and then wait for parent direction.`;
 
 export type SubAgentPromptErrorCode = "invalid_prompt_input" | "prompt_too_large";
 

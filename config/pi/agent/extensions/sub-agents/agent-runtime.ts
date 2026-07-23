@@ -1,11 +1,10 @@
-import { realpath, stat } from "node:fs/promises";
-import { isAbsolute, relative, resolve, sep } from "node:path";
 import {
 	createAgentSession,
 	SessionManager,
 	SettingsManager,
 	type AgentSession,
 	type AgentSessionEventListener,
+	type BashOperations,
 	type CreateAgentSessionOptions,
 	type CreateAgentSessionResult,
 	type ResourceLoader,
@@ -27,8 +26,23 @@ import type {
 	SessionGeneration,
 	SubAgentId,
 	ThinkingLevel,
+	WorkspaceIdentity,
 } from "./types.ts";
 import { SUB_AGENT_BOUNDS } from "./types.ts";
+import {
+	createGuardedChildBashTool,
+	createGuardedChildEditTool,
+	createGuardedChildWriteTool,
+} from "./workspace/guarded-tools.ts";
+import {
+	WorkspacePathError,
+	resolveCanonicalWorkspacePath,
+	resolveCanonicalWriteScope,
+	resolveSharedWorkspace,
+	type CanonicalWorkspacePath,
+	type CanonicalWriteScope,
+	type ResolvedSharedWorkspace,
+} from "./workspace/paths.ts";
 
 export const READ_ONLY_CHILD_TOOL_NAMES = Object.freeze([
 	"read",
@@ -38,12 +52,14 @@ export const READ_ONLY_CHILD_TOOL_NAMES = Object.freeze([
 ] as const);
 
 export type ReadOnlyChildToolName = (typeof READ_ONLY_CHILD_TOOL_NAMES)[number];
+export type GuardedChildToolName = "edit" | "write" | "bash";
+export type EnabledChildBuiltInToolName = ReadOnlyChildToolName | GuardedChildToolName;
 export type ChildSessionToolName =
-	| ReadOnlyChildToolName
+	| EnabledChildBuiltInToolName
 	| typeof REPORT_TO_PARENT_TOOL_NAME;
 
 const READ_ONLY_CHILD_TOOLS = new Set<string>(READ_ONLY_CHILD_TOOL_NAMES);
-const MUTATING_CHILD_TOOLS = new Set<string>(["edit", "write", "bash"]);
+const ENABLED_GUARDED_CHILD_TOOLS = new Set<string>(["edit", "write", "bash"]);
 const THINKING_LEVELS = new Set<string>([
 	"off",
 	"minimal",
@@ -81,6 +97,8 @@ export interface SubAgentSessionFactoryDependencies {
 	createSessionManager?: (cwd: string) => SessionManager;
 	createSettingsManager?: () => SettingsManager;
 	createResourceLoader?: (options: CreateSubAgentResourceLoaderOptions) => ResourceLoader;
+	/** Deterministic offline-test seam; production uses Pi's local bash backend. */
+	guardedBashOperations?: BashOperations;
 }
 
 export interface CreateSubAgentSessionOptions {
@@ -93,6 +111,20 @@ export interface CreateSubAgentSessionOptions {
 	parentContext?: ParentContextSnapshotV1;
 	onEvent: AgentSessionEventListener;
 	onReport: ReportToParentHandler;
+	claimFileLeases?: (
+		workspace: Readonly<WorkspaceIdentity>,
+		targets: readonly Readonly<CanonicalWorkspacePath>[],
+	) => void | Promise<void>;
+	reconcileFileLease?: (
+		workspace: Readonly<WorkspaceIdentity>,
+		target: Readonly<CanonicalWorkspacePath>,
+	) => void | Promise<void>;
+	claimWorkspaceLease?: (
+		workspace: Readonly<WorkspaceIdentity>,
+	) => void | Promise<void>;
+	onFileMutation?: (
+		target: Readonly<CanonicalWorkspacePath>,
+	) => void | Promise<void>;
 	dependencies?: SubAgentSessionFactoryDependencies;
 }
 
@@ -106,6 +138,8 @@ export class SubAgentSessionRuntime {
 	readonly id: SubAgentId;
 	readonly generation: SessionGeneration;
 	readonly cwd: string;
+	readonly workspace: Readonly<WorkspaceIdentity>;
+	readonly writeScope?: Readonly<CanonicalWriteScope>;
 	readonly session: AgentSession;
 	readonly sessionManager: SessionManager;
 	readonly settingsManager: SettingsManager;
@@ -113,6 +147,7 @@ export class SubAgentSessionRuntime {
 	readonly selectedTools: readonly ChildSessionToolName[];
 
 	#unsubscribe?: () => void;
+	#prepareWorkspaceOwnership: () => Promise<void>;
 	#disposed = false;
 	#closePromise?: Promise<void>;
 
@@ -120,21 +155,27 @@ export class SubAgentSessionRuntime {
 		id: SubAgentId;
 		generation: SessionGeneration;
 		cwd: string;
+		workspace: Readonly<WorkspaceIdentity>;
+		writeScope?: Readonly<CanonicalWriteScope>;
 		session: AgentSession;
 		sessionManager: SessionManager;
 		settingsManager: SettingsManager;
 		resourceLoader: ResourceLoader;
 		selectedTools: readonly ChildSessionToolName[];
+		prepareWorkspaceOwnership: () => Promise<void>;
 		unsubscribe: () => void;
 	}) {
 		this.id = options.id;
 		this.generation = options.generation;
 		this.cwd = options.cwd;
+		this.workspace = options.workspace;
+		this.writeScope = options.writeScope;
 		this.session = options.session;
 		this.sessionManager = options.sessionManager;
 		this.settingsManager = options.settingsManager;
 		this.resourceLoader = options.resourceLoader;
 		this.selectedTools = Object.freeze([...options.selectedTools]);
+		this.#prepareWorkspaceOwnership = options.prepareWorkspaceOwnership;
 		this.#unsubscribe = options.unsubscribe;
 	}
 
@@ -155,6 +196,17 @@ export class SubAgentSessionRuntime {
 
 	get thinkingLevel(): ThinkingLevel {
 		return this.session.thinkingLevel as ThinkingLevel;
+	}
+
+	/** Reclaim assignment-retained shared ownership after an explicit idle release. */
+	async prepareAssignmentWorkspace(): Promise<void> {
+		if (this.#disposed) {
+			throw new SubAgentSessionFactoryError(
+				"session_validation_failed",
+				"The disposed child session cannot prepare workspace ownership",
+			);
+		}
+		await this.#prepareWorkspaceOwnership();
 	}
 
 	async reconfigureModel(
@@ -255,33 +307,10 @@ export class SubAgentSessionRuntime {
 	}
 }
 
-function isWithinRoot(root: string, candidate: string): boolean {
-	const pathFromRoot = relative(root, candidate);
-	return (
-		pathFromRoot === "" ||
-		(!isAbsolute(pathFromRoot) && pathFromRoot !== ".." && !pathFromRoot.startsWith(`..${sep}`))
-	);
-}
-
-async function canonicalDirectory(path: string): Promise<string> {
-	try {
-		const canonical = await realpath(path);
-		if (!(await stat(canonical)).isDirectory()) {
-			throw new Error("not a directory");
-		}
-		return canonical;
-	} catch {
-		throw new SubAgentSessionFactoryError(
-			"workspace_unavailable",
-			"The child workspace directory is unavailable",
-		);
-	}
-}
-
-async function resolveChildWorkspaceCwd(
+async function resolveChildWorkspace(
 	parentCwd: string,
 	spec: Readonly<DynamicAgentSpec>,
-): Promise<string> {
+): Promise<ResolvedSharedWorkspace> {
 	if (!spec || typeof spec !== "object" || Array.isArray(spec)) {
 		throw new SubAgentSessionFactoryError(
 			"invalid_runtime_request",
@@ -310,31 +339,55 @@ async function resolveChildWorkspaceCwd(
 			"The child workspace mode is invalid",
 		);
 	}
-	if (
-		(spec.workspace?.writeScope?.length ?? 0) > 0 ||
-		(spec.workspace?.bashPolicy !== undefined && spec.workspace.bashPolicy !== "disabled")
-	) {
+	const bashPolicy = spec.workspace?.bashPolicy ?? "disabled";
+	if (bashPolicy !== "disabled" && bashPolicy !== "workspace-exclusive") {
 		throw new SubAgentSessionFactoryError(
-			"mutating_tools_disabled",
-			"Shared-workspace mutation policies are not enabled for read-only child sessions",
+			"invalid_runtime_request",
+			"The child bash policy is invalid",
 		);
 	}
 
-	const root = await canonicalDirectory(resolve(parentCwd));
 	const requested = spec.workspace?.cwd?.trim();
-	const candidate = await canonicalDirectory(requested ? resolve(root, requested) : root);
-	if (!isWithinRoot(root, candidate)) {
+	try {
+		return await resolveSharedWorkspace(parentCwd, requested || undefined);
+	} catch (error) {
+		if (error instanceof WorkspacePathError) {
+			if (error.code === "workspace_outside_root") {
+				throw new SubAgentSessionFactoryError(
+					"workspace_outside_root",
+					"The child workspace must remain inside the parent workspace",
+				);
+			}
+			if (error.code === "invalid_path") {
+				throw new SubAgentSessionFactoryError(
+					"invalid_runtime_request",
+					"The child workspace path is invalid",
+				);
+			}
+		}
 		throw new SubAgentSessionFactoryError(
-			"workspace_outside_root",
-			"The child workspace must remain inside the parent workspace",
+			"workspace_unavailable",
+			"The child workspace directory is unavailable",
 		);
 	}
-	return candidate;
 }
 
 export function resolveReadOnlyChildTools(
 	requested: readonly ChildToolName[] | undefined,
 ): readonly ReadOnlyChildToolName[] {
+	const selected = resolveEnabledChildTools(requested);
+	if (selected.some((name) => !READ_ONLY_CHILD_TOOLS.has(name))) {
+		throw new SubAgentSessionFactoryError(
+			"mutating_tools_disabled",
+			"The read-only child tool resolver does not accept guarded mutation tools",
+		);
+	}
+	return selected as readonly ReadOnlyChildToolName[];
+}
+
+export function resolveEnabledChildTools(
+	requested: readonly ChildToolName[] | undefined,
+): readonly EnabledChildBuiltInToolName[] {
 	if (requested === undefined) return READ_ONLY_CHILD_TOOL_NAMES;
 	if (!Array.isArray(requested) || requested.length > SUB_AGENT_BOUNDS.tools) {
 		throw new SubAgentSessionFactoryError(
@@ -343,25 +396,19 @@ export function resolveReadOnlyChildTools(
 		);
 	}
 
-	const selected: ReadOnlyChildToolName[] = [];
+	const selected: EnabledChildBuiltInToolName[] = [];
 	const seen = new Set<string>();
 	for (const value of requested) {
 		if (typeof value !== "string" || !value.trim()) {
 			throw new SubAgentSessionFactoryError("unsupported_tool", "A child tool name is invalid");
 		}
 		const name = value.trim();
-		if (MUTATING_CHILD_TOOLS.has(name)) {
-			throw new SubAgentSessionFactoryError(
-				"mutating_tools_disabled",
-				`Mutating child tool is not enabled yet: ${name}`,
-			);
-		}
-		if (!READ_ONLY_CHILD_TOOLS.has(name)) {
+		if (!READ_ONLY_CHILD_TOOLS.has(name) && !ENABLED_GUARDED_CHILD_TOOLS.has(name)) {
 			throw new SubAgentSessionFactoryError("unsupported_tool", `Unsupported child tool: ${name.slice(0, 80)}`);
 		}
 		if (!seen.has(name)) {
 			seen.add(name);
-			selected.push(name as ReadOnlyChildToolName);
+			selected.push(name as EnabledChildBuiltInToolName);
 		}
 	}
 	return Object.freeze(selected);
@@ -453,8 +500,8 @@ async function cleanPartialSession(
 }
 
 /**
- * Builds one reusable, read-only child AgentSession with no persisted settings,
- * session transcript, discovered extension, or unapproved tool.
+ * Builds one reusable isolated child AgentSession with no persisted settings,
+ * session transcript, discovered extension, or unapproved/unguarded tool.
  */
 export async function createSubAgentSession(
 	options: CreateSubAgentSessionOptions,
@@ -483,14 +530,155 @@ export async function createSubAgentSession(
 	const createSessionManager = dependencies.createSessionManager ?? ((cwd) => SessionManager.inMemory(cwd));
 	const createSettingsManager = dependencies.createSettingsManager ?? (() => SettingsManager.inMemory());
 	const createResourceLoader = dependencies.createResourceLoader ?? createSubAgentResourceLoader;
-	const selectedReadOnlyTools = resolveReadOnlyChildTools(options.spec.tools);
+	const selectedBuiltInTools = resolveEnabledChildTools(options.spec.tools);
+	const editEnabled = selectedBuiltInTools.includes("edit");
+	const writeEnabled = selectedBuiltInTools.includes("write");
+	const bashEnabled = selectedBuiltInTools.includes("bash");
+	const fileMutationEnabled = editEnabled || writeEnabled;
+	const bashPolicy = options.spec.workspace?.bashPolicy ?? "disabled";
+	if (bashEnabled && bashPolicy !== "workspace-exclusive") {
+		throw new SubAgentSessionFactoryError(
+			"mutating_tools_disabled",
+			"Child bash requires workspace.bashPolicy=workspace-exclusive",
+		);
+	}
+	if (!bashEnabled && bashPolicy === "workspace-exclusive") {
+		throw new SubAgentSessionFactoryError(
+			"invalid_runtime_request",
+			"workspace-exclusive bash policy requires bash in the child tool allowlist",
+		);
+	}
+	if (
+		fileMutationEnabled &&
+		(typeof options.claimFileLeases !== "function" || typeof options.onFileMutation !== "function")
+	) {
+		throw new SubAgentSessionFactoryError(
+			"invalid_runtime_request",
+			"Guarded file mutation requires the generation-scoped lease and mutation callbacks",
+		);
+	}
+	if (writeEnabled && typeof options.reconcileFileLease !== "function") {
+		throw new SubAgentSessionFactoryError(
+			"invalid_runtime_request",
+			"Guarded write requires the generation-scoped post-write lease reconciliation callback",
+		);
+	}
+	if (bashEnabled && typeof options.claimWorkspaceLease !== "function") {
+		throw new SubAgentSessionFactoryError(
+			"invalid_runtime_request",
+			"Guarded bash requires the generation-scoped workspace lease callback",
+		);
+	}
+	const declaredWriteScope = options.spec.workspace?.writeScope;
+	if (
+		!fileMutationEnabled &&
+		declaredWriteScope !== undefined &&
+		(!Array.isArray(declaredWriteScope) || declaredWriteScope.length > 0)
+	) {
+		throw new SubAgentSessionFactoryError(
+			"mutating_tools_disabled",
+			"A nonempty declared write scope requires guarded edit or write capability",
+		);
+	}
 	const selectedTools: readonly ChildSessionToolName[] = Object.freeze([
-		...selectedReadOnlyTools,
+		...selectedBuiltInTools,
 		REPORT_TO_PARENT_TOOL_NAME,
 	]);
 	const reportToParentTool = createReportToParentTool(options.onReport);
 	const requestedThinkingLevel = resolveRequestedThinkingLevel(options.spec);
-	const cwd = await resolveChildWorkspaceCwd(options.cwd, options.spec);
+	const workspace = await resolveChildWorkspace(options.cwd, options.spec);
+	const cwd = workspace.cwd;
+	let writeScope: CanonicalWriteScope | undefined;
+	try {
+		writeScope = await resolveCanonicalWriteScope(
+			workspace.identity,
+			options.spec.workspace?.writeScope,
+		);
+	} catch (error) {
+		if (error instanceof WorkspacePathError) {
+			const code = error.code === "path_outside_root"
+				? "workspace_outside_root"
+				: error.code === "invalid_path"
+					? "invalid_runtime_request"
+					: "workspace_unavailable";
+			throw new SubAgentSessionFactoryError(
+				code,
+				"The child write scope could not be validated inside the shared workspace",
+			);
+		}
+		throw error;
+	}
+	const prepareWorkspaceOwnership = async (): Promise<void> => {
+		// Claim the coarse workspace first. If it succeeds, later same-owner exact
+		// scope claims cannot conflict with another participant, avoiding partial
+		// file ownership before a failed workspace claim.
+		if (bashEnabled) {
+			await options.claimWorkspaceLease!(workspace.identity);
+		}
+		if (fileMutationEnabled && writeScope && writeScope.paths.length > 0) {
+			// Declared missing targets can become existing after a successful guarded
+			// write. Refresh only their filesystem metadata while preserving the exact
+			// canonical identity authorized at child creation; aliases may not retarget
+			// a released scope before the next assignment reacquires ownership.
+			const refreshedTargets = await Promise.all(
+				writeScope.paths.map(async (expected) => {
+					const current = await resolveCanonicalWorkspacePath({
+						workspace: workspace.identity,
+						cwd: workspace.identity.root,
+						path: expected.path,
+						allowMissing: true,
+					});
+					if (current.path !== expected.path) {
+						throw new WorkspacePathError(
+							"path_outside_scope",
+							"A declared write-scope identity changed before ownership could be reacquired",
+						);
+					}
+					return current;
+				}),
+			);
+			await options.claimFileLeases!(workspace.identity, refreshedTargets);
+		}
+	};
+	try {
+		await prepareWorkspaceOwnership();
+	} catch {
+		throw new SubAgentSessionFactoryError(
+			"session_initialization_failed",
+			bashEnabled
+				? "Could not acquire the child workspace-exclusive bash lease"
+				: "Could not acquire the declared child write scope",
+		);
+	}
+	const guardedEditTool = editEnabled
+		? createGuardedChildEditTool({
+				cwd,
+				workspace: workspace.identity,
+				writeScope,
+				claimFiles: (targets) => options.claimFileLeases!(workspace.identity, targets),
+				recordMutation: (target) => options.onFileMutation!(target),
+			})
+		: undefined;
+	const guardedWriteTool = writeEnabled
+		? createGuardedChildWriteTool({
+				cwd,
+				workspace: workspace.identity,
+				writeScope,
+				claimFiles: (targets) => options.claimFileLeases!(workspace.identity, targets),
+				reconcileFile: (target) => options.reconcileFileLease!(workspace.identity, target),
+				recordMutation: (target) => options.onFileMutation!(target),
+			})
+		: undefined;
+	const guardedBashTool = bashEnabled
+		? createGuardedChildBashTool({
+				cwd,
+				workspace: workspace.identity,
+				claimWorkspace: () => options.claimWorkspaceLease!(workspace.identity),
+				dependencies: dependencies.guardedBashOperations
+					? { operations: dependencies.guardedBashOperations }
+					: undefined,
+			})
+		: undefined;
 
 	let session: AgentSession | undefined;
 	let unsubscribe: (() => void) | undefined;
@@ -508,7 +696,12 @@ export async function createSubAgentSession(
 			model: options.resolvedModel.model,
 			thinkingLevel: requestedThinkingLevel,
 			modelRuntime: options.resolvedModel.runtime,
-			customTools: [reportToParentTool],
+			customTools: [
+				reportToParentTool,
+				...(guardedEditTool ? [guardedEditTool] : []),
+				...(guardedWriteTool ? [guardedWriteTool] : []),
+				...(guardedBashTool ? [guardedBashTool] : []),
+			],
 			tools: [...selectedTools],
 			resourceLoader,
 			sessionManager,
@@ -537,11 +730,14 @@ export async function createSubAgentSession(
 			id: options.id,
 			generation: options.generation,
 			cwd,
+			workspace: workspace.identity,
+			writeScope,
 			session,
 			sessionManager,
 			settingsManager,
 			resourceLoader,
 			selectedTools,
+			prepareWorkspaceOwnership,
 			unsubscribe,
 		});
 	} catch (error) {

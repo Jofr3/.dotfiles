@@ -174,6 +174,77 @@ test("the assignment runner launches in the background and reuses an idle child 
 	assert.equal(fixture.sessions.every((session) => session.disposed), true);
 });
 
+test("a guarded-bash child reacquires whole-workspace ownership before a later assignment starts", async () => {
+	const fixture = await createOfflineFixture("bash-reacquire");
+	try {
+		fixture.faux.setResponses([
+			() => fixture.piAi.fauxAssistantMessage("first foreground-only assignment complete"),
+			() => fixture.piAi.fauxAssistantMessage("second foreground-only assignment complete"),
+		]);
+		const spec = {
+			...childSpec("bash-reacquire-child", "complete the first assignment without invoking bash"),
+			tools: ["bash"],
+			workspace: { mode: "shared", bashPolicy: "workspace-exclusive" },
+		};
+		const first = await fixture.runner.createAndLaunch(spec, () => fixture.resolvedModel);
+		const firstIdle = await fixture.runner.waitForAssignment(first.id, first.assignmentId);
+		assert.equal(firstIdle.state, "idle");
+		assert.deepEqual(firstIdle.leases.map((lease) => lease.kind), ["workspace"]);
+
+		const released = await fixture.manager.releaseChildLeases(first.id, "test explicit idle release");
+		assert.deepEqual(released.leases, []);
+		const second = await fixture.runner.prompt(first.id, "complete the second assignment without invoking bash");
+		assert.deepEqual(second.snapshot.leases.map((lease) => lease.kind), ["workspace"]);
+		const secondIdle = await fixture.runner.waitForAssignment(first.id, second.assignmentId);
+		assert.equal(secondIdle.state, "idle");
+		assert.deepEqual(secondIdle.leases.map((lease) => lease.kind), ["workspace"]);
+	} finally {
+		await cleanupFixture(fixture);
+	}
+});
+
+test("failed guarded-bash initialization releases its preclaimed workspace ownership", async () => {
+	const fixture = await createOfflineFixture("bash-init-failure");
+	let failedId;
+	const runner = new SubAgentAssignmentRunner(fixture.manager, {
+		async createSession(options) {
+			return createSubAgentSession({
+				...options,
+				dependencies: {
+					async createSession() {
+						throw new Error("private synthetic initialization failure");
+					},
+				},
+			});
+		},
+	});
+	try {
+		await assert.rejects(
+			runner.createAndLaunch(
+				{
+					...childSpec("bash-init-failure-child", "fail after the workspace preclaim"),
+					tools: ["bash"],
+					workspace: { mode: "shared", bashPolicy: "workspace-exclusive" },
+				},
+				() => fixture.resolvedModel,
+			),
+			(error) => {
+				failedId = error.agentId;
+				assert.match(error.message, /Could not initialize the child runtime/);
+				assert.doesNotMatch(error.message, /private synthetic/);
+				return true;
+			},
+		);
+		assert.ok(failedId);
+		const failed = fixture.manager.getAgent(failedId);
+		assert.equal(failed.state, "failed");
+		assert.deepEqual(failed.leases, []);
+		assert.equal(runner.hasLiveRuntime(failedId), false);
+	} finally {
+		await cleanupFixture(fixture);
+	}
+});
+
 test("steering and follow-up messages stay inside one running assignment boundary", async () => {
 	const fixture = await createOfflineFixture("messages");
 	const firstStarted = deferred();

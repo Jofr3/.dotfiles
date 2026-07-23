@@ -2,6 +2,11 @@ import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import { ChildModelRuntimeAdapter } from "./model-runtime.ts";
 import {
+	WorkspaceLeaseManager,
+	type ParentWorkspaceReservation,
+} from "./workspace/leases.ts";
+import type { CanonicalWorkspacePath } from "./workspace/paths.ts";
+import {
 	captureParentContextSnapshot,
 	type ParentContextFile,
 	type ParentContextSnapshotV1,
@@ -37,12 +42,22 @@ import type {
 	ModelRouteStep,
 	NotificationState,
 	PendingModelReconfiguration,
+	PersistedSubAgentHistoryV1,
 	SessionGeneration,
 	SubAgentId,
+	SubAgentDashboardRow,
+	SubAgentDashboardSnapshot,
+	SubAgentManagerChange,
+	SubAgentManagerChangeListener,
+	SubAgentManagerEvent,
+	SubAgentManagerEventListener,
+	SubAgentManagerOverview,
+	SubAgentManagerOverviewRow,
 	SubAgentManagerSummary,
 	ThinkingLevel,
 	UsageCounters,
 	UsageDelta,
+	WorkspaceIdentity,
 	WorkspaceLeaseRecord,
 	WorkspaceMode,
 } from "./types.ts";
@@ -51,6 +66,16 @@ import { SUB_AGENT_BOUNDS } from "./types.ts";
 const GENERATION_PREFIX = "sag1-";
 const AGENT_ID_PREFIX = "sa1-";
 const DEFAULT_CLEANUP_TIMEOUT_MS = 2_000;
+
+const OVERVIEW_STATE_PRIORITY: Readonly<Record<AgentLifecycleState, number>> = Object.freeze({
+	blocked: 0,
+	failed: 1,
+	running: 2,
+	creating: 3,
+	stopping: 4,
+	idle: 5,
+	removed: 6,
+});
 
 const ALLOWED_TRANSITIONS: Readonly<Record<AgentLifecycleState, ReadonlySet<AgentLifecycleState>>> = Object.freeze({
 	creating: new Set(["running", "failed", "stopping"]),
@@ -80,6 +105,12 @@ const RUNTIME_PHASES = new Set([
 	"retrying",
 	"settled",
 ]);
+const HISTORICAL_CHECKPOINT_STATES: ReadonlySet<AgentLifecycleState> = new Set([
+	"idle",
+	"blocked",
+	"failed",
+	"removed",
+]);
 
 export interface SubAgentManagerOptions {
 	cwd: string;
@@ -108,6 +139,7 @@ interface ManagedRuntimeResources {
 interface ManagedRecord extends ManagedSubAgentSnapshot {
 	resources: ManagedRuntimeResources;
 	eventSequence: number;
+	leaseSnapshot: () => WorkspaceLeaseRecord[];
 }
 
 export class SubAgentManagerError extends Error {
@@ -138,6 +170,13 @@ export class StaleAgentIdError extends SubAgentManagerError {
 	constructor(id: string) {
 		super(`Sub-agent id belongs to another session generation: ${boundText(id, 160)}`, "stale_agent");
 		this.name = "StaleAgentIdError";
+	}
+}
+
+export class HistoricalAgentIdError extends SubAgentManagerError {
+	constructor(id: string) {
+		super(`Sub-agent id is immutable restored history: ${boundText(id, 160)}`, "historical_agent");
+		this.name = "HistoricalAgentIdError";
 	}
 }
 
@@ -187,6 +226,20 @@ function boundedUniqueStrings(values: readonly string[] | undefined, field: stri
 		throw new SubAgentManagerError(`${field} exceeds ${maxItems} items`, "invalid_spec");
 	}
 	return [...new Set(values.map((value, index) => requireBoundedText(value, `${field}[${index}]`, maxChars)))];
+}
+
+function mergeBoundedFilePaths(...groups: readonly (readonly string[] | undefined)[]): string[] {
+	const merged: string[] = [];
+	const seen = new Set<string>();
+	for (const group of groups) {
+		for (const path of group ?? []) {
+			if (seen.has(path)) continue;
+			seen.add(path);
+			merged.push(path);
+			if (merged.length === SUB_AGENT_BOUNDS.reportFiles) return merged;
+		}
+	}
+	return merged;
 }
 
 function requireChoice<T extends string>(value: unknown, choices: ReadonlySet<string>, field: string): T {
@@ -287,6 +340,7 @@ function cloneAssignment(assignment: AssignmentRecord | undefined): AssignmentRe
 				...assignment,
 				result: cloneResult(assignment.result),
 				modelRoute: cloneModelRoute(assignment.modelRoute),
+				modifiedFiles: assignment.modifiedFiles ? [...assignment.modifiedFiles] : undefined,
 				usage: cloneAssignmentUsage(assignment.usage),
 			}
 		: undefined;
@@ -350,7 +404,7 @@ function snapshotRecord(record: ManagedRecord): ManagedSubAgentSnapshot {
 		omittedEventCount: record.omittedEventCount,
 		runtime: cloneRuntimeActivity(record.runtime),
 		usage: cloneUsageLedger(record.usage),
-		leases: record.leases.map((lease) => ({ ...lease })),
+		leases: record.leaseSnapshot(),
 	};
 }
 
@@ -361,6 +415,164 @@ function createRuntimeActivity(phase: AgentRuntimePhase): AgentRuntimeActivity {
 		activeTools: [],
 		pendingMessageCount: 0,
 	};
+}
+
+function clonePersistedHistory(history: Readonly<PersistedSubAgentHistoryV1>): PersistedSubAgentHistoryV1 {
+	return {
+		...history,
+		result: history.result ? { ...history.result } : undefined,
+		modelRoute: cloneModelRoute(history.modelRoute),
+		usage: {
+			totals: { ...history.usage.totals },
+			reported: { ...history.usage.reported },
+			unreported: { ...history.usage.unreported },
+			turns: history.usage.turns,
+			assignments: history.usage.assignments,
+		},
+		files: [...history.files],
+	};
+}
+
+function restoredHistorySnapshot(
+	history: Readonly<PersistedSubAgentHistoryV1>,
+): ManagedSubAgentSnapshot {
+	const result: BoundedAgentResult | undefined = history.result
+		? {
+				summary: history.result.summary,
+				details: history.result.details,
+				files: [...history.files],
+				completedAt: history.result.completedAt,
+			}
+		: undefined;
+	const assignmentSequence = history.usage.assignments;
+	const assignmentState =
+		history.state === "blocked"
+			? "blocked"
+			: history.state === "failed"
+				? "failed"
+				: result
+					? "idle"
+					: "aborted";
+	const currentAssignment: AssignmentRecord | undefined = assignmentSequence > 0
+		? {
+				id: `${history.id}:history:${assignmentSequence.toString(36)}`,
+				sequence: assignmentSequence,
+				objective: history.objectiveSummary,
+				state: assignmentState,
+				startedAt: history.createdAt,
+				endedAt: history.result?.completedAt ?? history.updatedAt,
+				result,
+				blocker: history.state === "blocked" ? history.statusSummary : undefined,
+				error: history.state === "failed" ? history.statusSummary : undefined,
+				modelRoute: cloneModelRoute(history.modelRoute),
+				usage: createAssignmentUsage(),
+			}
+		: undefined;
+	const latestReport: BoundedAgentReport | undefined = history.state === "blocked"
+		? {
+				state: "blocked",
+				summary: history.statusSummary ?? "The restored checkpoint was blocked.",
+				files: [...history.files],
+				needs: history.statusSummary,
+				timestamp: history.updatedAt,
+			}
+		: undefined;
+	const restoredReason = history.removalReason ??
+		`Restored ${history.state} checkpoint as terminated history; no live child runtime survived.`;
+	return {
+		id: history.id,
+		generation: history.generation,
+		spec: {
+			name: history.name,
+			role: history.role,
+			objective: history.objectiveSummary,
+			modelPolicy: history.modelRoute?.requestedPolicy ?? "auto",
+			complexity: history.modelRoute?.requestedComplexity ?? "moderate",
+			workspace: { mode: "shared", bashPolicy: "disabled" },
+		},
+		restoredHistory: {
+			sourceGeneration: history.generation,
+			checkpointState: history.state,
+			statusSummary: history.statusSummary,
+			files: [...history.files],
+			omittedFileCount: history.omittedFileCount,
+		},
+		state: "removed",
+		createdAt: history.createdAt,
+		updatedAt: history.updatedAt,
+		removedAt: history.removedAt ?? history.updatedAt,
+		removalReason: restoredReason,
+		assignmentCount: history.usage.assignments,
+		currentAssignment,
+		latestReport,
+		latestResult: result,
+		modelRoute: cloneModelRoute(history.modelRoute),
+		lastError: history.state === "failed" ? history.statusSummary : undefined,
+		events: [{
+			sequence: 1,
+			kind: "cleanup",
+			state: "removed",
+			summary: `Restored ${history.state} checkpoint as immutable history`,
+			timestamp: history.updatedAt,
+		}],
+		omittedEventCount: 0,
+		runtime: createRuntimeActivity("settled"),
+		usage: {
+			totals: { ...history.usage.totals },
+			reported: { ...history.usage.reported },
+			turns: history.usage.turns,
+			assignments: history.usage.assignments,
+		},
+		leases: [],
+	};
+}
+
+function compareOverviewRows(
+	left: Pick<SubAgentManagerOverviewRow, "state" | "updatedAt" | "id">,
+	right: Pick<SubAgentManagerOverviewRow, "state" | "updatedAt" | "id">,
+): number {
+	const stateOrder = OVERVIEW_STATE_PRIORITY[left.state] - OVERVIEW_STATE_PRIORITY[right.state];
+	if (stateOrder !== 0) return stateOrder;
+	if (left.updatedAt !== right.updatedAt) return right.updatedAt - left.updatedAt;
+	return left.id.localeCompare(right.id);
+}
+
+function insertOverviewRow(
+	rows: SubAgentManagerOverviewRow[],
+	row: SubAgentManagerOverviewRow,
+	maxRows: number,
+): void {
+	const index = rows.findIndex((candidate) => compareOverviewRows(row, candidate) < 0);
+	if (index < 0) rows.push(row);
+	else rows.splice(index, 0, row);
+	if (rows.length > maxRows) rows.pop();
+}
+
+function insertDashboardRow(
+	rows: SubAgentDashboardRow[],
+	row: SubAgentDashboardRow,
+	maxRows: number,
+): void {
+	const index = rows.findIndex((candidate) => compareOverviewRows(row, candidate) < 0);
+	if (index < 0) rows.push(row);
+	else rows.splice(index, 0, row);
+	if (rows.length > maxRows) rows.pop();
+}
+
+function runtimeOverviewChanged(previous: AgentRuntimeActivity, next: AgentRuntimeActivity): boolean {
+	if (
+		previous.phase !== next.phase ||
+		previous.activeToolCount !== next.activeToolCount ||
+		previous.pendingMessageCount !== next.pendingMessageCount ||
+		previous.activeTools.length !== next.activeTools.length
+	) {
+		return true;
+	}
+	return previous.activeTools.some(
+		(tool, index) =>
+			tool.toolCallId !== next.activeTools[index]?.toolCallId ||
+			tool.toolName !== next.activeTools[index]?.toolName,
+	);
 }
 
 function safeErrorMessage(error: unknown): string {
@@ -561,12 +773,33 @@ function normalizeRuntimeActivity(activity: AgentRuntimeActivity): AgentRuntimeA
 	};
 }
 
-async function settleWithTimeout(promises: readonly Promise<unknown>[], timeoutMs: number): Promise<boolean> {
-	if (promises.length === 0) return true;
+async function settleWithTimeout(
+	promises: readonly Promise<unknown>[],
+	timeoutMs: number,
+): Promise<readonly PromiseSettledResult<unknown>[] | undefined> {
+	if (promises.length === 0) return Object.freeze([]);
 	let timer: ReturnType<typeof setTimeout> | undefined;
 	try {
 		return await Promise.race([
-			Promise.allSettled(promises).then(() => true),
+			Promise.allSettled(promises),
+			new Promise<undefined>((resolvePromise) => {
+				timer = setTimeout(() => resolvePromise(undefined), timeoutMs);
+				timer.unref?.();
+			}),
+		]);
+	} finally {
+		if (timer !== undefined) clearTimeout(timer);
+	}
+}
+
+async function fulfillWithTimeout(promise: Promise<unknown>, timeoutMs: number): Promise<boolean> {
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	try {
+		return await Promise.race([
+			promise.then(
+				() => true,
+				() => false,
+			),
 			new Promise<boolean>((resolvePromise) => {
 				timer = setTimeout(() => resolvePromise(false), timeoutMs);
 				timer.unref?.();
@@ -588,7 +821,11 @@ export class SubAgentManager {
 	#agentPrefix: string;
 	#sequence = 0;
 	#records = new Map<SubAgentId, ManagedRecord>();
+	#restoredHistory = new Map<SubAgentId, PersistedSubAgentHistoryV1>();
 	#operationTails = new Map<SubAgentId, Promise<void>>();
+	#changeListeners = new Set<SubAgentManagerChangeListener>();
+	#eventListeners = new Set<SubAgentManagerEventListener>();
+	#workspaceLeases: WorkspaceLeaseManager;
 	#parentContext?: ParentContextSnapshotV1;
 	#closed = false;
 	#disposePromise?: Promise<void>;
@@ -604,6 +841,11 @@ export class SubAgentManager {
 		this.#agentPrefix = `${AGENT_ID_PREFIX}${this.generation.slice(GENERATION_PREFIX.length)}-`;
 		this.#cleanupTimeoutMs = Math.max(1, options.cleanupTimeoutMs ?? DEFAULT_CLEANUP_TIMEOUT_MS);
 		this.modelRuntime = options.modelRuntime ?? new ChildModelRuntimeAdapter();
+		this.#workspaceLeases = new WorkspaceLeaseManager({
+			generation: this.generation,
+			workspaceRoot: this.cwd,
+			now: this.#now,
+		});
 	}
 
 	get closed(): boolean {
@@ -630,6 +872,81 @@ export class SubAgentManager {
 		return this.#parentContext;
 	}
 
+	/** Subscribe to minimal mutation markers used by session-scoped TUI observability. */
+	subscribeChanges(listener: SubAgentManagerChangeListener): () => void {
+		this.#assertOpen();
+		if (typeof listener !== "function") {
+			throw new SubAgentManagerError("A sub-agent change listener is required", "invalid_listener");
+		}
+		this.#changeListeners.add(listener);
+		let subscribed = true;
+		return () => {
+			if (!subscribed) return;
+			subscribed = false;
+			this.#changeListeners.delete(listener);
+		};
+	}
+
+	/** Subscribe to defensive bounded manager events for this exact generation. */
+	subscribeEvents(listener: SubAgentManagerEventListener): () => void {
+		this.#assertOpen();
+		if (typeof listener !== "function") {
+			throw new SubAgentManagerError("A sub-agent event listener is required", "invalid_listener");
+		}
+		this.#eventListeners.add(listener);
+		let subscribed = true;
+		return () => {
+			if (!subscribed) return;
+			subscribed = false;
+			this.#eventListeners.delete(listener);
+		};
+	}
+
+	/**
+	 * Install bounded active-branch history before session-scoped runtimes subscribe.
+	 * Restored IDs remain inspectable but are never inserted into the live registry.
+	 */
+	restoreHistoricalRecords(histories: readonly PersistedSubAgentHistoryV1[]): {
+		restored: number;
+		duplicates: number;
+		rejected: number;
+		omitted: number;
+	} {
+		this.#assertOpen();
+		if (!Array.isArray(histories)) {
+			throw new SubAgentManagerError("Historical records must be an array", "invalid_history");
+		}
+		let restored = 0;
+		let duplicates = 0;
+		let rejected = 0;
+		let omitted = 0;
+		for (const history of histories) {
+			if (this.#restoredHistory.size >= SUB_AGENT_BOUNDS.historicalAgents) {
+				omitted += 1;
+				continue;
+			}
+			if (
+				!history ||
+				typeof history !== "object" ||
+				typeof history.generation !== "string" ||
+				typeof history.id !== "string" ||
+				history.generation === this.generation ||
+				history.id.startsWith(this.#agentPrefix) ||
+				!history.id.startsWith(`sa1-${history.generation.slice("sag1-".length)}-`)
+			) {
+				rejected += 1;
+				continue;
+			}
+			if (this.#records.has(history.id) || this.#restoredHistory.has(history.id)) {
+				duplicates += 1;
+				continue;
+			}
+			this.#restoredHistory.set(history.id, clonePersistedHistory(history));
+			restored += 1;
+		}
+		return { restored, duplicates, rejected, omitted };
+	}
+
 	createAgent(spec: DynamicAgentSpec): ManagedSubAgentSnapshot {
 		this.#assertOpen();
 		const normalized = normalizeSpec(spec);
@@ -652,6 +969,10 @@ export class SubAgentManager {
 			usage: createUsageLedger(),
 			leases: [],
 			eventSequence: 0,
+			leaseSnapshot: () =>
+				this.#workspaceLeases
+					.listChildLeases(id)
+					.map((lease) => ({ ...lease })),
 			resources: {
 				unsubscribers: new Set(),
 				timers: new Set(),
@@ -665,14 +986,34 @@ export class SubAgentManager {
 	}
 
 	getAgent(id: SubAgentId): ManagedSubAgentSnapshot {
-		return snapshotRecord(this.#requireRecord(id));
+		const record = this.#records.get(id);
+		if (record) return snapshotRecord(record);
+		const history = this.#restoredHistory.get(id);
+		if (history) return restoredHistorySnapshot(history);
+		this.#requireRecord(id);
+		throw new UnknownAgentIdError(id);
 	}
 
 	listAgents(options: { includeRemoved?: boolean } = {}): ManagedSubAgentSnapshot[] {
 		const includeRemoved = options.includeRemoved ?? true;
-		return [...this.#records.values()]
+		const live = [...this.#records.values()]
 			.filter((record) => includeRemoved || record.state !== "removed")
 			.map(snapshotRecord);
+		if (!includeRemoved) return live;
+		return [
+			...live,
+			...[...this.#restoredHistory.values()].map(restoredHistorySnapshot),
+		];
+	}
+
+	/** Return exact IDs without cloning full records; used by captured all-agent controls. */
+	listAgentIds(options: { includeRemoved?: boolean } = {}): SubAgentId[] {
+		const includeRemoved = options.includeRemoved ?? true;
+		const ids = [...this.#records.values()]
+			.filter((record) => includeRemoved || record.state !== "removed")
+			.map((record) => record.id);
+		if (includeRemoved) ids.push(...this.#restoredHistory.keys());
+		return ids;
 	}
 
 	getSummary(): SubAgentManagerSummary {
@@ -686,13 +1027,421 @@ export class SubAgentManager {
 			removed: 0,
 		};
 		for (const record of this.#records.values()) counts[record.state] += 1;
+		counts.removed += this.#restoredHistory.size;
 		return {
 			generation: this.generation,
 			closed: this.#closed,
-			total: this.#records.size,
-			active: this.#records.size - counts.removed,
+			total: this.#records.size + this.#restoredHistory.size,
+			active: this.#records.size - (counts.removed - this.#restoredHistory.size),
 			historical: counts.removed,
 			counts,
+		};
+	}
+
+	/** Atomically claim canonical file identities for one current-generation child. */
+	claimChildFileLeases(
+		id: SubAgentId,
+		workspace: Readonly<WorkspaceIdentity>,
+		targets: readonly Readonly<CanonicalWorkspacePath>[],
+	): Promise<ManagedSubAgentSnapshot> {
+		this.#assertOpen();
+		return this.#enqueue(id, (record) => {
+			if (record.state !== "creating" && record.state !== "running") {
+				throw new SubAgentManagerError(
+					"The sub-agent cannot acquire workspace ownership in its current state",
+					"agent_unavailable",
+				);
+			}
+			const previousCount = record.leases.length;
+			this.#workspaceLeases.claimChildFiles({
+				agentId: record.id,
+				agentName: record.spec.name,
+				workspace,
+				targets,
+			});
+			record.leases = record.leaseSnapshot();
+			if (record.leases.length !== previousCount) {
+				this.#appendEvent(record, "lease", `Claimed ${record.leases.length - previousCount} file lease(s)`);
+			}
+			return snapshotRecord(record);
+		});
+	}
+
+	/** Narrow one exact provisional child lease after guarded creation verifies the existing identity. */
+	reconcileChildFileLease(
+		id: SubAgentId,
+		workspace: Readonly<WorkspaceIdentity>,
+		target: Readonly<CanonicalWorkspacePath>,
+	): Promise<ManagedSubAgentSnapshot> {
+		this.#assertOpen();
+		return this.#enqueue(id, (record) => {
+			if (record.state === "stopping" || record.state === "removed" || record.state === "failed") {
+				throw new SubAgentManagerError(
+					"The sub-agent cannot reconcile workspace ownership in its current state",
+					"agent_unavailable",
+				);
+			}
+			this.#workspaceLeases.reconcileChildFile({
+				agentId: record.id,
+				agentName: record.spec.name,
+				workspace,
+				target,
+			});
+			record.leases = record.leaseSnapshot();
+			return snapshotRecord(record);
+		});
+	}
+
+	/** Atomically claim the complete shared workspace for one child. */
+	claimChildWorkspaceLease(
+		id: SubAgentId,
+		workspace: Readonly<WorkspaceIdentity>,
+	): Promise<ManagedSubAgentSnapshot> {
+		this.#assertOpen();
+		return this.#enqueue(id, (record) => {
+			if (record.state !== "creating" && record.state !== "running") {
+				throw new SubAgentManagerError(
+					"The sub-agent cannot acquire workspace ownership in its current state",
+					"agent_unavailable",
+				);
+			}
+			const previousCount = record.leases.length;
+			this.#workspaceLeases.claimChildWorkspace({
+				agentId: record.id,
+				agentName: record.spec.name,
+				workspace,
+			});
+			record.leases = record.leaseSnapshot();
+			if (record.leases.length !== previousCount) {
+				this.#appendEvent(record, "lease", "Claimed the shared workspace lease");
+			}
+			return snapshotRecord(record);
+		});
+	}
+
+	/** Record one successful guarded file mutation only while its child lease remains authoritative. */
+	recordChildFileMutation(
+		id: SubAgentId,
+		target: Readonly<CanonicalWorkspacePath>,
+	): Promise<ManagedSubAgentSnapshot> {
+		this.#assertOpen();
+		return this.#enqueue(id, (record) => {
+			if (!record.currentAssignment) {
+				throw new SubAgentManagerError(
+					"A guarded file mutation requires an active assignment boundary",
+					"assignment_missing",
+				);
+			}
+			const relativePath = requireBoundedText(
+				target?.relativePath,
+				"workspace mutation path",
+				SUB_AGENT_BOUNDS.contextPathChars,
+			);
+			const owned = this.#workspaceLeases
+				.listChildLeases(record.id)
+				.some((lease) => lease.kind === "file" && lease.path === relativePath);
+			if (!owned) {
+				throw new SubAgentManagerError(
+					"A guarded file mutation cannot be recorded without its exact child lease",
+					"lease_missing",
+				);
+			}
+			const previousFiles = record.currentAssignment.modifiedFiles ?? [];
+			const modifiedFiles = mergeBoundedFilePaths(previousFiles, [relativePath]);
+			const added = modifiedFiles.length > previousFiles.length;
+			record.currentAssignment.modifiedFiles = modifiedFiles;
+			if (record.latestReport) {
+				record.latestReport = {
+					...record.latestReport,
+					files: mergeBoundedFilePaths(modifiedFiles, record.latestReport.files),
+				};
+			}
+			if (added) this.#appendEvent(record, "lease", `Modified ${relativePath}`);
+			return snapshotRecord(record);
+		});
+	}
+
+	/** Explicitly release every retained lease for one child; repeated calls are no-ops. */
+	releaseChildLeases(id: SubAgentId, reason = "Released retained workspace ownership"): Promise<ManagedSubAgentSnapshot> {
+		return this.releaseChildLeasesWithResult(id, reason).then((result) => result.snapshot);
+	}
+
+	/** Atomic release outcome used by exact model/human controls. */
+	releaseChildLeasesWithResult(
+		id: SubAgentId,
+		reason = "Released retained workspace ownership",
+	): Promise<{
+		snapshot: ManagedSubAgentSnapshot;
+		released: readonly Readonly<WorkspaceLeaseRecord>[];
+	}> {
+		this.#assertOpen();
+		const summary = boundText(reason, SUB_AGENT_BOUNDS.eventSummaryChars) || "Released retained workspace ownership";
+		return this.#enqueue(id, (record) => {
+			if (
+				(record.state !== "idle" && record.state !== "blocked") ||
+				(record.state === "blocked" && record.runtime.phase !== "settled")
+			) {
+				throw new SubAgentManagerError(
+					"Retained workspace ownership can be released only at a settled idle or blocked boundary",
+					"lease_release_boundary",
+				);
+			}
+			const released = this.#workspaceLeases.releaseChildLeases(record.id);
+			record.leases = record.leaseSnapshot();
+			if (released.length > 0) {
+				this.#appendEvent(record, "lease", summary, undefined, true);
+			}
+			return {
+				snapshot: snapshotRecord(record),
+				released: Object.freeze(released.map((lease) => Object.freeze({ ...lease }))),
+			};
+		});
+	}
+
+	/** Reserve canonical targets for one exact parent tool call. */
+	reserveParentFiles(
+		reservationId: string,
+		workspace: Readonly<WorkspaceIdentity>,
+		targets: readonly Readonly<CanonicalWorkspacePath>[],
+	): Readonly<ParentWorkspaceReservation> {
+		this.#assertOpen();
+		return this.#workspaceLeases.reserveParentFiles({ reservationId, workspace, targets });
+	}
+
+	/** Reserve the complete shared workspace for one exact parent tool call. */
+	reserveParentWorkspace(
+		reservationId: string,
+		workspace: Readonly<WorkspaceIdentity>,
+	): Readonly<ParentWorkspaceReservation> {
+		this.#assertOpen();
+		return this.#workspaceLeases.reserveParentWorkspace({ reservationId, workspace });
+	}
+
+	/** Release one exact opaque parent reservation handle. */
+	releaseParentReservation(token: string): readonly Readonly<WorkspaceLeaseRecord>[] {
+		return this.#workspaceLeases.releaseParentReservation(token);
+	}
+
+	/** Build one bounded TUI overview without cloning child timelines or conversations. */
+	getOverview(maxRows = SUB_AGENT_BOUNDS.statusWidgetRows): SubAgentManagerOverview {
+		const rowLimit =
+			Number.isSafeInteger(maxRows) && maxRows > 0
+				? Math.min(maxRows, SUB_AGENT_BOUNDS.statusWidgetRows)
+				: SUB_AGENT_BOUNDS.statusWidgetRows;
+		const counts: AgentStateCounts = {
+			creating: 0,
+			running: 0,
+			idle: 0,
+			blocked: 0,
+			failed: 0,
+			stopping: 0,
+			removed: 0,
+		};
+		const usage: UsageCounters = {
+			input: 0,
+			output: 0,
+			cacheRead: 0,
+			cacheWrite: 0,
+			totalTokens: 0,
+			cost: 0,
+		};
+		let usageClamped = false;
+		const rows: SubAgentManagerOverviewRow[] = [];
+		for (const record of this.#records.values()) {
+			counts[record.state] += 1;
+			for (const field of ["input", "output", "cacheRead", "cacheWrite", "totalTokens"] as const) {
+				const total = usage[field] + record.usage.totals[field];
+				if (!Number.isSafeInteger(total)) {
+					usage[field] = Number.MAX_SAFE_INTEGER;
+					usageClamped = true;
+				} else {
+					usage[field] = total;
+				}
+			}
+			const cost = usage.cost + record.usage.totals.cost;
+			if (!Number.isFinite(cost)) {
+				usage.cost = Number.MAX_VALUE;
+				usageClamped = true;
+			} else {
+				usage.cost = cost;
+			}
+			if (record.state === "removed") continue;
+
+			const activeTools = record.runtime.activeTools
+				.slice(0, SUB_AGENT_BOUNDS.statusWidgetTools)
+				.map((tool) => tool.toolName);
+			const blocker =
+				record.state === "blocked"
+					? record.currentAssignment?.blocker ?? record.latestReport?.needs ?? record.latestReport?.summary
+					: undefined;
+			insertOverviewRow(
+				rows,
+				{
+					id: record.id,
+					name: record.spec.name,
+					state: record.state,
+					updatedAt: record.updatedAt,
+					phase: record.runtime.phase,
+					activeToolCount: record.runtime.activeToolCount,
+					activeTools,
+					omittedActiveToolCount: Math.max(0, record.runtime.activeToolCount - activeTools.length),
+					pendingMessageCount: record.runtime.pendingMessageCount,
+					blocker: blocker
+						? boundText(blocker, SUB_AGENT_BOUNDS.statusWidgetBlockerChars)
+						: undefined,
+					resultReady: record.state === "idle" && record.latestResult !== undefined,
+				},
+				rowLimit,
+			);
+		}
+		const currentRemoved = counts.removed;
+		for (const history of this.#restoredHistory.values()) {
+			counts.removed += 1;
+			for (const field of ["input", "output", "cacheRead", "cacheWrite", "totalTokens"] as const) {
+				const total = usage[field] + history.usage.totals[field];
+				if (!Number.isSafeInteger(total)) {
+					usage[field] = Number.MAX_SAFE_INTEGER;
+					usageClamped = true;
+				} else {
+					usage[field] = total;
+				}
+			}
+			const cost = usage.cost + history.usage.totals.cost;
+			if (!Number.isFinite(cost)) {
+				usage.cost = Number.MAX_VALUE;
+				usageClamped = true;
+			} else {
+				usage.cost = cost;
+			}
+		}
+		const active = this.#records.size - currentRemoved;
+		return {
+			generation: this.generation,
+			closed: this.#closed,
+			active,
+			historical: counts.removed,
+			counts,
+			usage,
+			usageClamped,
+			rows,
+			omittedRowCount: Math.max(0, active - rows.length),
+		};
+	}
+
+	/** Build a bounded list snapshot without cloning per-child timelines or reports. */
+	getDashboardSnapshot(
+		maxRows = SUB_AGENT_BOUNDS.dashboardAgents,
+		includeRemoved = true,
+	): SubAgentDashboardSnapshot {
+		const rowLimit =
+			Number.isSafeInteger(maxRows) && maxRows > 0
+				? Math.min(maxRows, SUB_AGENT_BOUNDS.dashboardAgents)
+				: SUB_AGENT_BOUNDS.dashboardAgents;
+		const counts: AgentStateCounts = {
+			creating: 0,
+			running: 0,
+			idle: 0,
+			blocked: 0,
+			failed: 0,
+			stopping: 0,
+			removed: 0,
+		};
+		const usage: UsageCounters = {
+			input: 0,
+			output: 0,
+			cacheRead: 0,
+			cacheWrite: 0,
+			totalTokens: 0,
+			cost: 0,
+		};
+		let usageClamped = false;
+		let eligible = 0;
+		const rows: SubAgentDashboardRow[] = [];
+		for (const record of this.#records.values()) {
+			counts[record.state] += 1;
+			for (const field of ["input", "output", "cacheRead", "cacheWrite", "totalTokens"] as const) {
+				const total = usage[field] + record.usage.totals[field];
+				if (!Number.isSafeInteger(total)) {
+					usage[field] = Number.MAX_SAFE_INTEGER;
+					usageClamped = true;
+				} else {
+					usage[field] = total;
+				}
+			}
+			const cost = usage.cost + record.usage.totals.cost;
+			if (!Number.isFinite(cost)) {
+				usage.cost = Number.MAX_VALUE;
+				usageClamped = true;
+			} else {
+				usage.cost = cost;
+			}
+			if (!includeRemoved && record.state === "removed") continue;
+			eligible += 1;
+			insertDashboardRow(
+				rows,
+				{
+					id: record.id,
+					name: record.spec.name,
+					state: record.state,
+					updatedAt: record.updatedAt,
+					assignmentCount: record.assignmentCount,
+					phase: record.runtime.phase,
+					pendingMessageCount: record.runtime.pendingMessageCount,
+					resultReady: record.latestResult !== undefined,
+					tags: [...(record.spec.tags ?? [])],
+				},
+				rowLimit,
+			);
+		}
+		const currentRemoved = counts.removed;
+		for (const history of this.#restoredHistory.values()) {
+			counts.removed += 1;
+			for (const field of ["input", "output", "cacheRead", "cacheWrite", "totalTokens"] as const) {
+				const total = usage[field] + history.usage.totals[field];
+				if (!Number.isSafeInteger(total)) {
+					usage[field] = Number.MAX_SAFE_INTEGER;
+					usageClamped = true;
+				} else {
+					usage[field] = total;
+				}
+			}
+			const cost = usage.cost + history.usage.totals.cost;
+			if (!Number.isFinite(cost)) {
+				usage.cost = Number.MAX_VALUE;
+				usageClamped = true;
+			} else {
+				usage.cost = cost;
+			}
+			if (!includeRemoved) continue;
+			eligible += 1;
+			const restored = restoredHistorySnapshot(history);
+			insertDashboardRow(
+				rows,
+				{
+					id: restored.id,
+					name: restored.spec.name,
+					state: "removed",
+					updatedAt: restored.updatedAt,
+					assignmentCount: restored.assignmentCount,
+					phase: "settled",
+					pendingMessageCount: 0,
+					resultReady: restored.latestResult !== undefined,
+					tags: [],
+				},
+				rowLimit,
+			);
+		}
+		return {
+			generation: this.generation,
+			closed: this.#closed,
+			active: this.#records.size - currentRemoved,
+			historical: counts.removed,
+			counts,
+			usage,
+			usageClamped,
+			includeRemoved,
+			rows,
+			omittedRowCount: Math.max(0, eligible - rows.length),
 		};
 	}
 
@@ -741,13 +1490,18 @@ export class SubAgentManager {
 	resumeBlockedAssignment(id: SubAgentId): Promise<ManagedSubAgentSnapshot> {
 		this.#assertOpen();
 		return this.#enqueue(id, (record) => {
-			if (record.state !== "blocked" || !record.currentAssignment) {
+			if (
+				record.state !== "blocked" ||
+				!record.currentAssignment ||
+				record.runtime.phase !== "settled"
+			) {
 				throw new InvalidAgentTransitionError(record.state, "running");
 			}
 			this.#transition(record, "running");
 			record.runtime = createRuntimeActivity("streaming");
 			record.currentAssignment.state = "running";
 			record.currentAssignment.blocker = undefined;
+			record.latestReport = undefined;
 			this.#appendEvent(record, "assignment", `Resumed assignment ${record.currentAssignment.sequence}`);
 			return snapshotRecord(record);
 		});
@@ -763,9 +1517,18 @@ export class SubAgentManager {
 				throw new InvalidAgentTransitionError(record.state, outcome.state);
 			}
 			const now = this.#now();
-			const result = this.#boundedResult(outcome, now);
+			const result = this.#boundedResult(
+				{
+					...outcome,
+					files: mergeBoundedFilePaths(
+						record.currentAssignment.modifiedFiles,
+						outcome.files,
+					),
+				},
+				now,
+			);
 			this.#transition(record, outcome.state);
-			record.runtime = createRuntimeActivity("settled");
+			if (outcome.state === "idle") record.runtime = createRuntimeActivity("settled");
 			record.currentAssignment.state = outcome.state;
 			if (outcome.state === "blocked") {
 				record.currentAssignment.blocker = boundText(outcome.needs ?? outcome.summary, SUB_AGENT_BOUNDS.reportNeedsChars);
@@ -774,12 +1537,22 @@ export class SubAgentManager {
 				record.currentAssignment.result = result;
 				record.latestResult = result;
 			}
-			this.#appendEvent(record, "assignment", `${outcome.state}: ${outcome.summary}`);
+			this.#appendEvent(
+				record,
+				"assignment",
+				`${outcome.state}: ${outcome.summary}`,
+				outcome.state,
+				true,
+			);
 			return snapshotRecord(record);
 		});
 	}
 
-	failAgent(id: SubAgentId, error: unknown): Promise<ManagedSubAgentSnapshot> {
+	failAgent(
+		id: SubAgentId,
+		error: unknown,
+		options: { runtimeSettled?: boolean } = {},
+	): Promise<ManagedSubAgentSnapshot> {
 		this.#assertOpen();
 		return this.#enqueue(id, (record) => {
 			if (record.state === "failed") return snapshotRecord(record);
@@ -789,6 +1562,10 @@ export class SubAgentManager {
 			const message = safeErrorMessage(error);
 			this.#transition(record, "failed");
 			record.runtime = createRuntimeActivity("settled");
+			if (options.runtimeSettled === true) {
+				this.#workspaceLeases.releaseChildLeases(record.id);
+				record.leases = record.leaseSnapshot();
+			}
 			record.pendingModelReconfiguration = undefined;
 			record.lastError = message;
 			if (record.currentAssignment?.state === "running" || record.currentAssignment?.state === "blocked") {
@@ -796,7 +1573,7 @@ export class SubAgentManager {
 				record.currentAssignment.error = message;
 				record.currentAssignment.endedAt = this.#now();
 			}
-			this.#appendEvent(record, "runtime", `Failed: ${message}`);
+			this.#appendEvent(record, "runtime", `Failed: ${message}`, "failed", true);
 			return snapshotRecord(record);
 		});
 	}
@@ -810,6 +1587,8 @@ export class SubAgentManager {
 			if (record.state !== "running" && record.state !== "blocked") {
 				throw new SubAgentManagerError("A sub-agent can report only during an active assignment", "agent_not_active");
 			}
+			const reportFiles =
+				boundedUniqueStrings(report.files, "report.files", SUB_AGENT_BOUNDS.reportFiles, 4_096) ?? [];
 			const bounded: BoundedAgentReport = {
 				state: requireChoice<AgentReportState>(
 					report.state,
@@ -818,8 +1597,7 @@ export class SubAgentManager {
 				),
 				summary: requireBoundedText(report.summary, "report.summary", SUB_AGENT_BOUNDS.reportSummaryChars),
 				details: optionalBoundedText(report.details, "report.details", SUB_AGENT_BOUNDS.reportDetailsChars),
-				files:
-					boundedUniqueStrings(report.files, "report.files", SUB_AGENT_BOUNDS.reportFiles, 4_096) ?? [],
+				files: mergeBoundedFilePaths(record.currentAssignment?.modifiedFiles, reportFiles),
 				needs: optionalBoundedText(report.needs, "report.needs", SUB_AGENT_BOUNDS.reportNeedsChars),
 				timestamp: nonNegativeNumber(
 					report.timestamp ?? this.#now(),
@@ -827,7 +1605,13 @@ export class SubAgentManager {
 				),
 			};
 			record.latestReport = bounded;
-			this.#appendEvent(record, "report", `${bounded.state}: ${bounded.summary}`);
+			this.#appendEvent(
+				record,
+				"report",
+				`${bounded.state}: ${bounded.summary}`,
+				undefined,
+				record.state === "blocked",
+			);
 			return snapshotRecord(record);
 		});
 	}
@@ -847,6 +1631,7 @@ export class SubAgentManager {
 			record.usage = update.ledger;
 			record.currentAssignment.usage = update.assignment;
 			record.updatedAt = this.#now();
+			this.#publishChange(record);
 			return snapshotRecord(record);
 		});
 	}
@@ -858,6 +1643,22 @@ export class SubAgentManager {
 			const drained = withUsageErrorBoundary(() => drainUsageLedger(record.usage));
 			record.usage = drained.ledger;
 			record.updatedAt = this.#now();
+			const hasDelta =
+				drained.delta.input > 0 ||
+				drained.delta.output > 0 ||
+				drained.delta.cacheRead > 0 ||
+				drained.delta.cacheWrite > 0 ||
+				drained.delta.totalTokens > 0 ||
+				drained.delta.cost > 0;
+			if (hasDelta && HISTORICAL_CHECKPOINT_STATES.has(record.state)) {
+				this.#appendEvent(
+					record,
+					"runtime",
+					"Updated the parent usage reporting checkpoint",
+					undefined,
+					true,
+				);
+			}
 			return { ...drained.delta };
 		});
 	}
@@ -870,8 +1671,10 @@ export class SubAgentManager {
 		const normalized = normalizeRuntimeActivity(activity);
 		return this.#enqueue(id, (record) => {
 			if (record.state === "stopping" || record.state === "removed") return snapshotRecord(record);
+			const previous = record.runtime;
 			record.runtime = normalized;
 			record.updatedAt = this.#now();
+			if (runtimeOverviewChanged(previous, normalized)) this.#publishChange(record);
 			return snapshotRecord(record);
 		});
 	}
@@ -911,6 +1714,8 @@ export class SubAgentManager {
 				"model",
 				`Selected model ${normalized.selectedModel.provider}/${normalized.selectedModel.id}` +
 					(thinkingLevel === undefined ? "" : ` with thinking ${thinkingLevel}`),
+				undefined,
+				record.state === "idle",
 			);
 			return snapshotRecord(record);
 		});
@@ -1024,7 +1829,7 @@ export class SubAgentManager {
 			record.currentAssignment.endedAt = this.#now();
 			record.currentAssignment.result = undefined;
 			record.currentAssignment.error = undefined;
-			this.#appendEvent(record, "assignment", message);
+			this.#appendEvent(record, "assignment", message, undefined, true);
 			return snapshotRecord(record);
 		});
 	}
@@ -1090,17 +1895,58 @@ export class SubAgentManager {
 				() => undefined,
 				async (error) => {
 					try {
+						let becameFailed = false;
 						await this.#enqueue(id, (current) => {
 							if (current.state === "stopping" || current.state === "removed" || this.#closed) return;
 							const message = safeErrorMessage(error);
 							current.lastError = message;
-							if (canTransitionAgentState(current.state, "failed")) this.#transition(current, "failed");
+							becameFailed = canTransitionAgentState(current.state, "failed");
+							if (becameFailed) this.#transition(current, "failed");
 							if (current.currentAssignment?.state === "running") {
 								current.currentAssignment.state = "failed";
 								current.currentAssignment.error = message;
 								current.currentAssignment.endedAt = this.#now();
 							}
-							this.#appendEvent(current, "runtime", `Background failure: ${message}`);
+							this.#appendEvent(
+								current,
+								"runtime",
+								`Background failure: ${message}`,
+								becameFailed ? "failed" : undefined,
+								becameFailed,
+							);
+						});
+						if (!becameFailed || this.#closed) return;
+
+						const cleanup = record.resources.cleanup;
+						const settled = cleanup
+							? cleanup.waitForIdle
+								? await fulfillWithTimeout(
+									(async () => {
+										try {
+											await cleanup.abort?.();
+										} catch {
+											// A fulfilled idle wait below remains authoritative.
+										}
+										await cleanup.waitForIdle?.();
+									})(),
+									this.#cleanupTimeoutMs,
+								)
+								: false
+							: true;
+						if (!settled || this.#closed) return;
+						await this.#enqueue(id, (current) => {
+							if (current.state !== "failed") return;
+							const released = this.#workspaceLeases.releaseChildLeases(current.id);
+							current.leases = current.leaseSnapshot();
+							if (released.length > 0) {
+								this.#appendEvent(
+									current,
+									"lease",
+									"Released workspace ownership after settled failure cleanup",
+									undefined,
+									true,
+								);
+							}
 						});
 					} catch {
 						// The promise is observed even if its generation is already gone.
@@ -1147,7 +1993,13 @@ export class SubAgentManager {
 				if (cleanupErrors.length > 0) {
 					record.lastError = boundText(cleanupErrors.join("; "), SUB_AGENT_BOUNDS.errorChars);
 				}
-				this.#appendEvent(record, "cleanup", `Removed: ${boundedReason}`);
+				this.#appendEvent(
+					record,
+					"cleanup",
+					`Removed: ${boundedReason}`,
+					undefined,
+					true,
+				);
 			}
 			return snapshotRecord(record);
 		});
@@ -1157,9 +2009,14 @@ export class SubAgentManager {
 		if (this.#disposePromise) return this.#disposePromise;
 		this.#closed = true;
 		this.#parentContext = undefined;
+		this.#changeListeners.clear();
+		this.#eventListeners.clear();
 		const ids = [...this.#records.keys()];
 		this.#disposePromise = Promise.allSettled(ids.map((id) => this.removeAgent(id, reason)))
-			.then(() => Promise.allSettled([this.modelRuntime.dispose()]))
+			.then(() => {
+				this.#workspaceLeases.close();
+				return Promise.allSettled([this.modelRuntime.dispose()]);
+			})
 			.then(() => undefined);
 		return this.#disposePromise;
 	}
@@ -1171,6 +2028,7 @@ export class SubAgentManager {
 	#requireRecord(id: SubAgentId): ManagedRecord {
 		const record = this.#records.get(id);
 		if (record) return record;
+		if (this.#restoredHistory.has(id)) throw new HistoricalAgentIdError(id);
 		if (id.startsWith(AGENT_ID_PREFIX) && !id.startsWith(this.#agentPrefix)) throw new StaleAgentIdError(id);
 		throw new UnknownAgentIdError(id);
 	}
@@ -1209,7 +2067,13 @@ export class SubAgentManager {
 		this.#appendEvent(record, "state", `${previous} -> ${next}`);
 	}
 
-	#appendEvent(record: ManagedRecord, kind: BoundedAgentEvent["kind"], summary: string): void {
+	#appendEvent(
+		record: ManagedRecord,
+		kind: BoundedAgentEvent["kind"],
+		summary: string,
+		notificationState?: NotificationState,
+		historicalCheckpoint = false,
+	): void {
 		record.eventSequence += 1;
 		const event: BoundedAgentEvent = {
 			sequence: record.eventSequence,
@@ -1224,6 +2088,53 @@ export class SubAgentManager {
 		}
 		record.events.push(event);
 		record.updatedAt = event.timestamp;
+		this.#publishChange(record);
+		if (this.#eventListeners.size === 0) return;
+
+		const notificationSummary =
+			notificationState === "idle"
+				? record.currentAssignment?.result?.summary
+				: notificationState === "blocked"
+					? record.latestReport?.summary ?? event.summary.replace(/^blocked:\s*/, "")
+					: notificationState === "failed"
+						? record.lastError
+						: undefined;
+		const observed: SubAgentManagerEvent = Object.freeze({
+			generation: this.generation,
+			id: record.id,
+			name: record.spec.name,
+			state: record.state,
+			assignmentId: record.currentAssignment?.id,
+			notifyOn: Object.freeze([...(record.spec.notifyOn ?? [])]),
+			notificationState,
+			notificationSummary,
+			historicalCheckpoint: historicalCheckpoint ? true : undefined,
+			event: Object.freeze({ ...event }),
+		});
+		for (const listener of [...this.#eventListeners]) {
+			try {
+				listener(observed);
+			} catch {
+				// Observability must never alter authoritative child state.
+			}
+		}
+	}
+
+	#publishChange(record: ManagedRecord): void {
+		if (this.#changeListeners.size === 0) return;
+		const change: SubAgentManagerChange = Object.freeze({
+			generation: this.generation,
+			id: record.id,
+			state: record.state,
+			updatedAt: record.updatedAt,
+		});
+		for (const listener of [...this.#changeListeners]) {
+			try {
+				listener(change);
+			} catch {
+				// TUI observability must never alter authoritative child state.
+			}
+		}
 	}
 
 	#boundedResult(
@@ -1256,17 +2167,33 @@ export class SubAgentManager {
 		for (const unsubscribe of record.resources.unsubscribers) await capture("unsubscribe", unsubscribe);
 		record.resources.unsubscribers.clear();
 		record.runtime = createRuntimeActivity("settled");
-		record.leases = [];
 
 		await capture("abort", record.resources.cleanup?.abort);
 		const settling: Promise<unknown>[] = [...record.resources.background];
-		if (record.resources.cleanup?.waitForIdle) {
-			settling.push(Promise.resolve().then(() => record.resources.cleanup?.waitForIdle?.()));
-		}
-		if (!(await settleWithTimeout(settling, this.#cleanupTimeoutMs))) {
+		const idleSettlementIndex = record.resources.cleanup?.waitForIdle
+			? settling.push(Promise.resolve().then(() => record.resources.cleanup?.waitForIdle?.())) - 1
+			: undefined;
+		const settlement = await settleWithTimeout(settling, this.#cleanupTimeoutMs);
+		if (!settlement) {
 			errors.push(`settlement timed out after ${this.#cleanupTimeoutMs}ms`);
+		} else if (settlement.some((result) => result.status === "rejected")) {
+			errors.push("settlement did not reach a fulfilled idle boundary");
 		}
+		const ownershipSettled = settlement !== undefined && (
+			idleSettlementIndex !== undefined
+				? settlement[idleSettlementIndex]?.status === "fulfilled"
+				: settlement.every((result) => result.status === "fulfilled")
+		);
 		await capture("dispose", record.resources.cleanup?.dispose);
+		if (ownershipSettled) {
+			await capture("release leases", () => {
+				this.#workspaceLeases.releaseChildLeases(record.id);
+				record.leases = record.leaseSnapshot();
+			});
+		} else if (record.leaseSnapshot().length > 0) {
+			errors.push("retained workspace ownership because idle settlement was not proven");
+			record.leases = record.leaseSnapshot();
+		}
 		return errors;
 	}
 }

@@ -7,6 +7,7 @@ import {
 import {
 	ChildEventTranslator,
 	createChildEventTranslator,
+	type ChildBlocker,
 	type ChildEventTranslatorOptions,
 } from "./event-translator.ts";
 import {
@@ -27,6 +28,7 @@ import type {
 	SubAgentId,
 } from "./types.ts";
 import { SUB_AGENT_BOUNDS } from "./types.ts";
+import { WorkspaceLeaseConflictError } from "./workspace/leases.ts";
 
 export type ActiveAssignmentDelivery = "steer" | "followUp";
 
@@ -37,6 +39,7 @@ export type SubAgentAssignmentRunnerErrorCode =
 	| "runtime_missing"
 	| "assignment_not_idle"
 	| "assignment_not_running"
+	| "assignment_not_settled"
 	| "assignment_rejected"
 	| "assignment_execution_failed"
 	| "assignment_changed"
@@ -165,6 +168,65 @@ function settledState(state: ManagedSubAgentSnapshot["state"]): boolean {
 	return state === "idle" || state === "blocked" || state === "failed" || state === "removed";
 }
 
+function boundedLeaseIdentity(value: unknown, maxChars: number, fallback: string): string {
+	const normalized = String(value ?? "")
+		.replace(/[\u0000-\u001f\u007f-\u009f]/gu, " ")
+		.replace(/\s+/gu, " ")
+		.trim()
+		.slice(0, maxChars);
+	return normalized || fallback;
+}
+
+function structuralLeaseConflict(
+	error: unknown,
+): error is WorkspaceLeaseConflictError {
+	return (
+		error instanceof WorkspaceLeaseConflictError ||
+		(Boolean(error) &&
+			typeof error === "object" &&
+			(error as { code?: unknown }).code === "lease_conflict" &&
+			Boolean((error as { conflict?: unknown }).conflict))
+	);
+}
+
+function leaseConflictBlocker(error: WorkspaceLeaseConflictError): ChildBlocker {
+	const conflict = error.conflict;
+	const target = conflict.path
+		? `target ${boundedLeaseIdentity(conflict.path, SUB_AGENT_BOUNDS.contextPathChars, "unknown")}`
+		: "the shared workspace";
+	if (conflict.ownerKind === "child") {
+		const ownerId = boundedLeaseIdentity(
+			conflict.ownerAgentId,
+			SUB_AGENT_BOUNDS.agentIdChars,
+			"unknown sub-agent",
+		);
+		const ownerName = conflict.ownerAgentName
+			? ` (${boundedLeaseIdentity(conflict.ownerAgentName, SUB_AGENT_BOUNDS.nameChars, "unnamed")})`
+			: "";
+		return {
+			summary: `Lease conflict held by sub-agent ${ownerId}${ownerName} for ${target}.`,
+			needs: `Release retained leases from or remove sub-agent ${ownerId}, then redirect this blocked child.`,
+		};
+	}
+	return {
+		summary: `Lease conflict held by an active parent mutation for ${target}.`,
+		needs: "Wait for the parent mutation to finish, then redirect this blocked child.",
+	};
+}
+
+async function recordLeaseConflict(
+	translator: ChildEventTranslator,
+	error: unknown,
+): Promise<void> {
+	if (!structuralLeaseConflict(error)) return;
+	try {
+		await translator.recordBlocker(leaseConflictBlocker(error));
+	} catch {
+		// A simultaneous removal/failure may already own the lifecycle boundary.
+		// Preserve the authoritative lease conflict thrown by the claim itself.
+	}
+}
+
 /**
  * Session-generation-scoped owner of reusable child assignment execution.
  *
@@ -234,6 +296,7 @@ export class SubAgentAssignmentRunner {
 				await this.manager.failAgent(
 					created.id,
 					safeInitializationMessage(error, "Could not initialize the child assignment"),
+					{ runtimeSettled: true },
 				);
 			}
 			if (error instanceof SubAgentAssignmentRunnerError) throw error;
@@ -279,8 +342,112 @@ export class SubAgentAssignmentRunner {
 					id,
 				);
 			}
+			if (live.runtime.selectedTools?.some((name) => name === "edit" || name === "write" || name === "bash")) {
+				if (typeof live.runtime.prepareAssignmentWorkspace !== "function") {
+					await this.manager.failAgent(
+						id,
+						"The guarded child runtime cannot prepare assignment workspace ownership",
+						{ runtimeSettled: true },
+					);
+					throw new SubAgentAssignmentRunnerError(
+						"runtime_initialization_failed",
+						"The guarded child runtime cannot prepare assignment workspace ownership",
+						id,
+					);
+				}
+				try {
+					await live.runtime.prepareAssignmentWorkspace();
+				} catch {
+					const afterPreparation = this.manager.getAgent(id);
+					if (afterPreparation.state === "running") {
+						await this.manager.failAgent(
+							id,
+							"Could not reacquire retained workspace ownership for the child assignment",
+							{ runtimeSettled: true },
+						);
+					} else if (afterPreparation.state === "blocked" && live.runtime.session.isIdle && !live.currentRun) {
+						await this.manager.updateRuntimeActivity(id, {
+							phase: "settled",
+							activeToolCount: 0,
+							activeTools: [],
+							pendingMessageCount: 0,
+						});
+					}
+					throw new SubAgentAssignmentRunnerError(
+						"assignment_rejected",
+						"Could not reacquire retained workspace ownership for the child assignment",
+						id,
+					);
+				}
+			}
 
 			return this.#launchPrompt(live, assignmentId, started.currentAssignment!.objective);
+		});
+	}
+
+	/** Resume one settled blocked assignment with retained child context. */
+	resumeBlocked(id: SubAgentId, message: string): Promise<AssignmentLaunchResult> {
+		const text = boundedAssignmentText(message, "blocked-assignment message");
+		return this.#enqueue(id, async () => {
+			if (this.manager.closed) throw new ManagerClosedError();
+			const live = this.#requireLive(id);
+			let snapshot = this.manager.getAgent(id);
+			if (snapshot.state !== "blocked" || !snapshot.currentAssignment) {
+				throw new SubAgentAssignmentRunnerError(
+					"assignment_not_running",
+					`Sub-agent has no blocked assignment to resume: ${snapshot.state}`,
+					id,
+				);
+			}
+
+			const priorRun = live.currentRun;
+			if (priorRun) await priorRun.completion;
+			await live.translator.flush();
+			snapshot = this.manager.getAgent(id);
+			if (snapshot.state !== "blocked" || !snapshot.currentAssignment) {
+				throw new SubAgentAssignmentRunnerError(
+					"assignment_changed",
+					`The blocked assignment changed before it could resume: ${snapshot.state}`,
+					id,
+				);
+			}
+			if (!live.runtime.session.isIdle || live.currentRun) {
+				throw new SubAgentAssignmentRunnerError(
+					"assignment_not_settled",
+					"The blocked child runtime has not reached an idle resume boundary",
+					id,
+				);
+			}
+
+			const assignmentId = snapshot.currentAssignment.id;
+			await this.manager.resumeBlockedAssignment(id);
+			if (live.runtime.selectedTools?.some((name) => name === "edit" || name === "write" || name === "bash")) {
+				try {
+					await live.runtime.prepareAssignmentWorkspace();
+				} catch {
+					const afterPreparation = this.manager.getAgent(id);
+					if (afterPreparation.state === "running") {
+						await this.manager.failAgent(
+							id,
+							"Could not reacquire retained workspace ownership for the blocked assignment",
+							{ runtimeSettled: true },
+						);
+					} else if (afterPreparation.state === "blocked" && live.runtime.session.isIdle && !live.currentRun) {
+						await this.manager.updateRuntimeActivity(id, {
+							phase: "settled",
+							activeToolCount: 0,
+							activeTools: [],
+							pendingMessageCount: 0,
+						});
+					}
+					throw new SubAgentAssignmentRunnerError(
+						"assignment_rejected",
+						"Could not reacquire retained workspace ownership for the blocked assignment",
+						id,
+					);
+				}
+			}
+			return this.#launchPrompt(live, assignmentId, text);
 		});
 	}
 
@@ -572,6 +739,28 @@ export class SubAgentAssignmentRunner {
 					parentContext: this.manager.getParentContextSnapshot(),
 					onEvent: translator.listener,
 					onReport: (report) => translator.recordReport(report),
+					claimFileLeases: async (workspace, targets) => {
+						try {
+							await this.manager.claimChildFileLeases(id, workspace, targets);
+						} catch (error) {
+							await recordLeaseConflict(translator, error);
+							throw error;
+						}
+					},
+					reconcileFileLease: async (workspace, target) => {
+						await this.manager.reconcileChildFileLease(id, workspace, target);
+					},
+					claimWorkspaceLease: async (workspace) => {
+						try {
+							await this.manager.claimChildWorkspaceLease(id, workspace);
+						} catch (error) {
+							await recordLeaseConflict(translator, error);
+							throw error;
+						}
+					},
+					onFileMutation: async (target) => {
+						await this.manager.recordChildFileMutation(id, target);
+					},
 				});
 				await this.manager.recordEffectiveThinkingLevel(
 					id,

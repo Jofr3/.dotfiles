@@ -40,6 +40,7 @@ const RUNNER_ERROR_CODES = new Set([
 	"assignment_execution_failed",
 	"assignment_changed",
 	"assignment_abort_failed",
+	"cancelled",
 	"invalid_reconfiguration",
 	"reconfiguration_not_available",
 	"reconfiguration_failed",
@@ -120,15 +121,22 @@ function oneLine(value: unknown): string {
 
 function boundUtf8Line(value: unknown, maxBytes: number): string {
 	const normalized = oneLine(value);
+	const cap = Math.max(0, Math.floor(maxBytes));
+	if (Buffer.byteLength(normalized, "utf8") <= cap) return normalized;
+
+	const ellipsis = "…";
+	const ellipsisBytes = Buffer.byteLength(ellipsis, "utf8");
+	if (cap < ellipsisBytes) return ".".repeat(cap);
+
 	let result = "";
 	let bytes = 0;
 	for (const character of normalized) {
 		const characterBytes = Buffer.byteLength(character, "utf8");
-		if (bytes + characterBytes > maxBytes) break;
+		if (bytes + characterBytes + ellipsisBytes > cap) break;
 		result += character;
 		bytes += characterBytes;
 	}
-	return result;
+	return result + ellipsis;
 }
 
 function errorCode(error: unknown): string | undefined {
@@ -263,9 +271,25 @@ function stateFailure(index: number, snapshot: ManagedSubAgentSnapshot): SendFai
 async function synchronizeBoundary(
 	runtime: SubAgentsSendRuntime,
 	snapshot: ManagedSubAgentSnapshot,
+	signal: AbortSignal | undefined,
 ): Promise<void> {
+	if (signal?.aborted) return;
+	const wait = runtime.runner.waitForAssignment(snapshot.id, snapshot.currentAssignment?.id);
 	try {
-		await runtime.runner.waitForAssignment(snapshot.id, snapshot.currentAssignment?.id);
+		if (!signal) await wait;
+		else {
+			await Promise.race([
+				wait,
+				new Promise<void>((resolvePromise) => {
+					const onAbort = () => resolvePromise();
+					signal.addEventListener("abort", onAbort, { once: true });
+					void wait.then(
+						() => signal.removeEventListener("abort", onAbort),
+						() => signal.removeEventListener("abort", onAbort),
+					);
+				}),
+			]);
+		}
 	} catch {
 		// A concurrent control call may already have created another assignment.
 		// The next bounded attempt re-reads authoritative manager state.
@@ -276,14 +300,25 @@ async function dispatchOne(
 	runtime: SubAgentsSendRuntime,
 	target: SubAgentsSendInput["messages"][number],
 	index: number,
+	signal: AbortSignal | undefined,
 ): Promise<SendTargetOutcome> {
 	const delivery = target.delivery ?? "followUp";
 	try {
 		for (let attempt = 0; attempt < MAX_BOUNDARY_ATTEMPTS; attempt += 1) {
+			if (signal?.aborted) {
+				return {
+					index,
+					ok: false,
+					id: target.id,
+					state: safeSnapshot(runtime, target.id)?.state,
+					code: "cancelled",
+					message: "Message delivery was cancelled before another dispatch attempt",
+				};
+			}
 			const snapshot = runtime.manager.getAgent(target.id);
 			if (snapshot.state === "idle") {
 				try {
-					const launch = await runtime.runner.prompt(target.id, target.message);
+					const launch = await runtime.runner.prompt(target.id, target.message, signal);
 					return {
 						index,
 						ok: true,
@@ -294,13 +329,13 @@ async function dispatchOne(
 					};
 				} catch (error) {
 					if (!isRunnerBoundaryError(error, "assignment_not_idle")) throw error;
-					await synchronizeBoundary(runtime, snapshot);
+					await synchronizeBoundary(runtime, snapshot, signal);
 					continue;
 				}
 			}
 			if (snapshot.state === "running") {
 				try {
-					const accepted = await runtime.runner.send(target.id, target.message, delivery);
+					const accepted = await runtime.runner.send(target.id, target.message, delivery, signal);
 					return {
 						index,
 						ok: true,
@@ -312,13 +347,13 @@ async function dispatchOne(
 					};
 				} catch (error) {
 					if (!isRunnerBoundaryError(error, "assignment_not_running")) throw error;
-					await synchronizeBoundary(runtime, snapshot);
+					await synchronizeBoundary(runtime, snapshot, signal);
 					continue;
 				}
 			}
 			if (snapshot.state === "blocked") {
 				try {
-					const launch = await runtime.runner.resumeBlocked(target.id, target.message);
+					const launch = await runtime.runner.resumeBlocked(target.id, target.message, signal);
 					return {
 						index,
 						ok: true,
@@ -329,7 +364,7 @@ async function dispatchOne(
 					};
 				} catch (error) {
 					if (!isRunnerBoundaryError(error, "assignment_not_running")) throw error;
-					await synchronizeBoundary(runtime, snapshot);
+					await synchronizeBoundary(runtime, snapshot, signal);
 					continue;
 				}
 			}
@@ -416,7 +451,7 @@ export async function executeSubAgentsSend(
 		params.messages.map((target, index) =>
 			duplicates.has(target.id)
 				? Promise.resolve(duplicateFailure(index, target.id))
-				: dispatchOne(runtime, target, index),
+				: dispatchOne(runtime, target, index, signal),
 		),
 	);
 	const accepted = outcomes.filter((outcome) => outcome.ok).length;

@@ -306,7 +306,7 @@ test("the extension factory is inert until session_start and rotates managers at
 	);
 	assert.ok(fakePi.commands.has("sub-agents"));
 	assert.ok(fakePi.tools.has("sub_agents_spawn"));
-	assert.equal(fakePi.tools.get("sub_agents_spawn").executionMode, "parallel");
+	assert.equal(fakePi.tools.get("sub_agents_spawn").executionMode, "sequential");
 	assert.ok(fakePi.tools.has("sub_agents_status"));
 	assert.equal(fakePi.tools.get("sub_agents_status").executionMode, "parallel");
 	assert.ok(fakePi.tools.has("sub_agents_send"));

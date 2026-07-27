@@ -35,6 +35,12 @@ import {
 	createGuardedChildWriteTool,
 } from "./workspace/guarded-tools.ts";
 import {
+	createGuardedChildFindTool,
+	createGuardedChildGrepTool,
+	createGuardedChildLsTool,
+	createGuardedChildReadTool,
+} from "./workspace/guarded-read-tools.ts";
+import {
 	WorkspacePathError,
 	resolveCanonicalWorkspacePath,
 	resolveCanonicalWriteScope,
@@ -69,6 +75,7 @@ const THINKING_LEVELS = new Set<string>([
 	"xhigh",
 	"max",
 ]);
+const DEFAULT_SESSION_CLEANUP_TIMEOUT_MS = 2_000;
 
 export type SubAgentSessionFactoryErrorCode =
 	| "invalid_runtime_request"
@@ -84,11 +91,18 @@ export type SubAgentSessionFactoryErrorCode =
 
 export class SubAgentSessionFactoryError extends Error {
 	readonly code: SubAgentSessionFactoryErrorCode;
+	/** True only when no child run can remain active after this failure. */
+	readonly runtimeSettled: boolean;
 
-	constructor(code: SubAgentSessionFactoryErrorCode, message: string) {
+	constructor(
+		code: SubAgentSessionFactoryErrorCode,
+		message: string,
+		options: { runtimeSettled?: boolean } = {},
+	) {
 		super(message);
 		this.name = "SubAgentSessionFactoryError";
 		this.code = code;
+		this.runtimeSettled = options.runtimeSettled ?? true;
 	}
 }
 
@@ -99,6 +113,8 @@ export interface SubAgentSessionFactoryDependencies {
 	createResourceLoader?: (options: CreateSubAgentResourceLoaderOptions) => ResourceLoader;
 	/** Deterministic offline-test seam; production uses Pi's local bash backend. */
 	guardedBashOperations?: BashOperations;
+	/** Bounded partial-session cleanup deadline; production defaults to two seconds. */
+	cleanupTimeoutMs?: number;
 }
 
 export interface CreateSubAgentSessionOptions {
@@ -148,6 +164,7 @@ export class SubAgentSessionRuntime {
 
 	#unsubscribe?: () => void;
 	#prepareWorkspaceOwnership: () => Promise<void>;
+	#cleanupTimeoutMs: number;
 	#disposed = false;
 	#closePromise?: Promise<void>;
 
@@ -164,6 +181,7 @@ export class SubAgentSessionRuntime {
 		selectedTools: readonly ChildSessionToolName[];
 		prepareWorkspaceOwnership: () => Promise<void>;
 		unsubscribe: () => void;
+		cleanupTimeoutMs?: number;
 	}) {
 		this.id = options.id;
 		this.generation = options.generation;
@@ -177,6 +195,7 @@ export class SubAgentSessionRuntime {
 		this.selectedTools = Object.freeze([...options.selectedTools]);
 		this.#prepareWorkspaceOwnership = options.prepareWorkspaceOwnership;
 		this.#unsubscribe = options.unsubscribe;
+		this.#cleanupTimeoutMs = normalizeCleanupTimeout(options.cleanupTimeoutMs);
 	}
 
 	get disposed(): boolean {
@@ -259,7 +278,6 @@ export class SubAgentSessionRuntime {
 
 	dispose(): void {
 		if (this.#disposed) return;
-		this.#disposed = true;
 		let firstError: unknown;
 		try {
 			this.#unsubscribe?.();
@@ -270,6 +288,7 @@ export class SubAgentSessionRuntime {
 		}
 		try {
 			this.session.dispose();
+			this.#disposed = true;
 		} catch (error) {
 			firstError ??= error;
 		}
@@ -277,6 +296,7 @@ export class SubAgentSessionRuntime {
 			throw new SubAgentSessionFactoryError(
 				"session_cleanup_failed",
 				"Could not dispose the child session cleanly",
+				{ runtimeSettled: false },
 			);
 		}
 	}
@@ -285,21 +305,35 @@ export class SubAgentSessionRuntime {
 		if (this.#closePromise) return this.#closePromise;
 		this.#closePromise = (async () => {
 			let failed = false;
-			for (const operation of [
+			const abort = await settleCleanupOperation(
 				() => this.abort(),
-				() => this.waitForIdle(),
-				() => this.dispose(),
-			]) {
-				try {
-					await operation();
-				} catch {
-					failed = true;
-				}
+				this.#cleanupTimeoutMs,
+			);
+			if (!abort.fulfilled) failed = true;
+
+			let runtimeSettled = false;
+			if (!abort.timedOut) {
+				const idle = await settleCleanupOperation(
+					() => this.waitForIdle(),
+					this.#cleanupTimeoutMs,
+				);
+				runtimeSettled = idle.fulfilled;
+				if (!idle.fulfilled) failed = true;
+			} else {
+				failed = true;
+			}
+
+			try {
+				this.dispose();
+			} catch {
+				failed = true;
+				runtimeSettled = false;
 			}
 			if (failed) {
 				throw new SubAgentSessionFactoryError(
 					"session_cleanup_failed",
 					"Could not close the child session cleanly",
+					{ runtimeSettled },
 				);
 			}
 		})();
@@ -472,31 +506,73 @@ function validateInitializedSession(options: {
 	}
 }
 
+function normalizeCleanupTimeout(value: number | undefined): number {
+	return Number.isSafeInteger(value) && value! > 0
+		? Math.min(value!, 60_000)
+		: DEFAULT_SESSION_CLEANUP_TIMEOUT_MS;
+}
+
+interface CleanupSettlement {
+	fulfilled: boolean;
+	timedOut: boolean;
+}
+
+async function settleCleanupOperation(
+	operation: () => void | Promise<void>,
+	timeoutMs: number,
+): Promise<CleanupSettlement> {
+	const run = Promise.resolve().then(operation);
+	// Keep observing a late rejection even after the bounded caller moves on.
+	void Promise.allSettled([run]);
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	try {
+		return await Promise.race([
+			run.then(
+				() => ({ fulfilled: true, timedOut: false }),
+				() => ({ fulfilled: false, timedOut: false }),
+			),
+			new Promise<CleanupSettlement>((resolvePromise) => {
+				timer = setTimeout(
+					() => resolvePromise({ fulfilled: false, timedOut: true }),
+					timeoutMs,
+				);
+			}),
+		]);
+	} finally {
+		if (timer !== undefined) clearTimeout(timer);
+	}
+}
+
 async function cleanPartialSession(
 	session: AgentSession | undefined,
 	unsubscribe: (() => void) | undefined,
-): Promise<void> {
-	if (!session) return;
+	timeoutMs: number,
+): Promise<{ runtimeSettled: boolean; cleanupFailed: boolean }> {
+	if (!session) return { runtimeSettled: true, cleanupFailed: false };
+	let cleanupFailed = false;
 	try {
 		unsubscribe?.();
 	} catch {
-		// Continue through all supported child cleanup operations.
+		cleanupFailed = true;
 	}
-	try {
-		await session.abort();
-	} catch {
-		// Continue to idle wait and disposal.
-	}
-	try {
-		await session.waitForIdle();
-	} catch {
-		// Disposal is still required after an incomplete wait.
+
+	const abort = await settleCleanupOperation(() => session.abort(), timeoutMs);
+	if (!abort.fulfilled) cleanupFailed = true;
+	let runtimeSettled = false;
+	if (!abort.timedOut) {
+		const idle = await settleCleanupOperation(() => session.waitForIdle(), timeoutMs);
+		runtimeSettled = idle.fulfilled;
+		if (!idle.fulfilled) cleanupFailed = true;
+	} else {
+		cleanupFailed = true;
 	}
 	try {
 		session.dispose();
 	} catch {
-		// Initialization reports one bounded authoritative error below.
+		cleanupFailed = true;
+		runtimeSettled = false;
 	}
+	return { runtimeSettled, cleanupFailed };
 }
 
 /**
@@ -526,6 +602,7 @@ export async function createSubAgentSession(
 	}
 
 	const dependencies = options.dependencies ?? {};
+	const cleanupTimeoutMs = normalizeCleanupTimeout(dependencies.cleanupTimeoutMs);
 	const createSession = dependencies.createSession ?? createAgentSession;
 	const createSessionManager = dependencies.createSessionManager ?? ((cwd) => SessionManager.inMemory(cwd));
 	const createSettingsManager = dependencies.createSettingsManager ?? (() => SettingsManager.inMemory());
@@ -650,6 +727,18 @@ export async function createSubAgentSession(
 				: "Could not acquire the declared child write scope",
 		);
 	}
+	const guardedReadTool = selectedBuiltInTools.includes("read")
+		? createGuardedChildReadTool({ cwd, workspace: workspace.identity })
+		: undefined;
+	const guardedGrepTool = selectedBuiltInTools.includes("grep")
+		? createGuardedChildGrepTool({ cwd, workspace: workspace.identity })
+		: undefined;
+	const guardedFindTool = selectedBuiltInTools.includes("find")
+		? createGuardedChildFindTool({ cwd, workspace: workspace.identity })
+		: undefined;
+	const guardedLsTool = selectedBuiltInTools.includes("ls")
+		? createGuardedChildLsTool({ cwd, workspace: workspace.identity })
+		: undefined;
 	const guardedEditTool = editEnabled
 		? createGuardedChildEditTool({
 				cwd,
@@ -698,6 +787,10 @@ export async function createSubAgentSession(
 			modelRuntime: options.resolvedModel.runtime,
 			customTools: [
 				reportToParentTool,
+				...(guardedReadTool ? [guardedReadTool] : []),
+				...(guardedGrepTool ? [guardedGrepTool] : []),
+				...(guardedFindTool ? [guardedFindTool] : []),
+				...(guardedLsTool ? [guardedLsTool] : []),
 				...(guardedEditTool ? [guardedEditTool] : []),
 				...(guardedWriteTool ? [guardedWriteTool] : []),
 				...(guardedBashTool ? [guardedBashTool] : []),
@@ -739,13 +832,22 @@ export async function createSubAgentSession(
 			selectedTools,
 			prepareWorkspaceOwnership,
 			unsubscribe,
+			cleanupTimeoutMs,
 		});
 	} catch (error) {
-		await cleanPartialSession(session, unsubscribe);
+		const cleanup = await cleanPartialSession(session, unsubscribe, cleanupTimeoutMs);
+		if (cleanup.cleanupFailed || !cleanup.runtimeSettled) {
+			throw new SubAgentSessionFactoryError(
+				"session_cleanup_failed",
+				"Could not initialize and settle the child session cleanly",
+				{ runtimeSettled: cleanup.runtimeSettled },
+			);
+		}
 		if (error instanceof SubAgentSessionFactoryError) throw error;
 		throw new SubAgentSessionFactoryError(
 			"session_initialization_failed",
 			"Could not initialize the child session",
+			{ runtimeSettled: true },
 		);
 	}
 }

@@ -44,6 +44,7 @@ const RUNNER_ERROR_CODES = new Set([
 	"assignment_execution_failed",
 	"assignment_changed",
 	"assignment_abort_failed",
+	"cancelled",
 	"invalid_reconfiguration",
 	"reconfiguration_not_available",
 	"reconfiguration_failed",
@@ -112,9 +113,9 @@ export interface SubAgentsSpawnToolDetails {
 }
 
 export class SubAgentsSpawnError extends Error {
-	readonly code: "manager_inactive" | "cancelled";
+	readonly code: "manager_inactive" | "cancelled" | "bash_not_approved";
 
-	constructor(code: "manager_inactive" | "cancelled", message: string) {
+	constructor(code: "manager_inactive" | "cancelled" | "bash_not_approved", message: string) {
 		super(message);
 		this.name = "SubAgentsSpawnError";
 		this.code = code;
@@ -130,15 +131,22 @@ function oneLine(value: unknown): string {
 
 function boundUtf8Line(value: unknown, maxBytes: number): string {
 	const normalized = oneLine(value);
+	const cap = Math.max(0, Math.floor(maxBytes));
+	if (Buffer.byteLength(normalized, "utf8") <= cap) return normalized;
+
+	const ellipsis = "…";
+	const ellipsisBytes = Buffer.byteLength(ellipsis, "utf8");
+	if (cap < ellipsisBytes) return ".".repeat(cap);
+
 	let result = "";
 	let bytes = 0;
 	for (const character of normalized) {
 		const characterBytes = Buffer.byteLength(character, "utf8");
-		if (bytes + characterBytes > maxBytes) break;
+		if (bytes + characterBytes + ellipsisBytes > cap) break;
 		result += character;
 		bytes += characterBytes;
 	}
-	return result;
+	return result + ellipsis;
 }
 
 function cloneRouteSummary(route: ModelRoute | undefined): SpawnRouteSummary | undefined {
@@ -220,6 +228,7 @@ async function spawnOne(
 	ctx: ExtensionContext,
 	spec: SubAgentsSpawnInput["agents"][number],
 	index: number,
+	signal: AbortSignal | undefined,
 ): Promise<SpawnAgentOutcome> {
 	try {
 		const launch = await runtime.runner.createAndLaunch(spec, ({ spec: normalizedSpec }) =>
@@ -227,8 +236,17 @@ async function spawnOne(
 				hostRegistry: ctx.modelRegistry,
 				parentModel: ctx.model,
 				spec: normalizedSpec,
-			}),
-		);
+			}), signal);
+		if (signal?.aborted) {
+			return {
+				index,
+				ok: false,
+				id: launch.id,
+				state: failureSnapshot(runtime, launch.id)?.state,
+				code: "cancelled",
+				message: "Child launch was cancelled and cleaned up",
+			};
+		}
 		return {
 			index,
 			ok: true,
@@ -302,11 +320,38 @@ export async function executeSubAgentsSpawn(
 			"sub_agents_spawn was cancelled before any child was launched",
 		);
 	}
+	const bashAgents = params.agents.filter((spec) => spec.tools?.includes("bash"));
+	if (bashAgents.length > 0) {
+		const assignments = bashAgents
+			.slice(0, 5)
+			.map((spec) =>
+				`- ${boundUtf8Line(spec.name, DISPLAY_NAME_BYTES)} — ${boundUtf8Line(spec.objective, 160)}`,
+			)
+			.join("\n");
+		const omitted = Math.max(0, bashAgents.length - 5);
+		const approved = ctx.hasUI === true && await ctx.ui.confirm(
+			"Authorize sub-agent bash?",
+			`${bashAgents.length} child assignment(s) request same-UID local shell execution:\n${assignments}${omitted > 0 ? `\n- ${omitted} more assignment(s) omitted` : ""}\n\nThis is not a filesystem, network, or process sandbox. Approval grants these children local shell capability until they are removed, including later messages. Approve this exact spawn batch?`,
+			{ signal },
+		);
+		if (!approved) {
+			throw new SubAgentsSpawnError(
+				"bash_not_approved",
+				"Child bash requires explicit operator approval for the exact spawn batch",
+			);
+		}
+		if (signal?.aborted) {
+			throw new SubAgentsSpawnError(
+				"cancelled",
+				"sub_agents_spawn was cancelled before any child was launched",
+			);
+		}
+	}
 
 	// Mapping first creates every per-child promise. Promise.all preserves request
 	// order but does not serialize model routing, runtime initialization, or launch.
 	const outcomes = await Promise.all(
-		params.agents.map((spec, index) => spawnOne(runtime, ctx, spec, index)),
+		params.agents.map((spec, index) => spawnOne(runtime, ctx, spec, index, signal)),
 	);
 	const started = outcomes.filter((outcome) => outcome.ok).length;
 	const details: SubAgentsSpawnToolDetails = {
@@ -329,16 +374,19 @@ export function createSubAgentsSpawnTool(
 		name: "sub_agents_spawn",
 		label: "Spawn Sub-Agents",
 		description:
-			"Create and launch 1-64 independent dynamic in-process sub-agents. Each valid child is routed and initialized independently, starts in the background, and returns an opaque ID without waiting for completion. Shared children support read-only tools, guarded edit/write, and workspace-exclusive bash; worktrees remain unavailable.",
+			"Create and launch 1-64 independent dynamic in-process sub-agents. Each valid child is routed and initialized independently, starts in the background, and returns an opaque ID without waiting for completion. Shared children support read-only tools and guarded edit/write; workspace-exclusive bash additionally requires explicit operator approval for the exact spawn batch. Worktrees remain unavailable.",
 		promptSnippet:
 			"Create dynamic background sub-agents with read-only tools, guarded edit/write, or workspace-exclusive bash and return their opaque IDs",
 		promptGuidelines: [
 			...SUB_AGENT_MODEL_ROUTING_PROMPT_GUIDELINES,
 			"Use sub_agents_spawn for genuinely useful independent assignments while the main agent remains responsible for orchestration and final decisions.",
 			"Never include credentials or secrets in sub_agents_spawn names, instructions, objectives, context, or result requirements.",
+			"Any sub_agents_spawn batch requesting bash requires explicit operator approval and fails closed when review UI is unavailable or approval is denied.",
 		],
 		parameters: subAgentsSpawnSchema,
-		executionMode: "parallel",
+		// Bash-capability approval is review-sensitive and must not race another
+		// spawn dialog from a sibling tool call.
+		executionMode: "sequential",
 		async execute(_toolCallId, params, signal, _onUpdate, ctx) {
 			return executeSubAgentsSpawn(params, signal, ctx, getRuntime());
 		},

@@ -127,9 +127,17 @@ export interface RuntimeCleanupHooks {
 	dispose?: () => void | Promise<void>;
 }
 
+interface RuntimeQuiescenceResult {
+	settled: boolean;
+	errors: string[];
+}
+
 interface ManagedRuntimeResources {
 	cleanup?: RuntimeCleanupHooks;
 	cleanupPromise?: Promise<string[]>;
+	quiescencePromise?: Promise<RuntimeQuiescenceResult>;
+	cleanupIncomplete?: boolean;
+	lateSettlementEligible?: boolean;
 	unsubscribers: Set<() => void>;
 	timers: Set<ReturnType<typeof setTimeout>>;
 	abortControllers: Set<AbortController>;
@@ -193,6 +201,16 @@ export function canTransitionAgentState(from: AgentLifecycleState, to: AgentLife
 
 export function createSessionGeneration(nonce = randomUUID()): SessionGeneration {
 	return `${GENERATION_PREFIX}${normalizeNonce(nonce)}`;
+}
+
+function requireSessionGeneration(value: unknown): SessionGeneration {
+	if (
+		typeof value !== "string" ||
+		!/^sag1-[A-Za-z0-9_-]{1,80}$/u.test(value)
+	) {
+		throw new SubAgentManagerError("Invalid session generation", "invalid_generation");
+	}
+	return value;
 }
 
 function normalizeNonce(value: string): string {
@@ -576,8 +594,18 @@ function runtimeOverviewChanged(previous: AgentRuntimeActivity, next: AgentRunti
 }
 
 function safeErrorMessage(error: unknown): string {
-	const message = error instanceof Error ? error.message : String(error);
-	return boundText(message || "Unknown runtime error", SUB_AGENT_BOUNDS.errorChars);
+	let message = "Unknown runtime error";
+	try {
+		const candidate = error instanceof Error ? error.message : String(error);
+		if (candidate) message = candidate;
+	} catch {
+		// Hostile or malformed thrown values must not break failure containment.
+	}
+	const sanitized = message
+		.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]+/gu, " ")
+		.replace(/\s+/gu, " ")
+		.trim();
+	return boundText(sanitized || "Unknown runtime error", SUB_AGENT_BOUNDS.errorChars);
 }
 
 function nonNegativeNumber(value: number, field: string): number {
@@ -784,25 +812,6 @@ async function settleWithTimeout(
 			Promise.allSettled(promises),
 			new Promise<undefined>((resolvePromise) => {
 				timer = setTimeout(() => resolvePromise(undefined), timeoutMs);
-				timer.unref?.();
-			}),
-		]);
-	} finally {
-		if (timer !== undefined) clearTimeout(timer);
-	}
-}
-
-async function fulfillWithTimeout(promise: Promise<unknown>, timeoutMs: number): Promise<boolean> {
-	let timer: ReturnType<typeof setTimeout> | undefined;
-	try {
-		return await Promise.race([
-			promise.then(
-				() => true,
-				() => false,
-			),
-			new Promise<boolean>((resolvePromise) => {
-				timer = setTimeout(() => resolvePromise(false), timeoutMs);
-				timer.unref?.();
 			}),
 		]);
 	} finally {
@@ -834,10 +843,9 @@ export class SubAgentManager {
 		this.cwd = resolve(options.cwd);
 		this.#now = options.now ?? Date.now;
 		this.#nonce = options.nonce ?? randomUUID;
-		this.generation = options.generation ?? createSessionGeneration(this.#nonce());
-		if (!this.generation.startsWith(GENERATION_PREFIX)) {
-			throw new SubAgentManagerError("Invalid session generation", "invalid_generation");
-		}
+		this.generation = options.generation === undefined
+			? createSessionGeneration(this.#nonce())
+			: requireSessionGeneration(options.generation);
 		this.#agentPrefix = `${AGENT_ID_PREFIX}${this.generation.slice(GENERATION_PREFIX.length)}-`;
 		this.#cleanupTimeoutMs = Math.max(1, options.cleanupTimeoutMs ?? DEFAULT_CLEANUP_TIMEOUT_MS);
 		this.modelRuntime = options.modelRuntime ?? new ChildModelRuntimeAdapter();
@@ -1886,6 +1894,25 @@ export class SubAgentManager {
 		return () => record.resources.abortControllers.delete(controller);
 	}
 
+	/** Observe lifecycle-owned setup/control work without translating its rejection into child failure. */
+	trackRuntimeOperation(id: SubAgentId, promise: Promise<unknown>): Promise<void> {
+		this.#assertOpen();
+		const record = this.#requireMutableRecord(id);
+		let observed: Promise<void>;
+		observed = Promise.resolve(promise)
+			.then(
+				() => undefined,
+				() => undefined,
+			)
+			.finally(() => {
+				record.resources.background.delete(observed);
+				this.#tryFinalizeLateCleanup(record);
+				this.#pruneRemovedRecords();
+			});
+		record.resources.background.add(observed);
+		return observed;
+	}
+
 	trackBackground(id: SubAgentId, promise: Promise<unknown>): Promise<void> {
 		this.#assertOpen();
 		const record = this.#requireMutableRecord(id);
@@ -1896,6 +1923,7 @@ export class SubAgentManager {
 				async (error) => {
 					try {
 						let becameFailed = false;
+						let quiescence: Promise<RuntimeQuiescenceResult> | undefined;
 						await this.#enqueue(id, (current) => {
 							if (current.state === "stopping" || current.state === "removed" || this.#closed) return;
 							const message = safeErrorMessage(error);
@@ -1914,25 +1942,16 @@ export class SubAgentManager {
 								becameFailed ? "failed" : undefined,
 								becameFailed,
 							);
+							if (becameFailed) {
+								quiescence = this.#startRuntimeQuiescence(
+									current,
+									current.resources.cleanup,
+								);
+							}
 						});
-						if (!becameFailed || this.#closed) return;
+						if (!becameFailed || !quiescence || this.#closed) return;
 
-						const cleanup = record.resources.cleanup;
-						const settled = cleanup
-							? cleanup.waitForIdle
-								? await fulfillWithTimeout(
-									(async () => {
-										try {
-											await cleanup.abort?.();
-										} catch {
-											// A fulfilled idle wait below remains authoritative.
-										}
-										await cleanup.waitForIdle?.();
-									})(),
-									this.#cleanupTimeoutMs,
-								)
-								: false
-							: true;
+						const settled = (await quiescence).settled;
 						if (!settled || this.#closed) return;
 						await this.#enqueue(id, (current) => {
 							if (current.state !== "failed") return;
@@ -1956,6 +1975,8 @@ export class SubAgentManager {
 			.catch(() => undefined)
 			.finally(() => {
 				record.resources.background.delete(handled);
+				this.#tryFinalizeLateCleanup(record);
+				this.#pruneRemovedRecords();
 			});
 		record.resources.background.add(handled);
 		return handled;
@@ -1973,7 +1994,7 @@ export class SubAgentManager {
 			// Wrap the promise so the per-agent queue does not await cleanup while
 			// background rejection handlers still need that same queue to settle.
 			return { promise: record.resources.cleanupPromise };
-		});
+		}, this.#closed);
 		const cleanupErrors = await cleanupHolder.promise;
 		return this.#enqueue(id, (record) => {
 			if (record.state !== "removed") {
@@ -2001,8 +2022,9 @@ export class SubAgentManager {
 					true,
 				);
 			}
+			this.#pruneRemovedRecords();
 			return snapshotRecord(record);
-		});
+		}, this.#closed);
 	}
 
 	disposeAll(reason = "manager disposed"): Promise<void> {
@@ -2012,12 +2034,31 @@ export class SubAgentManager {
 		this.#changeListeners.clear();
 		this.#eventListeners.clear();
 		const ids = [...this.#records.keys()];
-		this.#disposePromise = Promise.allSettled(ids.map((id) => this.removeAgent(id, reason)))
-			.then(() => {
-				this.#workspaceLeases.close();
-				return Promise.allSettled([this.modelRuntime.dispose()]);
-			})
-			.then(() => undefined);
+		this.#disposePromise = (async () => {
+			const removals = await Promise.allSettled(ids.map((id) => this.removeAgent(id, reason)));
+			const childCleanupIncomplete =
+				removals.some((result) => result.status === "rejected") ||
+				[...this.#records.values()].some((record) => record.resources.cleanupIncomplete === true);
+
+			// Closing the old generation invalidates its private lease authority, but
+			// an unproven child cleanup must still prevent a replacement generation
+			// from being published over a possibly late mutation.
+			this.#workspaceLeases.close();
+			const modelDisposal = Promise.resolve().then(() => this.modelRuntime.dispose());
+			const modelSettlement = await settleWithTimeout(
+				[modelDisposal],
+				this.#cleanupTimeoutMs,
+			);
+			const modelCleanupIncomplete =
+				modelSettlement === undefined ||
+				modelSettlement.some((result) => result.status === "rejected");
+			if (childCleanupIncomplete || modelCleanupIncomplete) {
+				throw new SubAgentManagerError(
+					"Sub-agent generation cleanup did not reach a proven complete boundary",
+					"cleanup_incomplete",
+				);
+			}
+		})();
 		return this.#disposePromise;
 	}
 
@@ -2041,10 +2082,17 @@ export class SubAgentManager {
 		return record;
 	}
 
-	#enqueue<T>(id: SubAgentId, operation: (record: ManagedRecord) => T | Promise<T>): Promise<T> {
+	#enqueue<T>(
+		id: SubAgentId,
+		operation: (record: ManagedRecord) => T | Promise<T>,
+		allowClosed = false,
+	): Promise<T> {
 		this.#requireRecord(id);
 		const previous = this.#operationTails.get(id) ?? Promise.resolve();
-		const run = previous.then(() => operation(this.#requireRecord(id)));
+		const run = previous.then(() => {
+			if (this.#closed && !allowClosed) throw new ManagerClosedError();
+			return operation(this.#requireRecord(id));
+		});
 		const tail = run.then(
 			() => undefined,
 			() => undefined,
@@ -2052,8 +2100,55 @@ export class SubAgentManager {
 		this.#operationTails.set(id, tail);
 		tail.then(() => {
 			if (this.#operationTails.get(id) === tail) this.#operationTails.delete(id);
+			this.#pruneRemovedRecords();
 		});
 		return run;
+	}
+
+	#tryFinalizeLateCleanup(record: ManagedRecord): void {
+		if (
+			this.#closed ||
+			record.resources.lateSettlementEligible !== true ||
+			record.resources.background.size > 0
+		) return;
+		try {
+			this.#workspaceLeases.releaseChildLeases(record.id);
+			record.leases = record.leaseSnapshot();
+			record.resources.cleanupIncomplete = false;
+			record.resources.lateSettlementEligible = false;
+		} catch {
+			record.resources.cleanupIncomplete = true;
+		}
+	}
+
+	#pruneRemovedRecords(): void {
+		if (this.#closed) return;
+		const removed = [...this.#records.values()]
+			.filter((record) => record.state === "removed")
+			.sort((left, right) =>
+				(left.removedAt ?? left.updatedAt) - (right.removedAt ?? right.updatedAt) ||
+				left.id.localeCompare(right.id),
+			);
+		let overflow = removed.length - SUB_AGENT_BOUNDS.currentHistoricalAgents;
+		if (overflow <= 0) return;
+		for (const record of removed) {
+			if (overflow <= 0) break;
+			if (
+				this.#operationTails.has(record.id) ||
+				record.resources.background.size > 0 ||
+				record.leaseSnapshot().length > 0 ||
+				record.resources.cleanupIncomplete === true
+			) {
+				continue;
+			}
+			record.resources.cleanup = undefined;
+			record.resources.unsubscribers.clear();
+			record.resources.timers.clear();
+			record.resources.abortControllers.clear();
+			record.resources.background.clear();
+			this.#records.delete(record.id);
+			overflow -= 1;
+		}
 	}
 
 	#transition(record: ManagedRecord, next: AgentLifecycleState): void {
@@ -2149,51 +2244,143 @@ export class SubAgentManager {
 		};
 	}
 
+	#startRuntimeQuiescence(
+		record: ManagedRecord,
+		cleanup: RuntimeCleanupHooks | undefined,
+	): Promise<RuntimeQuiescenceResult> {
+		if (record.resources.quiescencePromise) return record.resources.quiescencePromise;
+		const operationErrors: string[] = [];
+		let deadlineExpired = false;
+		const operation = (async () => {
+			try {
+				await cleanup?.abort?.();
+			} catch (error) {
+				operationErrors.push(`abort: ${safeErrorMessage(error)}`);
+			}
+			if (deadlineExpired) return false;
+			let idleFulfilled = cleanup?.abort === undefined && cleanup?.waitForIdle === undefined;
+			if (cleanup?.waitForIdle) {
+				try {
+					await cleanup.waitForIdle();
+					idleFulfilled = true;
+				} catch (error) {
+					operationErrors.push(`wait for idle: ${safeErrorMessage(error)}`);
+				}
+			}
+			return idleFulfilled;
+		})();
+		const quiescence = settleWithTimeout([operation], this.#cleanupTimeoutMs)
+			.then((settlement): RuntimeQuiescenceResult => {
+				if (!settlement) {
+					deadlineExpired = true;
+					return {
+						settled: false,
+						errors: [
+							...operationErrors,
+							`runtime quiescence timed out after ${this.#cleanupTimeoutMs}ms`,
+						],
+					};
+				}
+				const result = settlement[0];
+				return {
+					settled: result?.status === "fulfilled" && result.value === true,
+					errors: [...operationErrors],
+				};
+			})
+			.catch((): RuntimeQuiescenceResult => ({
+				settled: false,
+				errors: ["runtime quiescence failed"],
+			}));
+		record.resources.quiescencePromise = quiescence;
+		return quiescence;
+	}
+
 	async #cleanupRecord(record: ManagedRecord): Promise<string[]> {
 		const errors: string[] = [];
-		const capture = async (label: string, operation: (() => void | Promise<void>) | undefined) => {
-			if (!operation) return;
-			try {
-				await operation();
-			} catch (error) {
-				errors.push(`${label}: ${safeErrorMessage(error)}`);
+		const cleanup = record.resources.cleanup;
+		// Drop the record's strong reference immediately. In-flight cleanup retains
+		// only this local copy until it settles, so removed history cannot pin the
+		// child session/translator closure for the rest of the parent session.
+		record.resources.cleanup = undefined;
+		const captureBounded = async (
+			label: string,
+			operation: (() => void | Promise<void>) | undefined,
+		): Promise<boolean> => {
+			if (!operation) return true;
+			const settlement = await settleWithTimeout(
+				[Promise.resolve().then(operation)],
+				this.#cleanupTimeoutMs,
+			);
+			if (!settlement) {
+				errors.push(`${label} timed out after ${this.#cleanupTimeoutMs}ms`);
+				return false;
 			}
+			const result = settlement[0];
+			if (result?.status === "rejected") {
+				errors.push(`${label}: ${safeErrorMessage(result.reason)}`);
+				return false;
+			}
+			return true;
 		};
 
 		for (const timer of record.resources.timers) clearTimeout(timer);
 		record.resources.timers.clear();
 		for (const controller of record.resources.abortControllers) controller.abort();
 		record.resources.abortControllers.clear();
-		for (const unsubscribe of record.resources.unsubscribers) await capture("unsubscribe", unsubscribe);
+		let cleanupIncomplete = false;
+		for (const unsubscribe of record.resources.unsubscribers) {
+			if (!(await captureBounded("unsubscribe", unsubscribe))) cleanupIncomplete = true;
+		}
 		record.resources.unsubscribers.clear();
 		record.runtime = createRuntimeActivity("settled");
 
-		await capture("abort", record.resources.cleanup?.abort);
-		const settling: Promise<unknown>[] = [...record.resources.background];
-		const idleSettlementIndex = record.resources.cleanup?.waitForIdle
-			? settling.push(Promise.resolve().then(() => record.resources.cleanup?.waitForIdle?.())) - 1
+		const priorQuiescence = record.resources.quiescencePromise
+			? await record.resources.quiescencePromise
 			: undefined;
+		if (priorQuiescence && !priorQuiescence.settled) {
+			// A background-failure deadline is not a permanent verdict. Explicit
+			// removal may make one fresh bounded abort/idle attempt before disposal;
+			// the expired attempt itself remains barred from starting a late wait.
+			record.resources.quiescencePromise = undefined;
+		}
+		const quiescencePromise = this.#startRuntimeQuiescence(record, cleanup);
+		const settling: Promise<unknown>[] = [...record.resources.background, quiescencePromise];
 		const settlement = await settleWithTimeout(settling, this.#cleanupTimeoutMs);
+		const quiescence = await quiescencePromise;
+		errors.push(...quiescence.errors);
 		if (!settlement) {
 			errors.push(`settlement timed out after ${this.#cleanupTimeoutMs}ms`);
 		} else if (settlement.some((result) => result.status === "rejected")) {
 			errors.push("settlement did not reach a fulfilled idle boundary");
 		}
-		const ownershipSettled = settlement !== undefined && (
-			idleSettlementIndex !== undefined
-				? settlement[idleSettlementIndex]?.status === "fulfilled"
-				: settlement.every((result) => result.status === "fulfilled")
-		);
-		await capture("dispose", record.resources.cleanup?.dispose);
+		const ownershipSettled =
+			quiescence.settled &&
+			settlement !== undefined &&
+			settlement.every((result) => result.status === "fulfilled");
+		if (!(await captureBounded("dispose", cleanup?.dispose))) cleanupIncomplete = true;
+		const lateSettlementEligible =
+			!cleanupIncomplete &&
+			quiescence.settled &&
+			settlement === undefined;
+		if (settlement !== undefined) record.resources.background.clear();
+		record.resources.quiescencePromise = undefined;
+		if (!ownershipSettled) cleanupIncomplete = true;
+		record.resources.cleanupIncomplete = cleanupIncomplete;
+		record.resources.lateSettlementEligible = lateSettlementEligible;
 		if (ownershipSettled) {
-			await capture("release leases", () => {
+			try {
 				this.#workspaceLeases.releaseChildLeases(record.id);
 				record.leases = record.leaseSnapshot();
-			});
+			} catch (error) {
+				cleanupIncomplete = true;
+				record.resources.cleanupIncomplete = true;
+				errors.push(`release leases: ${safeErrorMessage(error)}`);
+			}
 		} else if (record.leaseSnapshot().length > 0) {
 			errors.push("retained workspace ownership because idle settlement was not proven");
 			record.leases = record.leaseSnapshot();
 		}
+		this.#tryFinalizeLateCleanup(record);
 		return errors;
 	}
 }

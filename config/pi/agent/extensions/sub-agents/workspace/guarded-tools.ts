@@ -6,8 +6,10 @@ import {
 	type FileHandle,
 } from "node:fs/promises";
 import { dirname } from "node:path";
+import { StringDecoder } from "node:string_decoder";
 import {
 	createBashToolDefinition,
+	createLocalBashOperations,
 	createEditToolDefinition,
 	createWriteToolDefinition,
 	type BashOperations,
@@ -82,6 +84,103 @@ function boundedOneLine(value: unknown, maxChars: number): string {
 		.slice(0, maxChars);
 }
 
+const PATH_DISPLAY_MAX_CHARS = SUB_AGENT_BOUNDS.contextPathChars;
+const PATH_DISPLAY_TRUNCATION_MARKER = "…[truncated]";
+const EDIT_DETAILS_MAX_BYTES = 48 * 1024;
+const EDIT_DETAILS_MAX_COMBINED_LINES = 2_000;
+const EDIT_DETAILS_TRUNCATION_MARKER = "[... guarded edit output truncated ...]";
+
+/** Preserve ordinary path spelling while removing terminal/control line injection. */
+function boundedPathDisplay(value: string): string {
+	const oneLine = value.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/gu, " ");
+	if (oneLine.length <= PATH_DISPLAY_MAX_CHARS) return oneLine;
+	let prefixEnd = PATH_DISPLAY_MAX_CHARS - PATH_DISPLAY_TRUNCATION_MARKER.length;
+	if (/^[\ud800-\udbff]$/u.test(oneLine[prefixEnd - 1] ?? "")) prefixEnd -= 1;
+	return `${oneLine.slice(0, prefixEnd)}${PATH_DISPLAY_TRUNCATION_MARKER}`;
+}
+
+function jsonBytes(value: unknown): number {
+	return Buffer.byteLength(JSON.stringify(value), "utf8");
+}
+
+function detailLineCount(value: string, stopAfter = EDIT_DETAILS_MAX_COMBINED_LINES): number {
+	if (value.length === 0) return 0;
+	let lines = 1;
+	let cursor = -1;
+	while ((cursor = value.indexOf("\n", cursor + 1)) !== -1) {
+		lines += 1;
+		if (lines > stopAfter) break;
+	}
+	return lines;
+}
+
+/** Retain a bounded prefix and always disclose when model-visible detail was shortened. */
+function truncateEditDetail(
+	value: string,
+	maxLines: number,
+	maxJsonStringBytes: number,
+): string {
+	if (
+		detailLineCount(value) <= maxLines &&
+		jsonBytes(value) <= maxJsonStringBytes
+	) {
+		return value;
+	}
+
+	// The JSON-string budget includes its surrounding quotes. A separate marker
+	// line makes truncation visible without writing an unbounded full diff aside.
+	const markerPayloadBytes = jsonBytes(EDIT_DETAILS_TRUNCATION_MARKER) - 2;
+	let remainingPayloadBytes = Math.max(
+		0,
+		maxJsonStringBytes - 2 - markerPayloadBytes - jsonBytes("\n") + 2,
+	);
+	const maxPrefixNewlines = Math.max(0, maxLines - 2);
+	let prefix = "";
+	let prefixNewlines = 0;
+	for (const character of value) {
+		if (character === "\n" && prefixNewlines >= maxPrefixNewlines) break;
+		const characterBytes = jsonBytes(character) - 2;
+		if (characterBytes > remainingPayloadBytes) break;
+		prefix += character;
+		remainingPayloadBytes -= characterBytes;
+		if (character === "\n") prefixNewlines += 1;
+	}
+	prefix = prefix.replace(/\n+$/u, "");
+	return prefix.length > 0
+		? `${prefix}\n${EDIT_DETAILS_TRUNCATION_MARKER}`
+		: EDIT_DETAILS_TRUNCATION_MARKER;
+}
+
+function boundSuccessfulEditDetails<T extends {
+	details?: { diff?: string; patch?: string; firstChangedLine?: number };
+}>(result: T): T {
+	const details = result.details;
+	if (!details || typeof details.diff !== "string" || typeof details.patch !== "string") {
+		return result;
+	}
+	if (
+		detailLineCount(details.diff) + detailLineCount(details.patch) <=
+			EDIT_DETAILS_MAX_COMBINED_LINES &&
+		jsonBytes(details) <= EDIT_DETAILS_MAX_BYTES
+	) {
+		return result;
+	}
+
+	const fixedJsonBytes = jsonBytes({ ...details, diff: "", patch: "" }) - 4;
+	const stringBudget = Math.max(0, EDIT_DETAILS_MAX_BYTES - fixedJsonBytes);
+	const diffByteBudget = Math.floor(stringBudget / 2);
+	const patchByteBudget = stringBudget - diffByteBudget;
+	const perFieldLineBudget = Math.floor(EDIT_DETAILS_MAX_COMBINED_LINES / 2);
+	return {
+		...result,
+		details: {
+			...details,
+			diff: truncateEditDetail(details.diff, perFieldLineBudget, diffByteBudget),
+			patch: truncateEditDetail(details.patch, perFieldLineBudget, patchByteBudget),
+		},
+	};
+}
+
 function throwIfAborted(signal: AbortSignal | undefined): void {
 	if (signal?.aborted) throw new Error("Operation aborted");
 }
@@ -107,7 +206,7 @@ function conflictMessage(
 				? ` (${boundedOneLine(conflict.ownerAgentName, SUB_AGENT_BOUNDS.nameChars)})`
 				: "")
 		: "a parent mutation";
-	return `Cannot edit ${target.relativePath}: the shared workspace target is owned by ${owner}. Report this lease conflict to the parent; do not retry or bypass it.`;
+	return `Cannot edit ${boundedPathDisplay(target.relativePath)}: the shared workspace target is owned by ${owner}. Report this lease conflict to the parent; do not retry or bypass it.`;
 }
 
 async function resolveExistingEditTarget(
@@ -174,38 +273,34 @@ async function writeWholeFile(handle: FileHandle, content: string): Promise<void
 
 function rewriteSuccessfulEditResultPath<T extends {
 	content: readonly { type: string; text?: string }[];
-	details?: { patch?: string };
+	details?: { diff?: string; patch?: string; firstChangedLine?: number };
 }>(
 	result: T,
 	canonicalPath: string,
 	requestedPath: string,
 	edits: number,
 ): T {
+	const requestedPathDisplay = boundedPathDisplay(requestedPath);
 	const canonicalSuccess = `Successfully replaced ${edits} block(s) in ${canonicalPath}.`;
-	const requestedSuccess = `Successfully replaced ${edits} block(s) in ${requestedPath}.`;
+	const requestedSuccess = `Successfully replaced ${edits} block(s) in ${requestedPathDisplay}.`;
 	const content = result.content.map((entry) =>
 		entry.type === "text" && entry.text === canonicalSuccess
 			? { ...entry, text: requestedSuccess }
 			: entry,
 	);
 	const patch = result.details?.patch;
-	const rewrittenPatch = typeof patch === "string"
-		? patch
-			.split("\n")
-			.map((line, index) => {
-				if (index === 0 && line === `--- ${canonicalPath}`) return `--- ${requestedPath}`;
-				if (index === 1 && line === `+++ ${canonicalPath}`) return `+++ ${requestedPath}`;
-				return line;
-			})
-			.join("\n")
+	const canonicalPatchHeader = `--- ${canonicalPath}\n+++ ${canonicalPath}`;
+	const requestedPatchHeader = `--- ${requestedPathDisplay}\n+++ ${requestedPathDisplay}`;
+	const rewrittenPatch = typeof patch === "string" && patch.startsWith(canonicalPatchHeader)
+		? `${requestedPatchHeader}${patch.slice(canonicalPatchHeader.length)}`
 		: patch;
-	return {
+	return boundSuccessfulEditDetails({
 		...result,
 		content,
 		details: result.details
 			? { ...result.details, patch: rewrittenPatch }
 			: result.details,
-	};
+	});
 }
 
 function rewriteEditErrorPath(
@@ -214,7 +309,9 @@ function rewriteEditErrorPath(
 	requestedPath: string,
 ): unknown {
 	if (!(error instanceof Error) || !error.message.includes(canonicalPath)) return error;
-	return new Error(error.message.split(canonicalPath).join(requestedPath));
+	return new Error(
+		error.message.split(canonicalPath).join(boundedPathDisplay(requestedPath)),
+	);
 }
 
 /**
@@ -248,7 +345,7 @@ export function createGuardedChildEditTool(
 				if (error instanceof WorkspacePathError && error.code === "path_outside_scope") {
 					throw new GuardedChildEditError(
 						"path_outside_scope",
-						`Cannot edit ${target.relativePath}: the target is outside the declared write scope`,
+						`Cannot edit ${boundedPathDisplay(target.relativePath)}: the target is outside the declared write scope`,
 					);
 				}
 				throw error;
@@ -266,7 +363,7 @@ export function createGuardedChildEditTool(
 				}
 				throw new GuardedChildEditError(
 					"lease_claim_failed",
-					`Could not acquire the shared workspace lease for ${target.relativePath}`,
+					`Could not acquire the shared workspace lease for ${boundedPathDisplay(target.relativePath)}`,
 				);
 			}
 			throwIfAborted(signal);
@@ -282,7 +379,7 @@ export function createGuardedChildEditTool(
 			} catch {
 				throw new GuardedChildEditError(
 					"path_identity_changed",
-					`Cannot edit ${target.relativePath}: the target identity changed after its lease was acquired`,
+					`Cannot edit ${boundedPathDisplay(target.relativePath)}: the target identity changed after its lease was acquired`,
 				);
 			}
 			if (
@@ -292,7 +389,7 @@ export function createGuardedChildEditTool(
 			) {
 				throw new GuardedChildEditError(
 					"path_identity_changed",
-					`Cannot edit ${target.relativePath}: the target identity changed after its lease was acquired`,
+					`Cannot edit ${boundedPathDisplay(target.relativePath)}: the target identity changed after its lease was acquired`,
 				);
 			}
 			throwIfAborted(signal);
@@ -383,7 +480,7 @@ export function createGuardedChildEditTool(
 				if (mutationStarted) {
 					throw new GuardedChildEditError(
 						"mutation_outcome_uncertain",
-						`The guarded edit changed or may have changed ${rebound.relativePath}, but did not reach a clean success boundary. Do not retry it blindly; inspect the file and report the outcome to the parent.`,
+						`The guarded edit changed or may have changed ${boundedPathDisplay(rebound.relativePath)}, but did not reach a clean success boundary. Do not retry it blindly; inspect the file and report the outcome to the parent.`,
 					);
 				}
 				throw executionError;
@@ -455,7 +552,7 @@ function writeConflictMessage(
 				? ` (${boundedOneLine(conflict.ownerAgentName, SUB_AGENT_BOUNDS.nameChars)})`
 				: "")
 		: "a parent mutation";
-	return `Cannot write ${target.relativePath}: the shared workspace target is owned by ${owner}. Report this lease conflict to the parent; do not retry or bypass it.`;
+	return `Cannot write ${boundedPathDisplay(target.relativePath)}: the shared workspace target is owned by ${owner}. Report this lease conflict to the parent; do not retry or bypass it.`;
 }
 
 async function resolveWriteTarget(
@@ -521,7 +618,7 @@ function rewriteSuccessfulWriteResultPath<T extends {
 	contentLength: number,
 ): T {
 	const canonicalSuccess = `Successfully wrote ${contentLength} bytes to ${canonicalPath}`;
-	const requestedSuccess = `Successfully wrote ${contentLength} bytes to ${requestedPath}`;
+	const requestedSuccess = `Successfully wrote ${contentLength} bytes to ${boundedPathDisplay(requestedPath)}`;
 	return {
 		...result,
 		content: result.content.map((entry) =>
@@ -538,10 +635,14 @@ function rewriteWriteErrorPath(
 	requestedPath: string,
 ): unknown {
 	if (!(error instanceof Error)) return error;
-	let message = error.message.split(canonicalPath).join(requestedPath);
+	let message = error.message
+		.split(canonicalPath)
+		.join(boundedPathDisplay(requestedPath));
 	const canonicalDir = dirname(canonicalPath);
 	if (canonicalDir !== canonicalPath) {
-		message = message.split(canonicalDir).join(dirname(requestedPath));
+		message = message
+			.split(canonicalDir)
+			.join(boundedPathDisplay(dirname(requestedPath)));
 	}
 	return message === error.message ? error : new Error(message);
 }
@@ -581,7 +682,7 @@ export function createGuardedChildWriteTool(
 				if (error instanceof WorkspacePathError && error.code === "path_outside_scope") {
 					throw new GuardedChildWriteError(
 						"path_outside_scope",
-						`Cannot write ${target.relativePath}: the target is outside the declared write scope`,
+						`Cannot write ${boundedPathDisplay(target.relativePath)}: the target is outside the declared write scope`,
 					);
 				}
 				throw error;
@@ -599,7 +700,7 @@ export function createGuardedChildWriteTool(
 				}
 				throw new GuardedChildWriteError(
 					"lease_claim_failed",
-					`Could not acquire the shared workspace lease for ${target.relativePath}`,
+					`Could not acquire the shared workspace lease for ${boundedPathDisplay(target.relativePath)}`,
 				);
 			}
 			throwIfAborted(signal);
@@ -607,13 +708,13 @@ export function createGuardedChildWriteTool(
 			const rebound = await resolveWriteTarget(options, requestedPath, true).catch(() => {
 				throw new GuardedChildWriteError(
 					"path_identity_changed",
-					`Cannot write ${target.relativePath}: the target identity changed after its lease was acquired`,
+					`Cannot write ${boundedPathDisplay(target.relativePath)}: the target identity changed after its lease was acquired`,
 				);
 			});
 			if (!sameResolvedWriteTarget(target, rebound)) {
 				throw new GuardedChildWriteError(
 					"path_identity_changed",
-					`Cannot write ${target.relativePath}: the target identity changed after its lease was acquired`,
+					`Cannot write ${boundedPathDisplay(target.relativePath)}: the target identity changed after its lease was acquired`,
 				);
 			}
 			throwIfAborted(signal);
@@ -794,13 +895,13 @@ export function createGuardedChildWriteTool(
 						: "";
 					throw new GuardedChildWriteError(
 						"mutation_outcome_uncertain",
-						`The guarded write changed or may have changed ${rebound.relativePath}, but did not reach a clean success boundary.${reconciliation} Do not retry it blindly; inspect the file and report the outcome to the parent.`,
+						`The guarded write changed or may have changed ${boundedPathDisplay(rebound.relativePath)}, but did not reach a clean success boundary.${reconciliation} Do not retry it blindly; inspect the file and report the outcome to the parent.`,
 					);
 				}
 				if (directoryMutationPossible) {
 					throw new GuardedChildWriteError(
 						"mutation_outcome_uncertain",
-						`The guarded write may have created parent directories for ${rebound.relativePath}, but the file write did not reach a clean boundary. Do not retry it blindly; inspect the target path and report the outcome to the parent.`,
+						`The guarded write may have created parent directories for ${boundedPathDisplay(rebound.relativePath)}, but the file write did not reach a clean boundary. Do not retry it blindly; inspect the target path and report the outcome to the parent.`,
 					);
 				}
 				throw executionError;
@@ -840,6 +941,95 @@ export interface CreateGuardedChildBashToolOptions {
 	workspace: Readonly<WorkspaceIdentity>;
 	claimWorkspace: () => void | Promise<void>;
 	dependencies?: GuardedChildBashToolDependencies;
+}
+
+const CHILD_BASH_OUTPUT_MAX_BYTES = 48 * 1024;
+const CHILD_BASH_OUTPUT_MAX_LINES = 1_900;
+const CHILD_BASH_TRUNCATION_MARKER = "\n[Child bash output truncated in memory; omitted output was not saved.]\n";
+const CHILD_BASH_ENV_ALLOWLIST = Object.freeze([
+	"COLORTERM",
+	"ComSpec",
+	"HOME",
+	"LANG",
+	"LC_ALL",
+	"LC_CTYPE",
+	"LOGNAME",
+	"PATH",
+	"PATHEXT",
+	"SHELL",
+	"SystemRoot",
+	"TEMP",
+	"TERM",
+	"TMP",
+	"TMPDIR",
+	"USER",
+	"WINDIR",
+] as const);
+
+function childBashEnvironment(source: NodeJS.ProcessEnv | undefined): NodeJS.ProcessEnv {
+	const environment: NodeJS.ProcessEnv = {};
+	for (const key of CHILD_BASH_ENV_ALLOWLIST) {
+		const value = source?.[key];
+		if (typeof value === "string" && !value.includes("\0")) environment[key] = value;
+	}
+	return environment;
+}
+
+class BoundedChildBashOutput {
+	#decoder = new StringDecoder("utf8");
+	#bytes = 0;
+	#lines = 0;
+	#truncated = false;
+
+	push(chunk: Buffer, onData: (data: Buffer) => void): void {
+		this.#forward(this.#decoder.write(chunk), onData);
+	}
+
+	finish(onData: (data: Buffer) => void): void {
+		this.#forward(this.#decoder.end(), onData);
+	}
+
+	#forward(text: string, onData: (data: Buffer) => void): void {
+		if (!text || this.#truncated) return;
+		const markerBytes = Buffer.byteLength(CHILD_BASH_TRUNCATION_MARKER, "utf8");
+		const markerLines = (CHILD_BASH_TRUNCATION_MARKER.match(/\n/g) ?? []).length;
+		const byteBudget = CHILD_BASH_OUTPUT_MAX_BYTES - markerBytes;
+		const lineBudget = CHILD_BASH_OUTPUT_MAX_LINES - markerLines;
+		let accepted = "";
+		for (const character of text) {
+			const characterBytes = Buffer.byteLength(character, "utf8");
+			const characterLines = character === "\n" ? 1 : 0;
+			if (
+				this.#bytes + characterBytes > byteBudget ||
+				this.#lines + characterLines > lineBudget
+			) {
+				this.#truncated = true;
+				break;
+			}
+			accepted += character;
+			this.#bytes += characterBytes;
+			this.#lines += characterLines;
+		}
+		if (accepted) onData(Buffer.from(accepted, "utf8"));
+		if (this.#truncated) onData(Buffer.from(CHILD_BASH_TRUNCATION_MARKER, "utf8"));
+	}
+}
+
+function createBoundedChildBashOperations(base: BashOperations): BashOperations {
+	return {
+		async exec(command, cwd, options) {
+			const output = new BoundedChildBashOutput();
+			try {
+				return await base.exec(command, cwd, {
+					...options,
+					env: childBashEnvironment(options.env),
+					onData: (data) => output.push(data, options.onData),
+				});
+			} finally {
+				output.finish(options.onData);
+			}
+		},
+	};
 }
 
 /**
@@ -910,9 +1100,10 @@ function bashConflictMessage(error: WorkspaceLeaseConflictError): string {
 
 /**
  * Create one child-only bash definition that preserves Pi's schema, renderers,
- * streaming, truncation/temp-file details, timeout handling, and abort signal.
- * Every invocation re-verifies the assignment-retained workspace lease before
- * delegating to the built-in implementation.
+ * timeout handling, and abort signal while limiting output in memory, discarding
+ * overflow, and reducing the child process environment to a noncredential
+ * allowlist. Every invocation re-verifies the assignment-retained workspace
+ * lease before delegating to Pi's local execution backend.
  */
 export function createGuardedChildBashTool(
 	options: CreateGuardedChildBashToolOptions,
@@ -938,13 +1129,20 @@ export function createGuardedChildBashTool(
 		);
 	}
 
-	const operations = options.dependencies?.operations;
-	const metadataDefinition = createBashToolDefinition(
-		options.cwd,
-		operations ? { operations } : undefined,
+	const operations = createBoundedChildBashOperations(
+		options.dependencies?.operations ?? createLocalBashOperations(),
 	);
+	const metadataDefinition = createBashToolDefinition(options.cwd, {
+		operations,
+		exposeSessionEnvironment: false,
+	});
 	return {
 		...metadataDefinition,
+		description:
+			"Execute one foreground command under whole-workspace ownership. Output is capped in memory at 48 KiB/1,900 lines; overflow is discarded and never written to a full-output temp file.",
+		promptGuidelines: [
+			"Use guarded child bash only for explicitly trusted foreground commands; it is not an OS sandbox and receives only a reduced noncredential environment.",
+		],
 		// Any sibling tool batch containing bash must run in source order. The
 		// workspace lease coordinates different owners; sequential execution also
 		// prevents one child from overlapping its own arbitrary bash mutation with

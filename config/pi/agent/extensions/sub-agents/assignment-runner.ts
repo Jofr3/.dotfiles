@@ -44,6 +44,7 @@ export type SubAgentAssignmentRunnerErrorCode =
 	| "assignment_execution_failed"
 	| "assignment_changed"
 	| "assignment_abort_failed"
+	| "cancelled"
 	| "invalid_reconfiguration"
 	| "reconfiguration_not_available"
 	| "reconfiguration_failed";
@@ -51,16 +52,20 @@ export type SubAgentAssignmentRunnerErrorCode =
 export class SubAgentAssignmentRunnerError extends Error {
 	readonly code: SubAgentAssignmentRunnerErrorCode;
 	readonly agentId?: SubAgentId;
+	/** True only when no child run can remain active after this failure. */
+	readonly runtimeSettled: boolean;
 
 	constructor(
 		code: SubAgentAssignmentRunnerErrorCode,
 		message: string,
 		agentId?: SubAgentId,
+		options: { runtimeSettled?: boolean } = {},
 	) {
 		super(message);
 		this.name = "SubAgentAssignmentRunnerError";
 		this.code = code;
 		this.agentId = agentId;
+		this.runtimeSettled = options.runtimeSettled ?? true;
 	}
 }
 
@@ -168,6 +173,49 @@ function settledState(state: ManagedSubAgentSnapshot["state"]): boolean {
 	return state === "idle" || state === "blocked" || state === "failed" || state === "removed";
 }
 
+function throwIfCancelled(signal: AbortSignal | undefined, id?: SubAgentId): void {
+	if (!signal?.aborted) return;
+	throw new SubAgentAssignmentRunnerError(
+		"cancelled",
+		"The sub-agent operation was cancelled",
+		id,
+		{ runtimeSettled: false },
+	);
+}
+
+function raceWithCancellation<T>(
+	operation: Promise<T>,
+	signal: AbortSignal | undefined,
+	id?: SubAgentId,
+): Promise<T> {
+	if (!signal) return operation;
+	throwIfCancelled(signal, id);
+	return new Promise<T>((resolvePromise, rejectPromise) => {
+		let settled = false;
+		let onAbort!: () => void;
+		const finish = (operation: () => void) => {
+			if (settled) return;
+			settled = true;
+			signal.removeEventListener("abort", onAbort);
+			operation();
+		};
+		onAbort = () => finish(() => rejectPromise(
+			new SubAgentAssignmentRunnerError(
+				"cancelled",
+				"The sub-agent operation was cancelled",
+				id,
+				{ runtimeSettled: false },
+			),
+		));
+		signal.addEventListener("abort", onAbort, { once: true });
+		operation.then(
+			(value) => finish(() => resolvePromise(value)),
+			(error) => finish(() => rejectPromise(error)),
+		);
+		if (signal.aborted) onAbort();
+	});
+}
+
 function boundedLeaseIdentity(value: unknown, maxChars: number, fallback: string): string {
 	const normalized = String(value ?? "")
 		.replace(/[\u0000-\u001f\u007f-\u009f]/gu, " ")
@@ -263,6 +311,7 @@ export class SubAgentAssignmentRunner {
 	async createAndLaunch(
 		spec: DynamicAgentSpec,
 		resolveModel: ChildModelResolver,
+		signal?: AbortSignal,
 	): Promise<AssignmentLaunchResult> {
 		if (typeof resolveModel !== "function") {
 			throw new SubAgentAssignmentRunnerError(
@@ -270,48 +319,96 @@ export class SubAgentAssignmentRunner {
 				"A child model resolver is required",
 			);
 		}
+		throwIfCancelled(signal);
 		const created = this.manager.createAgent(spec);
+		let cancellationCleanup: Promise<unknown> | undefined;
+		const cancel = () => {
+			cancellationCleanup ??= this.manager
+				.removeAgent(created.id, "cancelled during child initialization")
+				.catch(() => undefined);
+		};
+		signal?.addEventListener("abort", cancel, { once: true });
 		try {
 			let resolvedModel: ResolvedChildModel;
 			try {
-				resolvedModel = await resolveModel({
+				const modelResolution = Promise.resolve().then(() => resolveModel({
 					id: created.id,
 					generation: created.generation,
 					spec: created.spec,
-				});
+				}));
+				this.manager.trackRuntimeOperation(created.id, modelResolution);
+				resolvedModel = await raceWithCancellation(modelResolution, signal, created.id);
 			} catch (error) {
+				if (error instanceof SubAgentAssignmentRunnerError && error.code === "cancelled") throw error;
 				throw new SubAgentAssignmentRunnerError(
 					"model_resolution_failed",
 					safeInitializationMessage(error, "Could not resolve the child model"),
 					created.id,
 				);
 			}
+			throwIfCancelled(signal, created.id);
 			const route = (resolvedModel as ResolvedChildModel & { route?: ModelRoute }).route;
 			if (route) await this.manager.recordModelRoute(created.id, route);
-			await this.#initialize(created.id, resolvedModel);
-			return await this.prompt(created.id, created.spec.objective);
+			throwIfCancelled(signal, created.id);
+			const initialization = this.#initialize(created.id, resolvedModel, signal);
+			this.manager.trackRuntimeOperation(created.id, initialization);
+			await raceWithCancellation(initialization, signal, created.id);
+			throwIfCancelled(signal, created.id);
+			return await this.prompt(created.id, created.spec.objective, signal);
 		} catch (error) {
+			const failure = signal?.aborted && !(error instanceof SubAgentAssignmentRunnerError && error.code === "cancelled")
+				? new SubAgentAssignmentRunnerError(
+						"cancelled",
+						"The sub-agent operation was cancelled",
+						created.id,
+						{ runtimeSettled: false },
+					)
+				: error;
 			const current = this.manager.getAgent(created.id);
 			if (current.state === "creating") {
+				const runtimeSettled =
+					failure instanceof SubAgentAssignmentRunnerError
+						? failure.runtimeSettled
+						: failure instanceof SubAgentSessionFactoryError
+							? failure.runtimeSettled
+							: true;
 				await this.manager.failAgent(
 					created.id,
-					safeInitializationMessage(error, "Could not initialize the child assignment"),
-					{ runtimeSettled: true },
+					safeInitializationMessage(failure, "Could not initialize the child assignment"),
+					{ runtimeSettled },
 				);
 			}
-			if (error instanceof SubAgentAssignmentRunnerError) throw error;
+			if (failure instanceof SubAgentAssignmentRunnerError) throw failure;
 			throw new SubAgentAssignmentRunnerError(
 				"runtime_initialization_failed",
-				safeInitializationMessage(error, "Could not initialize the child runtime"),
+				safeInitializationMessage(failure, "Could not initialize the child runtime"),
 				created.id,
+				{
+					runtimeSettled:
+						failure instanceof SubAgentSessionFactoryError
+							? failure.runtimeSettled
+							: true,
+				},
 			);
+		} finally {
+			signal?.removeEventListener("abort", cancel);
+			if (signal?.aborted) {
+				cancel();
+				await cancellationCleanup;
+			}
 		}
 	}
 
 	/** Start a new assignment on an initialized creating or reusable idle child. */
-	prompt(id: SubAgentId, objective: string): Promise<AssignmentLaunchResult> {
+	prompt(
+		id: SubAgentId,
+		objective: string,
+		signal?: AbortSignal,
+	): Promise<AssignmentLaunchResult> {
 		const text = boundedAssignmentText(objective, "assignment objective");
 		return this.#enqueue(id, async () => {
+			throwIfCancelled(signal, id);
+			if (this.manager.closed) throw new ManagerClosedError();
 			const live = this.#requireLive(id);
 			let before = this.manager.getAgent(id);
 			if (before.state === "idle" && live.pendingReconfiguration) {
@@ -381,14 +478,26 @@ export class SubAgentAssignmentRunner {
 				}
 			}
 
-			return this.#launchPrompt(live, assignmentId, started.currentAssignment!.objective);
+			if (signal?.aborted) {
+				await this.manager.failAgent(id, "Child assignment launch was cancelled", {
+					runtimeSettled: true,
+				});
+				throwIfCancelled(signal, id);
+			}
+			if (this.manager.closed) throw new ManagerClosedError();
+			return this.#launchPrompt(live, assignmentId, started.currentAssignment!.objective, signal);
 		});
 	}
 
 	/** Resume one settled blocked assignment with retained child context. */
-	resumeBlocked(id: SubAgentId, message: string): Promise<AssignmentLaunchResult> {
+	resumeBlocked(
+		id: SubAgentId,
+		message: string,
+		signal?: AbortSignal,
+	): Promise<AssignmentLaunchResult> {
 		const text = boundedAssignmentText(message, "blocked-assignment message");
 		return this.#enqueue(id, async () => {
+			throwIfCancelled(signal, id);
 			if (this.manager.closed) throw new ManagerClosedError();
 			const live = this.#requireLive(id);
 			let snapshot = this.manager.getAgent(id);
@@ -447,7 +556,14 @@ export class SubAgentAssignmentRunner {
 					);
 				}
 			}
-			return this.#launchPrompt(live, assignmentId, text);
+			if (signal?.aborted) {
+				await this.manager.failAgent(id, "Blocked assignment resume was cancelled", {
+					runtimeSettled: true,
+				});
+				throwIfCancelled(signal, id);
+			}
+			if (this.manager.closed) throw new ManagerClosedError();
+			return this.#launchPrompt(live, assignmentId, text, signal);
 		});
 	}
 
@@ -456,6 +572,7 @@ export class SubAgentAssignmentRunner {
 		id: SubAgentId,
 		message: string,
 		delivery: ActiveAssignmentDelivery,
+		signal?: AbortSignal,
 	): Promise<ActiveAssignmentMessageResult> {
 		const text = boundedAssignmentText(message, "assignment message");
 		if (delivery !== "steer" && delivery !== "followUp") {
@@ -468,6 +585,7 @@ export class SubAgentAssignmentRunner {
 			);
 		}
 		return this.#enqueue(id, async () => {
+			throwIfCancelled(signal, id);
 			if (this.manager.closed) throw new ManagerClosedError();
 			const live = this.#requireLive(id);
 			let snapshot = this.manager.getAgent(id);
@@ -488,6 +606,8 @@ export class SubAgentAssignmentRunner {
 				);
 			}
 
+			throwIfCancelled(signal, id);
+			if (this.manager.closed) throw new ManagerClosedError();
 			if (delivery === "steer") await live.runtime.session.steer(text);
 			else await live.runtime.session.followUp(text);
 
@@ -507,6 +627,7 @@ export class SubAgentAssignmentRunner {
 		resolvedModel: ResolvedChildModel & { route: ModelRoute },
 		requestedThinkingLevel: ManagedSubAgentSnapshot["effectiveThinkingLevel"],
 		runningBehavior: ReconfigurationRunningBehavior = "queue",
+		signal?: AbortSignal,
 	): Promise<ModelReconfigurationResult> {
 		if (!resolvedModel?.runtime || !resolvedModel.model || !resolvedModel.route) {
 			return Promise.reject(
@@ -528,6 +649,7 @@ export class SubAgentAssignmentRunner {
 		}
 
 		return this.#enqueue(id, async () => {
+			throwIfCancelled(signal, id);
 			if (this.manager.closed) throw new ManagerClosedError();
 			const live = this.#requireLive(id);
 			let snapshot = this.manager.getAgent(id);
@@ -552,6 +674,7 @@ export class SubAgentAssignmentRunner {
 				await live.translator.flush();
 				snapshot = this.manager.getAgent(id);
 				if (snapshot.state === "idle") {
+					throwIfCancelled(signal, id);
 					const pending = this.#createPendingReconfiguration(
 						live,
 						snapshot,
@@ -568,6 +691,7 @@ export class SubAgentAssignmentRunner {
 				);
 			}
 
+			throwIfCancelled(signal, id);
 			const assignment = snapshot.currentAssignment;
 			const pending = this.#createPendingReconfiguration(
 				live,
@@ -709,8 +833,14 @@ export class SubAgentAssignmentRunner {
 		});
 	}
 
-	async #initialize(id: SubAgentId, resolvedModel: ResolvedChildModel): Promise<void> {
+	async #initialize(
+		id: SubAgentId,
+		resolvedModel: ResolvedChildModel,
+		signal?: AbortSignal,
+	): Promise<void> {
 		return this.#enqueue(id, async () => {
+			throwIfCancelled(signal, id);
+			if (this.manager.closed) throw new ManagerClosedError();
 			if (this.#live.has(id)) {
 				throw new SubAgentAssignmentRunnerError(
 					"runtime_initialization_failed",
@@ -762,6 +892,7 @@ export class SubAgentAssignmentRunner {
 						await this.manager.recordChildFileMutation(id, target);
 					},
 				});
+				throwIfCancelled(signal, id);
 				await this.manager.recordEffectiveThinkingLevel(
 					id,
 					runtime.thinkingLevel ?? snapshot.spec.thinkingLevel ?? "medium",
@@ -771,15 +902,14 @@ export class SubAgentAssignmentRunner {
 					abort: () => runtime!.abort(),
 					waitForIdle: async () => {
 						await runtime!.waitForIdle();
-						await translator.flush();
+						// A stopping/closed manager rejects late translated observations by
+						// design. Waiting for the translator tail still proves no callback is
+						// active; its bounded state error does not make the child run live.
+						await translator.flush().catch(() => undefined);
 					},
 					dispose: async () => {
 						let failed = false;
-						try {
-							await translator.close();
-						} catch {
-							failed = true;
-						}
+						await translator.close().catch(() => undefined);
 						try {
 							runtime!.dispose();
 						} catch {
@@ -797,13 +927,34 @@ export class SubAgentAssignmentRunner {
 				});
 				this.#live.set(id, live);
 			} catch (error) {
-				if (runtime) await runtime.close().catch(() => undefined);
+				let runtimeSettled =
+					error instanceof SubAgentSessionFactoryError
+						? error.runtimeSettled
+						: true;
+				if (runtime) {
+					try {
+						await runtime.close();
+					} catch (cleanupError) {
+						runtimeSettled =
+							cleanupError instanceof SubAgentSessionFactoryError
+								? cleanupError.runtimeSettled
+								: false;
+					}
+				}
 				await translator.close().catch(() => undefined);
-				if (error instanceof SubAgentAssignmentRunnerError) throw error;
+				if (error instanceof SubAgentAssignmentRunnerError) {
+					throw new SubAgentAssignmentRunnerError(
+						error.code,
+						error.message,
+						error.agentId,
+						{ runtimeSettled: runtimeSettled !== false },
+					);
+				}
 				throw new SubAgentAssignmentRunnerError(
 					"runtime_initialization_failed",
 					safeInitializationMessage(error, "Could not initialize the child runtime"),
 					id,
+					{ runtimeSettled },
 				);
 			}
 		});
@@ -813,6 +964,7 @@ export class SubAgentAssignmentRunner {
 		live: LiveChildRuntime,
 		assignmentId: AssignmentId,
 		objective: string,
+		signal?: AbortSignal,
 	): Promise<AssignmentLaunchResult> {
 		const id = live.runtime.id;
 		let preflightResolved = false;
@@ -865,13 +1017,37 @@ export class SubAgentAssignmentRunner {
 		};
 		live.currentRun = run;
 
-		const accepted = await Promise.race([
+		let cancellationCleanup: Promise<unknown> | undefined;
+		let resolveCancellation!: () => void;
+		const cancellation = new Promise<"cancelled">((resolvePromise) => {
+			resolveCancellation = () => resolvePromise("cancelled");
+		});
+		const onAbort = () => {
+			cancellationCleanup ??= this.manager
+				.removeAgent(id, "cancelled during child prompt preflight")
+				.catch(() => undefined);
+			resolveCancellation();
+		};
+		signal?.addEventListener("abort", onAbort, { once: true });
+		if (signal?.aborted) onAbort();
+		const accepted = await Promise.race<boolean | "cancelled">([
 			preflight,
 			completion.then(
 				() => true,
 				() => false,
 			),
+			...(signal ? [cancellation] : []),
 		]);
+		signal?.removeEventListener("abort", onAbort);
+		if (accepted === "cancelled") {
+			await cancellationCleanup;
+			throw new SubAgentAssignmentRunnerError(
+				"cancelled",
+				"The sub-agent operation was cancelled",
+				id,
+				{ runtimeSettled: false },
+			);
+		}
 		if (!accepted) {
 			await run.completion;
 			throw new SubAgentAssignmentRunnerError(

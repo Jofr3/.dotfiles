@@ -55,6 +55,7 @@ const RUNNER_ERROR_CODES = new Set([
 	"assignment_execution_failed",
 	"assignment_changed",
 	"assignment_abort_failed",
+	"cancelled",
 	"invalid_reconfiguration",
 	"reconfiguration_not_available",
 	"reconfiguration_failed",
@@ -199,15 +200,22 @@ function oneLine(value: unknown): string {
 
 function boundUtf8Line(value: unknown, maxBytes: number): string {
 	const normalized = oneLine(value);
+	const cap = Math.max(0, Math.floor(maxBytes));
+	if (Buffer.byteLength(normalized, "utf8") <= cap) return normalized;
+
+	const ellipsis = "…";
+	const ellipsisBytes = Buffer.byteLength(ellipsis, "utf8");
+	if (cap < ellipsisBytes) return ".".repeat(cap);
+
 	let result = "";
 	let bytes = 0;
 	for (const character of normalized) {
 		const characterBytes = Buffer.byteLength(character, "utf8");
-		if (bytes + characterBytes > maxBytes) break;
+		if (bytes + characterBytes + ellipsisBytes > cap) break;
 		result += character;
 		bytes += characterBytes;
 	}
-	return result;
+	return result + ellipsis;
 }
 
 function boundedField(
@@ -441,7 +449,7 @@ async function requestGracefulStop(
 			};
 		}
 		try {
-			await runtime.runner.send(id, GRACEFUL_STOP_MESSAGE, "steer");
+			await runtime.runner.send(id, GRACEFUL_STOP_MESSAGE, "steer", signal);
 			requested = true;
 			break;
 		} catch (error) {

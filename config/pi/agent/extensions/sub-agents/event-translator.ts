@@ -75,8 +75,12 @@ function boundedTail(value: string, maxChars: number): string {
 }
 
 function boundedIdentity(value: unknown, maxChars: number, fallback: string): string {
-	const text = typeof value === "string" ? value.trim() : "";
-	return boundedHead(text || fallback, maxChars);
+	const text = typeof value === "string" ? value : "";
+	const normalized = text
+		.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]+/gu, " ")
+		.replace(/\s+/gu, " ")
+		.trim();
+	return boundedHead(normalized || fallback, maxChars);
 }
 
 function safeTimestamp(value: number): number {
@@ -209,6 +213,9 @@ export class ChildEventTranslator {
 	#operationTail: Promise<void> = Promise.resolve();
 	#pendingActivity?: AgentRuntimeActivity;
 	#activityTaskQueued = false;
+	#pendingRuntimeEvents: string[] = [];
+	#omittedRuntimeEvents = 0;
+	#runtimeEventTaskQueued = false;
 	#closed = false;
 	#error?: ChildEventTranslatorError;
 	#intentionalAbortReason?: string;
@@ -532,7 +539,13 @@ export class ChildEventTranslator {
 		while (true) {
 			const tail = this.#operationTail;
 			await tail;
-			if (tail === this.#operationTail && !this.#pendingActivity && !this.#activityTaskQueued) break;
+			if (
+				tail === this.#operationTail &&
+				!this.#pendingActivity &&
+				!this.#activityTaskQueued &&
+				this.#pendingRuntimeEvents.length === 0 &&
+				!this.#runtimeEventTaskQueued
+			) break;
 		}
 		if (this.#error) throw this.#error;
 	}
@@ -579,8 +592,42 @@ export class ChildEventTranslator {
 	}
 
 	#recordRuntimeEvent(summary: string): void {
-		const bounded = boundedHead(summary, SUB_AGENT_BOUNDS.eventSummaryChars);
-		this.#enqueue(() => this.#manager.recordRuntimeEvent(this.id, bounded));
+		const bounded = boundedIdentity(
+			summary,
+			SUB_AGENT_BOUNDS.eventSummaryChars,
+			"Runtime activity updated",
+		);
+		if (this.#pendingRuntimeEvents.length === SUB_AGENT_BOUNDS.eventTimeline) {
+			this.#pendingRuntimeEvents.shift();
+			this.#omittedRuntimeEvents = Math.min(
+				Number.MAX_SAFE_INTEGER,
+				this.#omittedRuntimeEvents + 1,
+			);
+		}
+		this.#pendingRuntimeEvents.push(bounded);
+		this.#queueRuntimeEvents();
+	}
+
+	#queueRuntimeEvents(): void {
+		if (this.#runtimeEventTaskQueued) return;
+		this.#runtimeEventTaskQueued = true;
+		this.#enqueue(async () => {
+			const pending = this.#pendingRuntimeEvents;
+			const omitted = this.#omittedRuntimeEvents;
+			this.#pendingRuntimeEvents = [];
+			this.#omittedRuntimeEvents = 0;
+			this.#runtimeEventTaskQueued = false;
+			for (const summary of pending) {
+				await this.#manager.recordRuntimeEvent(this.id, summary);
+			}
+			if (omitted > 0) {
+				await this.#manager.recordRuntimeEvent(
+					this.id,
+					`${omitted} earlier runtime event(s) coalesced by the bounded translator queue`,
+				);
+			}
+			if (this.#pendingRuntimeEvents.length > 0) this.#queueRuntimeEvents();
+		});
 	}
 
 	#enqueue(operation: () => void | Promise<unknown>): Promise<void> {

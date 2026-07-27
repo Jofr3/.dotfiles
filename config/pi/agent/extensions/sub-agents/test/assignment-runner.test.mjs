@@ -4,6 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
+	createDeferred,
+	createOfflineModelRuntime,
+	createTempDirectoryFixture,
+} from "./fixtures.mjs";
+import {
 	importInstalledPackages,
 	importSubAgentsModule,
 } from "./installed-packages.mjs";
@@ -12,15 +17,7 @@ const { SubAgentAssignmentRunner } = await importSubAgentsModule("assignment-run
 const { createSubAgentSession } = await importSubAgentsModule("agent-runtime.ts");
 const { SubAgentManager, createSessionGeneration } = await importSubAgentsModule("manager.ts");
 
-function deferred() {
-	let resolvePromise;
-	let rejectPromise;
-	const promise = new Promise((resolve, reject) => {
-		resolvePromise = resolve;
-		rejectPromise = reject;
-	});
-	return { promise, resolve: resolvePromise, reject: rejectPromise };
-}
+const deferred = createDeferred;
 
 function textFromUserContent(content) {
 	if (typeof content === "string") return content;
@@ -63,15 +60,12 @@ function inheritedFallbackRoute(ref) {
 }
 
 async function createOfflineFixture(label) {
-	const root = await mkdtemp(join(tmpdir(), `pi-sub-agent-runner-${label}-`));
+	const temporary = await createTempDirectoryFixture(`pi-sub-agent-runner-${label}`);
+	const root = temporary.root;
 	const { codingAgent, piAi } = await importInstalledPackages();
 	const providerId = `assignment-runner-${label}`;
 	const faux = piAi.fauxProvider({ provider: providerId, tokensPerSecond: 100_000 });
-	const runtime = await codingAgent.ModelRuntime.create({
-		credentials: new piAi.InMemoryCredentialStore(),
-		modelsPath: null,
-		allowModelNetwork: false,
-	});
+	const runtime = await createOfflineModelRuntime(codingAgent, piAi);
 	runtime.registerNativeProvider(faux.provider);
 	const model = runtime.getModel(providerId, "faux-1");
 	assert.ok(model);
@@ -97,12 +91,15 @@ async function createOfflineFixture(label) {
 			return child;
 		},
 	});
-	return { root, codingAgent, piAi, faux, runtime, resolvedModel, manager, runner, sessions };
+	return { root, temporary, codingAgent, piAi, faux, runtime, resolvedModel, manager, runner, sessions };
 }
 
 async function cleanupFixture(fixture) {
-	await fixture.manager.disposeAll("assignment runner test complete");
-	await rm(fixture.root, { recursive: true, force: true });
+	try {
+		await fixture.manager.disposeAll("assignment runner test complete");
+	} finally {
+		await fixture.temporary.cleanup();
+	}
 }
 
 test("the assignment runner launches in the background and reuses an idle child with retained context", async () => {
@@ -392,4 +389,133 @@ test("background prompt rejection is observed, sanitized, and isolated in the fa
 		await rm(root, { recursive: true, force: true });
 	}
 	assert.equal(disposed, true);
+});
+
+test("cancelling a hung model resolution returns boundedly and quarantines its provisional generation", async () => {
+	const root = await mkdtemp(join(tmpdir(), "pi-sub-agent-runner-cancel-model-"));
+	const manager = new SubAgentManager({
+		cwd: root,
+		generation: createSessionGeneration("cancel-model"),
+		cleanupTimeoutMs: 10,
+		modelRuntime: { async dispose() {} },
+	});
+	const runner = new SubAgentAssignmentRunner(manager, {
+		async createSession() { throw new Error("session creation must not start"); },
+	});
+	const entered = deferred();
+	const controller = new AbortController();
+	try {
+		const launch = runner.createAndLaunch(
+			childSpec("cancelled-model-child", "never finish model resolution"),
+			async () => {
+				entered.resolve();
+				return new Promise(() => undefined);
+			},
+			controller.signal,
+		);
+		await entered.promise;
+		const startedAt = Date.now();
+		controller.abort();
+		await assert.rejects(launch, (error) => error?.code === "cancelled");
+		assert.ok(Date.now() - startedAt < 500);
+		assert.equal(manager.getSummary().active, 0);
+		await assert.rejects(manager.disposeAll("hung model cancellation"), (error) => error?.code === "cleanup_incomplete");
+	} finally {
+		await rm(root, { recursive: true, force: true });
+	}
+});
+
+test("cancelling hung prompt preflight returns after bounded manager cleanup", async () => {
+	const root = await mkdtemp(join(tmpdir(), "pi-sub-agent-runner-cancel-preflight-"));
+	const manager = new SubAgentManager({
+		cwd: root,
+		generation: createSessionGeneration("cancel-preflight"),
+		cleanupTimeoutMs: 10,
+		modelRuntime: { async dispose() {} },
+	});
+	const promptEntered = deferred();
+	let disposed = false;
+	const runner = new SubAgentAssignmentRunner(manager, {
+		async createSession(options) {
+			let streaming = false;
+			return {
+				id: options.id,
+				thinkingLevel: "off",
+				session: {
+					get isIdle() { return !streaming; },
+					get isStreaming() { return streaming; },
+					pendingMessageCount: 0,
+					prompt() {
+						streaming = true;
+						promptEntered.resolve();
+						return new Promise(() => undefined);
+					},
+					async steer() {},
+					async followUp() {},
+				},
+				abort() { return new Promise(() => undefined); },
+				waitForIdle() { return new Promise(() => undefined); },
+				dispose() { disposed = true; },
+				async close() { this.dispose(); },
+			};
+		},
+	});
+	const controller = new AbortController();
+	try {
+		const launch = runner.createAndLaunch(
+			childSpec("cancelled-preflight-child", "never accept prompt preflight"),
+			() => ({ runtime: {}, model: {}, ref: { provider: "fixture", id: "fixture" } }),
+			controller.signal,
+		);
+		await promptEntered.promise;
+		const startedAt = Date.now();
+		controller.abort();
+		await assert.rejects(launch, (error) => error?.code === "cancelled");
+		assert.ok(Date.now() - startedAt < 500);
+		assert.equal(disposed, true);
+		await assert.rejects(manager.disposeAll("hung preflight cancellation"), (error) => error?.code === "cleanup_incomplete");
+	} finally {
+		await rm(root, { recursive: true, force: true });
+	}
+});
+
+test("cancelling session initialization removes the provisional child and closes a late runtime", async () => {
+	const fixture = await createOfflineFixture("cancel-initialize");
+	const entered = deferred();
+	const release = deferred();
+	let closeCalls = 0;
+	const runner = new SubAgentAssignmentRunner(fixture.manager, {
+		async createSession() {
+			entered.resolve();
+			await release.promise;
+			return {
+				async close() { closeCalls += 1; },
+			};
+		},
+	});
+	const controller = new AbortController();
+	try {
+		const launch = runner.createAndLaunch(
+			childSpec("cancelled-child", "never begin after cancellation"),
+			() => ({
+				...fixture.resolvedModel,
+				route: inheritedFallbackRoute(fixture.resolvedModel.ref),
+			}),
+			controller.signal,
+		);
+		await entered.promise;
+		controller.abort();
+		release.resolve();
+		await assert.rejects(
+			launch,
+			(error) => error?.code === "cancelled",
+		);
+		assert.equal(runner.liveRuntimeCount, 0);
+		assert.equal(closeCalls, 1);
+		assert.equal(fixture.manager.getSummary().active, 0);
+		assert.equal(fixture.manager.listAgents({ includeRemoved: true }).at(-1).state, "removed");
+	} finally {
+		release.resolve();
+		await cleanupFixture(fixture);
+	}
 });

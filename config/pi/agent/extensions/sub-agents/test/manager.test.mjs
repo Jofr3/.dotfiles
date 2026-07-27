@@ -44,6 +44,14 @@ function deferred() {
 }
 
 test("the lifecycle state machine supports reusable assignments and rejects invalid or stale operations", async () => {
+	assert.throws(
+		() => new SubAgentManager({ ...deterministicOptions("invalid-generation"), generation: "sag1-bad\ngeneration" }),
+		(error) => error instanceof SubAgentManagerError && error.code === "invalid_generation",
+	);
+	assert.throws(
+		() => new SubAgentManager({ ...deterministicOptions("invalid-generation"), generation: `sag1-${"x".repeat(81)}` }),
+		(error) => error instanceof SubAgentManagerError && error.code === "invalid_generation",
+	);
 	assert.equal(canTransitionAgentState("creating", "running"), true);
 	assert.equal(canTransitionAgentState("running", "idle"), true);
 	assert.equal(canTransitionAgentState("idle", "running"), true);
@@ -301,6 +309,10 @@ test("resource cleanup and background rejection handling are idempotent and race
 	assert.equal(waitCalls, 1);
 	assert.equal(disposeCalls, 1);
 	assert.equal(controller.signal.aborted, true);
+	await manager.removeAgent(created.id, "settled repeated removal");
+	assert.equal(abortCalls, 1, "settled removed history must not retain and rerun cleanup hooks");
+	assert.equal(waitCalls, 1);
+	assert.equal(disposeCalls, 1);
 	await new Promise((resolvePromise) => setTimeout(resolvePromise, 30));
 	assert.equal(timerFired, false);
 
@@ -311,11 +323,153 @@ test("resource cleanup and background rejection handling are idempotent and race
 	assert.equal(failed.state, "failed");
 	assert.equal(failed.lastError, "observed background failure");
 
+	const malformed = manager.createAgent(agentSpec("malformed-failure"));
+	await manager.startAssignment(malformed.id);
+	const sanitized = await manager.failAgent(malformed.id, new Error("unsafe\n\t\u001b[31m failure"));
+	assert.equal(sanitized.lastError, "unsafe [31m failure");
+	const hostile = manager.createAgent(agentSpec("hostile-failure"));
+	await manager.startAssignment(hostile.id);
+	const contained = await manager.failAgent(hostile.id, {
+		toString() {
+			throw new Error("hostile conversion");
+		},
+	});
+	assert.equal(contained.lastError, "Unknown runtime error");
+
 	await manager.disposeAll("test shutdown");
 	await manager.disposeAll("duplicate shutdown");
 	assert.equal(manager.closed, true);
 	assert.equal(manager.getSummary().active, 0);
 	assert.throws(() => manager.createAgent(agentSpec("late")), ManagerClosedError);
+});
+
+test("background failure and explicit removal share one bounded runtime quiescence", async () => {
+	const manager = new SubAgentManager(deterministicOptions("shared-quiescence"));
+	const child = manager.createAgent(agentSpec("shared-quiescence-worker"));
+	await manager.startAssignment(child.id);
+	const idleGate = deferred();
+	let abortCalls = 0;
+	let waitCalls = 0;
+	let disposeCalls = 0;
+	manager.registerRuntimeCleanup(child.id, {
+		abort() {
+			abortCalls += 1;
+		},
+		async waitForIdle() {
+			waitCalls += 1;
+			await idleGate.promise;
+		},
+		dispose() {
+			disposeCalls += 1;
+		},
+	});
+	const handled = manager.trackBackground(child.id, Promise.reject(new Error("shared failure")));
+	for (let attempt = 0; attempt < 20 && waitCalls === 0; attempt += 1) await Promise.resolve();
+	assert.equal(waitCalls, 1);
+	const removal = manager.removeAgent(child.id, "concurrent failure removal");
+	idleGate.resolve();
+	const [, removed] = await Promise.all([handled, removal]);
+	assert.equal(removed.state, "removed");
+	assert.equal(abortCalls, 1);
+	assert.equal(waitCalls, 1);
+	assert.equal(disposeCalls, 1);
+	await manager.disposeAll("shared quiescence complete");
+});
+
+test("explicit removal retries one expired background quiescence before disposal", async () => {
+	const manager = new SubAgentManager({
+		...deterministicOptions("retry-expired-quiescence"),
+		cleanupTimeoutMs: 10,
+	});
+	const child = manager.createAgent(agentSpec("retry-expired-quiescence-worker"));
+	await manager.startAssignment(child.id);
+	const firstAbort = deferred();
+	let abortCalls = 0;
+	let waitCalls = 0;
+	manager.registerRuntimeCleanup(child.id, {
+		abort() {
+			abortCalls += 1;
+			return abortCalls === 1 ? firstAbort.promise : undefined;
+		},
+		waitForIdle() { waitCalls += 1; },
+		dispose() {},
+	});
+	await manager.trackBackground(child.id, Promise.reject(new Error("start bounded failure cleanup")));
+	assert.equal(manager.getAgent(child.id).state, "failed");
+	assert.equal(abortCalls, 1);
+	assert.equal(waitCalls, 0);
+	firstAbort.resolve();
+	await Promise.resolve();
+	const removed = await manager.removeAgent(child.id, "retry after expired background cleanup");
+	assert.equal(removed.state, "removed");
+	assert.equal(abortCalls, 2);
+	assert.equal(waitCalls, 1);
+	await manager.disposeAll("retried quiescence complete");
+});
+
+test("hanging runtime abort and dispose hooks are bounded during removal", async () => {
+	const manager = new SubAgentManager({
+		...deterministicOptions("bounded-cleanup-hooks"),
+		cleanupTimeoutMs: 10,
+	});
+	const child = manager.createAgent(agentSpec("bounded-cleanup-hooks-worker"));
+	const abortGate = deferred();
+	let waitCalls = 0;
+	manager.registerRuntimeCleanup(child.id, {
+		abort: () => abortGate.promise,
+		waitForIdle() {
+			waitCalls += 1;
+		},
+		dispose: () => new Promise(() => undefined),
+	});
+	const keepAlive = setTimeout(() => undefined, 1_000);
+	try {
+		const startedAt = Date.now();
+		const removed = await manager.removeAgent(child.id, "bounded hanging cleanup");
+		assert.ok(Date.now() - startedAt < 500);
+		assert.equal(removed.state, "removed");
+		assert.match(removed.lastError, /runtime quiescence timed out/);
+		assert.match(removed.lastError, /dispose timed out/);
+		abortGate.resolve();
+		await Promise.resolve();
+		await Promise.resolve();
+		assert.equal(waitCalls, 0, "a late abort completion must not start waitForIdle after disposal");
+		await assert.rejects(
+			manager.disposeAll("bounded hanging cleanup complete"),
+			(error) => error instanceof SubAgentManagerError && error.code === "cleanup_incomplete",
+		);
+	} finally {
+		clearTimeout(keepAlive);
+	}
+});
+
+test("operations admitted just before shutdown recheck the closed generation before mutation", async () => {
+	const manager = new SubAgentManager(deterministicOptions("queued-before-close"));
+	const child = manager.createAgent(agentSpec("queued-before-close-worker"));
+	const pendingStart = manager.startAssignment(child.id);
+	const disposal = manager.disposeAll("close before queued mutation");
+	await assert.rejects(
+		pendingStart,
+		(error) => error instanceof ManagerClosedError,
+	);
+	await disposal;
+	const removed = manager.getAgent(child.id);
+	assert.equal(removed.state, "removed");
+	assert.equal(removed.assignmentCount, 0);
+});
+
+test("manager shutdown bounds a hanging shared model-runtime disposal", async () => {
+	const manager = new SubAgentManager({
+		...deterministicOptions("hanging-model-disposal"),
+		cleanupTimeoutMs: 10,
+		modelRuntime: { dispose: () => new Promise(() => undefined) },
+	});
+	const startedAt = Date.now();
+	await assert.rejects(
+		manager.disposeAll("bounded model runtime shutdown"),
+		(error) => error instanceof SubAgentManagerError && error.code === "cleanup_incomplete",
+	);
+	assert.ok(Date.now() - startedAt < 500);
 });
 
 test("manager shutdown disposes child sessions before the shared model runtime", async () => {
@@ -338,7 +492,27 @@ test("manager shutdown disposes child sessions before the shared model runtime",
 	assert.equal(manager.modelRuntime, modelRuntime);
 });
 
-test("the manager has no numeric child-count gate and disposeAll tolerates cleanup failures", async () => {
+test("settled current-generation history is capped without imposing a live-agent count gate", async () => {
+	const manager = new SubAgentManager(deterministicOptions("bounded-current-history"));
+	const ids = [];
+	for (let index = 0; index < SUB_AGENT_BOUNDS.currentHistoricalAgents + 3; index += 1) {
+		const created = manager.createAgent(agentSpec(`historical-${index}`));
+		ids.push(created.id);
+		await manager.removeAgent(created.id, "bounded history fixture");
+	}
+	await Promise.resolve();
+	const history = manager.listAgents({ includeRemoved: true });
+	assert.equal(history.length, SUB_AGENT_BOUNDS.currentHistoricalAgents);
+	assert.equal(manager.getSummary().historical, SUB_AGENT_BOUNDS.currentHistoricalAgents);
+	assert.throws(
+		() => manager.getAgent(ids[0]),
+		(error) => error instanceof SubAgentManagerError && error.code === "unknown_agent",
+	);
+	assert.equal(manager.getAgent(ids.at(-1)).state, "removed");
+	await manager.disposeAll("bounded history complete");
+});
+
+test("the manager has no numeric child-count gate and disposeAll quarantines cleanup failures", async () => {
 	const manager = new SubAgentManager(deterministicOptions("unbounded-pool"));
 	const agents = [];
 	for (let index = 0; index < 256; index += 1) {
@@ -354,7 +528,10 @@ test("the manager has no numeric child-count gate and disposeAll tolerates clean
 			throw new Error("synthetic cleanup problem");
 		},
 	});
-	await manager.disposeAll("phase boundary");
+	await assert.rejects(
+		manager.disposeAll("phase boundary"),
+		(error) => error instanceof SubAgentManagerError && error.code === "cleanup_incomplete",
+	);
 	assert.equal(disposed, 1);
 	assert.equal(manager.getSummary().counts.removed, agents.length);
 	assert.match(manager.getAgent(agents[0].id).lastError, /synthetic cleanup problem/);

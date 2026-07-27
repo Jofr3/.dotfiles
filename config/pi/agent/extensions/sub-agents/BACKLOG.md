@@ -2,11 +2,11 @@
 
 **Specification:** [`SPEC.md`](./SPEC.md)
 
-**Current stage:** Phases 0–5 are complete; Phase 6 persistence/session correctness is in progress
+**Current stage:** Phases 0–6 plus `SA-700`–`SA-704` are complete; Phase 7 manual release validation is in progress
 
-**Current milestone:** Phase 6 — persistence and session correctness
+**Current milestone:** Phase 7 — hardening and first stable shared-workspace release
 
-**Next recommended item:** `SA-603`
+**Next recommended item:** `SA-705`
 
 This file is the resumable source of truth for implementation progress. Future sessions should update it before stopping so another session can continue without reconstructing decisions from conversation history.
 
@@ -66,7 +66,7 @@ Future changes to these require an explicit spec and decision-log update.
 
 These notes prevent future sessions from accidentally overwriting unrelated work.
 
-- The `sub-agents/` directory now contains the production Phase 1 entry point/state manager, the complete Phase 2 shared child runtime (model adapter/router, bounded prompt/resources, read-only session factory, event translator, reusable assignment runner, and atomic usage ledger), the validated six-tool Phase 3 control plane, complete Phase 4 observability (child `report_to_parent`, bounded coalesced parent notifications, persistent status widget, shared management-tool renderers, and the `/sub-agents` dashboard), the validated Phase 5 shared-workspace safety boundary, and Phase 6's strict historical schema, meaningful bounded checkpoint appends, and branch-aware immutable historical restoration. Restoration reads only the active branch, keeps old IDs out of the live registry, preserves old unreported usage observationally, and publishes no old runtime or lease authority. The lifecycle boundary matrix is next.
+- The `sub-agents/` directory now contains the production Phase 1 entry point/state manager, the complete Phase 2 shared child runtime (model adapter/router, bounded prompt/resources, read-only session factory, event translator, reusable assignment runner, and atomic usage ledger), the validated six-tool Phase 3 control plane, complete Phase 4 observability (child `report_to_parent`, bounded coalesced parent notifications, persistent status widget, shared management-tool renderers, and the `/sub-agents` dashboard), the validated Phase 5 shared-workspace safety boundary, and complete Phase 6 persistence/session correctness. Restoration reads only the active branch, keeps old IDs out of the live registry, preserves old unreported usage observationally, and publishes no old runtime or lease authority. The lifecycle matrix covers reload/new/resume/fork/clone, tree, all compaction reasons including overflow retry, shutdown, and partial cleanup failure without retaining runtime or lease authority.
 - At planning time, git reported `agent/extensions/dynamic-fleet.ts` as deleted in the pre-existing working tree. Do not restore or repurpose it unless the user explicitly asks.
 - At planning time, `agent/models-store.json` and `agent/settings.json` already had unrelated modifications. Do not overwrite or revert them.
 - No dependencies have been installed for `sub-agents`.
@@ -82,8 +82,8 @@ These notes prevent future sessions from accidentally overwriting unrelated work
 | 3 | Main-agent control tools | DONE | Main can incrementally manage pool |
 | 4 | Notifications and observability | DONE | Bounded event delivery and TUI work |
 | 5 | Shared-workspace mutations | DONE | Same-file/main-child collisions prevented |
-| 6 | Persistence/session correctness | IN PROGRESS | Historical state is branch-safe; live state invalidates |
-| 7 | Hardening and docs | BLOCKED by Phases 0–6 | First stable shared-workspace release |
+| 6 | Persistence/session correctness | DONE | Historical state is branch-safe; live state invalidates |
+| 7 | Hardening and docs | IN PROGRESS | First stable shared-workspace release |
 | 8 | Git worktrees | DEFERRED | Isolated writers supported safely |
 | 9 | Advanced capabilities | DEFERRED | Evaluated from real usage, not speculation |
 
@@ -699,7 +699,7 @@ Artifacts:
 
 Implementation notes:
 
-- `tools/spawn.ts` registers the strict schema with `executionMode: "parallel"`, activates the canonical complexity-routing guidance, and resolves every child through the session-generation manager, shared router, and persistent assignment runner.
+- `tools/spawn.ts` registers the strict schema, activates canonical complexity-routing guidance, and resolves every child through the session-generation manager, shared router, and persistent assignment runner. It originally used tool-level parallel mode; `SA-701` later made sibling spawn calls sequential for non-racing bash approval while preserving concurrent entries inside each admitted batch.
 - One mapped promise is created per request entry before the batch is awaited. Outcomes retain request order while child validation, routing, runtime initialization, and prompt launch remain independent; no active-count check, worker queue, semaphore, or scheduler was added.
 - Each valid child returns its exact opaque ID after prompt preflight accepts. Known manager/runner failures become bounded per-child outcomes, unknown runtime errors are replaced with a generic message, and a failed child never rejects successful siblings.
 - Model-visible content includes every started ID and compact route/failure metadata under UTF-8 display bounds. Structured details omit prompts and conversations, while compact and expanded `Text` renderers sanitize control characters and reuse the prior component.
@@ -1166,11 +1166,11 @@ Artifacts:
 - [x] Acquire full-assignment workspace lease before mutating bash use.
 - [x] Abort propagation.
 - [x] Document/reject detached process behavior as feasible.
-- [x] Preserve built-in bash details/truncation.
+- [x] Preserve the built-in command schema/renderers/abort backend while bounding output without a full-output artifact.
 
 Implementation notes:
 
-- `workspace/guarded-tools.ts` spreads Pi's public `createBashToolDefinition()` and overrides only execution. The child keeps the exact bash schema, prompt metadata, renderers, streaming updates, timeout/abort semantics, tail truncation, optional full-output temp-file details, and original result/detail shape.
+- `workspace/guarded-tools.ts` spreads Pi's public `createBashToolDefinition()` and overrides execution. The child keeps the command schema, renderers, timeout/abort semantics, and local/custom operations backend. `SA-701` intentionally replaces ambient environment exposure and temp-backed tail overflow: only a fixed operational environment allowlist reaches the command, no `PI_*` session variables are added, forwarded output is capped at 48 KiB/1,900 lines, and overflow is discarded with an inline marker rather than written to a full-output temp file.
 - Bash is exposed only when the exact `bash` tool and `workspace.bashPolicy: "workspace-exclusive"` are both present. Disabled policy with bash, exclusive policy without bash, missing generation lease callbacks, and worktree mode fail before session creation.
 - The child runtime claims the complete shared workspace before session construction. `SubAgentAssignmentRunner` reclaims it before every later prompt so an explicit idle release cannot start a new bash-capable assignment without whole-workspace ownership. Each guarded bash call idempotently re-verifies the lease before delegating.
 - Coarse workspace ownership is claimed before any declared exact-file scope for a mixed bash/edit/write child. Once the workspace claim succeeds, same-owner file claims cannot conflict with another participant; `writeScope` remains an edit/write authorization boundary and does not purport to constrain arbitrary bash.
@@ -1370,26 +1370,43 @@ Artifacts:
 
 ## `SA-603` Lifecycle boundary matrix
 
-**Status:** NEXT
+**Status:** DONE
 
 Test:
 
-- [ ] reload;
-- [ ] new;
-- [ ] resume/switch;
-- [ ] fork/clone;
-- [ ] tree navigation;
-- [ ] compaction/retry boundary according to finalized policy;
-- [ ] quit/shutdown;
-- [ ] partial cleanup failure.
+- [x] reload;
+- [x] new;
+- [x] resume/switch;
+- [x] fork/clone;
+- [x] tree navigation;
+- [x] compaction/retry boundary according to finalized policy;
+- [x] quit/shutdown;
+- [x] partial cleanup failure.
+
+Implementation notes:
+
+- `test/lifecycle-boundaries.test.mjs` models the documented paired host lifecycle for reload, new, resume, fork, and clone with distinct old/new extension instances. Source shutdown checkpoints only the source branch; the fresh destination instance restores only its own active branch and begins with no live runtime or lease authority.
+- Manual, threshold, and overflow compaction all dispose and checkpoint the old generation before restoring that same active branch. The overflow case sets `willRetry: true` and proves the replacement is published before the event handler returns to the automatic retry path.
+- Tree navigation closes persistence before cleanup, appends no abandoned-generation checkpoint to the selected leaf, and restores only the selected branch. Quit checkpoints final history, clears UI, and publishes no replacement.
+- Auxiliary dashboard/widget/notification/persistence cleanup exceptions are contained while authoritative manager disposal continues. Parent-mutation shutdown or settlement failure still attempts every cleanup and authoritative disposal, but fails closed with no replacement generation; failed final shutdown still clears UI. A production `SubAgentManager` case injects abort/dispose cleanup failures while holding a canonical file lease and proves the old record becomes removed with no leases before the replacement can acquire the exact target.
+
+Artifact:
+
+- `agent/extensions/sub-agents/test/lifecycle-boundaries.test.mjs`
 
 ## `SA-609` Phase 6 validation
 
-**Status:** BLOCKED by `SA-603`
+**Status:** DONE
 
-- [ ] Historical view is branch-correct.
-- [ ] No live runtime survives or is represented as live.
-- [ ] No lease survives generation replacement.
+- [x] Historical view is branch-correct.
+- [x] No live runtime survives or is represented as live.
+- [x] No lease survives generation replacement.
+
+Validation notes:
+
+- The lifecycle matrix complements the strict restoration and checkpoint suites with 14 focused boundary tests.
+- Fresh-session replacements, same-branch compaction, and selected-branch tree navigation each assert their distinct persistence placement policy.
+- Fake lifecycle resources and the production manager/lease path both reach a closed old generation before replacement state becomes available.
 
 ---
 
@@ -1397,64 +1414,141 @@ Test:
 
 ## `SA-700` Output and state bounding audit
 
-**Status:** BLOCKED by Phases 0–6
+**Status:** DONE
 
-- [ ] Tool content under Pi byte/line limits.
-- [ ] Details bounded.
-- [ ] Event inbox bounded.
-- [ ] Child previews bounded.
-- [ ] Persisted snapshots bounded.
-- [ ] Errors bounded and sanitized.
+- [x] Tool content under Pi byte/line limits.
+- [x] Details bounded.
+- [x] Event inbox bounded.
+- [x] Child previews bounded.
+- [x] Persisted snapshots bounded.
+- [x] Errors bounded and sanitized.
+
+Implementation notes:
+
+- All seven public control tools keep model-visible content and structured details below the extension's 48 KiB budgets and their content below 2,000 lines. Every UTF-8 byte-clipped line now reserves space for a visible ellipsis, and status timeline field truncation is reflected in `truncatedFields` instead of being silently omitted from metadata.
+- Guarded child read/grep/find/ls/bash continue to inherit Pi's documented 50 KiB/2,000-line truncation. Guarded edit now additionally fits combined `diff`/`patch` details below 48 KiB and 2,000 lines with an inline marker while retaining the exact `diff`, `patch`, and `firstChangedLine` keys. Guarded edit/write sanitize echoed path names to one line before success/error/patch output.
+- Manager generations supplied through internal/test construction now require the same bounded opaque character set as generated IDs. Runtime errors are control-sanitized, whitespace-collapsed, bounded, and resilient to a thrown value whose string conversion itself throws.
+- Child runtime-event storms now enter one coalescing 100-record pending queue with a bounded omission milestone instead of creating an unbounded Promise chain before manager timeline reduction. Streaming previews remain one 2,000-character tail, manager timelines remain 100 records, notification inboxes remain 20 events, and persisted entries remain fail-closed below 48 KiB.
+- Background failure and explicit cleanup share one per-record, deadline-bounded abort/idle boundary, so cleanup hooks cannot race or run twice. Abort, idle settlement, unsubscribe, and dispose waits are bounded; lease release still requires proven runtime/background settlement, and late abort completion cannot start a post-disposal idle wait. Settled cleanup drops the manager record's strong runtime cleanup closure as soon as cleanup starts.
+- Proven-settled current-generation removed history is capped at 500 records independently from the 500 restored-history cap; records with pending background work or retained lease authority are never evicted, late background settlement reruns pruning, and the active/live pool remains uncapped.
+- Focused regressions cover control/newline path output, oversized edit details, UTF-8 ellipsis accounting, status event markers, hostile errors, cleanup-hook reuse/races/timeouts, current-history eviction, and a 400-tool-call translator storm. Existing worst-case tool/notification/persistence fixtures continue to cover the remaining bounds.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/event-translator.ts`
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- seven public `tools/*.ts` control implementations
+- focused manager/event/status/guarded edit/write tests
 
 ## `SA-701` Security/no-secret review
 
-**Status:** BLOCKED by Phases 0–6
+**Status:** DONE
 
-- [ ] No auth/config/header/env values in model-visible paths.
-- [ ] No secret-bearing temp/log files.
-- [ ] No inspection of prohibited project files.
-- [ ] Child resource loader excludes arbitrary extensions.
-- [ ] Dynamic prompt does not grant capabilities.
-- [ ] Document same-process trust boundary.
+- [x] No auth/config/header/env values in extension-owned model-visible paths.
+- [x] No extension-created secret-bearing temp/log files.
+- [x] No inspection of prohibited project files during implementation or tests.
+- [x] Child resource loader excludes arbitrary extensions.
+- [x] Dynamic prompt does not grant capabilities.
+- [x] Document same-process trust boundary.
+
+Implementation notes:
+
+- Four independent read-only reviews covered provider/config dataflow, filesystem/process/environment/temp behavior, resource/prompt capability isolation, and documentation accuracy. They found three release-blocking gaps: unmodified child read/search built-ins accepted absolute or escaping paths; guarded bash inherited ambient process/session environment; and Pi's built-in overflow path could persist child bash output to a temporary file. All three were corrected before completion.
+- `workspace/guarded-read-tools.ts` now supplies same-name `read`, `grep`, `find`, and `ls` definitions. Every requested existing file/search/directory root must canonicalize inside the shared workspace; outside absolute paths and escaping symlinks fail with bounded generic errors. Direct reads use an `O_NOFOLLOW` descriptor plus device/inode checks. Guarded grep invokes only an already installed `rg` with `--no-config`, a fixed operational environment allowlist, protected-path exclusion globs, no symlink following/tool download, and bounded output. Guarded find/ls use bounded streaming directory iteration and omit protected environment/key/auth/session/credential/repository-metadata paths and symlinks; guarded read rewrites canonical-path-bearing long-line guidance back to the requested path.
+- Any `sub_agents_spawn` batch requesting bash now shows bounded child names/objectives, requires explicit operator confirmation before the first child starts, states that capability persists until those children are removed (including later messages), and fails closed without review UI, on denial, or on cancellation. Guarded bash then passes only a fixed operational environment allowlist, disables `PI_*` session metadata, bounds forwarded output in memory to 48 KiB/1,900 lines, discards overflow with an inline marker, and never asks Pi's accumulator to create a full-output temp file. This is defense in depth only: once approved, arbitrary bash remains same-UID local command execution, not a filesystem/network/process sandbox, and can create its own artifacts or inspect same-UID state.
+- Provider mirroring never calls secret-returning registry auth methods. Native provider/callback objects remain trusted same-process code. Effective legacy config is copied through a strict field allowlist only when API-key/header values are pure environment references and URLs contain no userinfo/query/fragment; literal key/header values and credential-bearing URLs fail closed. Only bounded provider/model identity can leave the adapter.
+- The explicit child resource loader remains a fresh empty extension runtime with no extension/skill/prompt/theme/append-prompt/profile discovery. Trusted parent context is copied from already loaded memory only. Dynamic prompt text is guidance, while selected same-name tool wrappers and workspace policy remain the authorization boundary.
+- The trust model now states exactly what remains visible/persisted, that workspace reads do not classify secrets inside the project, that arbitrary child output has no automatic secret detector, that tool arguments are persisted before execution, and that bash/unknown tools/external actors remain outside containment/cooperative lease guarantees.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/workspace/guarded-read-tools.ts`
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/model-runtime.ts`
+- focused guarded-read/bash/runtime tests
+- security/trust documentation in `SPEC.md`
 
 ## `SA-702` Cancellation/resource leak audit
 
-**Status:** BLOCKED by Phases 0–6
+**Status:** DONE
 
-- [ ] Abort every state.
-- [ ] Dispose every partial initialization path.
-- [ ] Remove subscriptions/timers/widgets.
-- [ ] Release leases/reservations.
-- [ ] No unhandled rejections.
-- [ ] No post-shutdown callback mutates new generation.
+- [x] Abort every state.
+- [x] Dispose every partial initialization path.
+- [x] Remove subscriptions/timers/widgets.
+- [x] Release leases/reservations.
+- [x] No unhandled rejections.
+- [x] No post-shutdown callback mutates new generation.
+
+Implementation notes:
+
+- Partial child-session construction and `SubAgentSessionRuntime.close()` now run unsubscribe/abort/idle/dispose through bounded deadlines, observe late rejections, and carry an internal `runtimeSettled` proof through factory/runner failures. Model resolution, session construction, and prompt preflight are raced against cancellation and registered as manager-owned setup work; cancellation removes the provisional child, returns after bounded cleanup even when a stage ignores abort, and closes a runtime that arrives late.
+- Spawn, prompt/resume, send boundary retries, reconfiguration, graceful remove messaging, and dashboard input/select/confirm receive caller or generation cancellation. Send retries race an assignment wait against abort and recheck before every later attempt. Dashboard shutdown aborts standard dialogs and closes custom panels before a stale callback can invoke a control action.
+- Manager queue turns recheck generation closure before mutation. Removal records whether child runtime/background/dispose ownership reached a proven boundary; one expired background-failure quiescence may receive one fresh bounded explicit-removal attempt, and late manager-owned setup settlement can clear only its own timeout quarantine after all work closes. Other incomplete cleanup is retained from pruning, old lease authority is closed, shared model-runtime disposal is bounded, and `disposeAll()` rejects so a permanent extension-instance lifecycle latch leaves the extension inactive and blocks every later replacement attempt over uncertain work.
+- Lifecycle teardown stops dashboard/widget/notification producers before potentially delayed parent-mutation quiescence. Parent reservations receive a bounded idle deadline, and failed generation cleanup sweeps stale tool-call owner routing. The child model adapter aborts in-flight metadata refresh during disposal.
+- Guarded read/find/ls traversal checks cancellation at filesystem iteration boundaries. Guarded grep honors abort, escalates `SIGTERM` to `SIGKILL`, waits for subprocess close, and clears listeners/timers; partial read/session operations retain descriptor/directory-handle cleanup through structured `finally`/async iteration.
+- Deterministic regressions cover hanging partial cleanup and model disposal, queue-admitted mutation at shutdown, cancellation during initialization and send retry, abortable dashboard input, pre-aborted guarded reads, missing parent completion, and fail-closed runtime/lease quarantine. Existing cross-control and production runtime suites cover running/idle/blocked/failed/removal convergence.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/model-runtime.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/tools/{spawn,send,reconfigure,remove}.ts`
+- `agent/extensions/sub-agents/ui/dashboard.ts`
+- `agent/extensions/sub-agents/workspace/{guarded-read-tools,parent-mutations}.ts`
+- focused runtime/manager/lifecycle/control/dashboard/workspace tests
 
 ## `SA-703` User-facing README
 
-**Status:** BLOCKED by actual behavior
+**Status:** DONE
 
-- [ ] Concept and dynamic-agent examples.
-- [ ] Control tool reference.
-- [ ] `/sub-agents` reference.
-- [ ] Shared-workspace safety.
-- [ ] Bash/worktree behavior.
-- [ ] Luna/Terra/Sol routing, fallback, override, and reconfiguration examples.
-- [ ] Usage accounting limitation.
-- [ ] Trust/security limitations.
-- [ ] Troubleshooting.
+- [x] Concept and dynamic-agent examples.
+- [x] Control tool reference.
+- [x] `/sub-agents` reference.
+- [x] Shared-workspace safety.
+- [x] Bash/worktree behavior.
+- [x] Luna/Terra/Sol routing, fallback, override, and reconfiguration examples.
+- [x] Usage accounting limitation.
+- [x] Trust/security limitations.
+- [x] Troubleshooting.
+
+Implementation notes:
+
+- Added a standalone user-facing README covering dynamic in-process children, lifecycle states, strict public bounds, all seven control tools, the TUI dashboard/widget, reporting/notification behavior, branch-local history, atomic usage drains, and cancellation semantics.
+- Model documentation records exact Luna/Terra/Sol fallback order, provider ambiguity behavior, inherit/explicit policy constraints, initial thinking defaults, and safe-boundary reconfiguration.
+- Workspace documentation separates guarded read/edit/write coordination from bash's same-UID execution risk, explains exact write scopes and retained idle leases, states parent/unknown-tool boundaries, and keeps worktree mode explicitly unavailable.
+- The trust section documents model-visible and Pi-persisted surfaces, provider-mirroring constraints, the same-process TCB, the absence of general secret classification, and unproven-cleanup quarantine without claiming uncertain work stopped.
+- Three independent read-only API, security/lifecycle, and UX/testing reviews compared the README with current source. Corrections covered semantic cross-field constraints, configurable dashboard bindings, active-branch-only historical IDs, idle bash ownership, removed-state cleanup uncertainty, persisted management results, and uncapped-pool resource pressure; all final re-reviews approved.
+
+Artifact:
+
+- `agent/extensions/sub-agents/README.md`
 
 ## `SA-704` Offline test command and fixtures
 
-**Status:** BLOCKED by test layout
+**Status:** DONE
 
-- [ ] One documented test command.
-- [ ] Fake model/session/provider fixtures.
-- [ ] Temporary workspace/git fixtures.
-- [ ] No network/external services.
-- [ ] No dependency install without approval.
+- [x] One documented test command.
+- [x] Fake model/session/provider fixtures.
+- [x] Temporary workspace/git fixtures.
+- [x] No network/external services.
+- [x] No dependency install without approval.
+
+Implementation notes:
+
+- `test/run-offline.mjs` is the one repository-root command. It discovers only canonical regular `*.test.mjs` files in deterministic code-point order, creates disposable home/temp roots, passes only fixed operational environment metadata, enables Node TypeScript stripping, forwards termination signals, and preserves the child test exit status.
+- `test/offline-guard.mjs` is a preload regression boundary for the trusted suite. It blocks common network clients/listeners, DNS including promise/resolver forms, datagrams, workers, cluster/process creation, and all subprocesses except exact fixture operations. Allowed local Git invocations use positive argv schemas, isolated config, disabled hooks/signing/file protocol, canonical sandbox paths, and pinned executables; guarded `rg` and the one focused shell fixture likewise use exact safe shapes.
+- Shared fixtures provide deterministic deferred/barrier controls, idempotently disposable temporary directories/workspaces, in-memory no-network model runtimes/faux providers, and separately scoped local-only Git repositories with no remotes. Repeated setup was migrated from Phase 2, assignment-runner, report-to-parent, and agent-runtime tests.
+- Runner/fixture self-tests cover discovery rejection, environment reduction, network/DNS/listener/worker/subprocess denial, argv smuggling, fake guard/tool and symlink-root rejection, promisified `execFile` compatibility, cleanup, response consumption, and local Git policy.
+- The canonical command passed all 238 tests with no failures or skips in the release environment. Independent correctness, security, and documentation reviews were reconciled before completion.
 
 ## `SA-705` Manual TUI validation checklist
 
-**Status:** BLOCKED by Phases 5–6
+**Status:** READY
 
 - [ ] Narrow/wide terminal.
 - [ ] Expanded/collapsed tools.
@@ -1466,7 +1560,7 @@ Test:
 
 ## `SA-709` Stable shared-workspace release gate
 
-**Status:** BLOCKED by `SA-700`–`SA-705`
+**Status:** BLOCKED by `SA-705`
 
 - [ ] All first-release acceptance criteria in `SPEC.md` pass.
 - [ ] Backlog and README match implementation.
@@ -3231,7 +3325,7 @@ Append one entry at the end of every work session.
 
 - Child bash is unavailable by default and requires both the exact `bash` tool and `workspace.bashPolicy: "workspace-exclusive"`; mismatched policy/tool combinations fail before session construction.
 - The complete workspace is claimed before runtime startup, retained through idle, reacquired before every later assignment after explicit release, and reverified before each command.
-- The same-name wrapper preserves Pi's bash schema, prompt metadata, renderers, streaming updates, timeout/abort behavior, tail truncation, full-output temp-file details, and result shape.
+- At `SA-504` completion the same-name wrapper preserved Pi's bash schema, prompt metadata, renderers, streaming updates, timeout/abort behavior, tail truncation, and full-output temp-file details. `SA-701` later retained the schema/renderers/timeout/abort backend but deliberately replaced ambient environment and temp-backed overflow behavior with a reduced environment plus bounded in-memory output.
 - Already-aborted calls do not claim or execute; in-flight abort signals pass to Pi's backend. Conflicts prevent command execution and retain bounded ownership metadata.
 - The ordinary unquoted `&` background-job operator is rejected, and the child protocol forbids detached launchers. Arbitrary programs can still daemonize, so detached descendants remain a documented residual limitation rather than a false shell-inspection guarantee.
 
@@ -3577,3 +3671,290 @@ Append one entry at the end of every work session.
 - unrelated changes under `../claude/`
 
 **Recommended next item:** `SA-603` — complete the reload/new/resume/fork/tree/compaction/shutdown/partial-failure lifecycle boundary matrix.
+
+## Handoff 041 — Lifecycle boundary matrix and Phase 6 exit
+
+**Completed:**
+
+- `SA-603`
+- `SA-609`
+- Closed Phase 6 persistence/session correctness and advanced the backlog to Phase 7 hardening.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/lifecycle-boundaries.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/lifecycle-boundaries.test.mjs`
+- Result: 14 tests passed, 0 failed.
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 205 tests passed, 0 failed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Two focused read-only reviews covered Pi lifecycle assumptions, deterministic offline behavior, branch placement, cleanup ordering, and lease invalidation. The first safety review found an uncontained parent-mutation shutdown/settlement exception; cleanup now completes and fails closed, and the focused re-review plus test-quality review returned `APPROVE`.
+- Tests used fake lifecycle hosts/resources, in-memory branch arrays, one temporary local workspace/file, and the production manager/path/lease code with fake cleanup failures. No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Reload, new, resume/switch, fork, and clone prove source teardown and branch-local checkpointing before a fresh destination extension instance restores only its active branch.
+- Manual, threshold, and overflow-retry compaction rotate generations only after disposal/checkpoint ordering; tree navigation deliberately closes persistence first and writes nothing onto the selected leaf.
+- Quit leaves the extension inactive and UI cleared. Auxiliary cleanup failures remain contained.
+- Parent-mutation shutdown/settlement failures no longer skip later cleanup: the old manager is disposed and checkpointed, the UI is cleared on final shutdown, and replacement fails closed while quiescence is uncertain.
+- Production abort/dispose cleanup failures while holding a canonical file lease become bounded removed history; the replacement generation acquires the exact former target, proving no lease authority crossed the boundary.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `agent/settings.json`
+- unrelated changes under `../claude/` and `../mult/`
+
+**Recommended next item:** `SA-700` — audit every model-visible, structured-detail, preview, event, checkpoint, and error path against its documented output/state bounds.
+
+## Handoff 042 — Output and state bounding audit
+
+**Completed:**
+
+- `SA-700`
+- Audited and hardened public control transport, guarded mutation output, transient/runtime state, current-generation history retention, and error reduction.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/event-translator.ts`
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/tools/send.ts`
+- `agent/extensions/sub-agents/tools/release.ts`
+- `agent/extensions/sub-agents/tools/reconfigure.ts`
+- `agent/extensions/sub-agents/tools/wait.ts`
+- `agent/extensions/sub-agents/tools/remove.ts`
+- focused manager/event/status/guarded edit/write tests
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 212 tests passed, 0 failed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Tests used only fake providers/models, in-memory managers/settings/sessions, bounded synthetic state, deterministic event storms, and temporary local workspaces/files.
+- No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+
+**Key implementation results:**
+
+- Public control output shows explicit UTF-8-safe clipping markers and retains independent 48 KiB content/details plus 2,000-line bounds.
+- Guarded edit/write cannot inject output lines through control-bearing paths; guarded edit diff/patch details are explicitly bounded without creating a full-output temp artifact.
+- Runtime event storms use a bounded translator queue, hostile errors cannot escape containment, runtime quiescence is serialized and deadline-bounded, settled cleanup no longer pins runtime hooks, and proven-settled removed history is capped without limiting active children or evicting uncertain ownership.
+- Persistence remains strict/fail-closed at 48 KiB; irreducible non-file Unicode overflow is intentionally rejected rather than silently changing historical text.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `agent/settings.json`
+- unrelated changes under `../claude/` and `../mult/`
+- Phase 6 lifecycle matrix changes already present at session start
+
+**Recommended next item:** `SA-701` — perform the security/no-secret review and document the same-process trust boundary.
+
+## Handoff 043 — Security/no-secret review
+
+**Completed:**
+
+- `SA-701`
+- Performed provider/config, filesystem/process/environment/temp, resource/prompt capability, and security-documentation reviews; corrected every final-review blocker.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/workspace/guarded-read-tools.ts`
+- `agent/extensions/sub-agents/test/guarded-read-tools.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/model-runtime.ts`
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- focused guarded read/bash/model/spawn/runtime/lifecycle tests
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 216 tests passed, 0 failed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Tests used fake provider values/models, in-memory managers/settings/sessions, an explicit fake environment marker, an inert fake ripgrep config, and temporary local workspace/files/symlinks only.
+- No network, live provider, external service, real credential, existing Pi session, or dependency installation was used. No prohibited credential/session/environment file was inspected.
+- Four independent read-only audits covered secret dataflow, filesystem/process/temp behavior, child resource/capability isolation, and documentation. Final focused re-reviews returned `APPROVE` after fixes for provider config reduction, protected workspace reads/search, descriptor/TOCTOU boundaries, bounded traversal, reduced subprocess environments, `rg --no-config`/single-file behavior, explicit bash approval, and exact persisted/trust documentation.
+
+**Key implementation results:**
+
+- Child `read`/`grep`/`find`/`ls` are same-name guarded definitions. They reject outside/escaping paths and known credential/environment/key/auth/session/repository-metadata paths; direct reads bind an `O_NOFOLLOW` descriptor and inode identity; grep/find/ls use bounded protected traversal/search behavior.
+- Guarded grep uses only an already installed `rg`, passes `--no-config` and `--with-filename`, receives a fixed operational environment allowlist, applies case-insensitive protected-path exclusions, follows no symlinks, performs no download, and keeps model-visible output bounded.
+- Guarded bash requires informed operator approval for the exact spawn batch before any child starts, with the capability lifetime disclosed. It receives a reduced environment, no `PI_*` variables, and bounded in-memory output whose overflow is discarded rather than persisted to a full-output temp file. It remains explicitly documented same-UID command execution, not a sandbox.
+- Legacy provider config is strict-copied field-by-field; only pure environment references may occupy API-key/header fields, while literal key/header values and credential-bearing URLs fail closed. Native/callback providers remain part of the documented same-process TCB. No secret-returning registry auth method is called.
+- The trust model now enumerates model/session/persistence surfaces, same-process/provider TCB limits, the absence of automatic secret classification, bash/external-process limits, and the distinction between cooperative coordination and containment.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `agent/settings.json`
+- unrelated changes under `../claude/` and `../mult/`
+- `SA-603`/`SA-700` changes already present at session start
+
+**Recommended next item:** `SA-702` — audit cancellation and resource-leak behavior across every lifecycle state and partial-initialization path.
+
+## Handoff 044 — Cancellation/resource-leak audit
+
+**Completed:**
+
+- `SA-702`
+- Audited and hardened cancellation, partial initialization, runtime quiescence, manager/generation disposal, parent reservations, standard/custom dashboard UI, guarded read/search subprocesses, and stale callback boundaries.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/model-runtime.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/tools/send.ts`
+- `agent/extensions/sub-agents/tools/reconfigure.ts`
+- `agent/extensions/sub-agents/tools/remove.ts`
+- `agent/extensions/sub-agents/ui/dashboard.ts`
+- `agent/extensions/sub-agents/workspace/guarded-read-tools.ts`
+- `agent/extensions/sub-agents/workspace/parent-mutations.ts`
+- focused runtime/manager/lifecycle/control/dashboard/workspace tests
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 229 tests passed, 0 failed.
+- Installed-package import of `agent/extensions/sub-agents/index.ts`
+- Result: passed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Trailing-whitespace scan across sub-agent TypeScript, test, and Markdown files
+- Result: passed.
+- Tests used fake providers/models/sessions, in-memory managers, deterministic deferred promises/timers, fake lifecycle/UI hosts, and temporary local files/workspaces only.
+- No network, live provider, external service, credential, existing Pi session, or dependency installation was used.
+- Three independent read-only final re-reviews covered runtime/manager cleanup, lifecycle/control/UI races, and guarded filesystem/subprocess cancellation. All returned `APPROVE` after fixes for abort-ignoring initialization/preflight stages, retryable expired quiescence, permanent lifecycle quarantine, stale dashboard notifications, and read/ls abort preservation.
+
+**Key implementation results:**
+
+- Model resolution, session initialization, and prompt preflight are manager-owned observed tasks raced against cancellation. Ignored aborts return after bounded cleanup, remain quarantined while live, and close any late runtime before their owned setup task settles.
+- Manager cleanup distinguishes proven ownership from timeouts/disposal failure, permits one fresh explicit-removal quiescence after an earlier background deadline, clears only setup-timeout quarantine after every owned setup task settles, bounds shared model-runtime shutdown, and blocks later replacement publication permanently within the extension instance after an unproven lifecycle boundary.
+- Parent mutation settlement is bounded and stale owner routing is swept on failed cleanup. Dashboard custom panels and abortable standard dialogs stop before cleanup waits, and every post-await notification rechecks the exact dashboard generation.
+- Guarded read/find/ls traversal and grep subprocesses honor cancellation; grep escalates termination and waits for close without retaining listeners/timers or output artifacts.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `agent/settings.json`
+- unrelated changes under `../claude/` and `../mult/`
+- `SA-603`/`SA-700`/`SA-701` changes already present at session start
+
+**Recommended next item:** `SA-703` — write the user-facing README and reconcile its examples/limitations with the completed implementation.
+
+## Handoff 045 — User-facing README
+
+**Completed:**
+
+- `SA-703`
+- Added and reviewed the complete user-facing guide for the shared-workspace sub-agent release.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/README.md`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/*.test.mjs`
+- Result: 229 tests passed, 0 failed.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Three independent read-only reviews covered the exact public API, security/lifecycle guarantees, and TUI/model/testing UX. Every concrete correction was applied; final API, security, and UX reviews returned `APPROVE`.
+- Tests and documentation work used existing installed packages, fake/in-memory test infrastructure, temporary local workspaces, and read-only source analysis.
+- No network, live provider validation, external service, credential, prohibited session file, or dependency installation was used for repository validation.
+
+**Key documentation results:**
+
+- The README provides dynamic spawn and scoped-writer examples, exact lifecycle/control semantics, public bounds, and routing/reconfiguration behavior.
+- It distinguishes cooperative guarded mutation guarantees from read-consistency, unknown-tool, external-process, and arbitrary-bash limitations.
+- It documents retained idle ownership, explicit release/resume, one-time usage drains, branch-local historical restoration, model-visible/persisted surfaces, and fail-closed unproven cleanup.
+- It records the exact configurable dashboard actions and separates future `SA-704` canonical test-runner work from `SA-705` manual TUI validation.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `agent/settings.json`
+- unrelated changes under `../claude/` and `../mult/`
+- `SA-603`/`SA-700`/`SA-701`/`SA-702` changes already present at session start
+
+**Recommended next item:** `SA-704` — add one canonical offline test command/runner and consolidate fake/temp fixtures without installing dependencies.
+
+## Handoff 046 — Canonical offline test command and fixtures
+
+**Completed:**
+
+- `SA-704`
+- Added, documented, hardened, and independently reviewed the canonical offline automated-test boundary.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/run-offline.mjs`
+- `agent/extensions/sub-agents/test/offline-guard.mjs`
+- `agent/extensions/sub-agents/test/offline-runner.test.mjs`
+- `agent/extensions/sub-agents/test/fixtures.mjs`
+- `agent/extensions/sub-agents/test/git-fixtures.mjs`
+- `agent/extensions/sub-agents/test/fixtures.test.mjs`
+
+**Fixture migrations and documentation updates:**
+
+- Reused shared deterministic control, temporary-directory, and no-network model-runtime fixtures in `phase2-integration.test.mjs`, `assignment-runner.test.mjs`, `report-to-parent.test.mjs`, and `agent-runtime.test.mjs`.
+- Documented the repository-root command, Node/`rg` prerequisites, optional local-Git skip, environment isolation, offline guard, and trusted-harness limitation in `README.md`.
+- Updated `SPEC.md`, `BACKLOG.md`, `CLAUDE.md`, and `EXTENSIONS.md`; `SA-705` is now the recommended next item and sole blocker for `SA-709`.
+
+**Validation:**
+
+- `node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: 238 tests passed, 0 failed, 0 skipped.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- README relative links to `SPEC.md` and `BACKLOG.md` were verified.
+- Independent runner-correctness, offline-security, and documentation/usability reviews drove corrections for deterministic sorting, signal/process contracts, strict preload identity, complete DNS/worker blocking, positive argv schemas, realpath containment, pinned executables, startup-hook-safe environments, promisified `execFile`, Git policy, prerequisites, fixture reuse, and roadmap status. All three final reviews returned `APPROVE`.
+- Validation used existing installed dependencies, in-memory fake providers/sessions, disposable workspaces, and local-only no-remote Git repositories. No network, live provider, external service, credential, prohibited session file, or dependency installation was used.
+
+**Pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `agent/settings.json`
+- unrelated changes under `../claude/` and `../mult/`
+- prior `SA-603`/`SA-700`/`SA-701`/`SA-702`/`SA-703` implementation and documentation changes already present at session start
+
+**Recommended next item:** `SA-705` — execute and record the manual TUI validation checklist across terminal widths, rendering states, theme changes, pool/event load, human controls, and non-TUI behavior.

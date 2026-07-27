@@ -281,6 +281,7 @@ export function registerSubAgentsExtension(
 		{ owner: ParentMutationLifecycle; toolName: string }
 	>();
 	let lifecycleTail: Promise<void> = Promise.resolve();
+	let lifecycleCleanupBlocked = false;
 
 	const serializeLifecycle = (operation: () => void | Promise<void>): Promise<void> => {
 		const run = lifecycleTail.then(operation, operation);
@@ -328,12 +329,31 @@ export function registerSubAgentsExtension(
 		}
 	};
 
+	const forgetParentMutationOwner = (
+		current: ParentMutationLifecycle | undefined,
+	): void => {
+		if (!current) return;
+		for (const [toolCallId, entry] of parentMutationOwnerByToolCallId) {
+			if (entry.owner === current) parentMutationOwnerByToolCallId.delete(toolCallId);
+		}
+	};
+
 	const stopParentMutations = async (
 		current: ParentMutationLifecycle | undefined,
-	): Promise<void> => {
-		if (!current) return;
-		current.shutdown();
-		await current.waitForIdle();
+	): Promise<boolean> => {
+		if (!current) return false;
+		let failed = false;
+		try {
+			current.shutdown();
+		} catch {
+			failed = true;
+		}
+		try {
+			await current.waitForIdle();
+		} catch {
+			failed = true;
+		}
+		return failed;
 	};
 
 	const replaceManager = (
@@ -344,6 +364,9 @@ export function registerSubAgentsExtension(
 		getActiveBranch: () => readonly SessionEntry[] = () => [],
 	): Promise<void> =>
 		serializeLifecycle(async () => {
+			if (lifecycleCleanupBlocked) {
+				throw new Error("Sub-agent generation cleanup remains unproven; replacement is blocked");
+			}
 			const previous = manager;
 			const previousPersistence = persistenceRuntime;
 			const previousNotifications = notificationRuntime;
@@ -364,17 +387,27 @@ export function registerSubAgentsExtension(
 			dashboardRuntime = undefined;
 			parentMutationRuntime = undefined;
 			if (!checkpointDisposedHistory) stopPersistence(previousPersistence);
-			await stopParentMutations(previousParentMutations);
+			// Stop callback producers before any potentially delayed parent-tool
+			// quiescence wait so no timer/dialog/notification survives shutdown.
 			stopDashboard(previousDashboard);
 			stopWidget(previousWidget);
 			stopNotifications(previousNotifications);
+			const parentMutationCleanupFailed = await stopParentMutations(previousParentMutations);
+			let managerCleanupFailed = false;
 			try {
 				if (previous) await previous.disposeAll(reason);
+			} catch {
+				managerCleanupFailed = true;
 			} finally {
 				if (checkpointDisposedHistory) {
 					checkpointPersistence(previousPersistence);
 					stopPersistence(previousPersistence);
 				}
+			}
+			if (parentMutationCleanupFailed || managerCleanupFailed) {
+				lifecycleCleanupBlocked = true;
+				forgetParentMutationOwner(previousParentMutations);
+				throw new Error("Sub-agent generation cleanup failed; the session generation remains inactive");
 			}
 			const next = createManager(cwd);
 			let nextPersistenceRuntime: PersistenceLifecycle | undefined;
@@ -418,15 +451,21 @@ export function registerSubAgentsExtension(
 				dashboardRuntime = nextDashboardRuntime;
 				parentMutationRuntime = nextParentMutationRuntime;
 			} catch (error) {
-				await stopParentMutations(nextParentMutationRuntime);
 				stopDashboard(nextDashboardRuntime);
 				stopWidget(nextWidgetRuntime);
 				stopNotifications(nextNotificationRuntime);
+				const nextParentCleanupFailed = await stopParentMutations(nextParentMutationRuntime);
+				if (nextParentCleanupFailed) forgetParentMutationOwner(nextParentMutationRuntime);
 				stopPersistence(nextPersistenceRuntime);
+				let nextManagerCleanupFailed = false;
 				try {
 					await next.disposeAll(`${reason}: runtime initialization failed`);
 				} catch {
-					// Preserve the original initialization failure.
+					nextManagerCleanupFailed = true;
+				}
+				if (nextParentCleanupFailed || nextManagerCleanupFailed) {
+					lifecycleCleanupBlocked = true;
+					forgetParentMutationOwner(nextParentMutationRuntime);
 				}
 				throw error;
 			}
@@ -453,15 +492,23 @@ export function registerSubAgentsExtension(
 			widgetRuntime = undefined;
 			dashboardRuntime = undefined;
 			parentMutationRuntime = undefined;
-			await stopParentMutations(previousParentMutations);
 			stopDashboard(previousDashboard);
 			stopWidget(previousWidget);
 			stopNotifications(previousNotifications);
+			const parentMutationCleanupFailed = await stopParentMutations(previousParentMutations);
+			let managerCleanupFailed = false;
 			try {
 				if (previous) await previous.disposeAll(reason);
+			} catch {
+				managerCleanupFailed = true;
 			} finally {
 				checkpointPersistence(previousPersistence);
 				stopPersistence(previousPersistence);
+			}
+			if (parentMutationCleanupFailed || managerCleanupFailed) {
+				lifecycleCleanupBlocked = true;
+				forgetParentMutationOwner(previousParentMutations);
+				throw new Error("Sub-agent generation cleanup failed; the session generation remains inactive");
 			}
 		});
 
@@ -561,9 +608,12 @@ export function registerSubAgentsExtension(
 	});
 
 	pi.on("session_shutdown", async (event, ctx) => {
-		await shutdownManager(`session shutdown: ${event.reason}`);
-		ctx.ui.setStatus("sub-agents", undefined);
-		ctx.ui.setWidget("sub-agents", undefined);
+		try {
+			await shutdownManager(`session shutdown: ${event.reason}`);
+		} finally {
+			ctx.ui.setStatus("sub-agents", undefined);
+			ctx.ui.setWidget("sub-agents", undefined);
+		}
 	});
 
 	pi.registerCommand("sub-agents", {

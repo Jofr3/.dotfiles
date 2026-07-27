@@ -87,15 +87,22 @@ function oneLine(value: unknown): string {
 
 function boundUtf8Line(value: unknown, maxBytes: number): string {
 	const normalized = oneLine(value);
+	const cap = Math.max(0, Math.floor(maxBytes));
+	if (Buffer.byteLength(normalized, "utf8") <= cap) return normalized;
+
+	const ellipsis = "…";
+	const ellipsisBytes = Buffer.byteLength(ellipsis, "utf8");
+	if (cap < ellipsisBytes) return ".".repeat(cap);
+
 	let result = "";
 	let bytes = 0;
 	for (const character of normalized) {
 		const size = Buffer.byteLength(character, "utf8");
-		if (bytes + size > maxBytes) break;
+		if (bytes + size + ellipsisBytes > cap) break;
 		result += character;
 		bytes += size;
 	}
-	return result;
+	return result + ellipsis;
 }
 
 function safeSnapshot(

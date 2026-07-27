@@ -170,7 +170,7 @@ test("sub_agents_spawn starts a whole batch concurrently and reports ordered par
 	assert.match(result.content[0].text, /sa1-spawn-unit-2/);
 	assert.match(result.content[0].text, /sa1-spawn-unit-3/);
 
-	assert.equal(tool.executionMode, "parallel");
+	assert.equal(tool.executionMode, "sequential");
 	assert.equal(tool.parameters.type, "object");
 	assert.ok(tool.promptGuidelines.some((line) => /complexity=simple/.test(line)));
 	const callComponent = tool.renderCall(input, fakeTheme(), renderContext(input));
@@ -185,6 +185,86 @@ test("sub_agents_spawn starts a whole batch concurrently and reports ordered par
 	assert.match(rendered, /2 started/);
 	assert.match(rendered, /failing-child/);
 	assert.match(rendered, /Synthetic bounded initialization failure/);
+});
+
+test("bash-capable spawn batches require exact operator approval before any child starts", async () => {
+	let starts = 0;
+	const snapshots = new Map();
+	const runtime = {
+		manager: {
+			generation: "sag1-spawn-bash-approval",
+			getAgent(id) {
+				return snapshots.get(id);
+			},
+		},
+		router: {
+			async resolve() {
+				return { route: routeFor("moderate") };
+			},
+		},
+		runner: {
+			async createAndLaunch(agentSpec, resolveModel) {
+				starts += 1;
+				const id = `sa1-spawn-bash-approval-${starts}`;
+				const resolved = await resolveModel({
+					id,
+					generation: "sag1-spawn-bash-approval",
+					spec: agentSpec,
+				});
+				const snapshot = { id, state: "running", modelRoute: resolved.route };
+				snapshots.set(id, snapshot);
+				return { id, assignmentId: `${id}:assignment:1`, accepted: true, snapshot };
+			},
+		},
+	};
+	const tool = createSubAgentsSpawnTool(() => runtime);
+	const input = {
+		agents: [spec("bash-child", "moderate", {
+			tools: ["bash"],
+			workspace: { mode: "shared", bashPolicy: "workspace-exclusive" },
+		})],
+	};
+	for (const context of [
+		{ modelRegistry: {}, model: undefined, hasUI: false },
+		{
+			modelRegistry: {},
+			model: undefined,
+			hasUI: true,
+			ui: { async confirm() { return false; } },
+		},
+	]) {
+		await assert.rejects(
+			tool.execute("bash-denied", input, undefined, undefined, context),
+			(error) => error instanceof SubAgentsSpawnError && error.code === "bash_not_approved",
+		);
+		assert.equal(starts, 0);
+	}
+	let confirmation;
+	const approved = await tool.execute(
+		"bash-approved",
+		input,
+		undefined,
+		undefined,
+		{
+			modelRegistry: {},
+			model: undefined,
+			hasUI: true,
+			ui: {
+				async confirm(title, message) {
+					confirmation = { title, message };
+					return true;
+				},
+			},
+		},
+	);
+	assert.equal(starts, 1);
+	assert.equal(approved.details.started, 1);
+	assert.match(confirmation.title, /Authorize sub-agent bash/);
+	assert.match(confirmation.message, /same-UID local shell execution/);
+	assert.match(confirmation.message, /Complete the bash-child objective/);
+	assert.match(confirmation.message, /until they are removed, including later messages/);
+	assert.doesNotMatch(confirmation.message, /Handle the bash-child validation slice/);
+	assert.ok(tool.promptGuidelines.some((line) => /explicit operator approval/.test(line)));
 });
 
 test("maximum spawn batches keep model-visible content and structured details below tool transport bounds", async () => {
@@ -278,6 +358,45 @@ test("spawn fails closed without an active generation and redacts unknown initia
 	assert.equal(result.details.outcomes[0].code, "spawn_failed");
 	assert.equal(result.details.outcomes[0].message, "Could not initialize the sub-agent");
 	assert.doesNotMatch(JSON.stringify(result), /PRIVATE_UNKNOWN_PROVIDER_FAILURE/);
+});
+
+test("caller cancellation is forwarded into in-flight child initialization", async () => {
+	const entered = deferred();
+	let observedSignal;
+	const controller = new AbortController();
+	const tool = createSubAgentsSpawnTool(() => ({
+		manager: {
+			generation: "sag1-spawn-cancellation",
+			getAgent() { throw new Error("cancelled before snapshot"); },
+		},
+		router: { async resolve() { return { runtime: {}, model: {}, ref: { provider: "fixture", id: "fixture" } }; } },
+		runner: {
+			async createAndLaunch(_spec, _resolve, signal) {
+				observedSignal = signal;
+				entered.resolve();
+				await new Promise((resolvePromise) => signal.addEventListener("abort", resolvePromise, { once: true }));
+				throw new SubAgentAssignmentRunnerError(
+					"cancelled",
+					"The sub-agent operation was cancelled",
+					undefined,
+					{ runtimeSettled: true },
+				);
+			},
+		},
+	}));
+	const execution = tool.execute(
+		"spawn-cancelled",
+		{ agents: [spec("cancelled-child")] },
+		controller.signal,
+		undefined,
+		{ modelRegistry: {}, model: undefined },
+	);
+	await entered.promise;
+	controller.abort();
+	const result = await execution;
+	assert.strictEqual(observedSignal, controller.signal);
+	assert.equal(result.details.started, 0);
+	assert.equal(result.details.outcomes[0].code, "cancelled");
 });
 
 function modelDefinition(id) {

@@ -577,7 +577,7 @@ test("an active main reservation blocks a guarded child claim and its completion
 	}
 });
 
-test("settled abort cleanup, terminal failure, and generation shutdown release child ownership", async () => {
+test("settled cleanup releases ownership while unproven shutdown quarantines the generation", async () => {
 	const value = await fixture();
 	let disposed = false;
 	let replacementManager;
@@ -659,30 +659,17 @@ test("settled abort cleanup, terminal failure, and generation shutdown release c
 			},
 		});
 		assert.equal(value.manager.getAgent(shutdownChild.id).leases.length, 1);
-		await value.manager.disposeAll("deterministic generation shutdown");
+		await assert.rejects(
+			value.manager.disposeAll("deterministic generation shutdown"),
+			(error) => error?.code === "cleanup_incomplete",
+		);
 		disposed = true;
 		assert.deepEqual(shutdownOrder, ["abort", "waitForIdle", "dispose"]);
 		assert.equal(value.manager.closed, true);
 		assert.equal(value.manager.getAgent(shutdownChild.id).state, "removed");
 		assert.deepEqual(value.manager.getAgent(shutdownChild.id).leases, []);
 		assert.match(value.manager.getAgent(shutdownChild.id).lastError, /retained workspace ownership/);
-
-		// A replacement generation may coordinate this path only after the old
-		// runtime's synchronous dispose boundary and complete lease-manager close.
-		replacementManager = new SubAgentManager({
-			cwd: value.project,
-			generation: `sag1-workspace-concurrency-replacement-${fixtureSequence}`,
-			nonce: () => "replacement-owner",
-			modelRuntime: { async dispose() {} },
-		});
-		const replacement = createFileAgent(replacementManager, "replacement-owner", ["edit"]);
-		await replacementManager.startAssignment(replacement.id);
-		const replacementClaim = await replacementManager.claimChildFileLeases(
-			replacement.id,
-			value.workspace.identity,
-			[shutdownTarget],
-		);
-		assert.deepEqual(replacementClaim.leases.map((lease) => lease.path), ["src/shutdown.txt"]);
+		assert.equal(replacementManager, undefined, "unproven cleanup must not authorize replacement publication");
 	} finally {
 		await replacementManager?.disposeAll("replacement generation cleanup");
 		if (!disposed) await value.manager.disposeAll("lifecycle release test cleanup");

@@ -677,7 +677,10 @@ test("the session manager owns lease state, publishes defensive child snapshots,
 			(error) => assertConflict(error, { ownerAgentId: rejectedWaitFailure.id }),
 		);
 
-		await manager.disposeAll("lease lifecycle complete");
+		await assert.rejects(
+			manager.disposeAll("lease lifecycle complete"),
+			(error) => error instanceof SubAgentManagerError && error.code === "cleanup_incomplete",
+		);
 		assert.throws(
 			() => manager.reserveParentWorkspace("late-parent-tool", workspace.identity),
 			(error) => error instanceof SubAgentManagerError && error.code === "manager_closed",
@@ -727,7 +730,10 @@ test("removal retains leases when idle settlement times out instead of exposing 
 			() => manager.reserveParentFiles("blocked-after-timeout", workspace.identity, [target]),
 			(error) => assertConflict(error, { ownerAgentId: child.id }),
 		);
-		await manager.disposeAll("timeout ownership test complete");
+		await assert.rejects(
+			manager.disposeAll("timeout ownership test complete"),
+			(error) => error instanceof SubAgentManagerError && error.code === "cleanup_incomplete",
+		);
 	} finally {
 		await rm(temporary, { recursive: true, force: true });
 	}

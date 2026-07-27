@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import test from "node:test";
+import {
+	createOfflineModelRuntime,
+	createTempDirectoryFixture,
+} from "./fixtures.mjs";
 import {
 	importInstalledPackages,
 	importInstalledTypeBoxValue,
@@ -32,15 +33,12 @@ function childSpec(name, objective) {
 }
 
 async function createOfflineFixture(label) {
-	const root = await mkdtemp(join(tmpdir(), `pi-sub-agent-report-${label}-`));
+	const temporary = await createTempDirectoryFixture(`pi-sub-agent-report-${label}`);
+	const root = temporary.root;
 	const { codingAgent, piAi } = await importInstalledPackages();
 	const providerId = `report-to-parent-${label}`;
 	const faux = piAi.fauxProvider({ provider: providerId, tokensPerSecond: 100_000 });
-	const runtime = await codingAgent.ModelRuntime.create({
-		credentials: new piAi.InMemoryCredentialStore(),
-		modelsPath: null,
-		allowModelNetwork: false,
-	});
+	const runtime = await createOfflineModelRuntime(codingAgent, piAi);
 	runtime.registerNativeProvider(faux.provider);
 	const model = runtime.getModel(providerId, "faux-1");
 	assert.ok(model);
@@ -65,12 +63,15 @@ async function createOfflineFixture(label) {
 			return child;
 		},
 	});
-	return { root, piAi, faux, resolvedModel, manager, runner, sessions };
+	return { root, temporary, piAi, faux, resolvedModel, manager, runner, sessions };
 }
 
 async function cleanupFixture(fixture) {
-	await fixture.manager.disposeAll("report-to-parent test complete");
-	await rm(fixture.root, { recursive: true, force: true });
+	try {
+		await fixture.manager.disposeAll("report-to-parent test complete");
+	} finally {
+		await fixture.temporary.cleanup();
+	}
 }
 
 test("report_to_parent has one strict bounded child-only schema and a fixed owning-parent sink", async () => {

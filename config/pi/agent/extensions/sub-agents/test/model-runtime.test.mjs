@@ -54,9 +54,9 @@ test("the production adapter lazily mirrors current host registrations and dispo
 	host.registry.registerProvider(native.provider);
 	host.registry.registerProvider("configured-fixture", {
 		baseUrl: "https://model-runtime-production-test.invalid/v1",
-		apiKey: "offline-placeholder",
+		apiKey: "$OFFLINE_CONFIG_KEY",
 		api: "openai-completions",
-		headers: { "x-offline-private": PRIVATE_CONFIG_MARKER },
+		headers: { "x-offline-private": "$OFFLINE_PRIVATE_HEADER" },
 		models: [modelDefinition("configured-v1")],
 	});
 
@@ -120,6 +120,41 @@ test("the production adapter lazily mirrors current host registrations and dispo
 	await assert.rejects(adapter.synchronize(host.registry), (error) => assertSafeError(error, "runtime_closed"));
 });
 
+test("adapter disposal aborts an in-flight metadata refresh before releasing the runtime", async () => {
+	let refreshStarted;
+	const entered = new Promise((resolvePromise) => { refreshStarted = resolvePromise; });
+	let refreshCalls = 0;
+	const runtime = {
+		unregisterProvider() {},
+		registerNativeProvider() {},
+		registerProvider() {},
+		getModels() { return []; },
+		async refresh(options) {
+			refreshCalls += 1;
+			if (!options.signal) return;
+			refreshStarted();
+			await new Promise((resolvePromise, rejectPromise) => {
+				if (options.signal.aborted) rejectPromise(new Error("aborted"));
+				else options.signal.addEventListener("abort", () => rejectPromise(new Error("aborted")), { once: true });
+			});
+		},
+	};
+	const host = {
+		getRegisteredProviderIds() { return []; },
+		getRegisteredNativeProvider() { return undefined; },
+		getRegisteredProviderConfig() { return undefined; },
+	};
+	const adapter = new ChildModelRuntimeAdapter({ createRuntime: async () => runtime });
+	const synchronization = adapter.synchronize(host);
+	await entered;
+	const disposal = adapter.dispose();
+	await assert.rejects(synchronization, (error) => assertSafeError(error, "provider_mirror_failed"));
+	await disposal;
+	assert.equal(refreshCalls, 2);
+	assert.equal(adapter.closed, true);
+	assert.equal(adapter.initialized, false);
+});
+
 test("explicit, inherited, and canonical tier resolution require available exact model identities", async () => {
 	const { codingAgent, piAi } = await importInstalledPackages();
 	const host = await createHost(codingAgent, piAi);
@@ -141,7 +176,7 @@ test("explicit, inherited, and canonical tier resolution require available exact
 	host.registry.registerProvider("unavailable-fixture", {
 		baseUrl: "https://model-runtime-production-test.invalid/v1",
 		api: "openai-completions",
-		headers: { "x-offline-private": PRIVATE_CONFIG_MARKER },
+		headers: { "x-offline-private": "$OFFLINE_PRIVATE_HEADER" },
 		models: [modelDefinition("unavailable-v1")],
 	});
 
@@ -196,6 +231,43 @@ test("explicit, inherited, and canonical tier resolution require available exact
 		(error) => assertSafeError(error, "missing_model"),
 	);
 
+	await adapter.dispose();
+});
+
+test("literal provider credentials, headers, and credential-bearing URLs fail before child registration", async () => {
+	const { codingAgent, piAi } = await importInstalledPackages();
+	const host = await createHost(codingAgent, piAi);
+	const adapter = new ChildModelRuntimeAdapter({
+		createRuntime: () => createOfflineRuntime(codingAgent, piAi),
+	});
+	for (const [provider, config] of [
+		["literal-key-fixture", {
+			baseUrl: "https://safe-provider.invalid/v1",
+			apiKey: PRIVATE_CONFIG_MARKER,
+			api: "openai-completions",
+			models: [modelDefinition("literal-key-model")],
+		}],
+		["literal-header-fixture", {
+			baseUrl: "https://safe-provider.invalid/v1",
+			api: "openai-completions",
+			headers: { authorization: PRIVATE_CONFIG_MARKER },
+			models: [modelDefinition("literal-header-model")],
+		}],
+		["credential-url-fixture", {
+			baseUrl: `https://user:${PRIVATE_CONFIG_MARKER}@safe-provider.invalid/v1`,
+			api: "openai-completions",
+			models: [modelDefinition("credential-url-model")],
+		}],
+	]) {
+		host.registry.registerProvider(provider, config);
+		await assert.rejects(
+			adapter.synchronize(host.registry),
+			(error) => assertSafeError(error, "provider_mirror_failed"),
+		);
+		host.registry.unregisterProvider(provider);
+	}
+	await adapter.synchronize(host.registry);
+	assert.ok(!JSON.stringify(adapter.getSnapshot()).includes(PRIVATE_CONFIG_MARKER));
 	await adapter.dispose();
 });
 

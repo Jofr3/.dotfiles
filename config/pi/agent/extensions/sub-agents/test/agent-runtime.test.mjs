@@ -4,6 +4,10 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
 import {
+	createDeferred,
+	createOfflineModelRuntime,
+} from "./fixtures.mjs";
+import {
 	importInstalledPackages,
 	importSubAgentsModule,
 } from "./installed-packages.mjs";
@@ -20,15 +24,7 @@ const { captureParentContextSnapshot } = await importSubAgentsModule("resource-l
 
 const PRIVATE_FAILURE_MARKER = "private-child-session-initialization-marker";
 
-function deferred() {
-	let resolvePromise;
-	let rejectPromise;
-	const promise = new Promise((resolve, reject) => {
-		resolvePromise = resolve;
-		rejectPromise = reject;
-	});
-	return { promise, resolve: resolvePromise, reject: rejectPromise };
-}
+const deferred = createDeferred;
 
 function childSpec(overrides = {}) {
 	return {
@@ -50,11 +46,7 @@ function assertFactoryError(error, code) {
 async function createOfflineResolvedModel(providerId = "child-runtime-faux") {
 	const { codingAgent, piAi } = await importInstalledPackages();
 	const faux = piAi.fauxProvider({ provider: providerId, tokensPerSecond: 100_000 });
-	const runtime = await codingAgent.ModelRuntime.create({
-		credentials: new piAi.InMemoryCredentialStore(),
-		modelsPath: null,
-		allowModelNetwork: false,
-	});
+	const runtime = await createOfflineModelRuntime(codingAgent, piAi);
 	runtime.registerNativeProvider(faux.provider);
 	const model = runtime.getModel(providerId, "faux-1");
 	assert.ok(model);
@@ -135,6 +127,8 @@ test("the child session factory creates one isolated reusable in-memory read-onl
 			"read",
 			"report_to_parent",
 		]);
+		assert.match(child.session.getToolDefinition("read").description, /canonical shared workspace/);
+		assert.match(child.session.getToolDefinition("grep").description, /canonical shared workspace/);
 		assert.equal(child.thinkingLevel, "off");
 		assert.ok(Object.isFrozen(child.selectedTools));
 		assert.ok(Object.isFrozen(child.modelRef));
@@ -621,6 +615,60 @@ test("partial child initialization unsubscribes, aborts, waits, and disposes wit
 			}),
 			(error) => assertFactoryError(error, "session_initialization_failed"),
 		);
+	} finally {
+		await rm(root, { recursive: true, force: true });
+	}
+});
+
+test("partial child initialization reports unproven runtime settlement after bounded cleanup timeouts", async () => {
+	const root = await mkdtemp(join(tmpdir(), "pi-sub-agent-runtime-partial-timeout-"));
+	try {
+		const { resolvedModel } = await createOfflineResolvedModel("child-runtime-partial-timeout-faux");
+		let disposeCalls = 0;
+		const fakeSession = {
+			model: resolvedModel.model,
+			modelRuntime: resolvedModel.runtime,
+			sessionFile: undefined,
+			thinkingLevel: "off",
+			getAllTools() { return [{ name: "read" }]; },
+			getActiveToolNames() { return ["read"]; },
+			subscribe() { throw new Error(PRIVATE_FAILURE_MARKER); },
+			abort() { return new Promise(() => undefined); },
+			waitForIdle() { return new Promise(() => undefined); },
+			dispose() { disposeCalls += 1; },
+		};
+		const startedAt = Date.now();
+		await assert.rejects(
+			createSubAgentSession({
+				id: "sa1-agent-runtime-partial-timeout-1-child",
+				generation: "sag1-agent-runtime-partial-timeout",
+				cwd: root,
+				spec: childSpec({ tools: ["read"] }),
+				resolvedModel,
+				onEvent() {},
+				onReport() {},
+				dependencies: {
+					cleanupTimeoutMs: 10,
+					async createSession(options) {
+						return {
+							session: {
+								...fakeSession,
+								resourceLoader: options.resourceLoader,
+								sessionManager: options.sessionManager,
+								settingsManager: options.settingsManager,
+							},
+						};
+					},
+				},
+			}),
+			(error) => {
+				assertFactoryError(error, "session_cleanup_failed");
+				assert.equal(error.runtimeSettled, false);
+				return true;
+			},
+		);
+		assert.ok(Date.now() - startedAt < 500);
+		assert.equal(disposeCalls, 1);
 	} finally {
 		await rm(root, { recursive: true, force: true });
 	}

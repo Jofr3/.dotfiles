@@ -1,5 +1,9 @@
 import type { Api, Model } from "@earendil-works/pi-ai";
-import { ModelRuntime, type ModelRegistry } from "@earendil-works/pi-coding-agent";
+import {
+	ModelRuntime,
+	type ModelRegistry,
+	type ProviderConfigInput,
+} from "@earendil-works/pi-coding-agent";
 import type { ComplexityTier, ExplicitModelRef } from "./types.ts";
 
 const MAX_CANDIDATES = 20;
@@ -118,12 +122,133 @@ function resolved(runtime: ModelRuntime, model: Model<Api>): ResolvedChildModel 
 	return Object.freeze({ runtime, model, ref: Object.freeze(modelRef(model)) });
 }
 
+const ENVIRONMENT_REFERENCE = /^\$(?:[A-Za-z_][A-Za-z0-9_]*|\{[A-Za-z_][A-Za-z0-9_]*\})$/u;
+
+function safeConfiguredUrl(value: string | undefined, providerId: string): string | undefined {
+	if (value === undefined) return undefined;
+	try {
+		const parsed = new URL(value);
+		if (
+			(parsed.protocol !== "http:" && parsed.protocol !== "https:") ||
+			parsed.username ||
+			parsed.password ||
+			parsed.search ||
+			parsed.hash
+		) throw new Error("unsafe URL");
+		return value;
+	} catch {
+		throw new ChildModelRuntimeError(
+			"provider_mirror_failed",
+			`Provider contains unsupported child transport configuration: ${providerId}`,
+		);
+	}
+}
+
+function safeConfigReference(value: string | undefined, providerId: string): string | undefined {
+	if (value === undefined) return undefined;
+	if (ENVIRONMENT_REFERENCE.test(value)) return value;
+	throw new ChildModelRuntimeError(
+		"provider_mirror_failed",
+		`Provider contains unsupported child authentication configuration: ${providerId}`,
+	);
+}
+
+function safeConfiguredHeaders(
+	headers: Record<string, string> | undefined,
+	providerId: string,
+): Record<string, string> | undefined {
+	if (headers === undefined) return undefined;
+	const safe: Record<string, string> = {};
+	for (const [name, value] of Object.entries(headers)) {
+		if (
+			!name ||
+			name.length > 256 ||
+			/[\u0000-\u001f\u007f-\u009f]/u.test(name) ||
+			typeof value !== "string" ||
+			!ENVIRONMENT_REFERENCE.test(value)
+		) {
+			throw new ChildModelRuntimeError(
+				"provider_mirror_failed",
+				`Provider contains unsupported child header configuration: ${providerId}`,
+			);
+		}
+		safe[name] = value;
+	}
+	return safe;
+}
+
+/**
+ * Copy only the public provider fields required to compose a child transport.
+ * Literal API keys/header values and credential-bearing URLs fail closed; only
+ * pure environment references can cross into the child runtime. Callback-based
+ * providers remain trusted same-process code and are copied by explicit field.
+ */
+function safeChildProviderConfig(
+	providerId: string,
+	config: ProviderConfigInput,
+): ProviderConfigInput {
+	const models = config.models?.map((model) => ({
+		id: model.id,
+		name: model.name,
+		...(model.api !== undefined ? { api: model.api } : {}),
+		...(model.baseUrl !== undefined
+			? { baseUrl: safeConfiguredUrl(model.baseUrl, providerId) }
+			: {}),
+		reasoning: model.reasoning,
+		...(model.thinkingLevelMap !== undefined
+			? { thinkingLevelMap: { ...model.thinkingLevelMap } }
+			: {}),
+		input: [...model.input],
+		cost: { ...model.cost },
+		contextWindow: model.contextWindow,
+		maxTokens: model.maxTokens,
+		...(model.headers !== undefined
+			? { headers: safeConfiguredHeaders(model.headers, providerId) }
+			: {}),
+		...(model.compat !== undefined ? { compat: { ...model.compat } } : {}),
+	}));
+	return {
+		...(config.name !== undefined ? { name: config.name } : {}),
+		...(config.baseUrl !== undefined
+			? { baseUrl: safeConfiguredUrl(config.baseUrl, providerId) }
+			: {}),
+		...(config.apiKey !== undefined
+			? { apiKey: safeConfigReference(config.apiKey, providerId) }
+			: {}),
+		...(config.api !== undefined ? { api: config.api } : {}),
+		...(config.streamSimple !== undefined ? { streamSimple: config.streamSimple } : {}),
+		...(config.headers !== undefined
+			? { headers: safeConfiguredHeaders(config.headers, providerId) }
+			: {}),
+		...(config.authHeader !== undefined ? { authHeader: config.authHeader } : {}),
+		...(config.oauth !== undefined
+			? {
+				oauth: {
+					name: config.oauth.name,
+					...(config.oauth.usesCallbackServer !== undefined
+						? { usesCallbackServer: config.oauth.usesCallbackServer }
+						: {}),
+					login: config.oauth.login,
+					refreshToken: config.oauth.refreshToken,
+					getApiKey: config.oauth.getApiKey,
+					...(config.oauth.modifyModels !== undefined
+						? { modifyModels: config.oauth.modifyModels }
+						: {}),
+				},
+			}
+			: {}),
+		...(models !== undefined ? { models } : {}),
+		...(config.refreshModels !== undefined ? { refreshModels: config.refreshModels } : {}),
+	};
+}
+
 /**
  * Session-generation-scoped owner of one lazily created child ModelRuntime.
  *
- * The adapter mirrors only public host provider registrations. Credential values
- * are never copied through ModelRegistry: the child runtime resolves supported
- * stored/environment/provider-config auth through its own credential store.
+ * The adapter mirrors only public host provider registrations and never calls
+ * secret-returning ModelRegistry auth methods. Native provider objects remain
+ * same-process TCB code; legacy configs cross through a strict field/reference
+ * reducer and are never serialized or surfaced by this extension.
  */
 export class ChildModelRuntimeAdapter {
 	#createRuntime: () => ModelRuntime | Promise<ModelRuntime>;
@@ -131,6 +256,7 @@ export class ChildModelRuntimeAdapter {
 	#runtimeCreation?: Promise<ModelRuntime>;
 	#mirroredProviderIds = new Set<string>();
 	#operationTail: Promise<void> = Promise.resolve();
+	#lifecycleController = new AbortController();
 	#closed = false;
 	#disposePromise?: Promise<void>;
 
@@ -268,6 +394,7 @@ export class ChildModelRuntimeAdapter {
 	dispose(): Promise<void> {
 		if (this.#disposePromise) return this.#disposePromise;
 		this.#closed = true;
+		this.#lifecycleController.abort();
 		const run = this.#operationTail.then(async () => {
 			const runtime = this.#runtime;
 			if (runtime) {
@@ -368,7 +495,7 @@ export class ChildModelRuntimeAdapter {
 				runtime.unregisterProvider(providerId);
 				this.#mirroredProviderIds.delete(providerId);
 				if (nativeProvider) runtime.registerNativeProvider(nativeProvider);
-				else runtime.registerProvider(providerId, providerConfig!);
+				else runtime.registerProvider(providerId, safeChildProviderConfig(providerId, providerConfig!));
 				this.#mirroredProviderIds.add(providerId);
 			} catch {
 				try {
@@ -382,7 +509,10 @@ export class ChildModelRuntimeAdapter {
 		}
 
 		try {
-			await runtime.refresh({ allowNetwork: false });
+			await runtime.refresh({
+				allowNetwork: false,
+				signal: this.#lifecycleController.signal,
+			});
 		} catch {
 			throw new ChildModelRuntimeError("provider_mirror_failed", "Could not refresh mirrored provider metadata");
 		}

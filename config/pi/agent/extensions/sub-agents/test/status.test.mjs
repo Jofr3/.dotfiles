@@ -339,6 +339,72 @@ function largeSnapshot(index) {
 	};
 }
 
+test("status event summaries use UTF-8 ellipsis markers and report their truncation", async () => {
+	const snapshot = largeSnapshot(0);
+	snapshot.id = "sa1-status-marker";
+	snapshot.spec = {
+		...snapshot.spec,
+		name: "status-marker",
+		role: "focused marker fixture",
+		objective: "focused marker fixture",
+		tags: [],
+	};
+	snapshot.currentAssignment = {
+		...snapshot.currentAssignment,
+		id: "sa1-status-marker:assignment:1",
+		objective: "focused marker fixture",
+	};
+	snapshot.latestReport = {
+		...snapshot.latestReport,
+		summary: "focused marker fixture",
+		files: [],
+	};
+	snapshot.runtime = {
+		...snapshot.runtime,
+		streamingPreview: "focused marker fixture",
+		activeToolCount: 0,
+		activeTools: [],
+	};
+	snapshot.events = [
+		{
+			sequence: 1,
+			kind: "runtime",
+			state: "running",
+			summary: "😀".repeat(100),
+			timestamp: 1_000,
+		},
+	];
+	const manager = {
+		generation: "sag1-status-marker",
+		listAgents() {
+			return [snapshot];
+		},
+		getAgent(id) {
+			if (id === snapshot.id) return snapshot;
+			throw new Error("unused");
+		},
+		async drainUsage() {
+			throw new Error("unused");
+		},
+	};
+	const tool = createSubAgentsStatusTool(() => ({ manager, now: () => 10_000 }));
+	const result = await tool.execute(
+		"status-marker",
+		{ detail: "timeline", eventLimit: 1 },
+		undefined,
+		undefined,
+		{},
+	);
+	const outcome = result.details.outcomes[0];
+	assert.equal(outcome.ok, true);
+	assert.ok(outcome.events[0].summary.endsWith("…"));
+	assert.ok(Buffer.byteLength(outcome.events[0].summary, "utf8") <= 176);
+	assert.deepEqual(outcome.truncatedFields, ["events.summary"]);
+	assert.ok(Buffer.byteLength(result.content[0].text, "utf8") <= 48 * 1024);
+	assert.ok(Buffer.byteLength(JSON.stringify(result.details), "utf8") <= 48 * 1024);
+	assert.ok(result.content[0].text.split("\n").length <= 2_000);
+});
+
 test("maximum timeline snapshots preserve every selected outcome under content/details transport bounds", async () => {
 	const snapshots = Array.from({ length: SUB_AGENT_BOUNDS.controlTargets }, (_, index) => largeSnapshot(index));
 	const byId = new Map(snapshots.map((snapshot) => [snapshot.id, snapshot]));
@@ -372,6 +438,7 @@ test("maximum timeline snapshots preserve every selected outcome under content/d
 	assert.equal(result.details.outputTruncated, true);
 	assert.ok(Buffer.byteLength(result.content[0].text, "utf8") <= 48 * 1024);
 	assert.ok(Buffer.byteLength(JSON.stringify(result.details), "utf8") <= 48 * 1024);
+	assert.ok(result.content[0].text.split("\n").length <= 2_000);
 	assert.equal(new Set(result.details.outcomes.map((outcome) => outcome.id)).size, snapshots.length);
 	assert.doesNotMatch(JSON.stringify(result), /PRIVATE_STATUS_LOOKUP_FAILURE/);
 });

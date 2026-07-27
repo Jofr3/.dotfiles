@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import test from "node:test";
+import {
+	createBarrier,
+	createOfflineModelRuntime,
+	withTempDirectory,
+} from "./fixtures.mjs";
 import { importInstalledPackages, importSubAgentsModule } from "./installed-packages.mjs";
 
 const { SubAgentAssignmentRunner } = await importSubAgentsModule("assignment-runner.ts");
@@ -35,38 +37,6 @@ function latestUserText(messages) {
 	return message ? textFromUserContent(message.content) : "";
 }
 
-function createBarrier(parties, timeoutMs = 2_000) {
-	const arrivals = new Set();
-	let release;
-	const released = new Promise((resolve) => {
-		release = resolve;
-	});
-	return {
-		get size() {
-			return arrivals.size;
-		},
-		async arrive(label) {
-			assert.equal(arrivals.has(label), false, `duplicate barrier arrival: ${label}`);
-			arrivals.add(label);
-			if (arrivals.size === parties) release();
-			let timer;
-			try {
-				await Promise.race([
-					released,
-					new Promise((_, reject) => {
-						timer = setTimeout(
-							() => reject(new Error(`timed out waiting for Phase 2 overlap: ${[...arrivals].join(", ")}`)),
-							timeoutMs,
-						);
-					}),
-				]);
-			} finally {
-				if (timer) clearTimeout(timer);
-			}
-		},
-	};
-}
-
 function childSpec(complexity) {
 	return {
 		name: `${complexity}-child`,
@@ -80,14 +50,10 @@ function childSpec(complexity) {
 }
 
 test("Phase 2 routes concurrent isolated children, contains sibling failure, and reuses retained context", async () => {
-	const root = await mkdtemp(join(tmpdir(), "pi-sub-agent-phase2-"));
+	await withTempDirectory("pi-sub-agent-phase2", async (root) => {
 	const { codingAgent, piAi } = await importInstalledPackages();
 	const providerId = "phase2-subscription";
-	const hostRuntime = await codingAgent.ModelRuntime.create({
-		credentials: new piAi.InMemoryCredentialStore(),
-		modelsPath: null,
-		allowModelNetwork: false,
-	});
+	const hostRuntime = await createOfflineModelRuntime(codingAgent, piAi);
 	const hostRegistry = new codingAgent.ModelRegistry(hostRuntime);
 	const faux = piAi.fauxProvider({
 		provider: providerId,
@@ -97,11 +63,7 @@ test("Phase 2 routes concurrent isolated children, contains sibling failure, and
 	hostRegistry.registerProvider(faux.provider);
 
 	const childModelRuntime = new ChildModelRuntimeAdapter({
-		createRuntime: () => codingAgent.ModelRuntime.create({
-			credentials: new piAi.InMemoryCredentialStore(),
-			modelsPath: null,
-			allowModelNetwork: false,
-		}),
+		createRuntime: () => createOfflineModelRuntime(codingAgent, piAi),
 	});
 	let nonce = 0;
 	const manager = new SubAgentManager({
@@ -114,7 +76,7 @@ test("Phase 2 routes concurrent isolated children, contains sibling failure, and
 	const runner = new SubAgentAssignmentRunner(manager);
 	const router = new SubAgentModelRouter(childModelRuntime);
 	const parentModel = { provider: providerId, id: SUB_AGENT_TIER_MODEL_IDS.complex };
-	const barrier = createBarrier(3);
+	const barrier = createBarrier(3, { label: "Phase 2 overlap", timeoutMs: 2_000 });
 	const capturedPrompts = new Map();
 	let activeResponses = 0;
 	let maximumConcurrentResponses = 0;
@@ -204,7 +166,7 @@ test("Phase 2 routes concurrent isolated children, contains sibling failure, and
 		assert.equal(manager.getAgent(launches[1].id).state, "failed");
 	} finally {
 		await manager.disposeAll("Phase 2 integration test complete");
-		await rm(root, { recursive: true, force: true });
 	}
 	assert.equal(runner.liveRuntimeCount, 0);
+	});
 });

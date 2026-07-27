@@ -197,6 +197,35 @@ test("guarded write overwrites an existing canonical file and rewrites non-ASCII
 	}
 });
 
+test("guarded write emits control-character paths as bounded single-line display values", async () => {
+	const { temporary, project, workspace } = await fixture();
+	try {
+		const relativePath = "src/control\n\u001b[31m.txt";
+		const guarded = createGuardedChildWriteTool({
+			cwd: project,
+			workspace: workspace.identity,
+			claimFiles() {},
+			reconcileFile() {},
+			recordMutation() {},
+		});
+
+		const result = await guarded.execute(
+			"guarded-write-control-path",
+			{ path: relativePath, content: "created\n" },
+			undefined,
+			undefined,
+			undefined,
+		);
+		assert.equal(await readFile(join(project, relativePath), "utf8"), "created\n");
+		assert.equal(result.content[0].text, "Successfully wrote 8 bytes to src/control  [31m.txt");
+		assert.equal(result.content[0].text.split("\n").length, 1);
+		assert.doesNotMatch(result.content[0].text, /[\u0000-\u001f\u007f-\u009f]/u);
+		assert.equal(result.details, undefined);
+	} finally {
+		await rm(temporary, { recursive: true, force: true });
+	}
+});
+
 test("guarded write follows approved in-root aliases while leasing and reporting canonical targets", async () => {
 	const { temporary, project, workspace } = await fixture();
 	const manager = createManager(project, "sag1-guarded-write-aliases");

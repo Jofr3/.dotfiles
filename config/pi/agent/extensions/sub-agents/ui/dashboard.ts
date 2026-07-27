@@ -53,6 +53,7 @@ export interface SubAgentDashboardRuntime {
 	readonly manager: SubAgentDashboardManager;
 	readonly sendRuntime: SubAgentsSendRuntime;
 	readonly closed: boolean;
+	readonly signal: AbortSignal;
 	registerActiveDialog(close: () => void): () => void;
 	shutdown(): void;
 }
@@ -523,6 +524,7 @@ export class SubAgentDashboardRuntimeState implements SubAgentDashboardRuntime {
 	readonly manager: SubAgentDashboardManager;
 	readonly sendRuntime: SubAgentsSendRuntime;
 	#activeClosers = new Set<() => void>();
+	#abortController = new AbortController();
 	#closed = false;
 
 	constructor(options: {
@@ -535,6 +537,10 @@ export class SubAgentDashboardRuntimeState implements SubAgentDashboardRuntime {
 
 	get closed(): boolean {
 		return this.#closed;
+	}
+
+	get signal(): AbortSignal {
+		return this.#abortController.signal;
 	}
 
 	registerActiveDialog(close: () => void): () => void {
@@ -555,6 +561,7 @@ export class SubAgentDashboardRuntimeState implements SubAgentDashboardRuntime {
 	shutdown(): void {
 		if (this.#closed) return;
 		this.#closed = true;
+		this.#abortController.abort();
 		const closers = [...this.#activeClosers];
 		this.#activeClosers.clear();
 		for (const close of closers) {
@@ -583,11 +590,12 @@ async function sendManualMessage(
 	runtime: SubAgentDashboardRuntime,
 	id: SubAgentId,
 ): Promise<void> {
+	if (runtime.closed) return;
 	let snapshot: ManagedSubAgentSnapshot;
 	try {
 		snapshot = runtime.manager.getAgent(id);
 	} catch {
-		ctx.ui.notify("sub-agents: the selected child is no longer available", "warning");
+		if (!runtime.closed) ctx.ui.notify("sub-agents: the selected child is no longer available", "warning");
 		return;
 	}
 	const safeName = cleanLine(snapshot.spec.name, SUB_AGENT_BOUNDS.nameChars) || "unnamed";
@@ -595,10 +603,12 @@ async function sendManualMessage(
 		ctx.ui.notify(`sub-agents: ${safeName} cannot accept a message while ${snapshot.state}`, "warning");
 		return;
 	}
-	const message = await ctx.ui.editor(
+	const message = await ctx.ui.input(
 		`Message ${safeName} (do not include credentials or secrets)`,
+		"Assignment or follow-up message",
+		{ signal: runtime.signal },
 	);
-	if (message === undefined) return;
+	if (message === undefined || runtime.closed) return;
 	const trimmed = message.trim();
 	if (!trimmed) {
 		ctx.ui.notify("sub-agents: message was empty", "warning");
@@ -613,16 +623,17 @@ async function sendManualMessage(
 		const selected = await ctx.ui.select("Message delivery", [
 			"Follow up after current work",
 			"Steer the current assignment",
-		]);
-		if (!selected) return;
+		], { signal: runtime.signal });
+		if (!selected || runtime.closed) return;
 		delivery = selected.startsWith("Steer") ? "steer" : "followUp";
 	}
 	try {
 		const result = await executeSubAgentsSend(
 			{ messages: [{ id, message: trimmed, delivery }] },
-			undefined,
+			runtime.signal,
 			runtime.sendRuntime,
 		);
+		if (runtime.closed) return;
 		const outcome = result.details.outcomes[0];
 		if (outcome?.ok) {
 			ctx.ui.notify(`sub-agents: message accepted for ${safeName}`, "info");
@@ -630,7 +641,7 @@ async function sendManualMessage(
 			ctx.ui.notify(`sub-agents: ${outcome?.message ?? "message delivery failed"}`, "error");
 		}
 	} catch {
-		ctx.ui.notify("sub-agents: message delivery failed", "error");
+		if (!runtime.closed) ctx.ui.notify("sub-agents: message delivery failed", "error");
 	}
 }
 
@@ -639,11 +650,12 @@ async function releaseSelected(
 	runtime: SubAgentDashboardRuntime,
 	id: SubAgentId,
 ): Promise<void> {
+	if (runtime.closed) return;
 	let snapshot: ManagedSubAgentSnapshot;
 	try {
 		snapshot = runtime.manager.getAgent(id);
 	} catch {
-		ctx.ui.notify("sub-agents: the selected child is no longer available", "warning");
+		if (!runtime.closed) ctx.ui.notify("sub-agents: the selected child is no longer available", "warning");
 		return;
 	}
 	const safeName = cleanLine(snapshot.spec.name, SUB_AGENT_BOUNDS.nameChars) || "unnamed";
@@ -658,19 +670,21 @@ async function releaseSelected(
 	const confirmed = await ctx.ui.confirm(
 		`Release ${snapshot.leases.length} lease${snapshot.leases.length === 1 ? "" : "s"} from ${safeName}?`,
 		"This keeps the child and transcript alive but permits other cooperating parent/child mutations. Future guarded work must reacquire ownership.",
+		{ signal: runtime.signal },
 	);
-	if (!confirmed) return;
+	if (!confirmed || runtime.closed) return;
 	try {
 		const result = await runtime.manager.releaseChildLeasesWithResult(
 			id,
 			"released from /sub-agents dashboard",
 		);
+		if (runtime.closed) return;
 		ctx.ui.notify(
 			`sub-agents: released ${result.released.length} lease${result.released.length === 1 ? "" : "s"} from ${safeName}`,
 			"info",
 		);
 	} catch {
-		ctx.ui.notify(`sub-agents: could not release leases from ${safeName}`, "error");
+		if (!runtime.closed) ctx.ui.notify(`sub-agents: could not release leases from ${safeName}`, "error");
 	}
 }
 
@@ -679,11 +693,12 @@ async function removeSelected(
 	runtime: SubAgentDashboardRuntime,
 	id: SubAgentId,
 ): Promise<void> {
+	if (runtime.closed) return;
 	let snapshot: ManagedSubAgentSnapshot;
 	try {
 		snapshot = runtime.manager.getAgent(id);
 	} catch {
-		ctx.ui.notify("sub-agents: the selected child is no longer available", "warning");
+		if (!runtime.closed) ctx.ui.notify("sub-agents: the selected child is no longer available", "warning");
 		return;
 	}
 	const safeName = cleanLine(snapshot.spec.name, SUB_AGENT_BOUNDS.nameChars) || "unnamed";
@@ -694,13 +709,14 @@ async function removeSelected(
 	const confirmed = await ctx.ui.confirm(
 		`Remove ${safeName}?`,
 		"This immediately stops the child, permanently disposes its retained runtime context, and keeps only bounded history.",
+		{ signal: runtime.signal },
 	);
-	if (!confirmed) return;
+	if (!confirmed || runtime.closed) return;
 	try {
 		await runtime.manager.removeAgent(id, "removed from /sub-agents dashboard");
-		ctx.ui.notify(`sub-agents: removed ${safeName}`, "info");
+		if (!runtime.closed) ctx.ui.notify(`sub-agents: removed ${safeName}`, "info");
 	} catch {
-		ctx.ui.notify(`sub-agents: could not remove ${safeName}`, "error");
+		if (!runtime.closed) ctx.ui.notify(`sub-agents: could not remove ${safeName}`, "error");
 	}
 }
 
@@ -708,11 +724,12 @@ async function removeAll(
 	ctx: ExtensionCommandContext,
 	runtime: SubAgentDashboardRuntime,
 ): Promise<void> {
+	if (runtime.closed) return;
 	let ids: SubAgentId[];
 	try {
 		ids = runtime.manager.listAgentIds({ includeRemoved: false });
 	} catch {
-		ctx.ui.notify("sub-agents: could not inspect live children", "error");
+		if (!runtime.closed) ctx.ui.notify("sub-agents: could not inspect live children", "error");
 		return;
 	}
 	if (ids.length === 0) {
@@ -722,11 +739,13 @@ async function removeAll(
 	const confirmed = await ctx.ui.confirm(
 		`Remove ${ids.length} live sub-agent${ids.length === 1 ? "" : "s"}?`,
 		"This immediately stops every child in the captured set and permanently disposes retained runtime context.",
+		{ signal: runtime.signal },
 	);
-	if (!confirmed) return;
+	if (!confirmed || runtime.closed) return;
 	const outcomes = await Promise.allSettled(
 		ids.map((id) => runtime.manager.removeAgent(id, "removed all from /sub-agents dashboard")),
 	);
+	if (runtime.closed) return;
 	const removed = outcomes.filter((outcome) => outcome.status === "fulfilled").length;
 	const failed = outcomes.length - removed;
 	ctx.ui.notify(

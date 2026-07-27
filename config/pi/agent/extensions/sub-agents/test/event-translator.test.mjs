@@ -276,7 +276,7 @@ test("retries replace terminal failures while final errors and explicit blockers
 test("high-volume activity keeps bounded summaries and one bounded event timeline", async () => {
 	const { manager, created, translator } = await createRunningTranslator("activity-storm");
 	translator.handle({ type: "agent_start" });
-	const callCount = SUB_AGENT_BOUNDS.activeToolCalls + 40;
+	const callCount = SUB_AGENT_BOUNDS.eventTimeline * 4;
 	for (let index = 0; index < callCount; index += 1) {
 		translator.handle({
 			type: "tool_execution_start",
@@ -309,5 +309,9 @@ test("high-volume activity keeps bounded summaries and one bounded event timelin
 	assert.equal(snapshot.runtime.activeToolCount, 0);
 	assert.equal(snapshot.events.length, SUB_AGENT_BOUNDS.eventTimeline);
 	assert.ok(snapshot.omittedEventCount > 0);
+	assert.ok(
+		snapshot.events.some((event) => /runtime event\(s\) coalesced/.test(event.summary)),
+		"the bounded translator queue must report dropped runtime-event storm detail",
+	);
 	await manager.disposeAll("activity storm complete");
 });

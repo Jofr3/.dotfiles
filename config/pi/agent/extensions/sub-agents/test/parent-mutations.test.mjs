@@ -346,3 +346,27 @@ test("aliases share one identity and shutdown retains ownership until the matchi
 		await rm(temporary, { recursive: true, force: true });
 	}
 });
+
+test("parent mutation shutdown bounds missing completion events and keeps ownership explicit", async () => {
+	const { temporary, root, manager } = await fixture();
+	const interceptor = new ParentMutationInterceptor(manager, { idleTimeoutMs: 10 });
+	try {
+		assert.equal(await interceptor.handleToolCall({
+			toolName: "edit",
+			toolCallId: "missing-completion",
+			input: { path: "src/first.txt", edits: [] },
+		}, root), undefined);
+		interceptor.shutdown();
+		const startedAt = Date.now();
+		await assert.rejects(interceptor.waitForIdle(), /timed out/);
+		assert.ok(Date.now() - startedAt < 500);
+		assert.equal(interceptor.activeReservationCount, 1);
+		interceptor.handleToolExecutionEnd({ toolName: "edit", toolCallId: "missing-completion" });
+		await interceptor.waitForIdle();
+		assert.equal(interceptor.activeReservationCount, 0);
+	} finally {
+		interceptor.shutdown();
+		await manager.disposeAll("parent mutation timeout test cleanup");
+		await rm(temporary, { recursive: true, force: true });
+	}
+});

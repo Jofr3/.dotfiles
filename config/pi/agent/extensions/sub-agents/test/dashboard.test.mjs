@@ -344,6 +344,7 @@ test("dashboard runtime shutdown closes an active custom panel at the lifecycle 
 		runner: { prompt() {}, send() {}, waitForAssignment() {} },
 	};
 	const runtime = createSubAgentDashboardRuntime({ manager, sendRuntime });
+	assert.equal(runtime.signal.aborted, false);
 	let panelCreated = false;
 	const command = runSubAgentsDashboardCommand({
 		mode: "tui",
@@ -368,6 +369,50 @@ test("dashboard runtime shutdown closes an active custom panel at the lifecycle 
 	runtime.shutdown();
 	await command;
 	assert.equal(runtime.closed, true);
+	assert.equal(runtime.signal.aborted, true);
+});
+
+test("dashboard shutdown aborts a standard input dialog before a stale generation can send", async () => {
+	const detail = detailedFixture("sa1-dashboard-dialog-cancel");
+	let inputStarted;
+	const entered = new Promise((resolvePromise) => { inputStarted = resolvePromise; });
+	let promptCalls = 0;
+	const manager = {
+		generation: detail.generation,
+		getSummary() { return { generation: this.generation, closed: false, total: 1, active: 1, historical: 0, counts: {} }; },
+		getDashboardSnapshot() { return dashboardSnapshot([], { generation: this.generation }); },
+		getAgent() { return detail; },
+		listAgentIds() { return [detail.id]; },
+		subscribeChanges() { return () => undefined; },
+	};
+	const sendRuntime = {
+		manager: { generation: detail.generation, getAgent: () => detail },
+		runner: {
+			async prompt() { promptCalls += 1; throw new Error("stale prompt must not start"); },
+			async send() { throw new Error("unused"); },
+			async waitForAssignment() {},
+		},
+	};
+	const runtime = createSubAgentDashboardRuntime({ manager, sendRuntime });
+	const command = runSubAgentsDashboardCommand({
+		mode: "tui",
+		hasUI: true,
+		ui: {
+			async custom() { return { kind: "send", id: detail.id }; },
+			async input(_title, _placeholder, options) {
+				inputStarted();
+				return new Promise((resolvePromise) => {
+					options.signal.addEventListener("abort", () => resolvePromise(undefined), { once: true });
+				});
+			},
+			notify() {},
+		},
+	}, runtime);
+	await entered;
+	runtime.shutdown();
+	await command;
+	assert.equal(runtime.signal.aborted, true);
+	assert.equal(promptCalls, 0);
 });
 
 test("dashboard command sends manual work, confirms selected/all removal, and falls back outside TUI", async () => {
@@ -442,7 +487,7 @@ test("dashboard command sends manual work, confirms selected/all removal, and fa
 		hasUI: true,
 		ui: {
 			async custom() { return actions.shift(); },
-			async editor(title) { dialogText.push(title); return "manual dashboard assignment"; },
+			async input(title) { dialogText.push(title); return "manual dashboard assignment"; },
 			async select(title) { dialogText.push(title); return "Follow up after current work"; },
 			async confirm(title, message) { dialogText.push(title, message); return true; },
 			notify(message, level) { notifications.push({ message, level }); },

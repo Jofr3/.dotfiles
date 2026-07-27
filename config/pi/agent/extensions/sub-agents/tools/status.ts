@@ -234,15 +234,22 @@ function oneLine(value: unknown): string {
 
 function boundUtf8Line(value: unknown, maxBytes: number): string {
 	const normalized = oneLine(value);
+	const cap = Math.max(0, Math.floor(maxBytes));
+	if (Buffer.byteLength(normalized, "utf8") <= cap) return normalized;
+
+	const ellipsis = "…";
+	const ellipsisBytes = Buffer.byteLength(ellipsis, "utf8");
+	if (cap < ellipsisBytes) return ".".repeat(cap);
+
 	let result = "";
 	let bytes = 0;
 	for (const character of normalized) {
 		const characterBytes = Buffer.byteLength(character, "utf8");
-		if (bytes + characterBytes > maxBytes) break;
+		if (bytes + characterBytes + ellipsisBytes > cap) break;
 		result += character;
 		bytes += characterBytes;
 	}
-	return result;
+	return result + ellipsis;
 }
 
 function boundedField(
@@ -595,8 +602,6 @@ function buildStatusView(
 			: undefined,
 		usage: usageView(snapshot.usage),
 	};
-	if (truncatedFields.length > 0) full.truncatedFields = [...new Set(truncatedFields)];
-
 	const minimal: StatusAgentView = {
 		ok: true,
 		id: snapshot.id,
@@ -616,6 +621,7 @@ function buildStatusView(
 		full.events = [];
 		full.omittedEventCount = snapshot.omittedEventCount + snapshot.events.length;
 	}
+	if (truncatedFields.length > 0) full.truncatedFields = [...new Set(truncatedFields)];
 	return { full, minimal, timeline };
 }
 

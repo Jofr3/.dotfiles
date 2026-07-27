@@ -78,9 +78,7 @@ function assertDefinitionMetadataPreserved(base, guarded) {
 	for (const key of [
 		"name",
 		"label",
-		"description",
 		"promptSnippet",
-		"promptGuidelines",
 		"parameters",
 		"prepareArguments",
 		"renderShell",
@@ -94,28 +92,38 @@ function assertDefinitionMetadataPreserved(base, guarded) {
 		}
 	}
 	assert.notStrictEqual(guarded.execute, base.execute);
+	assert.match(guarded.description, /never written to a full-output temp file/);
+	assert.ok(guarded.promptGuidelines.some((line) => /not an OS sandbox/.test(line)));
+	assert.doesNotMatch(JSON.stringify(guarded.promptGuidelines), /PI_\*/);
 }
 
-test("guarded bash preserves the built-in contract, claims the workspace, streams output, and propagates abort state", async () => {
+test("guarded bash preserves the built-in contract, claims the workspace, bounds output without artifacts, and reduces its environment", async () => {
 	const { temporary, project, workspace } = await fixture();
 	const manager = createManager(project);
-	let fullOutputPath;
+	const privateEnvironmentName = "SUB_AGENT_PRIVATE_ENV_FIXTURE";
+	const previousPrivateEnvironment = process.env[privateEnvironmentName];
+	process.env[privateEnvironmentName] = "offline-private-environment-marker";
 	try {
 		const child = createAgent(manager, "successful-bash");
 		await manager.startAssignment(child.id);
 		let capturedSignal;
+		let capturedEnvironment;
 		const operations = {
 			async exec(command, cwd, options) {
 				assert.equal(command, "offline foreground command");
 				assert.equal(cwd, project);
 				capturedSignal = options.signal;
+				capturedEnvironment = options.env;
 				options.onData(Buffer.from("offline bash output\n"));
 				return { exitCode: 0 };
 			},
 		};
 		const guarded = guardedTool(manager, child.id, workspace, project, operations);
 		const { codingAgent } = await importInstalledPackages();
-		assertDefinitionMetadataPreserved(codingAgent.createBashToolDefinition(project), guarded);
+		assertDefinitionMetadataPreserved(
+			codingAgent.createBashToolDefinition(project, { exposeSessionEnvironment: false }),
+			guarded,
+		);
 		assert.equal(guarded.executionMode, "sequential");
 
 		const controller = new AbortController();
@@ -128,6 +136,9 @@ test("guarded bash preserves the built-in contract, claims the workspace, stream
 			undefined,
 		);
 		assert.strictEqual(capturedSignal, controller.signal);
+		assert.equal(capturedEnvironment[privateEnvironmentName], undefined);
+		assert.equal(capturedEnvironment.PI_SESSION_ID, undefined);
+		assert.equal(capturedEnvironment.PI_SESSION_FILE, undefined);
 		assert.equal(result.content[0].text, "offline bash output\n");
 		assert.equal(result.details, undefined);
 		assert.ok(updates.length >= 1);
@@ -152,13 +163,13 @@ test("guarded bash preserves the built-in contract, claims the workspace, stream
 			undefined,
 			undefined,
 		);
-		assert.equal(truncatedResult.details.truncation.truncated, true);
-		assert.equal(truncatedResult.details.truncation.truncatedBy, "bytes");
-		assert.equal(typeof truncatedResult.details.fullOutputPath, "string");
-		assert.match(truncatedResult.content[0].text, /Full output:/);
-		fullOutputPath = truncatedResult.details.fullOutputPath;
+		assert.equal(truncatedResult.details, undefined);
+		assert.match(truncatedResult.content[0].text, /truncated in memory; omitted output was not saved/);
+		assert.doesNotMatch(truncatedResult.content[0].text, /Full output:|pi-bash-/);
+		assert.ok(Buffer.byteLength(truncatedResult.content[0].text, "utf8") <= 48 * 1024);
 	} finally {
-		if (fullOutputPath) await rm(fullOutputPath, { force: true });
+		if (previousPrivateEnvironment === undefined) delete process.env[privateEnvironmentName];
+		else process.env[privateEnvironmentName] = previousPrivateEnvironment;
 		await manager.disposeAll("guarded bash success complete");
 		await rm(temporary, { recursive: true, force: true });
 	}

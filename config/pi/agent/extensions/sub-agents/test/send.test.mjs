@@ -338,6 +338,47 @@ test("assignment-boundary races re-read authoritative state without duplicating 
 	);
 });
 
+test("caller cancellation stops boundary retries even when assignment settlement never arrives", async () => {
+	const id = "sa1-send-cancel-race-1-child";
+	const waitEntered = deferred();
+	let promptAttempts = 0;
+	const tool = createSubAgentsSendTool(() => ({
+		manager: {
+			generation: "sag1-send-cancel-race",
+			getAgent() { return snapshot(id, "idle", 1); },
+		},
+		runner: {
+			async prompt() {
+				promptAttempts += 1;
+				throw new SubAgentAssignmentRunnerError(
+					"assignment_not_idle",
+					"synthetic boundary race",
+					id,
+				);
+			},
+			async send() { throw new Error("unused"); },
+			async waitForAssignment() {
+				waitEntered.resolve();
+				return new Promise(() => undefined);
+			},
+		},
+	}));
+	const controller = new AbortController();
+	const execution = tool.execute(
+		"send-cancel-race",
+		{ messages: [{ id, message: "do not retry after cancellation" }] },
+		controller.signal,
+		undefined,
+		{},
+	);
+	await waitEntered.promise;
+	controller.abort();
+	const result = await execution;
+	assert.equal(promptAttempts, 1);
+	assert.equal(result.details.accepted, 0);
+	assert.equal(result.details.outcomes[0].code, "cancelled");
+});
+
 test("maximum send failures stay bounded and never echo message text", async () => {
 	const ids = Array.from({ length: SUB_AGENT_BOUNDS.controlTargets }, (_, index) => {
 		const prefix = `sa1-send-bounds-${index.toString().padStart(3, "0")}-`;

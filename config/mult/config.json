@@ -21,6 +21,7 @@
     { "name": "myclientum app", "path": "~/lsw/myclientum_app" },
     { "name": "mydocumentium api", "path": "~/lsw/mydocumentium_api" },
     { "name": "mydocumentium", "path": "~/lsw/mydocumentium" },
+    { "name": "myproductium", "path": "~/lsw/myproductium_app" },
     { "name": "targecopy", "path": "~/lsw/targecopy" },
     { "name": "targecopy app", "path": "~/lsw/targecopy_app" },
     { "name": "targecopy app clients", "path": "~/lsw/targecopy_app_clients" },

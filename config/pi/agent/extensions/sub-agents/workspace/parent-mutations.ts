@@ -54,6 +54,7 @@ interface ActiveParentReservation {
 
 const PARENT_MUTATION_TOOLS = new Set<ParentMutationToolName>(["edit", "write", "bash"]);
 const BLOCK_REASON_CHARS = 1_200;
+const DEFAULT_PARENT_IDLE_TIMEOUT_MS = 2_000;
 const DISPLAY_FIELD_CHARS = 300;
 const ANSI_ESCAPE = /\u001b(?:\[[0-?]*[ -\/]*[@-~]|\][^\u0007]*(?:\u0007|\u001b\\)?|[@-_])/g;
 const CONTROL_CHARACTER = /[\u0000-\u001f\u007f-\u009f]/g;
@@ -187,11 +188,19 @@ export class ParentMutationInterceptor {
 	#manager: ParentMutationManager;
 	#active = new Map<string, ActiveParentReservation>();
 	#idleWaiters = new Set<() => void>();
+	#idleTimeoutMs: number;
 	#closed = false;
 
-	constructor(manager: ParentMutationManager) {
+	constructor(
+		manager: ParentMutationManager,
+		options: { idleTimeoutMs?: number } = {},
+	) {
 		this.#manager = manager;
 		this.generation = manager.generation;
+		this.#idleTimeoutMs =
+			Number.isSafeInteger(options.idleTimeoutMs) && options.idleTimeoutMs! > 0
+				? Math.min(options.idleTimeoutMs!, 60_000)
+				: DEFAULT_PARENT_IDLE_TIMEOUT_MS;
 	}
 
 	get closed(): boolean {
@@ -294,11 +303,27 @@ export class ParentMutationInterceptor {
 		this.#resolveIdleWaiters();
 	}
 
-	/** Wait until every accepted parent mutation has returned or been blocked before generation disposal. */
+	/** Wait boundedly for every accepted parent mutation to reach its final event. */
 	waitForIdle(): Promise<void> {
 		if (this.#active.size === 0) return Promise.resolve();
-		return new Promise<void>((resolvePromise) => {
-			this.#idleWaiters.add(resolvePromise);
+		return new Promise<void>((resolvePromise, rejectPromise) => {
+			let settled = false;
+			let timer: ReturnType<typeof setTimeout> | undefined;
+			const finish = (error?: Error) => {
+				if (settled) return;
+				settled = true;
+				this.#idleWaiters.delete(onIdle);
+				if (timer !== undefined) clearTimeout(timer);
+				if (error) rejectPromise(error);
+				else resolvePromise();
+			};
+			const onIdle = () => finish();
+			this.#idleWaiters.add(onIdle);
+			timer = setTimeout(
+				() => finish(new Error("Parent mutation settlement timed out")),
+				this.#idleTimeoutMs,
+			);
+			if (this.#active.size === 0) finish();
 		});
 	}
 

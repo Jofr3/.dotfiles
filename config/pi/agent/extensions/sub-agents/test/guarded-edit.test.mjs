@@ -156,6 +156,77 @@ test("guarded edit preserves the built-in contract, claims before mutation, and 
 	}
 });
 
+test("guarded edit emits control-character paths as bounded single-line display values", async () => {
+	const { temporary, project, workspace } = await fixture();
+	try {
+		const relativePath = "src/control\n\u001b[31m.txt";
+		const displayedPath = "@src/control  [31m.txt";
+		await writeFile(join(project, relativePath), "alpha\n", "utf8");
+		const guarded = createGuardedChildEditTool({
+			cwd: project,
+			workspace: workspace.identity,
+			claimFiles() {},
+			recordMutation() {},
+		});
+
+		const result = await guarded.execute(
+			"guarded-edit-control-path",
+			{ path: `@${relativePath}`, edits: [{ oldText: "alpha", newText: "changed" }] },
+			undefined,
+			undefined,
+			undefined,
+		);
+		assert.equal(result.content[0].text, `Successfully replaced 1 block(s) in ${displayedPath}.`);
+		assert.equal(result.content[0].text.split("\n").length, 1);
+		assert.doesNotMatch(result.content[0].text, /[\u0000-\u001f\u007f-\u009f]/u);
+		assert.match(
+			result.details.patch,
+			/^--- @src\/control  \[31m\.txt\n\+\+\+ @src\/control  \[31m\.txt\n/u,
+		);
+	} finally {
+		await rm(temporary, { recursive: true, force: true });
+	}
+});
+
+test("guarded edit bounds oversized diff and patch success details", async () => {
+	const { temporary, project, workspace } = await fixture();
+	try {
+		const targetPath = join(project, "src", "oversized.txt");
+		const oldText = `${Array.from(
+			{ length: 2_500 },
+			(_, index) => `old-${index}-${"x".repeat(48)}`,
+		).join("\n")}\n`;
+		const newText = `${Array.from(
+			{ length: 2_500 },
+			(_, index) => `new-${index}-${"y".repeat(48)}`,
+		).join("\n")}\n`;
+		await writeFile(targetPath, oldText, "utf8");
+		const guarded = createGuardedChildEditTool({
+			cwd: project,
+			workspace: workspace.identity,
+			claimFiles() {},
+			recordMutation() {},
+		});
+
+		const result = await guarded.execute(
+			"guarded-edit-oversized-details",
+			{ path: "src/oversized.txt", edits: [{ oldText, newText }] },
+			undefined,
+			undefined,
+			undefined,
+		);
+		assert.equal(await readFile(targetPath, "utf8"), newText);
+		assert.deepEqual(Object.keys(result.details).sort(), ["diff", "firstChangedLine", "patch"]);
+		assert.ok(Buffer.byteLength(JSON.stringify(result.details), "utf8") <= 48 * 1024);
+		const combinedLines = [result.details.diff, result.details.patch]
+			.reduce((total, value) => total + (value.length === 0 ? 0 : value.split("\n").length), 0);
+		assert.ok(combinedLines <= 2_000);
+		assert.match(`${result.details.diff}\n${result.details.patch}`, /guarded edit output truncated/u);
+	} finally {
+		await rm(temporary, { recursive: true, force: true });
+	}
+});
+
 test("guarded edit rejects out-of-scope targets before a lease or filesystem mutation", async () => {
 	const { temporary, project, workspace } = await fixture();
 	const manager = createManager(project, "sag1-guarded-edit-scope");

@@ -49,6 +49,7 @@ export const SUB_AGENT_BOUNDS = Object.freeze({
 	waitTimeoutSeconds: 300,
 	gracefulStopSeconds: 60,
 	historicalAgents: 500,
+	currentHistoricalAgents: 500,
 	persistenceEntryBytes: 48 * 1024,
 	persistenceObjectiveChars: 2_000,
 	persistenceStatusSummaryChars: 2_000,

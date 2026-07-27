@@ -2,11 +2,11 @@
 
 **Specification:** [`SPEC.md`](./SPEC.md)
 
-**Current stage:** Phases 0–6 plus `SA-700`–`SA-704` are complete; Phase 7 manual release validation is in progress
+**Current stage:** First stable shared-workspace release approved; Phase 8 architecture, disposable local-Git harness, and production manager/state/registry backend are complete, while worktree mode remains runtime-disabled and `SA-803` is next
 
-**Current milestone:** Phase 7 — hardening and first stable shared-workspace release
+**Current milestone:** Phase 8 — Git worktree isolation
 
-**Next recommended item:** `SA-705`
+**Next recommended item:** `SA-803` — integrate approved worktree provisioning with child creation and workspace-scoped tools while preserving partial outcomes
 
 This file is the resumable source of truth for implementation progress. Future sessions should update it before stopping so another session can continue without reconstructing decisions from conversation history.
 
@@ -61,12 +61,19 @@ Future changes to these require an explicit spec and decision-log update.
 - [x] `DEC-009` — Child sessions do not discover arbitrary extensions in the MVP.
 - [x] `DEC-010` — Idle children retain context and can receive later assignments.
 - [x] `DEC-011` — Route simple work to `gpt-5.6-luna`, moderate work to `gpt-5.6-terra`, and complex/high-stakes work to `gpt-5.6-sol`, subject to exact registry resolution and explicit main-agent override.
+- [x] `DEC-012` — Worktree isolation uses one extension-owned worktree per child, reused only by that child across assignments.
+- [x] `DEC-013` — Worktree paths, refs, IDs, and ownership metadata are extension-generated; destructive actions require exact external ownership proof rather than names or branch prefixes.
+- [x] `DEC-014` — Child removal and Pi lifecycle boundaries retain and lock worktree artifacts by default; merge, cleanup, branch deletion, prune, push, and remote access are never implicit.
+- [x] `DEC-015` — Worktree spawn, cleanup, and merge require separate informed approval-capable UI confirmation and fail closed headlessly.
+- [x] `DEC-016` — Worktree creation starts only from one exact committed `HEAD` in a clean trusted repository and rejects unsupported executable Git checkout configuration.
+- [x] `DEC-017` — Worktree ownership records live in a private platform state root outside the source repository, Git common directory, and potentially repo-backed Pi agent directory.
 
 ## 4. Current Repository Notes
 
 These notes prevent future sessions from accidentally overwriting unrelated work.
 
 - The `sub-agents/` directory now contains the production Phase 1 entry point/state manager, the complete Phase 2 shared child runtime (model adapter/router, bounded prompt/resources, read-only session factory, event translator, reusable assignment runner, and atomic usage ledger), the validated six-tool Phase 3 control plane, complete Phase 4 observability (child `report_to_parent`, bounded coalesced parent notifications, persistent status widget, shared management-tool renderers, and the `/sub-agents` dashboard), the validated Phase 5 shared-workspace safety boundary, and complete Phase 6 persistence/session correctness. Restoration reads only the active branch, keeps old IDs out of the live registry, preserves old unreported usage observationally, and publishes no old runtime or lease authority. The lifecycle matrix covers reload/new/resume/fork/clone, tree, all compaction reasons including overflow retry, shutdown, and partial cleanup failure without retaining runtime or lease authority.
+- `WORKTREES.md` is the accepted `SA-800` architecture decision. `SA-801` completed the disposable local-Git/offline-guard prerequisite, and `SA-802` completed the production Git/state/transaction/registry backend. Worktree mode is still rejected by the child runtime pending `SA-803` and the later release gate.
 - At planning time, git reported `agent/extensions/dynamic-fleet.ts` as deleted in the pre-existing working tree. Do not restore or repurpose it unless the user explicitly asks.
 - At planning time, `agent/models-store.json` and `agent/settings.json` already had unrelated modifications. Do not overwrite or revert them.
 - No dependencies have been installed for `sub-agents`.
@@ -83,8 +90,8 @@ These notes prevent future sessions from accidentally overwriting unrelated work
 | 4 | Notifications and observability | DONE | Bounded event delivery and TUI work |
 | 5 | Shared-workspace mutations | DONE | Same-file/main-child collisions prevented |
 | 6 | Persistence/session correctness | DONE | Historical state is branch-safe; live state invalidates |
-| 7 | Hardening and docs | IN PROGRESS | First stable shared-workspace release |
-| 8 | Git worktrees | DEFERRED | Isolated writers supported safely |
+| 7 | Hardening and docs | DONE | First stable shared-workspace release approved |
+| 8 | Git worktrees | IN PROGRESS | Isolated writers supported safely |
 | 9 | Advanced capabilities | DEFERRED | Evaluated from real usage, not speculation |
 
 ---
@@ -1545,27 +1552,43 @@ Implementation notes:
 - Shared fixtures provide deterministic deferred/barrier controls, idempotently disposable temporary directories/workspaces, in-memory no-network model runtimes/faux providers, and separately scoped local-only Git repositories with no remotes. Repeated setup was migrated from Phase 2, assignment-runner, report-to-parent, and agent-runtime tests.
 - Runner/fixture self-tests cover discovery rejection, environment reduction, network/DNS/listener/worker/subprocess denial, argv smuggling, fake guard/tool and symlink-root rejection, promisified `execFile` compatibility, cleanup, response consumption, and local Git policy.
 - The canonical command passed all 238 tests with no failures or skips in the release environment. Independent correctness, security, and documentation reviews were reconciled before completion.
+- This un-packaged extension has no project-local package manifest, `tsconfig`, linter configuration, or typecheck/lint script, and no dependency/toolchain was installed under the offline/no-install policy. The canonical runner validates TypeScript parsing, runtime module loading, and exercised behavior through Node stripping; it is explicitly not evidence of a separate static typecheck or lint run.
 
 ## `SA-705` Manual TUI validation checklist
 
-**Status:** READY
+**Status:** DONE
 
-- [ ] Narrow/wide terminal.
-- [ ] Expanded/collapsed tools.
-- [ ] Theme change.
-- [ ] Many active/idle agents.
-- [ ] Completion storm.
-- [ ] Human abort/remove.
-- [ ] Non-TUI behavior.
+- [x] Narrow/wide terminal.
+- [x] Expanded/collapsed tools.
+- [x] Theme change.
+- [x] Many active/idle agents.
+- [x] Completion storm.
+- [x] Human abort/remove.
+- [x] Non-TUI behavior.
+
+Implementation notes:
+
+- Added `test/manual-tui-qa-extension.ts`, an explicit opt-in faux-provider fixture loaded beside the production extension with an isolated temporary home/workspace, `--offline`, `--no-session`, and all unrelated discovery disabled. It creates 16 deterministic children without contacting a live provider: three held running, eleven eventual idle, one blocked, and one failed.
+- The real Pi TUI was exercised at 140×46 and 48×40. The widget and `/sub-agents` list/detail views remained width-safe and responsive; dashboard paging/navigation, detail/back/close, confirmed removal, cancelled removal, and manual blocked-child resume all worked. Ctrl+O changed the production `sub_agents_spawn` row between compact and expanded rendering.
+- A dark-to-light `/settings` switch refreshed the live widget with the new theme palette. Ten near-simultaneous completions appeared in one bounded readable notification batch while the widget continued updating; the long-label child now waits for that exact ten-child gate and a separate fixed delay before producing one later bounded batch. A missing storm arrival fails explicitly instead of silently degrading after a timeout.
+- Manual narrow-width inspection found that dashboard help truncated undiscoverable remove/close actions. The list/detail footer now switches to responsive compact labels whenever the full labels would not fit, and focused regressions require refresh, remove-all, back, and close hints to remain visible at 48 and intermediate 96 columns.
+- Actual non-TUI launches used the same isolated faux provider. Print `/sub-agents` exited successfully with no output/custom component; JSON seeding produced 355 valid JSON events with spawn/final output and no custom-component event; RPC `/sub-agents` returned the compact notify fallback and never opened custom TUI state.
+- Ctrl+D cleanly shut down the TUI fixture and its two remaining held children. No session was persisted and the disposable QA home/workspace was removed.
 
 ## `SA-709` Stable shared-workspace release gate
 
-**Status:** BLOCKED by `SA-705`
+**Status:** DONE — explicitly approved by the user
 
-- [ ] All first-release acceptance criteria in `SPEC.md` pass.
-- [ ] Backlog and README match implementation.
-- [ ] No known critical safety/lifecycle issue.
-- [ ] User reviews behavior before any optional packaging/deployment work.
+- [x] All first-release acceptance criteria in `SPEC.md` pass.
+- [x] Backlog and README match implementation.
+- [x] No known critical safety/lifecycle issue.
+- [x] User reviews behavior before any optional packaging/deployment work.
+
+Approval notes:
+
+- The user explicitly approved `SA-709` after receiving the release behavior, residual limitations, and fresh validation summary.
+- This closes Phase 7 and the first stable shared-workspace release gate.
+- Approval does not implicitly authorize packaging, deployment, worktree implementation, or another optional follow-on milestone.
 
 ---
 
@@ -1573,57 +1596,108 @@ Implementation notes:
 
 ## `SA-800` Worktree architecture decision record
 
-**Status:** DEFERRED until shared-workspace release
+**Status:** DONE
 
-- [ ] Decide one worktree per child vs reusable workspace groups.
-- [ ] Ownership metadata location.
-- [ ] Branch naming/collision policy.
-- [ ] Cleanup and retention policy.
-- [ ] Human/main-agent authorization boundaries.
+- [x] Decide one worktree per child vs reusable workspace groups.
+- [x] Ownership metadata location.
+- [x] Branch naming/collision policy.
+- [x] Cleanup and retention policy.
+- [x] Human/main-agent authorization boundaries.
+
+Implementation notes:
+
+- The user's new request to continue sub-agent extension development is the separate decision that opens Phase 8. It does not authorize a live worktree mutation, packaging/deployment, merge, cleanup, branch deletion, push, remote access, or dependency installation.
+- Added [`WORKTREES.md`](./WORKTREES.md), the normative Phase 8 architecture decision. It chooses one generated worktree/branch per child, reused only by that child, with no fixed pool ceiling and no reusable multi-child groups in this phase.
+- Authoritative strict ownership records and physical worktrees use a private platform state root outside the repository, Git common directory, and Pi agent directory because the latter may be symlinked into a source repository. Paths, refs, IDs, and tokens are generated independently from child/model text.
+- A worktree spawn requires a clean trusted repository, one exact base object ID, an immutable one-shot-approved batch plan, and strict local Git execution. Git checkout is never invoked: the linked worktree is registered with `--no-checkout`, then exact tree objects are materialized through non-filtering Git object reads and descriptor-bound Node I/O.
+- Child removal and every Pi lifecycle boundary retain the locked branch/worktree. Cleanup and merge are separately confirmed operations; no automatic commit, merge, rebase, branch deletion, prune, force removal, push, or remote operation is allowed.
+- Cancellation after an admitted Git side-effect boundary reconciles read-only state, marks uncertainty when proof is incomplete, preserves recoverability, and never blindly retries.
+- Runtime integration must provision a resolved workspace before child session creation, generalize the shared-only path/lease authority to registered multi-workspace identities, keep parent interception on the shared parent root, and add a new persisted workspace-summary version without changing the released spawn schema.
+- Four independent read-only architecture assignments reviewed runtime seams, Git ownership/cleanup, offline fixture needs, and public/persistence/UI compatibility. Three later read-only consistency/security/documentation reviews identified approval binding, checkout execution, path-visibility, external-record concurrency, retained-catalog, V2 persistence, and task-mapping gaps; all concrete blockers were reconciled into the decision record. One scoped review child wrote a temporary report file that was read and removed after its retained lease/runtime were released.
+
+Artifact:
+
+- `agent/extensions/sub-agents/WORKTREES.md`
 
 ## `SA-801` Temporary local-git test harness
 
-**Status:** DEFERRED
+**Status:** DONE
 
-- [ ] Create disposable local repositories only.
-- [ ] Test branches/worktrees without network remotes.
-- [ ] Verify cleanup never touches unowned worktrees.
+**Dependencies:** `SA-800`
+
+- [x] Extend only disposable local repositories with no remotes, hooks, inherited config, or external services.
+- [x] Add strict positive offline-guard grammars for exact repository inspection, no-checkout worktree registration/list/lock/unlock/remove, tree/index/object reads, and status/diff metadata.
+- [x] Pin the Git executable, reduce environment state, and reject remote-like/config/helper/filter/force/prune/delete escape arguments.
+- [x] Add typed fixture helpers rather than a generic public `runGit(args)` worktree path.
+- [x] Prove two local worktrees, porcelain-`-z` parsing, branch retention, dirty cleanup refusal, and no effect on unowned/outside-sandbox worktrees.
+- [x] Cover no-checkout/object-materialization command framing, malformed OIDs/refs/paths, symlink containment, cancellation, and subprocess denial.
+
+Implementation notes:
+
+- `test/git-fixtures.mjs` now realpath-pins one Git executable, feature-probes the exact required local operations in a disposable repository, and exposes a closed typed worktree API. The legacy `runGit(args)` compatibility helper remains limited to branch/status inspection and rejects worktree or mutation argv.
+- Every fixture repository owns isolated home/config/temp/hooks/worktree directories, fake commit identity, no remotes, and one exact positive config prefix. The environment drops ambient Git/proxy/credential/helper state and enables no-prompt/no-lazy-fetch/no-replace-object behavior.
+- The offline guard binds commands to one exact fixture layout, empty non-symlink hooks directory, safe local config, absent attributes, canonical main/worktree `.git` metadata, generated fixture refs, structurally valid full object IDs, exact sandbox-contained paths, and operation-specific argv. It rejects force/prune/delete/remote/config/helper/filter/textconv/alternate/promisor/branch-deletion and cross-fixture/unowned destructive paths.
+- Strict parsers cover worktree `--porcelain -z`, recursive tree records, index records, and `cat-file --batch` framing, including malformed UTF-8/OIDs/paths, `.git`/traversal, duplicate/case-normalization collisions, missing terminators, out-of-order objects, and trailing data.
+- Focused tests create two locked no-checkout worktrees from one exact base, populate the index and consume raw tree/blob objects without invoking checkout/filter paths, materialize only inside the disposable test body, prove equivalent-path isolation, inspect status/diff/index metadata, exercise lock/unlock, refuse dirty/ignored/extra/conflicted cleanup, remove exact clean owned trees without force, and prove branches remain.
+- Unowned, cross-fixture, existing-target, forged-`.git`, symlink-parent, outside-sandbox, malformed-ref/OID, pre-aborted, unsafe-config/environment, fake-executable, and prohibited-subprocess cases fail closed. The disposable root is always removed, and no remote or external service is contacted.
+- This item adds no production worktree manager, record store, descriptor-bound exact-tree materializer, spawn approval, runtime workspace, cleanup flow, or public capability. Those remain `SA-802` and later work.
+
+Artifacts:
+
+- `agent/extensions/sub-agents/test/git-fixtures.mjs`
+- `agent/extensions/sub-agents/test/git-worktree-fixtures.test.mjs`
+- `agent/extensions/sub-agents/test/offline-guard.mjs`
+- `agent/extensions/sub-agents/test/offline-runner.test.mjs`
 
 ## `SA-802` Worktree manager
 
-**Status:** DEFERRED
+**Status:** DONE
 
-- [ ] Create/identify extension-owned worktree.
-- [ ] Scope workspace identity.
-- [ ] Track branch/HEAD/dirty state.
-- [ ] Preserve work on removal.
-- [ ] Explicit cleanup.
+- [x] Implement the pinned typed Git executor and non-checkout exact-tree materializer.
+- [x] Implement private platform-state selection, disjointness, no-follow atomic versioned/CAS records, per-repository process/cross-process locks, and bounded catalog inspection.
+- [x] Create/reconcile one generated full branch ref and worktree per child from an exact clean trusted base OID.
+- [x] Register/inspect worktree workspace identities and generalize the lease authority from one shared root to a generation-owned workspace registry.
+- [x] Track branch/HEAD/index/dirty/conflict/disposition state and preserve every uncertain or retained artifact.
+- [x] Prove cleanup never identifies ownership by title/path/ref prefix alone.
+
+Implementation notes:
+
+- The backend is internal and not wired into `sub_agents_spawn`; public worktree mode therefore remains fail-closed.
+- Production Git uses one feature-probed realpath-pinned executable, a reduced environment, closed command grammar, trusted-config inspection before target operations, no-checkout registration, object-based materialization, descriptor-bound exact filesystem verification, and reconciliation without cleanup.
+- Private Linux state uses mode-0700/0600 descriptor-anchored directories and records, exact revisions/CAS, per-repository in-process and cross-process locks, disjointness checks, and a bounded path-free catalog. Admitted failures become cleaned, retained, or uncertain; no blind retry or deletion exists.
+- The generation-owned lease coordinator now owns the multi-workspace registry, preserving the released shared-root constructor while preventing injected/counterfeit registry authority.
 
 ## `SA-803` Worktree child runtime integration
 
-**Status:** DEFERRED
+**Status:** NEXT
 
-- [ ] Child cwd/resource context points to worktree.
-- [ ] Equivalent relative paths across worktrees do not conflict.
-- [ ] Bash scoped to worktree.
-- [ ] Status/dashboard show workspace.
+- [ ] Bind one immutable spawn plan and one-shot approval to exact repository/base/spec/workspace/bash metadata before side effects.
+- [ ] Preserve per-child partial success/retained/uncertain outcomes after batch approval.
+- [ ] Provision a resolved workspace before child session creation; the session factory consumes it rather than creating Git state.
+- [ ] Map child cwd and trusted context display paths into the worktree without filesystem rediscovery.
+- [ ] Generalize guarded read/edit/write/bash path/tool contracts while denying `.git` to every non-bash child tool.
+- [ ] Prove equivalent relative paths across sibling worktrees do not conflict and worktree bash does not acquire the parent/sibling workspace key.
+- [ ] Keep parent mutation interception scoped to the parent shared workspace.
 
 ## `SA-804` Commit/patch collection
 
-**Status:** DEFERRED
+**Status:** READY
 
-- [ ] Bounded diff summary.
-- [ ] Commit/patch metadata.
-- [ ] No automatic merge.
-- [ ] Conflict reporting.
+- [ ] Add bounded exact-workspace status, changed-file, diff-stat, commit-range, base/current OID, and conflict metadata.
+- [ ] Keep absolute private paths, Git config, ownership records, and unbounded patch/blob data out of model-visible results.
+- [ ] Do not create commits automatically.
+- [ ] Report uncertain/incomplete collection without retrying a possibly mutating operation.
 
-## `SA-805` Explicit merge/cleanup flow
+## `SA-805` Persistence, retained controls, merge, and cleanup flow
 
-**Status:** DEFERRED
+**Status:** BLOCKED by `SA-803` and `SA-804`
 
-- [ ] Require explicit authorization.
-- [ ] Unknown remote state/failure handling.
-- [ ] Preserve recoverability.
+- [ ] Add strict `sub-agents-state-v2` worktree summary persistence while preserving V1 and deterministic active-branch precedence.
+- [ ] Add bounded generation-independent retained/uncertain catalog status and dashboard views keyed by exact workspace ID/revision.
+- [ ] Require separate exact approval for cleanup and merge; approval UI may show a bounded operator-only canonical path that is never copied into model/session content.
+- [ ] Hold repository lock and record revision continuously across cleanup verification, unlock/remove, reconciliation, and state transition.
+- [ ] Refuse dirty/conflicted/unowned/malformed worktrees and any ignored/untracked/extra/special/unreadable entry found by independent index/tree-to-filesystem manifest comparison; retain branches, never force/prune/delete unmerged branches, and preserve recoverability after unknown outcomes.
+- [ ] Merge only into an exact clean destination after confirmation; never push or automatically clean the source.
 
 ## `SA-809` Worktree release gate
 
@@ -1810,6 +1884,43 @@ Append changes; do not rewrite history without reason.
 - Missing-target leases remain conservative through directory creation and narrow only through an exact same-owner post-create reconciliation; reconciliation cannot acquire or retarget ownership.
 - Parent-directory creation that may have completed before a later error is an explicit mutation-uncertainty boundary even when no file content was recorded.
 - Cleanup releases file ownership only after fulfilled idle settlement. Rejected or timed-out settlement retains ownership until generation disposal; this revises the earlier assumption that removal alone always proves safe release.
+
+## Stable lifecycle acceptance clarification
+
+- Reconciled first-release acceptance criterion 9 with the existing fail-closed uncertain-cleanup boundary instead of claiming that every lifecycle path can prove external/provider/process work stopped.
+- Every lifecycle boundary must invalidate old child IDs and close old lease authority. Proven-settled work releases ownership; unproven cleanup quarantines the generation and blocks replacement for that extension instance.
+- This clarification changes no runtime behavior and preserves the stronger safety rule already implemented, tested, and documented under `SA-702`.
+
+## Available-toolchain validation clarification
+
+- The runtime configuration has no project-local TypeScript typechecker or linter setup for this un-packaged extension, and the offline/no-install policy forbids adding one implicitly.
+- Phase 7 therefore requires the validation actually supported here: parsing and runtime module loading under Node TypeScript stripping plus the canonical offline behavioral suite. A separate static typecheck/lint becomes mandatory if a supported project-local toolchain is later added.
+- Documentation must never describe the canonical runner or `git diff --check` as a static typecheck or lint run.
+
+## First stable shared-workspace release approval
+
+- The user explicitly approved `SA-709` after reviewing the completed behavior, safety boundaries, residual limitations, and fresh offline validation.
+- Phases 0–7 and the first stable shared-workspace release are complete.
+- Optional packaging/deployment, Git worktrees, and advanced capabilities remain separate decisions and receive no implicit authorization from this approval.
+
+## Phase 8 worktree architecture
+
+- The user's later instruction to continue sub-agent extension development opens Phase 8 and authorizes `SA-800` architecture work only; it does not authorize live repository worktree side effects.
+- One extension-owned worktree and generated branch belong to one child and persist across that child's assignments. Multi-child reusable worktree groups are deferred.
+- Worktree ownership metadata and physical trees use a private platform state root outside the source repository, Git common directory, and Pi agent directory. Exact strict metadata plus Git registration is required before cleanup; names and branch prefixes never authorize deletion.
+- Worktree spawn, cleanup, and merge are distinct informed confirmation boundaries. Removal/lifecycle cleanup retains artifacts, and no merge, prune, force removal, branch deletion, push, or remote operation is implicit.
+- Worktree creation requires a clean trusted parent repository, exact base object ID, immutable one-shot-approved batch plan, private CAS records, and process/cross-process repository locks. The local Git runner uses strict typed operations and registers with `--no-checkout`; exact blobs are materialized through non-filtering object reads and no-follow Node I/O rather than Git checkout/smudge execution.
+- Guarded non-bash tools deny `.git`; approved bash is explicitly disclosed as able to mutate the parent, siblings, Git common metadata, network-visible resources, and external paths.
+- Public `workspace.mode` arguments remain compatible. Exact `sub-agents-state-v2` checkpoints add bounded workspace identity/disposition while V1 remains unchanged; a generation-independent external catalog remains authoritative for retained/uncertain inspection and cleanup.
+- [`WORKTREES.md`](./WORKTREES.md) is normative for Phase 8 implementation.
+
+## Phase 8 disposable Git harness boundary
+
+- `SA-801` extends only the offline disposable test boundary. It does not enable public worktree mode or provide production ownership authority.
+- The harness uses generated fixture refs/paths, strict typed operations, a realpath-pinned and feature-probed Git executable, exact reduced environment/config, no-checkout registration, raw tree/blob/index reads, and no remotes.
+- The offline guard binds allowed Git commands to one exact fixture layout and validated main/linked-worktree `.git` metadata. Destructive fixture commands apply only to the helper's owned `fixture-*` worktrees; `unowned-*` records exist solely to prove refusal.
+- Test-only object snapshots separate command/framing coverage from the descriptor-bound production exact-tree materializer still owned by `SA-802`.
+- Clean test removal independently compares status, index, recorded tree/blob data, and the filesystem manifest, rejects dirty/ignored/extra/conflicted state, uses no force/prune/branch deletion, and retains the branch.
 
 # Session Handoff Log
 
@@ -3958,3 +4069,311 @@ Append one entry at the end of every work session.
 - prior `SA-603`/`SA-700`/`SA-701`/`SA-702`/`SA-703` implementation and documentation changes already present at session start
 
 **Recommended next item:** `SA-705` — execute and record the manual TUI validation checklist across terminal widths, rendering states, theme changes, pool/event load, human controls, and non-TUI behavior.
+
+## Handoff 047 — Offline manual TUI validation
+
+**Completed:**
+
+- `SA-705`
+- Added a reproducible, opt-in offline faux-provider TUI fixture and completed the manual release checklist.
+- Advanced `SA-709` to the user-review gate.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/manual-tui-qa-extension.ts`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/ui/dashboard.ts`
+- `agent/extensions/sub-agents/test/dashboard.test.mjs`
+- `agent/extensions/sub-agents/README.md`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/dashboard.test.mjs`
+- Result: 5 tests passed, 0 failed.
+- Real offline Pi TUI run with `test/manual-tui-qa-extension.ts` and production `index.ts` at 140×46 and 48×40.
+- Result: compact/expanded tools, dark/light theme invalidation, 16-child mixed-state widget/dashboard, ten-completion batch, navigation/detail/cancel, confirmed running-child removal, blocked-child manual resume, and Ctrl+D cleanup passed.
+- Print `/sub-agents`: exit 0, empty output, no custom component.
+- JSON fixture: 355 valid JSON events, spawn/final output present, no custom-component event.
+- RPC `/sub-agents`: successful prompt response plus compact `notify` fallback, no custom component.
+- `node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: 238 tests passed, 0 failed, 0 skipped after the dashboard fix and final documentation/status reconciliation.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+
+**Manual finding fixed:**
+
+- At 48 columns, list/detail help originally hid refresh, remove-all, and close actions. Responsive fit-based help now keeps those controls visible, and the focused dashboard test enforces both 48-column and intermediate 96-column boundaries.
+
+**Environment and safety:**
+
+- The QA launch used a disposable empty `HOME`, disposable workspace, `--offline`, `--no-session`, explicit extensions only, disabled skill/prompt/context discovery, and an in-memory faux model/provider.
+- No network, live provider, external service, credential, existing Pi session, 1Password, database, MCP server, or dependency installation was used.
+
+**Unrelated working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- deleted safeguard files that appeared concurrently during this session; they were not inspected, modified, or restored
+
+**Recommended next item:** `SA-709` — user reviews the completed shared-workspace behavior and decides whether to close the stable release gate before any optional packaging/deployment work.
+
+## Handoff 048 — Stable-gate evidence reconciliation
+
+**Completed:**
+
+- Re-reviewed the pending `SA-709` gate without marking the required user-review checkbox.
+- Fixed every scoped release-review blocker found after `SA-705`.
+- Reached an independent final verdict of `APPROVE / READY FOR EXPLICIT USER REVIEW`.
+
+**Changes:**
+
+- Replaced fixed dashboard help thresholds with exact `visibleWidth` fit checks and added an intermediate 96-column regression, so detail close/remove/refresh hints cannot disappear between compact and full layouts.
+- Made the manual fixture gate exactly the ten `qa-complete-*` children, delayed the long-label child separately, and turned a missing storm arrival into an explicit synthetic error rather than silent timeout degradation.
+- Hardened the documented manual launch with a scoped shell, resolved Pi executable, disposable root, and `EXIT` cleanup trap.
+- Reconciled stable acceptance criterion 9 with the implemented fail-closed uncertain-cleanup rule: old IDs/lease authority always close, proven work releases, and unproven work quarantines the generation and blocks replacement.
+- Reconciled Phase 7 validation wording with the available repository tooling. Node stripping validates parsing/runtime loading and exercised behavior; this un-packaged extension has no project-local static typecheck/lint toolchain, and no dependency was installed implicitly.
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/dashboard.test.mjs`
+- Result: 5 tests passed, 0 failed.
+- Isolated `--offline --no-session` print-mode load of the faux-provider fixture plus production extension using an empty temporary home/workspace.
+- Result: exit 0, empty stdout/stderr, no session persisted, disposable root removed.
+- `node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: 238 tests passed, 0 failed, 0 skipped.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Final independent focused source/document review.
+- Result: `APPROVE / READY FOR EXPLICIT USER REVIEW`; no scoped release blocker remained.
+
+**User boundary:**
+
+- `SA-709` remains `NEXT — user review required`.
+- The final checkbox remains intentionally unchecked; neither automated validation nor an agent review substitutes for the user's release decision.
+
+**Unrelated working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- deleted safeguard files; they were not inspected, modified, or restored
+
+**Recommended next item:** `SA-709` — present the completed shared-workspace behavior to the user for explicit review and record their decision before any optional packaging/deployment work.
+
+## Handoff 049 — User-approved first stable shared-workspace release
+
+**Completed:**
+
+- `SA-709`
+- Closed Phase 7 and the first stable shared-workspace release gate after explicit user approval.
+
+**Decision recorded:**
+
+- The user reviewed the release summary and explicitly approved `SA-709`.
+- No optional packaging, deployment, worktree, or advanced-capability work was inferred from that approval.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `agent/extensions/sub-agents/README.md`
+- `agent/extensions/sub-agents/SPEC.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Validation:**
+
+- `node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: 238 tests passed, 0 failed, 0 skipped.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed after recording the approval-only documentation update.
+- Validation used the existing isolated offline runner, fake providers/sessions, disposable workspaces, and local-only fixtures. No network, live provider, external service, credential, prohibited session file, or dependency installation was used.
+
+**Unrelated working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- deleted safeguard files; they were not inspected, modified, or restored
+
+**Recommended next item:** None — await an explicit user decision for optional packaging/deployment or `SA-800` worktree architecture.
+
+## Handoff 050 — Phase 8 worktree architecture decision
+
+**Completed:**
+
+- `SA-800`
+- Opened Phase 8 after the user's separate instruction to continue sub-agent extension development.
+- Added and reconciled the normative Git worktree architecture decision without enabling worktree runtime behavior or performing a live worktree mutation.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/WORKTREES.md`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `agent/extensions/sub-agents/README.md`
+- `agent/extensions/sub-agents/SPEC.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Architecture decisions:**
+
+- One generated branch/worktree belongs to one child and is reused only by that child; reusable groups remain deferred.
+- Worktrees and strict revisioned ownership records use a private platform state root canonically disjoint from the repository, Git common directory, and Pi agent directory.
+- Worktree spawn uses an immutable digest-bound one-shot approval plan; cleanup and merge are separate approvals. Removal and lifecycle boundaries retain locked artifacts.
+- Git checkout/smudge is never invoked. Worktrees register with `--no-checkout`; exact tree/index/blob content is materialized through strict non-filtering Git object reads and descriptor-bound no-follow Node I/O.
+- Process-local queues, fail-closed cross-process locks, and record compare-and-swap revisions cover creation/cleanup. Cancellation after admitted Git side effects reconciles or marks uncertainty and never blindly retries.
+- Guarded non-bash child tools deny `.git`; bash approval explicitly discloses access beyond the worktree.
+- Cleanup independently compares the tracked tree/index with the complete filesystem and refuses ignored, untracked, extra, special, unreadable, dirty, or conflicted state. No force/prune/automatic branch deletion is allowed.
+- `sub-agents-state-v2` will preserve V1 while adding bounded workspace summary/disposition; a generation-independent external catalog remains authoritative for retained/uncertain recovery.
+
+**Validation:**
+
+- `node --experimental-strip-types --test agent/extensions/sub-agents/test/schemas.test.mjs agent/extensions/sub-agents/test/fixtures.test.mjs agent/extensions/sub-agents/test/dashboard.test.mjs`
+- Result: 15 tests passed, 0 failed.
+- `node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: 238 tests passed, 0 failed, 0 skipped.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Relative links to `SPEC.md`, `BACKLOG.md`, and `WORKTREES.md` were verified.
+- Final independent architecture and security re-reviews returned `APPROVE`. The documentation reviewer requested this append-only handoff so the historical Handoff 049 recommendation remains intact while the current recommendation advances; a post-handoff status/link check then returned `APPROVE`.
+
+**Review workflow:**
+
+- Four read-only children mapped runtime seams, Git safety, offline harness gaps, and schema/persistence/UI compatibility.
+- Three independent read-only reviewers checked architecture consistency, Git security/recoverability, and documentation status. Their concrete blockers were corrected and re-reviewed.
+- One scoped writer produced a temporary review report at `agent/extensions/sub-agents/.sa800-review.tmp`; after the child was removed and its retained lease released, the parent read and deleted the file. It is not part of the final tree.
+- Child usage was drained through bounded waits/removals; all review runtimes were removed.
+
+**Safety/environment:**
+
+- No live worktree, branch, merge, cleanup, push, remote, provider, network, external service, credential, prohibited session, or dependency-install path was used.
+- Validation used only the existing offline runner, fake providers/sessions, disposable workspaces, and local-only Git fixture.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- deleted safeguard files
+- prior `SA-705` dashboard/manual-TUI documentation and fixture changes present at session start
+
+**Recommended next item:** `SA-801` — extend the disposable local-Git fixture and offline guard with exact no-checkout worktree/object-materialization command grammars before adding production worktree code.
+
+## Handoff 051 — Disposable local-Git worktree harness
+
+**Completed:**
+
+- `SA-801`
+- Extended only the isolated offline test boundary; production `workspace.mode: "worktree"` remains fail-closed.
+- Advanced Phase 8 to `SA-802`.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/git-worktree-fixtures.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/test/git-fixtures.mjs`
+- `agent/extensions/sub-agents/test/offline-guard.mjs`
+- `agent/extensions/sub-agents/test/offline-runner.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `agent/extensions/sub-agents/README.md`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/WORKTREES.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Implementation:**
+
+- Added a feature-probed, realpath-pinned, typed local-Git fixture API for repository inspection, no-checkout worktree registration/list/lock/unlock/exact clean removal, raw tree/blob/index snapshots, status/diff metadata, and explicit conflict injection.
+- Added strict NUL-framed worktree/tree/index/object parsers and fixture-only generated ref/OID/path validation.
+- Expanded the offline guard with exact config-prefix/environment/layout/`.git`-metadata/argv grammars. It rejects remote/config/helper/filter/textconv/force/prune/delete/branch-delete/alternate/promisor/cross-fixture/unowned-destructive and forged-path cases.
+- Added deterministic tests for two isolated worktrees, lock retention, branch retention, object framing, executable/symlink materialization in the disposable test body, malformed inputs, pre-side-effect cancellation, dirty/ignored/extra/conflicted cleanup refusal, and unowned/outside-sandbox preservation.
+- Kept the existing generic `runGit(args)` compatibility helper inspection-only. No production worktree state, live repository branch/worktree, merge, cleanup, push, remote, provider, external service, or dependency path was introduced.
+
+**Validation:**
+
+- `node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: 243 tests passed, 0 failed, 0 skipped.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed after documentation reconciliation.
+- Validation used only isolated homes/temp roots, fake providers/sessions, disposable local repositories, no-remotes Git fixtures, and the trusted-suite offline guard.
+
+**Review:**
+
+- Independent fixture-design, test-scope, and Git-security reviews were reconciled. Fixes included exact fixture layout and `.git` pointer binding, empty hooks/config/attributes checks, owned-only destructive grammar, existing-target refusal, actual Git feature probing, independent cleanup manifests, conflicted-index coverage, and denial probes for unsafe Git configuration/environment/argv.
+- Production transaction recovery, protected ownership records, descriptor-bound materialization, locks/CAS, catalog state, and workspace registry remain explicitly assigned to `SA-802`.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- deleted safeguard files
+- modified `../claude/.last-cleanup` and untracked `../claude/sessions/`; neither was inspected or altered for this task
+- prior `SA-705` dashboard/manual-TUI documentation and fixture changes present at session start
+
+**Recommended next item:** `SA-802` — implement the production typed Git/state manager, exact-tree materializer, protected record/lock/CAS boundary, retained catalog, and multi-workspace registry before runtime integration.
+
+
+## Handoff 052 — Production worktree manager/state/registry backend
+
+**Completed:**
+
+- `SA-802`
+- Added the internal production backend without wiring `workspace.mode: "worktree"` into child spawn/runtime.
+- Advanced Phase 8 to `SA-803`; `SA-804` is independently ready after the manager boundary.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/workspace/worktree-git.ts`
+- `agent/extensions/sub-agents/workspace/worktree-state.ts`
+- `agent/extensions/sub-agents/workspace/registry.ts`
+- `agent/extensions/sub-agents/workspace/worktrees.ts`
+- `agent/extensions/sub-agents/test/worktree-git.test.mjs`
+- `agent/extensions/sub-agents/test/worktree-state.test.mjs`
+- `agent/extensions/sub-agents/test/workspace-registry.test.mjs`
+- `agent/extensions/sub-agents/test/worktrees.test.mjs`
+
+**Files modified for `SA-802`:**
+
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/workspace/leases.ts`
+- `agent/extensions/sub-agents/test/offline-guard.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+- `agent/extensions/sub-agents/README.md`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/WORKTREES.md`
+- `CLAUDE.md`
+- `EXTENSIONS.md`
+
+**Implementation:**
+
+- Added a feature-probed realpath-pinned production Git executor with a reduced environment and closed argv grammar. Repository/config/object-format inspection precedes target operations; generated IDs and refs have one exact non-prefix-ambiguous grammar.
+- Added no-checkout worktree registration/locking, object-based index and filesystem materialization, symlink and executable handling, descriptor-bound `O_NOFOLLOW` verification, ignored/untracked/conflict checks, and branch/HEAD/index/tree reconciliation. No cleanup, unlock, branch deletion, prune, merge, push, remote, or deployment path was added.
+- Added a Linux private state root with strict modes, descriptor-anchored records/directories, versioned immutable records, exact CAS transitions, monotonic timestamps, repository disjointness validation, process/cross-process repository locks, post-commit outcome proofs, and a bounded path-free retained/uncertain catalog.
+- Added a provisioning transaction facade that binds approval plans to exact inspected repository/base/spec/agent data, records before admitted Git effects, reconciles all admitted errors/cancellation, publishes only complete clean identities, and preserves retained or uncertain artifacts without blind retry.
+- Added a generation-owned multi-workspace registry. The released lease coordinator now owns that authority rather than accepting an injected registry, preserving shared-root behavior and isolating equivalent sibling paths by exact opaque identities.
+- Added fake unit boundaries plus a real end-to-end disposable transaction through production Git, state, registry, and manager modules. Extended the offline subprocess guard only for the exact production Git grammar inside owned disposable fixtures.
+
+**Validation:**
+
+- `node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: 269 tests passed, 0 failed, 0 skipped.
+- `git diff --check -- CLAUDE.md EXTENSIONS.md agent/extensions/sub-agents`
+- Result: passed.
+- Validation used only fake clients, isolated homes/state roots, no-remotes disposable local repositories, and the trusted-suite offline guard. No live source repository mutation, provider, network, credential, external service, or dependency-install path was used.
+
+**Safety/review:**
+
+- Security review fixes included target config inspection before materialization/status, explicit branch-existence probes, duplicate worktree-config rejection, ignored-file cleanliness, index-flag/stat-hardening rejection, per-path materialization-byte bounds, post-lock registry publication, canonical registration matching, descriptor-held exact-filesystem traversal, unforgeable coordinator ownership by construction, fixed-width generated ID/ref grammar, bounded side-effect-free catalog scans, record-parent descriptor anchoring, and post-rename/unlink/rmdir commit-point reconciliation.
+- Independent post-fix Git/filesystem/transaction and state/locking/CAS release-gate reviews returned `PASS` for the `SA-802` scope.
+- Production worktree spawn remains deliberately rejected. Runtime cwd/tool mapping, partial approved-batch outcomes, collection, persistence, cleanup, merge, branch deletion, prune, push, deployment, and release-gate enablement remain later items.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- deleted safeguard files
+- modified `../claude/.last-cleanup` and untracked `../claude/sessions/`; neither was inspected or altered for this task
+- prior `SA-705` dashboard/manual-TUI documentation and fixture changes and `SA-801` harness changes present at session start
+
+**Recommended next item:** `SA-803` — integrate exact approved provisioning with child creation and workspace-scoped read/edit/write/bash contracts while preserving per-child partial, retained, and uncertain outcomes.

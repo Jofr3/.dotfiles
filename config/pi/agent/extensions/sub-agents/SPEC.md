@@ -1,6 +1,6 @@
 # `sub-agents` Pi Extension — Architecture and Multi-Phase Implementation Specification
 
-**Status:** Design approved; Phases 0–6 plus `SA-700`–`SA-704` are complete, and Phase 7 manual release validation is in progress
+**Status:** First stable shared-workspace release approved; Phases 0–7, `SA-709`, and Phase 8 items `SA-800`–`SA-802` are complete; production worktree mode remains disabled pending runtime integration and release-gate work
 
 **Extension name:** `sub-agents`
 
@@ -727,24 +727,43 @@ Idle children retain declared/used leases until removal or an explicit release a
 
 ## 14. Worktree Mode
 
-Worktree support is a later phase but its boundaries must be designed now.
+[`WORKTREES.md`](./WORKTREES.md) is the normative `SA-800` architecture decision for Phase 8. Worktree mode remains runtime-disabled until its implementation and release gate pass.
 
 ### 14.1 Behavior
 
-- Create one isolated git branch and worktree for a child or a selected group.
-- Child `cwd` points to that worktree.
-- Equivalent relative paths in different worktrees do not conflict.
-- File leases remain scoped by workspace identity, not only relative path.
-- Child bash may mutate its own worktree without blocking agents in other worktrees.
+- One generated branch and linked worktree belong to one child and are reused only by that child across assignments; reusable multi-child worktree groups are deferred.
+- The physical worktree starts at the repository top level, while the child's logical cwd maps the parent Pi cwd into the equivalent path inside it.
+- Equivalent relative paths in different worktrees do not conflict because each registered workspace identity has a distinct opaque key.
+- Same-worktree guarded edit/write still use Pi's mutation queue, and any tool batch containing bash remains sequential.
+- A worktree-scoped bash lease does not block the parent shared workspace or sibling worktrees, but bash remains same-UID unsandboxed execution.
+- There is no numeric worktree/pool ceiling or concurrency semaphore.
 
-### 14.2 Safety
+### 14.2 Repository, ownership, and authorization
 
-- Require a git repository and cleanly validate paths.
-- Never delete an unrecognized or non-extension-owned worktree.
-- Track ownership with opaque IDs and metadata outside model-visible output.
-- On removal, preserve commits/patches until the main agent or user chooses cleanup.
-- Do not auto-merge without explicit authorization.
-- Report branch, commit, patch, and conflict metadata in bounded form.
+- Creation requires a trusted clean non-bare local repository, one exact recorded `HEAD` object ID, and rejection of unsupported executable Git configuration.
+- Branch names, full refs, workspace IDs, state paths, and correlation values are generated independently from child/model-controlled text.
+- Authoritative revisioned ownership records and physical trees live in a private platform state root that is canonically disjoint from the source repository, Git common directory, and potentially repo-backed Pi agent directory. Protected state-root provenance plus exact Git/path/ref checks—not a same-record token—authorizes cleanup.
+- A branch prefix or matching directory name never proves ownership. Cleanup holds the repository lock and exact record revision continuously across verification, an independent tracked-tree/index-to-filesystem manifest comparison that rejects ignored/untracked/extra/special/unreadable entries, unlock/remove, reconciliation, and record transition.
+- Worktree spawn requires an immutable digest-bound, one-shot-approved exact batch plan before any child ID/record/Git side effect. Cleanup and merge are separately confirmed operations and fail closed headlessly.
+- Child removal, idle/failure, and Pi lifecycle boundaries retain and lock the worktree and branch by default.
+- No automatic commit, merge, rebase, cherry-pick, conflict resolution, worktree prune, force removal, branch deletion, push, or remote access is permitted.
+
+### 14.3 Git execution and uncertainty
+
+- Production uses injected typed local Git operations with a realpath-pinned executable, no shell, an exact positive environment/config set, strict positive argv grammars, disabled prompts/hooks/signing/file transport/fsmonitor/external diff/lazy fetch, bounded output, and no remote-capable arguments.
+- Git checkout/smudge is never invoked. The extension registers with `worktree add --no-checkout`, fills the index through strict tree reads, and materializes exact blobs through non-filtering object reads plus descriptor-bound no-follow Node I/O; configured filters/includes/executable helpers are rejected.
+- Worktree creation and cleanup use process-local queues, fail-closed cross-process repository locks, and compare-and-swap external-record revisions. Cancellation or timeout after an admitted Git side-effect boundary triggers bounded read-only reconciliation; incomplete proof marks the workspace uncertain and preserves every possible artifact.
+- No uncertain Git mutation is retried automatically.
+
+### 14.4 Runtime and persistence integration
+
+- A workspace provisioner resolves or creates the workspace after child-ID allocation and before `createSubAgentSession()`.
+- The session factory consumes a pre-resolved workspace/cwd; it does not hide Git creation.
+- Shared-only path and lease validation becomes a registry of authorized shared/worktree identities, while parent mutation interception stays bound to the parent shared root.
+- Trusted in-repository context-file display paths are remapped to equivalent worktree paths without rereading file contents.
+- The strict V1 history format remains unchanged. Exact custom type `sub-agents-state-v2` carries all bounded V1 history fields plus one strict shared/worktree workspace summary with workspace ID, canonical full generated branch ref, base commit, and disposition; newest active-branch recognizable V1/V2 entry wins per child and malformed latest suppresses fallback.
+- Restored history never revives or authorizes a worktree. A bounded generation-independent external record catalog remains authoritative for retained/uncertain inspection and cleanup, even when Pi history is absent or malformed.
+- Parent management/status/persistence surfaces omit canonical paths and Git administration; the child necessarily sees its cwd, guarded non-bash tools deny `.git`, and bash approval explicitly discloses access to parent/sibling/common/external paths.
 
 ## 15. Internal Child Reporting Tool
 
@@ -1173,7 +1192,7 @@ Deliverables:
 - output truncation throughout;
 - no-secret/logging review;
 - offline test runner;
-- TypeScript/typecheck/lint validation using existing project tooling;
+- TypeScript parsing/runtime module-load validation through the canonical offline suite, with static typecheck/lint required only when a supported project-local toolchain exists;
 - manual TUI test checklist.
 
 Exit criteria:
@@ -1192,8 +1211,11 @@ Exit criteria:
 
 Goal: Allow truly parallel writers without shared-path conflicts.
 
+Normative architecture: [`WORKTREES.md`](./WORKTREES.md) (`SA-800`). `SA-801` completes the strict disposable local-Git fixture and offline-guard grammar; it adds no production worktree authority.
+
 Deliverables:
 
+- strict disposable local-Git worktree fixture and offline-guard grammar;
 - extension-owned worktree lifecycle manager;
 - branch/worktree naming and ownership metadata;
 - per-worktree workspace identity;
@@ -1284,7 +1306,7 @@ The shared-workspace release is complete when:
 6. Completion/blocker/failure events reach the main agent in bounded coalesced messages.
 7. Shared-file mutation collisions are prevented among guarded children and intercepted main built-in tools.
 8. Different shared files may be edited concurrently.
-9. All active children and leases are cleaned up on every Pi session lifecycle boundary.
+9. Every Pi session lifecycle boundary invalidates old child IDs and closes old lease authority; proven-settled work releases ownership, while unproven cleanup quarantines the generation and blocks replacement instead of claiming that uncertain work stopped.
 10. Child output and persisted metadata are bounded.
 11. Usage is tracked per child and delta-reported without double counting.
 12. All automated tests run offline with fake model/session infrastructure.

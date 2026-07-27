@@ -12,7 +12,7 @@ Each child:
 
 The main agent remains responsible for decomposition, orchestration, reviewing child results, and the final answer.
 
-> **Release status:** The shared-workspace implementation and its output, security, and cancellation audits are complete. First-release documentation and validation are still in progress. Git worktree mode is not implemented.
+> **Release status:** The first stable shared-workspace release is user-approved. Phase 8 architecture (`SA-800`), disposable local-Git harness (`SA-801`), and production manager/state/registry backend (`SA-802`) are complete. Child-runtime integration and the release gate remain pending, so worktree mode still fails closed.
 
 ## Requirements and loading
 
@@ -243,7 +243,7 @@ Stops and attempts to dispose selected children or every live child captured at 
 
 ### Shared workspace and child directories
 
-`workspace.mode` currently supports only `"shared"`. `"worktree"` remains schema-visible for future compatibility but fails closed at runtime.
+`workspace.mode` currently supports only `"shared"`. `"worktree"` remains schema-visible and its Phase 8 architecture is defined in [`WORKTREES.md`](./WORKTREES.md), but it still fails closed until the implementation and worktree release gate pass.
 
 An optional `workspace.cwd` must already exist and must canonicalize beneath the parent workspace root. Escaping paths and symlinks are rejected.
 
@@ -448,7 +448,7 @@ Ensure `rg` is already installed and reachable through the normal operational `P
 
 ### `unsupported_workspace`
 
-Worktree mode is deferred. Use `workspace.mode: "shared"`.
+The Phase 8 production manager/state/registry backend is complete, but child-runtime integration is not. Use `workspace.mode: "shared"` until the remaining Phase 8 implementation items and `SA-809` release gate complete.
 
 ### Bash spawn is rejected
 
@@ -470,13 +470,49 @@ From the repository root, run the complete automated suite with:
 node agent/extensions/sub-agents/test/run-offline.mjs
 ```
 
-The runner discovers regular `*.test.mjs` files in deterministic order, enables Node's TypeScript stripping, and launches one isolated test process with a reduced environment and disposable home/temp directories. Its preload guard blocks network clients, listeners, DNS lookups, datagrams, and unapproved subprocesses. Tests use in-memory fake model/session/provider responses, disposable workspaces, and local-only temporary Git repositories with isolated configuration, disabled hooks, and no remotes.
+The runner discovers regular `*.test.mjs` files in deterministic order, enables Node's TypeScript stripping, and launches one isolated test process with a reduced environment and disposable home/temp directories. Its preload guard blocks network clients, listeners, DNS lookups, datagrams, and unapproved subprocesses. Tests use in-memory fake model/session/provider responses, disposable workspaces, and local-only temporary Git repositories with isolated configuration, empty hooks, and no remotes. This validates TypeScript parsing, runtime module loading, and behavior exercised by the suite; it is not a static typecheck or lint run, and this un-packaged extension has no project-local typecheck/lint toolchain.
 
-The suite requires the repository's existing installed dependencies, `rg` on the operational `PATH`, and a Node release that supports `--experimental-strip-types`. Its temporary-Git fixture self-test uses a local `git` executable when available and reports that one test as skipped when Git is absent. It does not install packages or contact providers, 1Password, databases, MCP servers, or other external services. The guard is a regression check for this trusted test suite, not a hostile-code OS sandbox.
+The Phase 8 fixture feature-probes a realpath-pinned local Git executable before running worktree tests. It exposes typed test-only repository/worktree/object operations while the legacy generic `runGit(args)` helper remains inspection-only. Focused coverage uses generated fixture refs/paths, `worktree add --no-checkout`, strict porcelain/tree/index/batch parsers, exact reduced Git configuration/environment, independent clean-removal manifests, and disposable roots that are always removed. Additional production-backend coverage exercises pinned closed-grammar Git execution, descriptor-bound exact-tree materialization, private ownership records, locks/CAS/catalog behavior, registry/lease isolation, and one real end-to-end provisioning transaction entirely inside disposable repositories. This does **not** enable public worktree mode; child-runtime integration remains pending.
+
+The suite requires the repository's existing installed dependencies, `rg` on the operational `PATH`, and a Node release that supports `--experimental-strip-types`. Worktree-related fixture tests skip when the local Git executable or the exact required feature probe is unavailable. It does not install packages or contact providers, 1Password, databases, MCP servers, or other external services. The guard is a regression check for this trusted test suite, not a hostile-code OS sandbox.
+
+## Offline manual TUI fixture
+
+`test/manual-tui-qa-extension.ts` registers an in-memory faux provider and asks the production extension to create a deterministic 16-child QA pool: three running children, eleven eventual idle children, one blocker, and one failure. The ten `qa-complete-*` children are released together to exercise notification coalescing; the long-label child waits for that gate and settles after a separate fixed delay. Failure to reach all ten storm arrivals becomes an explicit synthetic fixture error instead of silently degrading after a timeout. The fixture contains no live provider, credential, network, database, MCP, 1Password, or external-service path.
+
+From the repository root, launch it with an isolated home and disposable workspace:
+
+```bash
+(
+  set -eu
+  repo="$PWD"
+  pi_bin="$(command -v pi)"
+  qa_root="$(mktemp -d)"
+  cleanup() { rm -rf -- "$qa_root"; }
+  trap cleanup EXIT
+  mkdir -p "$qa_root/home" "$qa_root/workspace"
+  cd "$qa_root/workspace"
+  env -i \
+    HOME="$qa_root/home" \
+    PATH="$PATH" \
+    LANG="${LANG:-C.UTF-8}" \
+    TERM="${TERM:-xterm-256color}" \
+    PI_TUI_WRITE_LOG="$qa_root/tui.ansi" \
+    "$pi_bin" --offline --no-session --no-extensions --no-skills \
+      --no-prompt-templates --no-context-files \
+      -e "$repo/agent/extensions/sub-agents/test/manual-tui-qa-extension.ts" \
+      -e "$repo/agent/extensions/sub-agents/index.ts" \
+      --model sub-agents-tui-qa/qa-model --thinking off \
+      "Seed the deterministic offline sub-agent TUI fixture."
+)
+```
+
+Use `/sub-agents` to inspect list/detail views and human controls. Resize between a practical narrow width (48 columns) and a wide width, use the configured `app.tools.expand` binding (default Ctrl+O), switch dark/light themes through `/settings`, cancel and confirm removal of a running fixture child, and verify the widget remains responsive while the completion batch arrives. See `SA-705` in [`BACKLOG.md`](./BACKLOG.md) for the recorded release run and non-TUI checks.
 
 ## Development references
 
 - [`SPEC.md`](./SPEC.md) — normative architecture, guarantees, and acceptance criteria.
+- [`WORKTREES.md`](./WORKTREES.md) — accepted Phase 8 worktree architecture and safety decisions.
 - [`BACKLOG.md`](./BACKLOG.md) — implementation status, validation history, and next release task.
 
-The separate manual TUI checklist remains tracked as `SA-705`.
+The reproducible offline manual TUI fixture and completed validation record are tracked as `SA-705` in [`BACKLOG.md`](./BACKLOG.md).

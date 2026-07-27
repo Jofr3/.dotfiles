@@ -284,6 +284,10 @@ test("dashboard list/detail rendering is bounded, width-safe, actionable, and ev
 	assert.match(list, /detail-worker/);
 	assert.doesNotMatch(list, /PRIVATE_DETAIL_OBJECTIVE|PRIVATE_CURRENT_OBJECTIVE/);
 	assertWidthSafe(component);
+	const narrowList = component.render(48).join("\n");
+	assert.match(narrowList, /r refresh/);
+	assert.match(narrowList, /X all/);
+	assert.match(narrowList, /Esc\/q close/);
 
 	component.handleInput("enter");
 	assert.equal(component.view, "detail");
@@ -300,6 +304,16 @@ test("dashboard list/detail rendering is bounded, width-safe, actionable, and ev
 	assert.ok(component.render(200).length <= 48);
 	assert.doesNotMatch(expanded, /PRIVATE_DETAIL_OBJECTIVE|PRIVATE_CURRENT_OBJECTIVE|\u001b\[31m/);
 	assertWidthSafe(component);
+	const narrowDetail = component.render(48).join("\n");
+	assert.match(narrowDetail, /←\/Esc back/);
+	assert.match(narrowDetail, /r refresh/);
+	assert.match(narrowDetail, /X all/);
+	assert.match(narrowDetail, /q close/);
+	const intermediateDetail = component.render(96).join("\n");
+	assert.match(intermediateDetail, /←\/Esc back/);
+	assert.match(intermediateDetail, /r refresh/);
+	assert.match(intermediateDetail, /X all/);
+	assert.match(intermediateDetail, /q close/);
 
 	component.handleInput("m");
 	component.handleInput("l");

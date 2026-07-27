@@ -76,7 +76,7 @@ test("offline runner environment keeps only operational metadata and uses an iso
 	}
 });
 
-test("offline preload requires the runner marker and blocks network listeners, clients, DNS, datagrams, and external processes", () => {
+test("offline preload requires the runner marker and blocks network listeners, clients, DNS, datagrams, and external processes", async () => {
 	const missingMarker = spawnSync(process.execPath, ["--import", GUARD_PATH.href, "--eval", "0"], {
 		env: { PATH: process.env.PATH },
 		encoding: "utf8",
@@ -84,6 +84,14 @@ test("offline preload requires the runner marker and blocks network listeners, c
 	assert.notEqual(missingMarker.status, 0);
 	assert.match(missingMarker.stderr, /PI_SUB_AGENTS_OFFLINE_TEST=1/u);
 
+	const guardedSandbox = await mkdtemp(join(tmpdir(), "pi-sub-agents-guard-probe-"));
+	const guardedHome = join(guardedSandbox, "home");
+	const guardedTemporary = join(guardedSandbox, "tmp");
+	await Promise.all([
+		mkdir(guardedHome, { recursive: true }),
+		mkdir(guardedTemporary, { recursive: true }),
+	]);
+	try {
 	const script = `
 		const attempts = [];
 		async function capture(name, operation) {
@@ -111,6 +119,120 @@ test("offline preload requires the runner marker and blocks network listeners, c
 		await capture("shell-env-smuggle", () => childProcess.spawnSync("sh", ["-c", "printf shell > shell.txt"], { cwd: process.env.TMPDIR, env: { ...shellEnv, BASH_ENV: "/tmp/startup-hook" } }));
 		await capture("fake-tool", () => childProcess.spawnSync(process.env.TMPDIR + "/rg", ["--no-config", "--", "x", process.env.TMPDIR], { env: { PATH: process.env.PATH } }));
 		const fs = await import("node:fs/promises");
+		const gitHome = process.env.TMPDIR + "/guard-git-home";
+		const gitHooks = process.env.TMPDIR + "/guard-git-hooks";
+		const gitWorktree = process.env.TMPDIR + "/fixture-probe";
+		await Promise.all([
+			fs.mkdir(gitHome, { recursive: true }),
+			fs.mkdir(gitHooks, { recursive: true }),
+			fs.mkdir(gitWorktree, { recursive: true }),
+		]);
+		const gitEnv = {};
+		for (const name of ["PATH", "PATHEXT", "SystemRoot", "WINDIR", "COMSPEC", "LANG", "LC_ALL", "LC_CTYPE"]) {
+			if (typeof process.env[name] === "string") gitEnv[name] = process.env[name];
+		}
+		Object.assign(gitEnv, {
+			HOME: gitHome,
+			USERPROFILE: gitHome,
+			XDG_CONFIG_HOME: gitHome + "/.config",
+			TMPDIR: process.env.TMPDIR,
+			TMP: process.env.TMP,
+			TEMP: process.env.TEMP,
+			GIT_CONFIG_NOSYSTEM: "1",
+			GIT_CONFIG_GLOBAL: process.platform === "win32" ? "NUL" : "/dev/null",
+			GIT_TERMINAL_PROMPT: "0",
+			GIT_NO_LAZY_FETCH: "1",
+			GIT_NO_REPLACE_OBJECTS: "1",
+			GIT_AUTHOR_NAME: "Pi Offline Fixture",
+			GIT_AUTHOR_EMAIL: "pi-offline@example.invalid",
+			GIT_COMMITTER_NAME: "Pi Offline Fixture",
+			GIT_COMMITTER_EMAIL: "pi-offline@example.invalid",
+			PI_SUB_AGENTS_LOCAL_GIT_FIXTURE: "1",
+		});
+		const gitPrefix = [
+			"-c", "core.hooksPath=" + gitHooks,
+			"-c", "core.fsmonitor=false",
+			"-c", "core.autocrlf=false",
+			"-c", "commit.gpgsign=false",
+			"-c", "tag.gpgsign=false",
+			"-c", "protocol.file.allow=never",
+			"-c", "submodule.recurse=false",
+		];
+		const gitOptions = { cwd: process.env.TMPDIR, env: gitEnv };
+		const oid = "a".repeat(40);
+		await capture("git-config-smuggle", () => childProcess.spawnSync("git", [...gitPrefix, "-c", "credential.helper=!curl https://example.invalid", "status"], gitOptions));
+		await capture("git-force", () => childProcess.spawnSync("git", [...gitPrefix, "worktree", "remove", "--force", gitWorktree], gitOptions));
+		await capture("git-prune", () => childProcess.spawnSync("git", [...gitPrefix, "worktree", "prune"], gitOptions));
+		await capture("git-remote", () => childProcess.spawnSync("git", [...gitPrefix, "fetch", "https://example.invalid/repository"], gitOptions));
+		await capture("git-filter", () => childProcess.spawnSync("git", [...gitPrefix, "cat-file", "--filters", oid], gitOptions));
+		await capture("git-bad-oid", () => childProcess.spawnSync("git", [...gitPrefix, "read-tree", "--reset", "HEAD"], gitOptions));
+		await capture("git-outside", () => childProcess.spawnSync("git", [...gitPrefix, "worktree", "add", "--no-checkout", "--lock", "--reason", "pi-sub-agents-offline-fixture", "-b", "pi/sub-agents/fixture/probe", process.cwd(), oid], gitOptions));
+		await capture("git-env-smuggle", () => childProcess.spawnSync("git", [...gitPrefix, "status", "--porcelain"], { ...gitOptions, env: { ...gitEnv, HTTP_PROXY: "http://proxy.invalid" } }));
+		await fs.writeFile(process.env.TMPDIR + "/fake-git", "not git");
+		await capture("fake-git", () => childProcess.spawnSync(process.env.TMPDIR + "/fake-git", ["--version"], gitOptions));
+
+		const fixtureRoot = process.env.TMPDIR + "/guard-layout";
+		const fixtureRepository = fixtureRoot + "/repository";
+		const fixtureHooks = fixtureRoot + "/empty-hooks";
+		const fixtureHome = fixtureRoot + "/home";
+		const fixtureTemp = fixtureRoot + "/tmp";
+		const foreignWorktree = process.env.TMPDIR + "/other-layout/worktrees/fixture-cross";
+		const existingWorktree = fixtureRoot + "/worktrees/fixture-existing";
+		const unownedWorktree = fixtureRoot + "/worktrees/unowned-probe";
+		const forgedWorktree = fixtureRoot + "/worktrees/fixture-forged";
+		await Promise.all([
+			fs.mkdir(fixtureRepository + "/.git", { recursive: true }),
+			fs.mkdir(fixtureHooks, { recursive: true }),
+			fs.mkdir(fixtureHome, { recursive: true }),
+			fs.mkdir(fixtureTemp, { recursive: true }),
+			fs.mkdir(fixtureRoot + "/worktrees", { recursive: true }),
+			fs.mkdir(foreignWorktree, { recursive: true }),
+			fs.mkdir(existingWorktree, { recursive: true }),
+			fs.mkdir(unownedWorktree, { recursive: true }),
+			fs.mkdir(forgedWorktree, { recursive: true }),
+		]);
+		const safeConfig = "[core]\\nrepositoryformatversion = 0\\nfilemode = true\\nbare = false\\nlogallrefupdates = true\\n";
+		await fs.writeFile(fixtureRepository + "/.git/config", safeConfig);
+		const layoutEnv = {
+			...gitEnv,
+			HOME: fixtureHome,
+			USERPROFILE: fixtureHome,
+			XDG_CONFIG_HOME: fixtureHome + "/.config",
+			TMPDIR: fixtureTemp,
+			TMP: fixtureTemp,
+			TEMP: fixtureTemp,
+		};
+		const layoutPrefix = [
+			"-c", "core.hooksPath=" + fixtureHooks,
+			"-c", "core.fsmonitor=false",
+			"-c", "core.autocrlf=false",
+			"-c", "commit.gpgsign=false",
+			"-c", "tag.gpgsign=false",
+			"-c", "protocol.file.allow=never",
+			"-c", "submodule.recurse=false",
+		];
+		const layoutOptions = { cwd: fixtureRepository, env: layoutEnv };
+		await fs.writeFile(fixtureHooks + "/pre-commit", "exit 1\\n");
+		await capture("git-hook-config", () => childProcess.spawnSync("git", [...layoutPrefix, "commit", "--quiet", "--no-gpg-sign", "-m", "offline fixture"], layoutOptions));
+		await fs.rm(fixtureHooks + "/pre-commit");
+		await fs.writeFile(fixtureRepository + "/.git/config", safeConfig + "[filter \\\"escape\\\"]\\nprocess = curl https://example.invalid\\n");
+		await capture("git-local-config", () => childProcess.spawnSync("git", [...layoutPrefix, "status", "--porcelain"], layoutOptions));
+		await fs.writeFile(fixtureRepository + "/.git/config", safeConfig);
+		await fs.writeFile(fixtureRepository + "/.gitattributes", "* filter=escape\\n");
+		await capture("git-attributes", () => childProcess.spawnSync("git", [...layoutPrefix, "add", "--all"], layoutOptions));
+		await fs.rm(fixtureRepository + "/.gitattributes");
+		await capture("git-cross-fixture", () => childProcess.spawnSync("git", [...layoutPrefix, "worktree", "unlock", foreignWorktree], layoutOptions));
+		await capture("git-existing-target", () => childProcess.spawnSync("git", [...layoutPrefix, "worktree", "add", "--no-checkout", "--lock", "--reason", "pi-sub-agents-offline-fixture", "-b", "pi/sub-agents/fixture/existing", existingWorktree, oid], layoutOptions));
+		await capture("git-unowned-remove", () => childProcess.spawnSync("git", [...layoutPrefix, "worktree", "remove", unownedWorktree], layoutOptions));
+		await capture("git-malformed-ref", () => childProcess.spawnSync("git", [...layoutPrefix, "check-ref-format", "--branch", "pi/sub-agents/fixture/../bad"], layoutOptions));
+		await capture("git-branch-delete", () => childProcess.spawnSync("git", [...layoutPrefix, "branch", "-D", "pi/sub-agents/fixture/probe"], layoutOptions));
+		await capture("git-alternate-env", () => childProcess.spawnSync("git", [...layoutPrefix, "status", "--porcelain"], { ...layoutOptions, env: { ...layoutEnv, GIT_OBJECT_DIRECTORY: foreignWorktree } }));
+		await fs.writeFile(fixtureRepository + "/.git/config", safeConfig + "[extensions]\\npartialClone = origin\\n");
+		await capture("git-promisor-config", () => childProcess.spawnSync("git", [...layoutPrefix, "status", "--porcelain"], layoutOptions));
+		await fs.writeFile(fixtureRepository + "/.git/config", safeConfig);
+		await fs.writeFile(forgedWorktree + "/.git", "gitdir: " + fixtureRepository + "/.git\\n");
+		await capture("git-forged-pointer", () => childProcess.spawnSync("git", [...layoutPrefix, "status", "--porcelain=v1", "-z", "--untracked-files=all"], { ...layoutOptions, cwd: forgedWorktree }));
+
 		const escapingRoot = process.env.TMPDIR + "/escaping-rg-root";
 		await fs.symlink(process.cwd(), escapingRoot);
 		await capture("symlink-root", () => childProcess.spawnSync("rg", ["--no-config", "--", "unlikely-offline-pattern", escapingRoot], { env: { PATH: process.env.PATH } }));
@@ -133,11 +255,11 @@ test("offline preload requires the runner marker and blocks network listeners, c
 	], {
 		env: {
 			PATH: process.env.PATH,
-			HOME: process.env.HOME,
-			USERPROFILE: process.env.USERPROFILE,
-			TMPDIR: process.env.TMPDIR,
-			TMP: process.env.TMP,
-			TEMP: process.env.TEMP,
+			HOME: guardedHome,
+			USERPROFILE: guardedHome,
+			TMPDIR: guardedTemporary,
+			TMP: guardedTemporary,
+			TEMP: guardedTemporary,
 			PI_SUB_AGENTS_OFFLINE_TEST: "1",
 		},
 		encoding: "utf8",
@@ -159,12 +281,35 @@ test("offline preload requires the runner marker and blocks network listeners, c
 			"shell-smuggle",
 			"shell-env-smuggle",
 			"fake-tool",
+			"git-config-smuggle",
+			"git-force",
+			"git-prune",
+			"git-remote",
+			"git-filter",
+			"git-bad-oid",
+			"git-outside",
+			"git-env-smuggle",
+			"fake-git",
+			"git-hook-config",
+			"git-local-config",
+			"git-attributes",
+			"git-cross-fixture",
+			"git-existing-target",
+			"git-unowned-remove",
+			"git-malformed-ref",
+			"git-branch-delete",
+			"git-alternate-env",
+			"git-promisor-config",
+			"git-forged-pointer",
 			"symlink-root",
 			"fake-guard",
 			"node-env-smuggle",
 		].map((name) => `${name}:SUB_AGENTS_OFFLINE_NETWORK_BLOCKED`),
 		"execFile-promisify:allowed",
 	]);
+	} finally {
+		await rm(guardedSandbox, { recursive: true, force: true });
+	}
 });
 
 test("the repository test directory contains the canonical runner and guard outside discovery", async () => {

@@ -20,6 +20,11 @@ import {
 	isPathWithinRoot,
 	type CanonicalWorkspacePath,
 } from "./paths.ts";
+import {
+	WorkspaceRegistry,
+	type RegisteredWorkspace,
+	type WorktreeWorkspaceRegistration,
+} from "./registry.ts";
 
 export type WorkspaceLeaseOwnerKind = "child" | "parent";
 
@@ -74,6 +79,7 @@ export class WorkspaceLeaseManagerClosedError extends WorkspaceLeaseManagerError
 
 export interface WorkspaceLeaseManagerOptions {
 	generation: SessionGeneration;
+	/** Released shared root; this coordinator always owns its exact registry. */
 	workspaceRoot: string;
 	now?: () => number;
 	nonce?: () => string;
@@ -131,6 +137,7 @@ interface HeldWorkspaceLease {
 	readonly owner: LeaseOwner;
 	readonly kind: InternalLeaseKind;
 	readonly workspaceKey: string;
+	readonly workspaceLabel: string;
 	readonly canonicalPath?: string;
 	readonly relativePath?: string;
 	readonly provisionalNamespace?: string;
@@ -140,6 +147,7 @@ interface HeldWorkspaceLease {
 interface NormalizedWorkspace {
 	readonly root: string;
 	readonly key: string;
+	readonly label: string;
 }
 
 interface NormalizedTarget {
@@ -180,20 +188,20 @@ function normalizeNonce(value: string): string {
 
 function normalizeWorkspace(
 	workspace: Readonly<WorkspaceIdentity>,
-	authorizedRoot: string,
+	registry: WorkspaceRegistry,
+	ownerAgentId?: SubAgentId,
 ): NormalizedWorkspace {
-	if (!workspace || typeof workspace !== "object" || Array.isArray(workspace)) {
-		invalidLease("A shared workspace identity is required");
+	let registered: Readonly<RegisteredWorkspace>;
+	try {
+		registered = registry.authorize(workspace, ownerAgentId);
+	} catch {
+		invalidLease("The workspace identity is not exactly registered for this lease owner");
 	}
-	if (
-		workspace.mode !== "shared" ||
-		workspace.root !== authorizedRoot ||
-		workspace.key !== `shared:${authorizedRoot}` ||
-		workspace.branch !== undefined
-	) {
-		invalidLease("The shared workspace identity is invalid");
-	}
-	return Object.freeze({ root: authorizedRoot, key: workspace.key });
+	return Object.freeze({
+		root: registered.identity.root,
+		key: registered.identity.key,
+		label: registered.displayLabel,
+	});
 }
 
 function isSafeRelativePath(path: string): boolean {
@@ -370,7 +378,7 @@ function publicKind(lease: HeldWorkspaceLease): WorkspaceLeaseKind {
 function publicRecord(lease: HeldWorkspaceLease): Readonly<WorkspaceLeaseRecord> {
 	return Object.freeze({
 		kind: publicKind(lease),
-		workspaceKey: "shared",
+		workspaceKey: lease.workspaceLabel,
 		ownerAgentId: lease.owner.agentId,
 		path: lease.relativePath,
 		acquiredAt: lease.acquiredAt,
@@ -418,7 +426,7 @@ export class WorkspaceLeaseManager {
 
 	#now: () => number;
 	#nonce: () => string;
-	#workspaceRoot: string;
+	#registry: WorkspaceRegistry;
 	#agentPrefix: string;
 	#parentSequence = 0;
 	#closed = false;
@@ -436,14 +444,12 @@ export class WorkspaceLeaseManager {
 		this.#now = options.now ?? Date.now;
 		this.#nonce = options.nonce ?? randomUUID;
 		try {
-			this.#workspaceRoot = realpathSync(
-				resolve(requireBoundedText(options.workspaceRoot, "workspace root", SUB_AGENT_BOUNDS.contextPathChars)),
-			);
-			if (!statSync(this.#workspaceRoot).isDirectory()) {
-				invalidLease("The workspace lease root is not a directory");
-			}
-		} catch (error) {
-			if (error instanceof WorkspaceLeaseManagerError) throw error;
+			this.#registry = new WorkspaceRegistry({
+				generation: this.generation,
+				workspaceRoot: options.workspaceRoot,
+				nonce: options.nonce,
+			});
+		} catch {
 			invalidLease("The workspace lease root is unavailable");
 		}
 	}
@@ -452,10 +458,25 @@ export class WorkspaceLeaseManager {
 		return this.#closed;
 	}
 
+	/** Internal SA-802 provisioning seam; performs no Git operation itself. */
+	registerWorktree(input: WorktreeWorkspaceRegistration): Readonly<WorkspaceIdentity> {
+		this.#assertOpen();
+		return this.#registry.registerWorktree(input);
+	}
+
+	/** Internal exact-identity seam used by the worktree transaction facade. */
+	authorize(
+		workspace: Readonly<WorkspaceIdentity>,
+		ownerAgentId?: SubAgentId,
+	): Readonly<RegisteredWorkspace> {
+		this.#assertOpen();
+		return this.#registry.authorize(workspace, ownerAgentId);
+	}
+
 	claimChildFiles(request: ChildFileLeaseRequest): readonly Readonly<WorkspaceLeaseRecord>[] {
 		this.#assertOpen();
 		const owner = this.#childOwner(request.agentId, request.agentName);
-		const workspace = normalizeWorkspace(request.workspace, this.#workspaceRoot);
+		const workspace = normalizeWorkspace(request.workspace, this.#registry, owner.agentId);
 		const targets = normalizeTargets(workspace, request.targets);
 		return this.#claim(owner, workspace, "file", targets);
 	}
@@ -463,7 +484,7 @@ export class WorkspaceLeaseManager {
 	claimChildWorkspace(request: ChildWorkspaceLeaseRequest): readonly Readonly<WorkspaceLeaseRecord>[] {
 		this.#assertOpen();
 		const owner = this.#childOwner(request.agentId, request.agentName);
-		const workspace = normalizeWorkspace(request.workspace, this.#workspaceRoot);
+		const workspace = normalizeWorkspace(request.workspace, this.#registry, owner.agentId);
 		return this.#claim(owner, workspace, "workspace", [undefined]);
 	}
 
@@ -477,7 +498,7 @@ export class WorkspaceLeaseManager {
 	): readonly Readonly<WorkspaceLeaseRecord>[] {
 		this.#assertOpen();
 		const owner = this.#childOwner(request.agentId, request.agentName);
-		const workspace = normalizeWorkspace(request.workspace, this.#workspaceRoot);
+		const workspace = normalizeWorkspace(request.workspace, this.#registry, owner.agentId);
 		const target = normalizeTarget(workspace, request.target);
 		if (!target.exists || target.provisionalNamespace !== undefined) {
 			invalidLease("A reconciled child file target must already exist canonically");
@@ -520,7 +541,8 @@ export class WorkspaceLeaseManager {
 		this.#assertOpen();
 		const reservationId = this.#normalizeParentReservationId(request.reservationId);
 		this.#assertUnusedParentReservation(reservationId);
-		const workspace = normalizeWorkspace(request.workspace, this.#workspaceRoot);
+		const workspace = normalizeWorkspace(request.workspace, this.#registry);
+		if (request.workspace.mode !== "shared") invalidLease("Parent reservations are limited to the shared workspace");
 		const targets = normalizeTargets(workspace, request.targets);
 		if (targets.length === 0) invalidLease("A parent file reservation requires at least one target");
 		const owner = this.#createParentOwner(reservationId);
@@ -533,7 +555,8 @@ export class WorkspaceLeaseManager {
 		this.#assertOpen();
 		const reservationId = this.#normalizeParentReservationId(request.reservationId);
 		this.#assertUnusedParentReservation(reservationId);
-		const workspace = normalizeWorkspace(request.workspace, this.#workspaceRoot);
+		const workspace = normalizeWorkspace(request.workspace, this.#registry);
+		if (request.workspace.mode !== "shared") invalidLease("Parent reservations are limited to the shared workspace");
 		const owner = this.#createParentOwner(reservationId);
 		const leases = this.#claim(owner, workspace, "workspace", [undefined]);
 		this.#registerParentReservation(owner);
@@ -559,7 +582,7 @@ export class WorkspaceLeaseManager {
 		targets: readonly Readonly<CanonicalWorkspacePath>[],
 	): readonly Readonly<WorkspaceLeaseRecord>[] {
 		const owner = this.#childOwner(agentId, "agent");
-		const normalizedWorkspace = normalizeWorkspace(workspace, this.#workspaceRoot);
+		const normalizedWorkspace = normalizeWorkspace(workspace, this.#registry, owner.agentId);
 		const normalizedTargets = normalizeTargets(normalizedWorkspace, targets, false);
 		const paths = new Set(normalizedTargets.map((target) => target.canonicalPath));
 		return this.#release(owner.key, (lease) =>
@@ -574,7 +597,7 @@ export class WorkspaceLeaseManager {
 		workspace: Readonly<WorkspaceIdentity>,
 	): readonly Readonly<WorkspaceLeaseRecord>[] {
 		const owner = this.#childOwner(agentId, "agent");
-		const normalizedWorkspace = normalizeWorkspace(workspace, this.#workspaceRoot);
+		const normalizedWorkspace = normalizeWorkspace(workspace, this.#registry, owner.agentId);
 		return this.#release(owner.key, (lease) =>
 			lease.kind === "workspace" && lease.workspaceKey === normalizedWorkspace.key,
 		);
@@ -610,6 +633,7 @@ export class WorkspaceLeaseManager {
 		this.#byOwner.clear();
 		this.#parentOwnerByReservationId.clear();
 		this.#parentOwnerByToken.clear();
+		this.#registry.close();
 		return released;
 	}
 
@@ -648,7 +672,11 @@ export class WorkspaceLeaseManager {
 		for (const [workspaceKey, leases] of this.#byWorkspace) {
 			const entries = [...leases];
 			for (const lease of entries) {
-				if (lease.workspaceKey !== workspaceKey || !this.#byOwner.get(lease.owner.key)?.has(lease)) {
+				if (
+					lease.workspaceKey !== workspaceKey ||
+					typeof lease.workspaceLabel !== "string" ||
+					!this.#byOwner.get(lease.owner.key)?.has(lease)
+				) {
 					throw new Error("Workspace lease workspace/owner indexes disagree");
 				}
 			}
@@ -684,7 +712,7 @@ export class WorkspaceLeaseManager {
 
 	#childOwner(agentId: SubAgentId, agentName: string): LeaseOwner {
 		const id = requireBoundedText(agentId, "sub-agent id", SUB_AGENT_BOUNDS.agentIdChars);
-		if (!id.startsWith(this.#agentPrefix)) {
+		if (!/^sa1-[A-Za-z0-9_-]+$/u.test(id) || !id.startsWith(this.#agentPrefix) || id.length === this.#agentPrefix.length) {
 			throw new WorkspaceLeaseManagerError(
 				"stale_agent",
 				"The sub-agent id does not belong to this workspace lease generation",
@@ -756,7 +784,7 @@ export class WorkspaceLeaseManager {
 				if (held.owner.key === owner.key || !leasesConflict(kind, target, held)) continue;
 				throw new WorkspaceLeaseConflictError({
 					requestedKind,
-					workspaceKey: "shared",
+					workspaceKey: workspace.label,
 					path: target?.relativePath,
 					ownerKind: held.owner.kind,
 					ownerAgentId: held.owner.agentId,
@@ -786,6 +814,7 @@ export class WorkspaceLeaseManager {
 				owner,
 				kind,
 				workspaceKey: workspace.key,
+				workspaceLabel: workspace.label,
 				canonicalPath: target?.canonicalPath,
 				relativePath: target?.relativePath,
 				provisionalNamespace: target?.provisionalNamespace,

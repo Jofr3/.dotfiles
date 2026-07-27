@@ -282,7 +282,12 @@ export interface WorkspaceIdentity {
 	readonly mode: WorkspaceMode;
 	readonly root: string;
 	readonly key: string;
+	/** Present only for a registry-authorized generated worktree identity. */
+	readonly workspaceId?: string;
+	/** Exact generated full branch ref; present only for worktree mode. */
 	readonly branch?: string;
+	/** Exact validated base object ID; present only for worktree mode. */
+	readonly baseCommit?: string;
 }
 
 export type WorkspaceLeaseKind = "file" | "workspace" | "parent-file" | "parent-workspace";

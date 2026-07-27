@@ -5,6 +5,7 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 import {
 	truncateToWidth,
+	visibleWidth,
 	type Component,
 	type TUI,
 } from "@earendil-works/pi-tui";
@@ -428,8 +429,15 @@ export class SubAgentDashboardComponent implements Component {
 			appendLine(lines, width, this.#theme.fg("dim", `  ${page}${omitted}`));
 		}
 		appendLine(lines, width, "");
-		appendLine(lines, width, this.#theme.fg("dim", `↑↓/Pg navigate · Enter detail · h ${this.#includeRemoved ? "hide" : "show"} history · r refresh`));
-		appendLine(lines, width, this.#theme.fg("dim", "m message/resume · l release leases · x remove · X remove all · Esc/q close"));
+		const navigationHelp = `↑↓/Pg navigate · Enter detail · h ${this.#includeRemoved ? "hide" : "show"} history · r refresh`;
+		const actionHelp = "m message/resume · l release leases · x remove · X remove all · Esc/q close";
+		if (Math.max(visibleWidth(navigationHelp), visibleWidth(actionHelp)) <= width) {
+			appendLine(lines, width, this.#theme.fg("dim", navigationHelp));
+			appendLine(lines, width, this.#theme.fg("dim", actionHelp));
+		} else {
+			appendLine(lines, width, this.#theme.fg("dim", `↑↓/Pg nav · Enter detail · h ${this.#includeRemoved ? "hide" : "show"} · r refresh`));
+			appendLine(lines, width, this.#theme.fg("dim", "m msg · l release · x one · X all · Esc/q close"));
+		}
 		appendLine(lines, width, this.#theme.fg("accent", "─".repeat(Math.max(1, width))));
 		return lines;
 	}
@@ -514,7 +522,13 @@ export class SubAgentDashboardComponent implements Component {
 			if (detail.state === "removed" && detail.removalReason) appendLine(lines, width, this.#theme.fg("dim", `removed: ${cleanLine(detail.removalReason)}`));
 		}
 		appendLine(lines, width, "");
-		appendLine(lines, width, this.#theme.fg("dim", "←/Esc back · m message/resume · l release leases · x remove · X remove all · h history · r refresh · q close"));
+		const detailHelp = "←/Esc back · m message/resume · l release leases · x remove · X remove all · h history · r refresh · q close";
+		if (visibleWidth(detailHelp) <= width) {
+			appendLine(lines, width, this.#theme.fg("dim", detailHelp));
+		} else {
+			appendLine(lines, width, this.#theme.fg("dim", "←/Esc back · h history · r refresh"));
+			appendLine(lines, width, this.#theme.fg("dim", "m msg · l release · x one · X all · q close"));
+		}
 		appendLine(lines, width, this.#theme.fg("accent", "─".repeat(Math.max(1, width))));
 		return lines;
 	}

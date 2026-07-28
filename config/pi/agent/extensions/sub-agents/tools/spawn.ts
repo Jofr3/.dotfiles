@@ -6,6 +6,8 @@ import {
 } from "../ui/renderers.ts";
 import {
 	SubAgentAssignmentRunnerError,
+	createApprovedWorktreeWorkspaceResolver,
+	type ChildWorkspaceResolver,
 	type SubAgentAssignmentRunner,
 } from "../assignment-runner.ts";
 import {
@@ -21,8 +23,14 @@ import type {
 	ManagedSubAgentSnapshot,
 	ModelRoute,
 	SubAgentId,
+	SubAgentWorkspaceDisposition,
 } from "../types.ts";
 import { SUB_AGENT_BOUNDS } from "../types.ts";
+import type {
+	ApprovedWorktreeAdmission,
+	WorktreeOutcomeSummary,
+	WorktreeWorkspacePlan,
+} from "../workspace/worktrees.ts";
 import {
 	subAgentsSpawnSchema,
 	type SubAgentsSpawnInput,
@@ -33,6 +41,10 @@ const DISPLAY_PROVIDER_BYTES = 64;
 const DISPLAY_MODEL_BYTES = 96;
 const DISPLAY_ERROR_BYTES = 192;
 const DISPLAY_CODE_BYTES = 64;
+const DISPLAY_WORKTREE_ID_BYTES = 200;
+const DISPLAY_BRANCH_BYTES = 512;
+const DISPLAY_COMMIT_BYTES = 64;
+const WORKTREE_DISPOSITIONS = new Set(["active", "ready", "retained", "cleaned", "uncertain"]);
 const RUNNER_ERROR_CODES = new Set([
 	"invalid_assignment",
 	"model_resolution_failed",
@@ -74,6 +86,10 @@ export interface SubAgentsSpawnRuntime {
 		"createAndLaunch" | "prompt" | "send" | "waitForAssignment"
 	>;
 	readonly router: Pick<SubAgentModelRouter, "resolve">;
+	/** Optional internal Phase 8 seam. Default runtime may wire it before the public release gate opens. */
+	readonly worktrees?: Parameters<typeof createApprovedWorktreeWorkspaceResolver>[0]["worktrees"];
+	/** Release gate. Defaults to false, so a wired worktree manager alone cannot enable public worktree mode. */
+	readonly worktreeModeEnabled?: boolean;
 }
 
 export interface SpawnRouteSummary {
@@ -85,12 +101,22 @@ export interface SpawnRouteSummary {
 	fallbackUsed: boolean;
 }
 
+export interface SpawnWorktreeOutcomeSummary {
+	workspaceId: string;
+	branchRef: string;
+	baseCommit: string;
+	lastObservedCommit?: string;
+	disposition: WorktreeOutcomeSummary["disposition"] | SubAgentWorkspaceDisposition;
+	truncated?: true;
+}
+
 export interface SpawnSuccessOutcome {
 	index: number;
 	ok: true;
 	id: SubAgentId;
 	state: AgentLifecycleState;
 	route?: SpawnRouteSummary;
+	worktree?: SpawnWorktreeOutcomeSummary;
 }
 
 export interface SpawnFailureOutcome {
@@ -100,6 +126,7 @@ export interface SpawnFailureOutcome {
 	state?: AgentLifecycleState;
 	code: string;
 	message: string;
+	worktree?: SpawnWorktreeOutcomeSummary;
 }
 
 export type SpawnAgentOutcome = SpawnSuccessOutcome | SpawnFailureOutcome;
@@ -165,10 +192,59 @@ function cloneRouteSummary(route: ModelRoute | undefined): SpawnRouteSummary | u
 	};
 }
 
+function cloneWorktreeSnapshot(
+	snapshot: ManagedSubAgentSnapshot,
+): SpawnWorktreeOutcomeSummary | undefined {
+	const workspace = snapshot.workspace;
+	if (!workspace || workspace.mode !== "worktree") return undefined;
+	const workspaceId = boundUtf8Line(workspace.workspaceId, DISPLAY_WORKTREE_ID_BYTES);
+	const branchRef = boundUtf8Line(workspace.branchRef, DISPLAY_BRANCH_BYTES);
+	const baseCommit = boundUtf8Line(workspace.baseCommit, DISPLAY_COMMIT_BYTES);
+	if (!workspaceId || !branchRef || !baseCommit) return undefined;
+	const truncated = workspaceId !== workspace.workspaceId ||
+		branchRef !== workspace.branchRef ||
+		baseCommit !== workspace.baseCommit;
+	return {
+		workspaceId,
+		branchRef,
+		baseCommit,
+		disposition: workspace.disposition,
+		truncated: truncated ? true : undefined,
+	};
+}
+
+function cloneWorktreeOutcome(
+	value: unknown,
+): SpawnWorktreeOutcomeSummary | undefined {
+	if (!value || typeof value !== "object") return undefined;
+	const candidate = value as Partial<WorktreeOutcomeSummary>;
+	if (typeof candidate.disposition !== "string" || !WORKTREE_DISPOSITIONS.has(candidate.disposition)) {
+		return undefined;
+	}
+	const workspaceId = boundUtf8Line(candidate.workspaceId, DISPLAY_WORKTREE_ID_BYTES);
+	const branchRef = boundUtf8Line(candidate.branchRef, DISPLAY_BRANCH_BYTES);
+	const baseCommit = boundUtf8Line(candidate.baseCommit, DISPLAY_COMMIT_BYTES);
+	const lastObservedCommit = boundUtf8Line(candidate.lastObservedCommit, DISPLAY_COMMIT_BYTES);
+	if (!workspaceId || !branchRef || !baseCommit || !lastObservedCommit) return undefined;
+	const truncated = workspaceId !== candidate.workspaceId ||
+		branchRef !== candidate.branchRef ||
+		baseCommit !== candidate.baseCommit ||
+		lastObservedCommit !== candidate.lastObservedCommit;
+	return {
+		workspaceId,
+		branchRef,
+		baseCommit,
+		lastObservedCommit,
+		disposition: candidate.disposition,
+		truncated: truncated ? true : undefined,
+	};
+}
+
 function knownFailure(error: unknown): {
 	code: string;
 	message: string;
 	id?: SubAgentId;
+	worktree?: SpawnWorktreeOutcomeSummary;
 } {
 	const candidate =
 		error && typeof error === "object"
@@ -189,6 +265,7 @@ function knownFailure(error: unknown): {
 				typeof candidate.agentId === "string" && candidate.agentId.startsWith("sa1-")
 					? candidate.agentId.slice(0, SUB_AGENT_BOUNDS.agentIdChars)
 					: undefined,
+			worktree: cloneWorktreeOutcome((candidate as { worktreeOutcome?: unknown }).worktreeOutcome),
 		};
 	}
 	const managerError =
@@ -223,12 +300,315 @@ function failureSnapshot(
 	}
 }
 
+function shortCommit(value: unknown): string {
+	return boundUtf8Line(String(value ?? "").slice(0, 12), DISPLAY_COMMIT_BYTES);
+}
+
+interface SpawnWorktreeBatchEntry {
+	readonly index: number;
+	readonly name: string;
+	readonly objective: string;
+	readonly relativeCwd?: string;
+	readonly bash: boolean;
+}
+
+interface SpawnWorktreeBatchPlan {
+	readonly version: 1;
+	readonly generation: string;
+	readonly releaseGateEnabled: boolean;
+	readonly requested: number;
+	readonly entries: readonly SpawnWorktreeBatchEntry[];
+	readonly worktreeCount: number;
+	readonly bashWorktreeCount: number;
+}
+
+function createSpawnWorktreeBatchPlan(
+	runtime: SubAgentsSpawnRuntime,
+	params: SubAgentsSpawnInput,
+): Readonly<SpawnWorktreeBatchPlan> {
+	const entries = params.agents
+		.map((agent, index): SpawnWorktreeBatchEntry | undefined => {
+			if (agent.workspace?.mode !== "worktree") return undefined;
+			const relativeCwd = agent.workspace.cwd?.trim() || undefined;
+			return Object.freeze({
+				index,
+				name: String(agent.name ?? ""),
+				objective: String(agent.objective ?? ""),
+				...(relativeCwd !== undefined ? { relativeCwd } : {}),
+				bash: agent.tools?.includes("bash") === true,
+			});
+		})
+		.filter((entry): entry is SpawnWorktreeBatchEntry => entry !== undefined);
+	const bashWorktreeCount = entries.filter((entry) => entry.bash).length;
+	return Object.freeze({
+		version: 1,
+		generation: runtime.manager.generation,
+		releaseGateEnabled: runtime.worktreeModeEnabled === true,
+		requested: params.agents.length,
+		entries: Object.freeze(entries),
+		worktreeCount: entries.length,
+		bashWorktreeCount,
+	});
+}
+
+function stableWorktreeRequestSpec(
+	request: Parameters<ChildWorkspaceResolver>[0],
+	entry: Readonly<SpawnWorktreeBatchEntry>,
+): Parameters<ChildWorkspaceResolver>[0] {
+	const currentWorkspace = request.spec.workspace ?? { mode: "worktree", bashPolicy: "disabled" };
+	const { cwd: _ignoredCwd, ...workspaceRest } = currentWorkspace;
+	return Object.freeze({
+		...request,
+		spec: Object.freeze({
+			...request.spec,
+			workspace: Object.freeze({
+				...workspaceRest,
+				mode: "worktree",
+				...(entry.relativeCwd !== undefined ? { cwd: entry.relativeCwd } : {}),
+			}),
+		}),
+	});
+}
+
+interface PreparedSpawnWorktreePlan {
+	readonly entry: Readonly<SpawnWorktreeBatchEntry>;
+	readonly plan: Readonly<WorktreeWorkspacePlan>;
+	readonly request: ChildWorkspaceResolutionRequestLike;
+}
+
+interface ChildWorkspaceResolutionRequestLike {
+	readonly id: SubAgentId;
+	readonly signal?: AbortSignal;
+}
+
+function publicWorktreeBatchApprovalMessage(
+	prepared: readonly Readonly<PreparedSpawnWorktreePlan>[],
+	batch: Readonly<SpawnWorktreeBatchPlan>,
+): string {
+	const firstPlan = prepared[0]?.plan;
+	const repositoryPath = boundUtf8Line(firstPlan?.repository.topLevel, 240) || "repository path unavailable";
+	const base = shortCommit(firstPlan?.repository.headCommit);
+	const clean = firstPlan?.repository.clean === true ? "yes" : "no";
+	const childLines = prepared
+		.slice()
+		.sort((a, b) => a.entry.index - b.entry.index)
+		.slice(0, 8)
+		.map(({ entry, plan }) => {
+			const childName = boundUtf8Line(entry.name, DISPLAY_NAME_BYTES) || "unnamed child";
+			const objective = boundUtf8Line(entry.objective, 120) || "bounded objective unavailable";
+			const workspaceId = boundUtf8Line(plan.identity.workspaceId, DISPLAY_WORKTREE_ID_BYTES) || "workspace unavailable";
+			const branchRef = boundUtf8Line(plan.identity.branchRef, DISPLAY_BRANCH_BYTES) || "branch unavailable";
+			const bash = entry.bash ? " · bash" : "";
+			return `- #${entry.index + 1} ${childName}${bash}: ${objective} · ${workspaceId} · ${branchRef}`;
+		});
+	const omitted = Math.max(0, prepared.length - childLines.length);
+	return [
+		"Approve this complete generated Git worktree batch before any child-side provisioning starts.",
+		`Repository: ${repositoryPath}`,
+		`Base: ${base} · clean: ${clean}`,
+		`Worktree requests in this spawn call: ${batch.worktreeCount}`,
+		`Worktree children also requesting bash: ${batch.bashWorktreeCount}`,
+		"Generated children/workspaces:",
+		...childLines,
+		...(omitted > 0 ? [`- ${omitted} more worktree request(s) omitted`] : []),
+		"The linked worktrees and branches are retained by default. Cleanup, merge, branch deletion, prune, push, and remote access are not implied by this approval.",
+		batch.bashWorktreeCount > 0
+			? "Approved child bash is same-UID local command execution and can mutate parent/sibling worktrees, Git metadata, network-visible resources, and external paths."
+			: "Guarded non-bash tools deny Git administrative .git paths; this approval is still a retained repository side effect.",
+	].join("\n");
+}
+
+function createWorktreeBatchAdmissionCoordinator(
+	ctx: ExtensionContext,
+	batch: Readonly<SpawnWorktreeBatchPlan>,
+	onAdmitted?: (index: number) => void,
+) {
+	const prepared = new Map<number, Readonly<PreparedSpawnWorktreePlan>>();
+	let allPreparedResolve!: () => void;
+	let allPreparedReject!: (error: unknown) => void;
+	let allPreparedSettled = false;
+	const allPrepared = new Promise<void>((resolve, reject) => {
+		allPreparedResolve = () => {
+			if (allPreparedSettled) return;
+			allPreparedSettled = true;
+			resolve();
+		};
+		allPreparedReject = (error) => {
+			if (allPreparedSettled) return;
+			allPreparedSettled = true;
+			reject(error);
+		};
+	});
+	allPrepared.catch(() => undefined);
+	let admissionPromise: Promise<ReadonlyMap<number, Readonly<ApprovedWorktreeAdmission>>> | undefined;
+	let admitted = false;
+
+	const toRequestError = (error: unknown, request: ChildWorkspaceResolutionRequestLike) => {
+		if (error instanceof SubAgentAssignmentRunnerError) {
+			return new SubAgentAssignmentRunnerError(error.code, error.message, request.id, {
+				runtimeSettled: error.runtimeSettled,
+				worktreeOutcome: error.worktreeOutcome,
+			});
+		}
+		return new SubAgentAssignmentRunnerError(
+			"runtime_initialization_failed",
+			"The worktree spawn batch was not admitted",
+			request.id,
+		);
+	};
+
+	const admitBatch = async (): Promise<ReadonlyMap<number, Readonly<ApprovedWorktreeAdmission>>> => {
+		await allPrepared;
+		const preparedPlans = Array.from(prepared.values()).sort((a, b) => a.entry.index - b.entry.index);
+		const digests = new Set<string>();
+		for (const item of preparedPlans) {
+			if (digests.has(item.plan.approvalDigest)) {
+				throw new SubAgentAssignmentRunnerError(
+					"runtime_initialization_failed",
+					"The worktree batch contains a duplicate approval digest",
+					item.request.id,
+				);
+			}
+			digests.add(item.plan.approvalDigest);
+		}
+		const aborted = preparedPlans.find((item) => item.request.signal?.aborted);
+		if (aborted) {
+			throw new SubAgentAssignmentRunnerError(
+				"cancelled",
+				"The sub-agent operation was cancelled",
+				aborted.request.id,
+			);
+		}
+		if (ctx.hasUI !== true || typeof ctx.ui?.confirm !== "function") {
+			throw new SubAgentAssignmentRunnerError(
+				"runtime_initialization_failed",
+				"Worktree child creation requires approval-capable UI or RPC admission",
+				preparedPlans[0]?.request.id,
+			);
+		}
+		const signal = preparedPlans.find((item) => item.request.signal)?.request.signal;
+		const approved = await ctx.ui.confirm(
+			"Authorize sub-agent Git worktree batch?",
+			publicWorktreeBatchApprovalMessage(preparedPlans, batch),
+			{ signal },
+		);
+		if (!approved) {
+			throw new SubAgentAssignmentRunnerError(
+				"runtime_initialization_failed",
+				"Worktree child creation requires explicit operator approval for the exact batch",
+				preparedPlans[0]?.request.id,
+			);
+		}
+		const abortedAfterApproval = preparedPlans.find((item) => item.request.signal?.aborted);
+		if (abortedAfterApproval) {
+			throw new SubAgentAssignmentRunnerError(
+				"cancelled",
+				"The sub-agent operation was cancelled",
+				abortedAfterApproval.request.id,
+			);
+		}
+		const admissions = new Map<number, Readonly<ApprovedWorktreeAdmission>>();
+		for (const item of preparedPlans) {
+			admissions.set(item.entry.index, Object.freeze({
+				approvalDigest: item.plan.approvalDigest,
+				correlationToken: item.plan.identity.correlationToken,
+			}));
+		}
+		admitted = true;
+		for (const item of preparedPlans) onAdmitted?.(item.entry.index);
+		return admissions;
+	};
+
+	return {
+		async approve(
+			entry: Readonly<SpawnWorktreeBatchEntry>,
+			plan: Readonly<WorktreeWorkspacePlan>,
+			request: ChildWorkspaceResolutionRequestLike,
+		): Promise<Readonly<ApprovedWorktreeAdmission>> {
+			if (request.signal?.aborted) {
+				throw new SubAgentAssignmentRunnerError(
+					"cancelled",
+					"The sub-agent operation was cancelled",
+					request.id,
+				);
+			}
+			if (prepared.has(entry.index)) {
+				const error = new SubAgentAssignmentRunnerError(
+					"runtime_initialization_failed",
+					"The worktree batch contained a duplicate request index",
+					request.id,
+				);
+				allPreparedReject(error);
+				throw error;
+			}
+			prepared.set(entry.index, Object.freeze({ entry, plan, request }));
+			if (prepared.size === batch.entries.length) allPreparedResolve();
+			admissionPromise ??= admitBatch();
+			try {
+				const admissions = await admissionPromise;
+				const admission = admissions.get(entry.index);
+				if (!admission) {
+					throw new SubAgentAssignmentRunnerError(
+						"runtime_initialization_failed",
+						"The worktree batch admission omitted this child plan",
+						request.id,
+					);
+				}
+				return admission;
+			} catch (error) {
+				throw toRequestError(error, request);
+			}
+		},
+		fail(error: unknown) {
+			if (admitted) return;
+			allPreparedReject(error);
+		},
+	};
+}
+
+function createSpawnWorktreeWorkspaceResolverFactory(
+	runtime: SubAgentsSpawnRuntime,
+	ctx: ExtensionContext,
+	batch: Readonly<SpawnWorktreeBatchPlan>,
+	onAdmitted?: (index: number) => void,
+): Readonly<{
+	resolverForIndex(index: number): ChildWorkspaceResolver | undefined;
+	failBeforeAdmission(error: unknown): void;
+}> | undefined {
+	if (batch.releaseGateEnabled !== true || !runtime.worktrees || batch.entries.length === 0) return undefined;
+	const entries = new Map(batch.entries.map((entry) => [entry.index, entry]));
+	const coordinator = createWorktreeBatchAdmissionCoordinator(ctx, batch, onAdmitted);
+	return Object.freeze({
+		resolverForIndex(index) {
+			const entry = entries.get(index);
+			if (!entry) return undefined;
+			const resolver = createApprovedWorktreeWorkspaceResolver({
+				worktrees: runtime.worktrees!,
+				trusted: () => typeof ctx.isProjectTrusted === "function" && ctx.isProjectTrusted() === true,
+				approve: (plan, request) => coordinator.approve(entry, plan, request),
+			});
+			return async (request) => {
+				try {
+					return await resolver(stableWorktreeRequestSpec(request, entry));
+				} catch (error) {
+					coordinator.fail(error);
+					throw error;
+				}
+			};
+		},
+		failBeforeAdmission(error) {
+			coordinator.fail(error);
+		},
+	});
+}
+
 async function spawnOne(
 	runtime: SubAgentsSpawnRuntime,
 	ctx: ExtensionContext,
 	spec: SubAgentsSpawnInput["agents"][number],
 	index: number,
 	signal: AbortSignal | undefined,
+	resolveWorkspace?: ChildWorkspaceResolver,
 ): Promise<SpawnAgentOutcome> {
 	try {
 		const launch = await runtime.runner.createAndLaunch(spec, ({ spec: normalizedSpec }) =>
@@ -236,7 +616,7 @@ async function spawnOne(
 				hostRegistry: ctx.modelRegistry,
 				parentModel: ctx.model,
 				spec: normalizedSpec,
-			}), signal);
+			}), signal, resolveWorkspace ? { resolveWorkspace } : undefined);
 		if (signal?.aborted) {
 			return {
 				index,
@@ -253,6 +633,7 @@ async function spawnOne(
 			id: launch.id,
 			state: launch.snapshot.state,
 			route: cloneRouteSummary(launch.snapshot.modelRoute),
+			worktree: cloneWorktreeSnapshot(launch.snapshot),
 		};
 	} catch (error) {
 		const failure = knownFailure(error);
@@ -264,6 +645,7 @@ async function spawnOne(
 			state: snapshot?.state,
 			code: failure.code,
 			message: failure.message,
+			worktree: failure.worktree,
 		};
 	}
 }
@@ -277,7 +659,10 @@ function formatOutcome(
 		`agent ${outcome.index + 1}`;
 	if (!outcome.ok) {
 		const id = outcome.id ? ` (${outcome.id})` : "";
-		return `- [failed] ${name}${id}: ${outcome.code}: ${outcome.message}`;
+		const worktree = outcome.worktree
+			? ` · worktree ${outcome.worktree.workspaceId} ${outcome.worktree.disposition}`
+			: "";
+		return `- [failed] ${name}${id}: ${outcome.code}: ${outcome.message}${worktree}`;
 	}
 	const route = outcome.route;
 	const selected = route
@@ -288,7 +673,10 @@ function formatOutcome(
 		: "model route unavailable";
 	const tier = route?.selectedTier ?? route?.requestedComplexity;
 	const fallback = route?.fallbackUsed ? " · fallback" : "";
-	return `- [started] ${name}: ${outcome.id} · ${selected} · ${tier}${fallback}`;
+	const worktree = outcome.worktree
+		? ` · worktree ${outcome.worktree.workspaceId} ${outcome.worktree.disposition}`
+		: "";
+	return `- [started] ${name}: ${outcome.id} · ${selected} · ${tier}${fallback}${worktree}`;
 }
 
 export function formatSubAgentsSpawnResult(
@@ -348,10 +736,84 @@ export async function executeSubAgentsSpawn(
 		}
 	}
 
-	// Mapping first creates every per-child promise. Promise.all preserves request
-	// order but does not serialize model routing, runtime initialization, or launch.
+	const worktreeBatchPlan = createSpawnWorktreeBatchPlan(runtime, params);
+	const worktreeIndexes = new Set(worktreeBatchPlan.entries.map((entry) => entry.index));
+	const hasSharedSibling = params.agents.some((_spec, index) => !worktreeIndexes.has(index));
+	const waitForWorktreeAdmission = worktreeIndexes.size > 0 && hasSharedSibling &&
+		worktreeBatchPlan.releaseGateEnabled === true && !!runtime.worktrees;
+	const admittedWorktreeIndexes = new Set<number>();
+	let admissionResolve: (() => void) | undefined;
+	let admissionReject: ((error: { code: string; message: string }) => void) | undefined;
+	const admissionBarrier = waitForWorktreeAdmission
+		? new Promise<void>((resolve, reject) => {
+			admissionResolve = resolve;
+			admissionReject = reject;
+		})
+		: undefined;
+	admissionBarrier?.catch(() => undefined);
+	const failAdmissionBarrier = (message: string) => {
+		admissionReject?.({
+			code: "worktree_batch_not_admitted",
+			message: boundUtf8Line(message, DISPLAY_ERROR_BYTES) ||
+				"Shared sibling launch was held because the worktree batch was not admitted",
+		});
+	};
+	const markWorktreeAdmitted = (index: number) => {
+		if (!waitForWorktreeAdmission || !worktreeIndexes.has(index)) return;
+		admittedWorktreeIndexes.add(index);
+		if (admittedWorktreeIndexes.size === worktreeIndexes.size) admissionResolve?.();
+	};
+	const worktreeResolverFactory = createSpawnWorktreeWorkspaceResolverFactory(
+		runtime,
+		ctx,
+		worktreeBatchPlan,
+		markWorktreeAdmitted,
+	);
+	const resolveWorkspaceForIndex = worktreeResolverFactory?.resolverForIndex;
+
+	// Mapping first creates every eligible per-child promise. Worktree-capable
+	// mixed batches hold shared siblings behind a complete admission barrier so
+	// a shared child cannot launch ahead of required retained-Git approval.
 	const outcomes = await Promise.all(
-		params.agents.map((spec, index) => spawnOne(runtime, ctx, spec, index, signal)),
+		params.agents.map((spec, index) => {
+			const resolveWorkspace = resolveWorkspaceForIndex?.(index);
+			if (admissionBarrier && !worktreeIndexes.has(index)) {
+				return admissionBarrier.then(
+					() => spawnOne(runtime, ctx, spec, index, signal, resolveWorkspace),
+					(error: { code?: unknown; message?: unknown }) => ({
+						index,
+						ok: false as const,
+						code: boundUtf8Line(error?.code, DISPLAY_CODE_BYTES) || "worktree_batch_not_admitted",
+						message: boundUtf8Line(error?.message, DISPLAY_ERROR_BYTES) ||
+							"Shared sibling was not launched because the worktree batch was not admitted",
+					}),
+				);
+			}
+			const launch = spawnOne(runtime, ctx, spec, index, signal, resolveWorkspace);
+			if (admissionBarrier && worktreeIndexes.has(index)) {
+				launch.then(
+					() => {
+						if (!admittedWorktreeIndexes.has(index)) {
+							const error = new SubAgentAssignmentRunnerError(
+								"runtime_initialization_failed",
+								"Worktree child ended before the complete batch was admitted",
+							);
+							worktreeResolverFactory?.failBeforeAdmission(error);
+							failAdmissionBarrier(error.message);
+						}
+					},
+					() => {
+						const error = new SubAgentAssignmentRunnerError(
+							"runtime_initialization_failed",
+							"Worktree child failed before the complete batch was admitted",
+						);
+						worktreeResolverFactory?.failBeforeAdmission(error);
+						failAdmissionBarrier(error.message);
+					},
+				);
+			}
+			return launch;
+		}),
 	);
 	const started = outcomes.filter((outcome) => outcome.ok).length;
 	const details: SubAgentsSpawnToolDetails = {

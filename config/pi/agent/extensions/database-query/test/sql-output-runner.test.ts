@@ -14,6 +14,7 @@ import {
 import type { DatabaseProfile } from "../profile.ts";
 import {
 	buildDatabaseClientInvocation,
+	classifyClientFailure,
 	DATABASE_EXECUTION_TIMEOUT_MS,
 	nixProfileExecutableCandidate,
 	SpawnDatabaseRunner,
@@ -277,6 +278,27 @@ test("trusted Nix profile candidates derive only from a bounded system account n
 	}
 });
 
+test("bounded raw client diagnostics collapse to fixed nonsecret categories", () => {
+	const cases = [
+		["sqlserver", "Sqlcmd: Error: mssql: login error: Login failed for user 'secret-user'.", "authentication_failed"],
+		["sqlserver", "Sqlcmd: Error: dial tcp 10.0.0.8:1433: connect: connection refused", "connection_failed"],
+		["sqlserver", "Sqlcmd: Error: x509: certificate signed by unknown authority", "tls_error"],
+		["sqlserver", "Sqlcmd: Error: Cannot open database secret_db requested by the login.", "database_unavailable"],
+		["sqlserver", "unknown shorthand flag: 'Z' in -Z", "client_incompatible"],
+		["sqlserver", "Msg 208, Level 16, State 1: Invalid object name 'secret_table'.", "query_error"],
+		["mysql", "ERROR 1045 (28000): Access denied for user 'secret-user'", "authentication_failed"],
+		["mysql", "ERROR 2003 (HY000): Can't connect to MySQL server on 'secret-host'", "connection_failed"],
+		["mysql", "ERROR 1049 (42000): Unknown database 'secret_db'", "database_unavailable"],
+		["mysql", "ERROR 1064 (42000): You have an error in your SQL syntax", "query_error"],
+	] as const;
+	for (const [engine, raw, expected] of cases) {
+		const result = classifyClientFailure(engine, Buffer.from(`${raw} PASSWORD_CANARY`));
+		assert.equal(result, expected, raw);
+		assert.equal(result.includes("CANARY"), false);
+	}
+	assert.equal(classifyClientFailure("sqlserver", Buffer.alloc(0)), "client_error");
+});
+
 test("client invocation uses fixed absolute executables, password-only child environment, and no query/password argv", () => {
 	const mysql = buildDatabaseClientInvocation(MYSQL, "/usr/bin/mysql");
 	assert.equal(mysql.executable, "/usr/bin/mysql");
@@ -356,6 +378,21 @@ test("fake child receives SQL only through stdin with isolated env and bounded s
 	assert.equal(overflow.child.kills.includes("SIGTERM"), true);
 });
 
+test("stdin EPIPE does not mask a classified client failure", async () => {
+	const harness = fakeRunnerHarness();
+	const pending = harness.runner.run(MYSQL, "SELECT 1", "/offline/project");
+	harness.child.stderr.emit("data", Buffer.from("ERROR 2003 (HY000): Can't connect to MySQL server on 'secret-host'"));
+	harness.child.stdin.emit("error", new Error("EPIPE PASSWORD_CANARY"));
+	harness.child.emit("close", 1);
+	const result = await pending;
+	assert.deepEqual(
+		{ ok: result.ok, ...(!result.ok ? { code: result.code } : {}) },
+		{ ok: false, code: "connection_failed" },
+	);
+	assert.equal(JSON.stringify(result).includes("secret-host"), false);
+	assert.equal(JSON.stringify(result).includes("PASSWORD_CANARY"), false);
+});
+
 test("fake child abort and stdout overflow terminate work with fixed failures and no output spill", async () => {
 	const aborted = fakeRunnerHarness();
 	const controller = new AbortController();
@@ -376,7 +413,7 @@ test("fake child abort and stdout overflow terminate work with fixed failures an
 
 test("runtime sources pin time/output bounds and contain no temp-file, shell, log, message, or inherited-env sink", async () => {
 	assert.equal(DATABASE_EXECUTION_TIMEOUT_MS, 30_000);
-	const files = ["extension.ts", "output.ts", "profile-resolver.ts", "profile.ts", "project-scope.ts", "protocol.ts", "requirements.ts", "runner.ts", "sql-safety.ts", "static-config.ts"];
+	const files = ["extension.ts", "mssql-runner.ts", "output.ts", "profile-resolver.ts", "profile.ts", "project-scope.ts", "protocol.ts", "requirements.ts", "runner.ts", "sql-safety.ts", "static-config.ts"];
 	const source = (await Promise.all(files.map((file) => readFile(new URL(`../${file}`, import.meta.url), "utf8")))).join("\n");
 	for (const forbidden of [
 		"console.",

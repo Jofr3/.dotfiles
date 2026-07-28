@@ -141,6 +141,8 @@ test("status bounds target IDs, detail levels, timelines, and explicit usage dra
 			detail: "timeline",
 			eventLimit: SUB_AGENT_BOUNDS.eventTimeline,
 			drainUsage: true,
+			includeWorktreeChanges: true,
+			worktreeCatalogChanges: [{ workspaceId: "saw1-catalog-fixture", expectedRevision: 7 }],
 		},
 		"selected timeline status",
 	);
@@ -148,6 +150,17 @@ test("status bounds target IDs, detail levels, timelines, and explicit usage dra
 	assertRejected(subAgentsStatusSchema, { ids: [AGENT_ID, AGENT_ID] }, "duplicate status IDs");
 	assertRejected(subAgentsStatusSchema, { ids: ["not-an-agent-id"] }, "malformed agent ID");
 	assertRejected(subAgentsStatusSchema, { detail: "messages" }, "unbounded detail level");
+	assertRejected(subAgentsStatusSchema, { worktreeCatalogChanges: [] }, "empty catalog selection");
+	assertRejected(
+		subAgentsStatusSchema,
+		{ worktreeCatalogChanges: [{ workspaceId: "not-a-worktree", expectedRevision: 1 }] },
+		"malformed catalog workspace ID",
+	);
+	assertRejected(
+		subAgentsStatusSchema,
+		{ worktreeCatalogChanges: [{ workspaceId: "saw1-catalog-fixture", expectedRevision: 0 }] },
+		"invalid catalog revision",
+	);
 	assertRejected(
 		subAgentsStatusSchema,
 		{ eventLimit: SUB_AGENT_BOUNDS.eventTimeline + 1 },

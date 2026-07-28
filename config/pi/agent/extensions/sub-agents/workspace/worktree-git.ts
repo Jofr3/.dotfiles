@@ -28,6 +28,11 @@ const DEFAULT_MAX_BLOB_BYTES = 16 * 1024 * 1024;
 const DEFAULT_MAX_TOTAL_BLOB_BYTES = 256 * 1024 * 1024;
 const MAX_CONFIG_BYTES = 2 * 1024 * 1024;
 const MAX_REASON_CHARS = 200;
+const DEFAULT_MAX_CHANGED_FILES = 100;
+const DEFAULT_MAX_DIFF_STAT_FILES = 100;
+const DEFAULT_MAX_PATCH_PREVIEW_LINES = 160;
+const DEFAULT_MAX_PATCH_PREVIEW_BYTES = 16 * 1024;
+const DEFAULT_MAX_PATCH_PREVIEW_LINE_BYTES = 420;
 const POSITIVE_ENVIRONMENT = Object.freeze([
 	"PATH", "PATHEXT", "SystemRoot", "WINDIR", "COMSPEC", "LANG", "LC_ALL", "LC_CTYPE",
 ] as const);
@@ -101,6 +106,56 @@ export interface WorktreeInspection {
 	readonly refCommit?: GitObjectId;
 	readonly clean?: boolean;
 	readonly indexMatchesBase?: boolean;
+}
+
+export type WorktreeChangedFileKind = "added" | "modified" | "deleted" | "renamed" | "copied" | "typechange" | "untracked" | "ignored" | "conflicted" | "unknown";
+
+export interface WorktreeChangedFileSummary {
+	readonly path: string;
+	readonly status: string;
+	readonly kind: WorktreeChangedFileKind;
+	readonly oldPath?: string;
+}
+
+export interface WorktreeDiffStatFileSummary {
+	readonly path: string;
+	readonly insertions: number | null;
+	readonly deletions: number | null;
+	readonly binary: boolean;
+}
+
+export interface WorktreeDiffStatSummary {
+	readonly filesChanged: number;
+	readonly insertions: number;
+	readonly deletions: number;
+	readonly binaryFiles: number;
+	readonly files: readonly WorktreeDiffStatFileSummary[];
+	readonly truncated: boolean;
+}
+
+export interface WorktreeCommitRangeSummary {
+	readonly baseCommit: GitObjectId;
+	readonly currentCommit: GitObjectId | null;
+	readonly aheadCount: number | null;
+}
+
+export interface WorktreePatchPreviewSummary {
+	readonly lineCount: number;
+	readonly lines: readonly string[];
+	readonly truncated: boolean;
+	readonly omittedLineCount: number;
+	readonly omittedByteCount: number;
+}
+
+export interface WorktreeCollectionSummary extends WorktreeInspection {
+	readonly changedFileCount: number;
+	readonly changedFiles: readonly WorktreeChangedFileSummary[];
+	readonly changedFilesTruncated: boolean;
+	readonly diffStat: WorktreeDiffStatSummary;
+	readonly commitRange: WorktreeCommitRangeSummary;
+	readonly patchPreview: WorktreePatchPreviewSummary;
+	readonly conflicted: boolean;
+	readonly incomplete: boolean;
 }
 
 export interface WorktreeReconciliation {
@@ -185,7 +240,7 @@ export interface WorktreeGitOperations {
 	listWorktrees(options: ListWorktreesOptions): Promise<readonly GitWorktreeEntry[]>;
 	inspectWorktree(options: InspectWorktreeOptions): Promise<WorktreeInspection>;
 	reconcileWorktree(options: ReconcileWorktreeOptions): Promise<WorktreeReconciliation>;
-	collectSummary(options: InspectWorktreeOptions): Promise<WorktreeInspection>;
+	collectSummary(options: InspectWorktreeOptions): Promise<WorktreeCollectionSummary>;
 }
 
 export interface CreateWorktreeGitOperationsOptions {
@@ -380,6 +435,164 @@ export function parseIndexEntriesZ(input: Uint8Array, maxEntries = DEFAULT_MAX_T
 		result.push(Object.freeze({ mode: match[1] as GitTreeMode, oid: validateGitObjectId(match[2]), stage: 0, path: validateTreePath(match[4]) }));
 	}
 	return Object.freeze(result);
+}
+
+function classifyStatus(status: string): WorktreeChangedFileKind {
+	if (status.length !== 2) fail("malformed_output", "Git status code is malformed");
+	if (status === "??") return "untracked";
+	if (status === "!!") return "ignored";
+	if (status.includes("U") || status === "AA" || status === "DD") return "conflicted";
+	if (status.includes("R")) return "renamed";
+	if (status.includes("C")) return "copied";
+	if (status.includes("A")) return "added";
+	if (status.includes("D")) return "deleted";
+	if (status.includes("T")) return "typechange";
+	if (status.includes("M")) return "modified";
+	return "unknown";
+}
+
+function parseStatusPorcelainZ(input: Uint8Array, maxFiles = DEFAULT_MAX_CHANGED_FILES): {
+	readonly changedFileCount: number;
+	readonly changedFiles: readonly WorktreeChangedFileSummary[];
+	readonly changedFilesTruncated: boolean;
+	readonly conflicted: boolean;
+} {
+	const buffer = Buffer.from(input);
+	if (buffer.length && buffer.at(-1) !== 0) fail("malformed_output", "Git status output is not NUL terminated");
+	const files: WorktreeChangedFileSummary[] = [];
+	let changedFileCount = 0;
+	let conflicted = false;
+	let start = 0;
+	for (let cursor = 0; cursor < buffer.length; cursor += 1) {
+		if (buffer[cursor] !== 0) continue;
+		const record = strictUtf8(buffer.subarray(start, cursor), "Git status record");
+		start = cursor + 1;
+		if (!record) continue;
+		if (record.length < 4 || record[2] !== " ") fail("malformed_output", "Git status record is malformed");
+		const status = record.slice(0, 2);
+		const kind = classifyStatus(status);
+		const path = validateTreePath(record.slice(3));
+		let oldPath: string | undefined;
+		if (kind === "renamed" || kind === "copied") {
+			const next = buffer.indexOf(0, start);
+			if (next < 0) fail("malformed_output", "Git rename/copy status record is incomplete");
+			oldPath = validateTreePath(strictUtf8(buffer.subarray(start, next), "Git status original path"));
+			start = next + 1;
+			cursor = next;
+		}
+		changedFileCount += 1;
+		if (kind === "conflicted") conflicted = true;
+		if (files.length < maxFiles) files.push(Object.freeze({ path, status, kind, ...(oldPath ? { oldPath } : {}) }));
+	}
+	return Object.freeze({ changedFileCount, changedFiles: Object.freeze(files), changedFilesTruncated: changedFileCount > files.length, conflicted });
+}
+
+function parseDiffNumstatZ(input: Uint8Array, maxFiles = DEFAULT_MAX_DIFF_STAT_FILES): WorktreeDiffStatSummary {
+	const buffer = Buffer.from(input);
+	if (buffer.length && buffer.at(-1) !== 0) fail("malformed_output", "Git diff numstat output is not NUL terminated");
+	const files: WorktreeDiffStatFileSummary[] = [];
+	let filesChanged = 0;
+	let insertions = 0;
+	let deletions = 0;
+	let binaryFiles = 0;
+	let start = 0;
+	for (let cursor = 0; cursor < buffer.length; cursor += 1) {
+		if (buffer[cursor] !== 0) continue;
+		const record = strictUtf8(buffer.subarray(start, cursor), "Git diff numstat record");
+		start = cursor + 1;
+		if (!record) continue;
+		const columns = record.split("\t");
+		if (columns.length !== 3) fail("malformed_output", "Git diff numstat record is malformed");
+		const binary = columns[0] === "-" && columns[1] === "-";
+		let path = columns[2];
+		if (!path) {
+			const oldEnd = buffer.indexOf(0, start);
+			if (oldEnd < 0) fail("malformed_output", "Git diff rename old path is incomplete");
+			validateTreePath(strictUtf8(buffer.subarray(start, oldEnd), "Git diff rename old path"));
+			const newEnd = buffer.indexOf(0, oldEnd + 1);
+			if (newEnd < 0) fail("malformed_output", "Git diff rename new path is incomplete");
+			path = strictUtf8(buffer.subarray(oldEnd + 1, newEnd), "Git diff rename new path");
+			start = newEnd + 1;
+			cursor = newEnd;
+		}
+		path = validateTreePath(path);
+		let fileInsertions: number | null = null;
+		let fileDeletions: number | null = null;
+		if (binary) {
+			binaryFiles += 1;
+		} else {
+			fileInsertions = Number(columns[0]);
+			fileDeletions = Number(columns[1]);
+			if (!Number.isSafeInteger(fileInsertions) || fileInsertions < 0 || !Number.isSafeInteger(fileDeletions) || fileDeletions < 0) fail("malformed_output", "Git diff numstat counters are malformed");
+			insertions += fileInsertions;
+			deletions += fileDeletions;
+			if (!Number.isSafeInteger(insertions) || !Number.isSafeInteger(deletions)) fail("output_limit", "Git diff numstat counters exceed their bound");
+		}
+		filesChanged += 1;
+		if (files.length < maxFiles) files.push(Object.freeze({ path, insertions: fileInsertions, deletions: fileDeletions, binary }));
+	}
+	return Object.freeze({ filesChanged, insertions, deletions, binaryFiles, files: Object.freeze(files), truncated: filesChanged > files.length });
+}
+
+function parseAheadCount(input: Buffer): number {
+	const value = Number(oneLineOutput(input, "Git commit range count"));
+	if (!Number.isSafeInteger(value) || value < 0) fail("malformed_output", "Git commit range count is malformed");
+	return value;
+}
+
+function boundPatchPreviewLine(value: string): { readonly line: string; readonly truncated: boolean; readonly omittedBytes: number } {
+	const sanitized = value.replace(/\r$/u, "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/gu, " ");
+	const bytes = Buffer.byteLength(sanitized, "utf8");
+	if (bytes <= DEFAULT_MAX_PATCH_PREVIEW_LINE_BYTES) return { line: sanitized, truncated: false, omittedBytes: 0 };
+	const ellipsis = "…";
+	const ellipsisBytes = Buffer.byteLength(ellipsis, "utf8");
+	let output = "";
+	let used = 0;
+	for (const character of sanitized) {
+		const size = Buffer.byteLength(character, "utf8");
+		if (used + size + ellipsisBytes > DEFAULT_MAX_PATCH_PREVIEW_LINE_BYTES) break;
+		output += character;
+		used += size;
+	}
+	return { line: `${output}${ellipsis}`, truncated: true, omittedBytes: Math.max(0, bytes - used) };
+}
+
+function parsePatchPreview(input: Uint8Array): WorktreePatchPreviewSummary {
+	if (input.length === 0) return Object.freeze({ lineCount: 0, lines: Object.freeze([]), truncated: false, omittedLineCount: 0, omittedByteCount: 0 });
+	const text = strictUtf8(input, "Git patch preview");
+	if (text.includes("\0")) fail("malformed_output", "Git patch preview contains NUL");
+	const rawLines = text.endsWith("\n") ? text.slice(0, -1).split("\n") : text.split("\n");
+	const lines: string[] = [];
+	let retainedBytes = 0;
+	let omittedByteCount = 0;
+	let truncated = false;
+	for (const rawLine of rawLines) {
+		if (lines.length >= DEFAULT_MAX_PATCH_PREVIEW_LINES) {
+			truncated = true;
+			omittedByteCount += Buffer.byteLength(rawLine, "utf8") + 1;
+			continue;
+		}
+		const bounded = boundPatchPreviewLine(rawLine);
+		const nextBytes = Buffer.byteLength(bounded.line, "utf8") + 1;
+		if (retainedBytes + nextBytes > DEFAULT_MAX_PATCH_PREVIEW_BYTES) {
+			truncated = true;
+			omittedByteCount += Buffer.byteLength(rawLine, "utf8") + 1;
+			continue;
+		}
+		lines.push(bounded.line);
+		retainedBytes += nextBytes;
+		if (bounded.truncated) {
+			truncated = true;
+			omittedByteCount += bounded.omittedBytes;
+		}
+	}
+	return Object.freeze({
+		lineCount: rawLines.length,
+		lines: Object.freeze(lines),
+		truncated,
+		omittedLineCount: Math.max(0, rawLines.length - lines.length),
+		omittedByteCount,
+	});
 }
 
 export function parseCatFileBatch(
@@ -1070,6 +1283,63 @@ export async function createWorktreeGitOperations(options: CreateWorktreeGitOper
 		return Object.freeze({ registered: true, registration, ...(head ? { head } : {}), ...(branchRef ? { branchRef } : {}), ...(refCommit ? { refCommit } : {}), ...(clean !== undefined ? { clean } : {}), ...(indexMatchesBase !== undefined ? { indexMatchesBase } : {}) });
 	};
 
+	const collectSummary = async (request: InspectWorktreeOptions): Promise<WorktreeCollectionSummary> => {
+		const inspection = await inspectWorktree(request);
+		const expectedBase = request.expectedBaseCommit === undefined ? undefined : validateOidForFormat(request.expectedBaseCommit, request.repository.objectFormat);
+		const emptyDiff = Object.freeze({ filesChanged: 0, insertions: 0, deletions: 0, binaryFiles: 0, files: Object.freeze([]), truncated: false });
+		const emptyPatchPreview = Object.freeze({ lineCount: 0, lines: Object.freeze([]), truncated: false, omittedLineCount: 0, omittedByteCount: 0 });
+		if (!inspection.registered || !expectedBase) {
+			return Object.freeze({
+				...inspection,
+				changedFileCount: 0,
+				changedFiles: Object.freeze([]),
+				changedFilesTruncated: false,
+				diffStat: emptyDiff,
+				commitRange: Object.freeze({ baseCommit: expectedBase ?? "0".repeat(request.repository.objectFormat === "sha1" ? 40 : 64), currentCommit: inspection.head ?? null, aheadCount: null }),
+				patchPreview: emptyPatchPreview,
+				conflicted: false,
+				incomplete: true,
+			});
+		}
+		const path = requireAbsolutePath(request.path, "Worktree path");
+		let statusSummary = Object.freeze({ changedFileCount: 0, changedFiles: Object.freeze([]), changedFilesTruncated: false, conflicted: false });
+		let diffStat: WorktreeDiffStatSummary = emptyDiff;
+		let patchPreview: WorktreePatchPreviewSummary = emptyPatchPreview;
+		let aheadCount: number | null = null;
+		let incomplete = inspection.head === undefined || inspection.branchRef === undefined || inspection.refCommit === undefined;
+		try {
+			const [statusRaw, diffRaw, aheadRaw] = await Promise.all([
+				executeGit(context, path, ["status", "--porcelain=v1", "-z", "--untracked-files=all"], request),
+				executeGit(context, path, ["diff", "--no-ext-diff", "--no-textconv", "--numstat", "-z", expectedBase, "--"], request),
+				executeGit(context, path, ["rev-list", "--count", `${expectedBase}..HEAD`], request),
+			]);
+			statusSummary = parseStatusPorcelainZ(statusRaw.stdout);
+			diffStat = parseDiffNumstatZ(diffRaw.stdout);
+			aheadCount = parseAheadCount(aheadRaw.stdout);
+		} catch (error) {
+			if (error instanceof WorktreeGitError && ["cancelled", "git_timeout", "output_limit"].includes(error.code)) throw error;
+			incomplete = true;
+		}
+		try {
+			const patchRaw = await executeGit(context, path, ["diff", "--no-ext-diff", "--no-textconv", "--no-color", "--patch", "--unified=3", expectedBase, "--"], request);
+			patchPreview = parsePatchPreview(patchRaw.stdout);
+		} catch (error) {
+			if (error instanceof WorktreeGitError && ["cancelled", "git_timeout", "output_limit"].includes(error.code)) throw error;
+			incomplete = true;
+		}
+		return Object.freeze({
+			...inspection,
+			changedFileCount: statusSummary.changedFileCount,
+			changedFiles: statusSummary.changedFiles,
+			changedFilesTruncated: statusSummary.changedFilesTruncated,
+			diffStat,
+			commitRange: Object.freeze({ baseCommit: expectedBase, currentCommit: inspection.head ?? null, aheadCount }),
+			patchPreview,
+			conflicted: statusSummary.conflicted,
+			incomplete,
+		});
+	};
+
 	const registerNoCheckoutWorktree = async (request: RegisterNoCheckoutWorktreeOptions): Promise<RegisteredNoCheckoutWorktree> => {
 		throwIfAborted(request.signal);
 		await revalidateRepository(request.repository, request);
@@ -1172,7 +1442,7 @@ export async function createWorktreeGitOperations(options: CreateWorktreeGitOper
 		return Object.freeze({ pathExists, branchExists, ...(branchCommit ? { branchCommit } : {}), ...(registration ? { registration } : {}), exact, ...(inspection ? { inspection } : {}) });
 	};
 
-	return Object.freeze({ inspectRepository, registerNoCheckoutWorktree, materializeTree, listWorktrees, inspectWorktree, reconcileWorktree, collectSummary: inspectWorktree });
+	return Object.freeze({ inspectRepository, registerNoCheckoutWorktree, materializeTree, listWorktrees, inspectWorktree, reconcileWorktree, collectSummary });
 }
 
 // Explicit production parser names, plus the concise names shared with the disposable fixture vocabulary.

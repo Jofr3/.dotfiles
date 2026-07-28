@@ -1,5 +1,11 @@
 import { Buffer } from "node:buffer";
 import {
+	isAbsolute,
+	relative,
+	resolve,
+	sep,
+} from "node:path";
+import {
 	createExtensionRuntime,
 	type ResourceLoader,
 } from "@earendil-works/pi-coding-agent";
@@ -8,6 +14,7 @@ import type {
 	DynamicAgentSpec,
 	SessionGeneration,
 	SubAgentId,
+	WorkspaceIdentity,
 } from "./types.ts";
 import { SUB_AGENT_BOUNDS } from "./types.ts";
 
@@ -33,11 +40,17 @@ export interface CaptureParentContextOptions {
 	capturedAt?: number;
 }
 
+export interface ParentContextDisplayPathMapping {
+	readonly parentRoot: string;
+	readonly workspace: Readonly<WorkspaceIdentity>;
+}
+
 export interface CreateSubAgentResourceLoaderOptions {
 	id: SubAgentId;
 	generation: SessionGeneration;
 	spec: Readonly<DynamicAgentSpec>;
 	parentContext?: ParentContextSnapshotV1;
+	contextDisplayPathMapping?: Readonly<ParentContextDisplayPathMapping>;
 }
 
 export type SubAgentResourceLoaderErrorCode =
@@ -162,9 +175,29 @@ export function captureParentContextSnapshot(
 	});
 }
 
+function pathWithinRoot(root: string, candidate: string): boolean {
+	const fromRoot = relative(root, candidate);
+	return (
+		fromRoot === "" ||
+		(!isAbsolute(fromRoot) && fromRoot !== ".." && !fromRoot.startsWith(`..${sep}`))
+	);
+}
+
+function remapContextDisplayPath(
+	path: string,
+	mapping: Readonly<ParentContextDisplayPathMapping> | undefined,
+): string {
+	if (!mapping || mapping.workspace.mode !== "worktree" || !isAbsolute(path)) return path;
+	const parentRoot = resolve(mapping.parentRoot);
+	const parentPath = resolve(path);
+	if (!pathWithinRoot(parentRoot, parentPath)) return path;
+	return resolve(mapping.workspace.root, relative(parentRoot, parentPath));
+}
+
 function approvedContextFiles(
 	expectedGeneration: SessionGeneration,
 	snapshot: ParentContextSnapshotV1 | undefined,
+	contextDisplayPathMapping?: Readonly<ParentContextDisplayPathMapping>,
 ): readonly ParentContextFile[] {
 	const generation = requireGeneration(expectedGeneration);
 	if (
@@ -175,7 +208,14 @@ function approvedContextFiles(
 	) {
 		return Object.freeze([]);
 	}
-	return copyBoundedContextFiles(snapshot.files);
+	const files = copyBoundedContextFiles(snapshot.files);
+	if (!contextDisplayPathMapping) return files;
+	return copyBoundedContextFiles(
+		files.map((file) => ({
+			path: remapContextDisplayPath(file.path, contextDisplayPathMapping),
+			content: file.content,
+		})),
+	);
 }
 
 function hasDynamicResourcePaths(
@@ -197,7 +237,11 @@ export function createSubAgentResourceLoader(
 	options: CreateSubAgentResourceLoaderOptions,
 ): ResourceLoader {
 	const systemPrompt = buildSubAgentSystemPrompt(options.id, options.spec);
-	const contextFiles = approvedContextFiles(options.generation, options.parentContext);
+	const contextFiles = approvedContextFiles(
+		options.generation,
+		options.parentContext,
+		options.contextDisplayPathMapping,
+	);
 	const extensionsResult = {
 		extensions: [],
 		errors: [],

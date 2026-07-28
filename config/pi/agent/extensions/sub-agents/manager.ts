@@ -6,6 +6,8 @@ import {
 	type ParentWorkspaceReservation,
 } from "./workspace/leases.ts";
 import type { CanonicalWorkspacePath } from "./workspace/paths.ts";
+import type { RegisteredWorkspace, WorktreeWorkspaceRegistration } from "./workspace/registry.ts";
+import type { WorktreeOwnedChangeCollection } from "./workspace/worktrees.ts";
 import {
 	captureParentContextSnapshot,
 	type ParentContextFile,
@@ -54,6 +56,7 @@ import type {
 	SubAgentManagerOverview,
 	SubAgentManagerOverviewRow,
 	SubAgentManagerSummary,
+	SubAgentWorkspaceSummary,
 	ThinkingLevel,
 	UsageCounters,
 	UsageDelta,
@@ -125,6 +128,8 @@ export interface RuntimeCleanupHooks {
 	abort?: () => void | Promise<void>;
 	waitForIdle?: () => void | Promise<void>;
 	dispose?: () => void | Promise<void>;
+	/** Optional path-free exact-owned worktree status/diff collection. */
+	collectWorktreeChanges?: () => Promise<Readonly<WorktreeOwnedChangeCollection>>;
 }
 
 interface RuntimeQuiescenceResult {
@@ -398,6 +403,38 @@ function cloneSpec(spec: Readonly<DynamicAgentSpec>): Readonly<DynamicAgentSpec>
 	};
 }
 
+function cloneWorkspaceSummary(summary: SubAgentWorkspaceSummary | undefined): SubAgentWorkspaceSummary | undefined {
+	if (!summary) return undefined;
+	if (summary.mode === "shared") return Object.freeze({ mode: "shared" });
+	return Object.freeze({
+		mode: "worktree",
+		workspaceId: summary.workspaceId,
+		branchRef: summary.branchRef,
+		baseCommit: summary.baseCommit,
+		disposition: summary.disposition,
+	});
+}
+
+function workspaceSummaryFromIdentity(workspace: Readonly<WorkspaceIdentity>): SubAgentWorkspaceSummary {
+	if (workspace.mode === "shared") return Object.freeze({ mode: "shared" });
+	const workspaceId = boundText(workspace.workspaceId, SUB_AGENT_BOUNDS.agentIdChars);
+	const branchRef = boundText(workspace.branch, 512);
+	const baseCommit = boundText(workspace.baseCommit, 64);
+	if (!workspaceId || !branchRef || !baseCommit) {
+		throw new SubAgentManagerError(
+			"The resolved worktree workspace identity is missing path-free summary metadata",
+			"invalid_runtime_activity",
+		);
+	}
+	return Object.freeze({
+		mode: "worktree",
+		workspaceId,
+		branchRef,
+		baseCommit,
+		disposition: "active",
+	});
+}
+
 function snapshotRecord(record: ManagedRecord): ManagedSubAgentSnapshot {
 	return {
 		id: record.id,
@@ -417,6 +454,7 @@ function snapshotRecord(record: ManagedRecord): ManagedSubAgentSnapshot {
 		pendingModelReconfiguration: clonePendingModelReconfiguration(
 			record.pendingModelReconfiguration,
 		),
+		workspace: cloneWorkspaceSummary(record.workspace),
 		lastError: record.lastError,
 		events: record.events.map((event) => ({ ...event })),
 		omittedEventCount: record.omittedEventCount,
@@ -1206,6 +1244,32 @@ export class SubAgentManager {
 		});
 	}
 
+	/** Internal Phase 8 seam: register an exact manager-owned worktree identity. */
+	registerWorktreeWorkspace(input: WorktreeWorkspaceRegistration): Readonly<WorkspaceIdentity> {
+		this.#assertOpen();
+		return this.#workspaceLeases.registerWorktree(input);
+	}
+
+	/** Internal Phase 8 seam: authorize an exact manager-owned workspace identity. */
+	authorizeWorkspace(
+		workspace: Readonly<WorkspaceIdentity>,
+		ownerAgentId?: SubAgentId,
+	): Readonly<RegisteredWorkspace> {
+		this.#assertOpen();
+		return this.#workspaceLeases.authorize(workspace, ownerAgentId);
+	}
+
+	/** Internal Phase 8 seam: collect path-free exact-owned worktree status/diff metadata for a live child. */
+	collectWorkspaceChanges(id: SubAgentId): Promise<Readonly<WorktreeOwnedChangeCollection> | undefined> {
+		this.#assertOpen();
+		return this.#enqueue(id, async (record) => {
+			if (record.state === "removed" || record.restoredHistory) return undefined;
+			const collect = record.resources.cleanup?.collectWorktreeChanges;
+			if (typeof collect !== "function") return undefined;
+			return collect();
+		});
+	}
+
 	/** Reserve canonical targets for one exact parent tool call. */
 	reserveParentFiles(
 		reservationId: string,
@@ -1725,6 +1789,28 @@ export class SubAgentManager {
 				undefined,
 				record.state === "idle",
 			);
+			return snapshotRecord(record);
+		});
+	}
+
+	recordWorkspaceSummary(
+		id: SubAgentId,
+		workspace: Readonly<WorkspaceIdentity>,
+	): Promise<ManagedSubAgentSnapshot> {
+		this.#assertOpen();
+		const summary = workspaceSummaryFromIdentity(workspace);
+		return this.#enqueue(id, (record) => {
+			if (record.state !== "creating" && record.state !== "idle" && record.state !== "blocked") {
+				throw new SubAgentManagerError(
+					`Workspace summary can be recorded only at a stable runtime boundary: ${record.state}`,
+					"invalid_runtime_activity",
+				);
+			}
+			record.workspace = summary;
+			record.updatedAt = this.#now();
+			if (summary.mode === "worktree") {
+				this.#appendEvent(record, "runtime", `Resolved worktree workspace ${summary.workspaceId}`);
+			}
 			return snapshotRecord(record);
 		});
 	}

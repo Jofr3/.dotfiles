@@ -224,6 +224,9 @@ export function renderSpawnResult(
 			const name = spawnName(context.args, outcome);
 			if (!outcome.ok) {
 				lines.push(`${theme.fg("error", "✗")} ${theme.fg("muted", name)}${outcome.id ? ` ${idText(theme, outcome.id)}` : ""} ${errorText(theme, outcome.code, outcome.message)}`);
+				if (outcome.worktree) {
+					lines.push(`  ${theme.fg("warning", `worktree: ${cleanRendererLine(outcome.worktree.workspaceId, 200)} · ${cleanRendererLine(outcome.worktree.disposition, 24)}`)}`);
+				}
 				continue;
 			}
 			lines.push(`${theme.fg("success", "✓")} ${theme.fg("muted", name)} ${idText(theme, outcome.id)} ${theme.fg(stateColor(outcome.state), `· ${cleanRendererLine(outcome.state, 24)}`)}`);
@@ -231,6 +234,9 @@ export function renderSpawnResult(
 				const selected = `${cleanRendererLine(outcome.route.selectedModel.provider, 64)}/${cleanRendererLine(outcome.route.selectedModel.id, 112)}`;
 				const tier = outcome.route.selectedTier ?? outcome.route.requestedComplexity;
 				lines.push(`  ${theme.fg("dim", `model: ${selected} · ${tier}${outcome.route.fallbackUsed ? " · fallback" : ""}`)}`);
+			}
+			if (outcome.worktree) {
+				lines.push(`  ${theme.fg("warning", `worktree: ${cleanRendererLine(outcome.worktree.workspaceId, 200)} · ${cleanRendererLine(outcome.worktree.disposition, 24)}`)}`);
 			}
 		}
 	}
@@ -251,7 +257,9 @@ export function renderStatusCall(
 		context,
 		title(theme, "sub_agents_status") +
 			theme.fg("muted", `${target} · ${args.detail ?? "compact"}`) +
-			(args.drainUsage ? theme.fg("dim", " · drain usage") : ""),
+			(args.drainUsage ? theme.fg("dim", " · drain usage") : "") +
+			(args.includeWorktreeChanges ? theme.fg("dim", " · worktree changes") : "") +
+			(args.worktreeCatalogChanges?.length ? theme.fg("dim", ` · ${args.worktreeCatalogChanges.length} catalog`) : ""),
 	);
 }
 
@@ -269,6 +277,18 @@ function appendStatusOutcome(lines: string[], theme: Theme, outcome: StatusAgent
 	}
 	if (outcome.pendingModel) {
 		lines.push(`  ${theme.fg("warning", `queued model: ${cleanRendererLine(outcome.pendingModel.provider, 64)}/${cleanRendererLine(outcome.pendingModel.id, 112)}${outcome.pendingModel.afterAssignmentSequence ? ` · after #${outcome.pendingModel.afterAssignmentSequence}` : ""}`)}`);
+	}
+	if (outcome.workspace?.mode === "worktree") {
+		lines.push(`  ${theme.fg("warning", `worktree: ${cleanRendererLine(outcome.workspace.workspaceId, 200)} · ${cleanRendererLine(outcome.workspace.disposition, 24)}`)}`);
+	}
+	if (outcome.worktreeChanges) {
+		if (outcome.worktreeChanges.ok) {
+			const ahead = outcome.worktreeChanges.commitRange?.aheadCount;
+			const patchLines = outcome.worktreeChanges.patchPreview?.lineCount;
+			lines.push(`  ${theme.fg("dim", `worktree changes: ${outcome.worktreeChanges.changedFileCount ?? 0} file(s)${ahead === null || ahead === undefined ? "" : ` · ahead ${ahead}`}${patchLines === undefined ? "" : ` · patch ${patchLines} line(s)`}${outcome.worktreeChanges.conflicted ? " · conflicted" : ""}${outcome.worktreeChanges.incomplete ? " · incomplete" : ""}`)}`);
+		} else {
+			lines.push(`  ${theme.fg("warning", `worktree changes unavailable: ${cleanRendererLine(outcome.worktreeChanges.code, 64)}`)}`);
+		}
 	}
 	if (outcome.assignment) {
 		// The assignment summary is the original child objective. Keep raw prompts
@@ -304,6 +324,17 @@ function appendStatusOutcome(lines: string[], theme: Theme, outcome: StatusAgent
 	if (outcome.truncated) lines.push(`  ${theme.fg("warning", "detail truncated")}`);
 }
 
+function appendStatusCatalogOutcome(lines: string[], theme: Theme, outcome: NonNullable<SubAgentsStatusToolDetails["worktreeCatalog"]>[number]): void {
+	if (!outcome.ok) {
+		lines.push(`${theme.fg("warning", "△")} worktree catalog ${idText(theme, cleanRendererLine(outcome.workspaceId, 200))} ${errorText(theme, outcome.code, outcome.message)}`);
+		return;
+	}
+	const ahead = outcome.changes.commitRange?.aheadCount;
+	const patchLines = outcome.changes.patchPreview?.lineCount;
+	lines.push(`  ${theme.fg("warning", `worktree catalog: ${cleanRendererLine(outcome.workspaceId, 200)} · rev ${outcome.revision} · ${cleanRendererLine(outcome.workspace.disposition, 24)}`)}`);
+	lines.push(`  ${theme.fg("dim", `catalog changes: ${outcome.changes.changedFileCount ?? 0} file(s)${ahead === null || ahead === undefined ? "" : ` · ahead ${ahead}`}${patchLines === undefined ? "" : ` · patch ${patchLines} line(s)`}${outcome.changes.conflicted ? " · conflicted" : ""}${outcome.changes.incomplete ? " · incomplete" : ""}${outcome.truncated ? " · truncated" : ""}`)}`);
+}
+
 export function renderStatusResult(
 	result: RenderResult<SubAgentsStatusToolDetails>,
 	options: ToolRenderResultOptions,
@@ -321,9 +352,13 @@ export function renderStatusResult(
 		(details.failed ? theme.fg("error", `${count(details.failed)} errors`) : theme.fg("muted", "0 errors"));
 	if (counts.size) summary += theme.fg("dim", ` · ${[...counts.entries()].map(([state, total]) => `${cleanRendererLine(state, 24)} ${total}`).join(" · ")}`);
 	if (details.omitted) summary += theme.fg("warning", ` · ${details.omitted} omitted`);
+	if (details.worktreeCatalogRequested) summary += theme.fg("dim", ` · ${details.worktreeCatalogRequested} catalog`);
 	if (details.outputTruncated) summary += theme.fg("warning", " · bounded");
 	const lines = [summary];
-	if (options.expanded) for (const outcome of details.outcomes) appendStatusOutcome(lines, theme, outcome);
+	if (options.expanded) {
+		for (const outcome of details.outcomes) appendStatusOutcome(lines, theme, outcome);
+		for (const outcome of details.worktreeCatalog ?? []) appendStatusCatalogOutcome(lines, theme, outcome);
+	}
 	return updateRendererText(context, lines.join("\n"));
 }
 

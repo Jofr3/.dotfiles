@@ -1,7 +1,10 @@
+import { resolve } from "node:path";
 import {
 	SubAgentSessionFactoryError,
 	createSubAgentSession,
+	resolveSubAgentSessionWorkspace,
 	type CreateSubAgentSessionOptions,
+	type ResolvedSubAgentWorkspace,
 	type SubAgentSessionRuntime,
 } from "./agent-runtime.ts";
 import {
@@ -29,6 +32,14 @@ import type {
 } from "./types.ts";
 import { SUB_AGENT_BOUNDS } from "./types.ts";
 import { WorkspaceLeaseConflictError } from "./workspace/leases.ts";
+import type {
+	ApprovedWorktreeAdmission,
+	WorktreeAllocationHandle,
+	WorktreeCatalogChangeCollection,
+	WorktreeOutcomeSummary,
+	WorktreeOwnedChangeCollection,
+	WorktreeWorkspacePlan,
+} from "./workspace/worktrees.ts";
 
 export type ActiveAssignmentDelivery = "steer" | "followUp";
 
@@ -54,18 +65,21 @@ export class SubAgentAssignmentRunnerError extends Error {
 	readonly agentId?: SubAgentId;
 	/** True only when no child run can remain active after this failure. */
 	readonly runtimeSettled: boolean;
+	/** Path-free worktree allocation outcome, when provisioning reached an admitted boundary. */
+	readonly worktreeOutcome?: Readonly<WorktreeOutcomeSummary>;
 
 	constructor(
 		code: SubAgentAssignmentRunnerErrorCode,
 		message: string,
 		agentId?: SubAgentId,
-		options: { runtimeSettled?: boolean } = {},
+		options: { runtimeSettled?: boolean; worktreeOutcome?: Readonly<WorktreeOutcomeSummary> } = {},
 	) {
 		super(message);
 		this.name = "SubAgentAssignmentRunnerError";
 		this.code = code;
 		this.agentId = agentId;
 		this.runtimeSettled = options.runtimeSettled ?? true;
+		if (options.worktreeOutcome) this.worktreeOutcome = Object.freeze({ ...options.worktreeOutcome });
 	}
 }
 
@@ -73,6 +87,116 @@ export interface ChildModelResolutionRequest {
 	id: SubAgentId;
 	generation: SessionGeneration;
 	spec: Readonly<DynamicAgentSpec>;
+}
+
+export interface ChildWorkspaceResolutionRequest {
+	id: SubAgentId;
+	generation: SessionGeneration;
+	spec: Readonly<DynamicAgentSpec>;
+	parentCwd: string;
+	signal?: AbortSignal;
+}
+
+export interface WorktreeProvisionedWorkspace extends ResolvedSubAgentWorkspace {
+	readonly worktreeProvision?: Readonly<{
+		readonly summary: Readonly<WorktreeOutcomeSummary>;
+		readonly allocation: Readonly<WorktreeAllocationHandle>;
+		readonly retain: () => Promise<Readonly<WorktreeOutcomeSummary>>;
+		readonly collect?: (workspace: Readonly<ResolvedSubAgentWorkspace["identity"]>) => Promise<Readonly<WorktreeOwnedChangeCollection>>;
+	}>;
+}
+
+export type ChildWorkspaceResolver = (
+	request: ChildWorkspaceResolutionRequest,
+) => ResolvedSubAgentWorkspace | WorktreeProvisionedWorkspace | Promise<ResolvedSubAgentWorkspace | WorktreeProvisionedWorkspace>;
+
+export interface ApprovedWorktreeWorkspaceResolverOptions {
+	readonly worktrees: {
+		prepare(request: {
+			readonly cwd: string;
+			readonly trusted: boolean;
+			readonly sourceGeneration: SessionGeneration;
+			readonly childId: SubAgentId;
+			readonly relativeCwd?: string;
+			readonly signal?: AbortSignal;
+		}): Promise<Readonly<WorktreeWorkspacePlan>>;
+		provisionApproved(
+			plan: Readonly<WorktreeWorkspacePlan>,
+			admission: Readonly<ApprovedWorktreeAdmission>,
+			options?: { readonly signal?: AbortSignal },
+		): Promise<Readonly<{
+			readonly summary: Readonly<WorktreeOutcomeSummary>;
+			readonly workspace?: Readonly<ResolvedSubAgentWorkspace["identity"]>;
+			readonly allocation?: Readonly<WorktreeAllocationHandle>;
+			readonly relativeCwd?: string;
+		}>>;
+		retain(allocation: Readonly<WorktreeAllocationHandle>): Promise<Readonly<WorktreeOutcomeSummary>>;
+		collectOwnedChanges?(
+			allocation: Readonly<WorktreeAllocationHandle>,
+			workspace: Readonly<ResolvedSubAgentWorkspace["identity"]>,
+		): Promise<Readonly<WorktreeOwnedChangeCollection>>;
+		collectCatalogChanges?(request: {
+			readonly workspaceId: string;
+			readonly expectedRevision?: number;
+			readonly signal?: AbortSignal;
+		}): Promise<Readonly<WorktreeCatalogChangeCollection>>;
+	};
+	readonly trusted: boolean | ((request: ChildWorkspaceResolutionRequest) => boolean | Promise<boolean>);
+	readonly approve: (
+		plan: Readonly<WorktreeWorkspacePlan>,
+		request: ChildWorkspaceResolutionRequest,
+	) => Readonly<ApprovedWorktreeAdmission> | Promise<Readonly<ApprovedWorktreeAdmission>>;
+}
+
+export function createApprovedWorktreeWorkspaceResolver(
+	options: Readonly<ApprovedWorktreeWorkspaceResolverOptions>,
+): ChildWorkspaceResolver {
+	if (!options || typeof options !== "object" || !options.worktrees || typeof options.approve !== "function") {
+		throw new TypeError("A worktree manager and approval callback are required");
+	}
+	return async (request) => {
+		if (request.spec.workspace?.mode !== "worktree") {
+			return resolveSubAgentSessionWorkspace(request.parentCwd, request.spec);
+		}
+		const trusted = typeof options.trusted === "function"
+			? await options.trusted(request)
+			: options.trusted;
+		const relativeCwd = request.spec.workspace?.cwd?.trim() || undefined;
+		const plan = await options.worktrees.prepare({
+			cwd: request.parentCwd,
+			trusted,
+			sourceGeneration: request.generation,
+			childId: request.id,
+			...(relativeCwd !== undefined ? { relativeCwd } : {}),
+			signal: request.signal,
+		});
+		const admission = await options.approve(plan, request);
+		const provisioned = await options.worktrees.provisionApproved(plan, admission, { signal: request.signal });
+		if (!provisioned.workspace || !provisioned.allocation) {
+			throw new SubAgentAssignmentRunnerError(
+				"runtime_initialization_failed",
+				`The approved worktree could not be published for child runtime construction: ${provisioned.summary.disposition}`,
+				request.id,
+				{ runtimeSettled: true, worktreeOutcome: provisioned.summary },
+			);
+		}
+		const allocation = provisioned.allocation;
+		const cwd = provisioned.relativeCwd === undefined
+			? provisioned.workspace.root
+			: resolve(provisioned.workspace.root, provisioned.relativeCwd);
+		return Object.freeze({
+			identity: provisioned.workspace,
+			cwd,
+			worktreeProvision: Object.freeze({
+				summary: provisioned.summary,
+				allocation,
+				retain: () => options.worktrees.retain(allocation),
+				collect: options.worktrees.collectOwnedChanges
+					? (workspace) => options.worktrees.collectOwnedChanges!(allocation, workspace)
+					: undefined,
+			}),
+		});
+	};
 }
 
 export type ChildModelResolver = (
@@ -136,6 +260,7 @@ interface LiveChildRuntime {
 export interface SubAgentAssignmentRunnerDependencies {
 	createSession?: (options: CreateSubAgentSessionOptions) => Promise<SubAgentSessionRuntime>;
 	createTranslator?: (options: ChildEventTranslatorOptions) => ChildEventTranslator;
+	resolveWorkspace?: ChildWorkspaceResolver;
 }
 
 function boundedAssignmentText(value: unknown, field: string): string {
@@ -167,6 +292,40 @@ function safeInitializationMessage(error: unknown, fallback: string): string {
 		return error.message.slice(0, SUB_AGENT_BOUNDS.errorChars);
 	}
 	return fallback;
+}
+
+function worktreeProvision(
+	workspace: ResolvedSubAgentWorkspace | WorktreeProvisionedWorkspace,
+): WorktreeProvisionedWorkspace["worktreeProvision"] | undefined {
+	const candidate = (workspace as WorktreeProvisionedWorkspace).worktreeProvision;
+	if (
+		!candidate ||
+		typeof candidate !== "object" ||
+		typeof candidate.retain !== "function" ||
+		!candidate.allocation ||
+		!candidate.summary
+	) {
+		return undefined;
+	}
+	return candidate;
+}
+
+function uncertainWorktreeOutcome(
+	summary: Readonly<WorktreeOutcomeSummary>,
+): Readonly<WorktreeOutcomeSummary> {
+	return Object.freeze({ ...summary, disposition: "uncertain" as const });
+}
+
+async function retainProvisionedWorktree(
+	workspace: ResolvedSubAgentWorkspace | WorktreeProvisionedWorkspace,
+): Promise<Readonly<WorktreeOutcomeSummary> | undefined> {
+	const provision = worktreeProvision(workspace);
+	if (!provision) return undefined;
+	try {
+		return await provision.retain();
+	} catch {
+		return uncertainWorktreeOutcome(provision.summary);
+	}
 }
 
 function settledState(state: ManagedSubAgentSnapshot["state"]): boolean {
@@ -287,6 +446,7 @@ export class SubAgentAssignmentRunner {
 
 	#createSession: (options: CreateSubAgentSessionOptions) => Promise<SubAgentSessionRuntime>;
 	#createTranslator: (options: ChildEventTranslatorOptions) => ChildEventTranslator;
+	#resolveWorkspace: ChildWorkspaceResolver;
 	#live = new Map<SubAgentId, LiveChildRuntime>();
 	#operationTails = new Map<SubAgentId, Promise<void>>();
 
@@ -297,6 +457,8 @@ export class SubAgentAssignmentRunner {
 		this.manager = manager;
 		this.#createSession = dependencies.createSession ?? createSubAgentSession;
 		this.#createTranslator = dependencies.createTranslator ?? createChildEventTranslator;
+		this.#resolveWorkspace = dependencies.resolveWorkspace ?? ((request) =>
+			resolveSubAgentSessionWorkspace(request.parentCwd, request.spec));
 	}
 
 	get liveRuntimeCount(): number {
@@ -312,6 +474,7 @@ export class SubAgentAssignmentRunner {
 		spec: DynamicAgentSpec,
 		resolveModel: ChildModelResolver,
 		signal?: AbortSignal,
+		options: { readonly resolveWorkspace?: ChildWorkspaceResolver } = {},
 	): Promise<AssignmentLaunchResult> {
 		if (typeof resolveModel !== "function") {
 			throw new SubAgentAssignmentRunnerError(
@@ -350,7 +513,7 @@ export class SubAgentAssignmentRunner {
 			const route = (resolvedModel as ResolvedChildModel & { route?: ModelRoute }).route;
 			if (route) await this.manager.recordModelRoute(created.id, route);
 			throwIfCancelled(signal, created.id);
-			const initialization = this.#initialize(created.id, resolvedModel, signal);
+			const initialization = this.#initialize(created.id, resolvedModel, signal, options.resolveWorkspace);
 			this.manager.trackRuntimeOperation(created.id, initialization);
 			await raceWithCancellation(initialization, signal, created.id);
 			throwIfCancelled(signal, created.id);
@@ -837,6 +1000,7 @@ export class SubAgentAssignmentRunner {
 		id: SubAgentId,
 		resolvedModel: ResolvedChildModel,
 		signal?: AbortSignal,
+		resolveWorkspace?: ChildWorkspaceResolver,
 	): Promise<void> {
 		return this.#enqueue(id, async () => {
 			throwIfCancelled(signal, id);
@@ -857,13 +1021,34 @@ export class SubAgentAssignmentRunner {
 				);
 			}
 
+			let resolvedWorkspace: ResolvedSubAgentWorkspace;
+			try {
+				resolvedWorkspace = await (resolveWorkspace ?? this.#resolveWorkspace)({
+					id,
+					generation: snapshot.generation,
+					spec: snapshot.spec,
+					parentCwd: this.manager.cwd,
+					signal,
+				});
+			} catch (error) {
+				if (error instanceof SubAgentAssignmentRunnerError) throw error;
+				throw new SubAgentAssignmentRunnerError(
+					"runtime_initialization_failed",
+					safeInitializationMessage(error, "Could not resolve the child workspace"),
+					id,
+				);
+			}
+			throwIfCancelled(signal, id);
+
 			const translator = this.#createTranslator({ manager: this.manager, id });
 			let runtime: SubAgentSessionRuntime | undefined;
+			let retainedWorktreeOutcome: Readonly<WorktreeOutcomeSummary> | undefined;
 			try {
 				runtime = await this.#createSession({
 					id,
 					generation: snapshot.generation,
 					cwd: this.manager.cwd,
+					resolvedWorkspace,
 					spec: snapshot.spec,
 					resolvedModel,
 					parentContext: this.manager.getParentContextSnapshot(),
@@ -893,6 +1078,11 @@ export class SubAgentAssignmentRunner {
 					},
 				});
 				throwIfCancelled(signal, id);
+				await this.manager.recordWorkspaceSummary(id, runtime.workspace ?? resolvedWorkspace.identity);
+				const provision = worktreeProvision(resolvedWorkspace);
+				const collectWorktreeChanges = provision?.collect
+					? () => provision.collect!(runtime!.workspace ?? resolvedWorkspace.identity)
+					: undefined;
 				await this.manager.recordEffectiveThinkingLevel(
 					id,
 					runtime.thinkingLevel ?? snapshot.spec.thinkingLevel ?? "medium",
@@ -900,6 +1090,7 @@ export class SubAgentAssignmentRunner {
 				const live: LiveChildRuntime = { runtime, translator, pendingSequence: 0 };
 				this.manager.registerRuntimeCleanup(id, {
 					abort: () => runtime!.abort(),
+					collectWorktreeChanges,
 					waitForIdle: async () => {
 						await runtime!.waitForIdle();
 						// A stopping/closed manager rejects late translated observations by
@@ -942,19 +1133,23 @@ export class SubAgentAssignmentRunner {
 					}
 				}
 				await translator.close().catch(() => undefined);
+				retainedWorktreeOutcome = await retainProvisionedWorktree(resolvedWorkspace);
 				if (error instanceof SubAgentAssignmentRunnerError) {
 					throw new SubAgentAssignmentRunnerError(
 						error.code,
 						error.message,
 						error.agentId,
-						{ runtimeSettled: runtimeSettled !== false },
+						{
+							runtimeSettled: runtimeSettled !== false,
+							worktreeOutcome: retainedWorktreeOutcome ?? error.worktreeOutcome,
+						},
 					);
 				}
 				throw new SubAgentAssignmentRunnerError(
 					"runtime_initialization_failed",
 					safeInitializationMessage(error, "Could not initialize the child runtime"),
 					id,
-					{ runtimeSettled },
+					{ runtimeSettled, worktreeOutcome: retainedWorktreeOutcome },
 				);
 			}
 		});

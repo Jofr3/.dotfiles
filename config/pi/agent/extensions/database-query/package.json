@@ -1,0 +1,9 @@
+{
+  "name": "pi-database-query-extension",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "mssql": "11.0.1",
+    "@types/node": "24.10.1"
+  }
+}

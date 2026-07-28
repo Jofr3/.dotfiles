@@ -4,6 +4,7 @@ import { SUB_AGENT_BOUNDS } from "../types.ts";
 
 const NON_WHITESPACE_PATTERN = "\\S";
 const AGENT_ID_PATTERN = "^sa1-[A-Za-z0-9_-]+$";
+const WORKTREE_WORKSPACE_ID_PATTERN = "^saw1-[A-Za-z0-9_-]+$";
 
 const MODEL_POLICIES = ["auto", "inherit", "explicit"] as const;
 const COMPLEXITY_TIERS = ["simple", "moderate", "complex"] as const;
@@ -42,6 +43,25 @@ const agentIdsSchema = Type.Array(agentIdSchema, {
 	maxItems: SUB_AGENT_BOUNDS.controlTargets,
 	uniqueItems: true,
 });
+
+const worktreeCatalogTargetSchema = Type.Object(
+	{
+		workspaceId: Type.String({
+			description: "Exact generated worktree workspace ID from a retained/uncertain catalog entry.",
+			minLength: 6,
+			maxLength: SUB_AGENT_BOUNDS.agentIdChars,
+			pattern: WORKTREE_WORKSPACE_ID_PATTERN,
+		}),
+		expectedRevision: Type.Optional(
+			Type.Integer({
+				description: "Optional exact protected ownership-record revision to require before read-only collection.",
+				minimum: 1,
+				maximum: Number.MAX_SAFE_INTEGER,
+			}),
+		),
+	},
+	{ additionalProperties: false },
+);
 
 const explicitModelSchema = Type.Object(
 	{
@@ -182,6 +202,21 @@ export const subAgentsStatusSchema = Type.Object(
 			Type.Boolean({
 				description:
 					"Atomically attach newly accrued child usage to this tool result (default false). Repeated drains report only later accrual.",
+			}),
+		),
+		includeWorktreeChanges: Type.Optional(
+			Type.Boolean({
+				description:
+					"Include bounded path-free Git status, changed-file, diff-stat, commit-range, and patch-preview metadata for exact owned worktree children when available (default false).",
+			}),
+		),
+		worktreeCatalogChanges: Type.Optional(
+			Type.Array(worktreeCatalogTargetSchema, {
+				description:
+					"Collect bounded path-free Git status/diff/patch metadata for exact retained or uncertain worktree catalog records by workspace ID. Read-only; does not enable worktree creation, cleanup, merge, push, or branch deletion.",
+				minItems: 1,
+				maxItems: SUB_AGENT_BOUNDS.controlTargets,
+				uniqueItems: true,
 			}),
 		),
 	},

@@ -1095,7 +1095,7 @@ function bashConflictMessage(error: WorkspaceLeaseConflictError): string {
 				? ` (${boundedOneLine(conflict.ownerAgentName, SUB_AGENT_BOUNDS.nameChars)})`
 				: "")
 		: "a parent mutation";
-	return `Cannot execute bash in the shared workspace because it is owned by ${owner}. Report this workspace lease conflict to the parent; do not retry or bypass it.`;
+	return `Cannot execute bash in the resolved workspace because it is owned by ${owner}. Report this workspace lease conflict to the parent; do not retry or bypass it.`;
 }
 
 /**
@@ -1119,13 +1119,13 @@ export function createGuardedChildBashTool(
 	}
 	if (
 		!options.workspace ||
-		options.workspace.mode !== "shared" ||
+		(options.workspace.mode !== "shared" && options.workspace.mode !== "worktree") ||
 		typeof options.workspace.root !== "string" ||
 		typeof options.workspace.key !== "string"
 	) {
 		throw new GuardedChildBashError(
 			"lease_claim_failed",
-			"Guarded bash requires a valid shared workspace identity",
+			"Guarded bash requires a valid registered workspace identity",
 		);
 	}
 
@@ -1167,7 +1167,7 @@ export function createGuardedChildBashTool(
 				}
 				throw new GuardedChildBashError(
 					"lease_claim_failed",
-					"Could not acquire the shared workspace lease for guarded bash",
+					"Could not acquire the resolved workspace lease for guarded bash",
 				);
 			}
 			if (signal?.aborted) throw new Error("Command aborted");

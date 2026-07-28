@@ -191,6 +191,12 @@ test("production Git operations inspect from a subdirectory and materialize two 
 			expectedBranchRef: registered[0].branchRef,
 			expectedBaseCommit: baseCommit,
 		});
+		const firstCollection = await production.git.collectSummary({
+			repository: inspection,
+			path: firstPath,
+			expectedBranchRef: registered[0].branchRef,
+			expectedBaseCommit: baseCommit,
+		});
 		const secondInspection = await production.git.collectSummary({
 			repository: inspection,
 			path: secondPath,
@@ -199,8 +205,22 @@ test("production Git operations inspect from a subdirectory and materialize two 
 		});
 		assert.equal(firstInspection.clean, false);
 		assert.equal(firstInspection.indexMatchesBase, true);
+		assert.equal(firstCollection.changedFileCount, 1);
+		assert.equal(firstCollection.changedFiles[0].path, "src/nested/value.txt");
+		assert.equal(firstCollection.diffStat.filesChanged, 1);
+		assert.equal(firstCollection.diffStat.files[0].path, "src/nested/value.txt");
+		assert.ok(firstCollection.patchPreview.lineCount > 0);
+		assert.ok(firstCollection.patchPreview.lines.some((line) => line.includes("-one")));
+		assert.ok(firstCollection.patchPreview.lines.some((line) => line.includes("+equivalent-write")));
+		assert.equal(firstCollection.patchPreview.truncated, false);
+		assert.equal(JSON.stringify(firstCollection.patchPreview).includes(firstPath), false);
+		assert.equal(JSON.stringify(firstCollection.patchPreview).includes(temporary), false);
+		assert.equal(firstCollection.commitRange.baseCommit, baseCommit);
+		assert.equal(firstCollection.commitRange.currentCommit, baseCommit);
+		assert.equal(firstCollection.commitRange.aheadCount, 0);
 		assert.equal(secondInspection.clean, true);
 		assert.equal(secondInspection.indexMatchesBase, true);
+		assert.equal(secondInspection.changedFileCount, 0);
 		await mkdir(join(secondPath, "ignored"));
 		await writeFile(join(secondPath, "ignored", "cache"), "ignored\n");
 		const ignoredInspection = await production.git.inspectWorktree({
@@ -280,6 +300,19 @@ test("production manager provisions one real protected worktree transaction and 
 		assert.equal(catalog.entries.length, 1);
 		assert.equal(catalog.entries[0].disposition, "retained");
 		assert.equal(JSON.stringify(catalog).includes(temporary), false);
+		await writeFile(join(result.workspace.root, "src", "value.txt"), "two\n");
+		const collected = await manager.collectCatalogChanges({
+			workspaceId: result.workspace.workspaceId,
+			expectedRevision: catalog.entries[0].revision,
+		});
+		assert.equal(collected.exactOwnership, true);
+		assert.equal(collected.summary.disposition, "retained");
+		assert.equal(collected.collection.changedFileCount, 1);
+		assert.equal(collected.collection.diffStat.filesChanged, 1);
+		assert.match(collected.collection.patchPreview.lines.join("\n"), /\+two/u);
+		const serialized = JSON.stringify(collected);
+		assert.equal(serialized.includes(temporary), false);
+		assert.equal(serialized.includes("correlationToken"), false);
 	});
 });
 

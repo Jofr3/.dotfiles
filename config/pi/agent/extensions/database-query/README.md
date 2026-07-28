@@ -70,24 +70,25 @@ Database-account privileges remain the ultimate boundary against qualified cross
 
 ## Execution and output bounds
 
-No pinned in-process MySQL and SQL Server drivers were already available, and no dependency/network installation was performed. The dependency-free executor therefore:
+SQL Server uses the default Tedious driver through exact `mssql@11.0.1` package metadata and lockfile installed from the existing local npm cache. This replaces the incompatible Nix `go-sqlcmd` path, which exits before connecting when its `liner` terminal backend is unavailable. MySQL retains the bounded CLI executor. The runners therefore:
 
-- admits only fixed absolute root-owned, non-group/world-writable `mysql`/`sqlcmd` executables, including a validated current-user `/etc/profiles/per-user/<account>/bin/` Nix profile candidate;
-- uses `shell: false`, a detached process group where supported, and no inherited environment;
-- puts SQL only on stdin, never in argv;
-- puts the password only in a minimal child environment (`MYSQL_PWD` or `SQLCMDPASSWORD`), never in argv;
-- uses an unambiguous named MySQL `--database=<value>` option and rejects option-shaped profile routing values;
-- enforces a 5-second client connection timeout and 30-second host execution timeout;
-- terminates on cancellation/timeout/overflow with `SIGTERM`, then bounded `SIGKILL` escalation;
-- streams at most 256 KiB stdout and 64 KiB stderr into memory; raw stderr and caught error text are discarded;
-- displays at most 200 physical rows, 100 tab-separated columns, 4 KiB per cell, and 32 KiB/500 lines;
-- never writes a full-output spill or temporary file.
+- keep SQL Server host, user, password, database, TLS decisions, and SQL inside the Pi process and never put them in child argv or environment;
+- admit only fixed absolute root-owned, non-group/world-writable `mysql` executables for MySQL, including a validated current-user `/etc/profiles/per-user/<account>/bin/` Nix profile candidate;
+- use `shell: false`, a detached MySQL process group where supported, and no inherited child environment;
+- put MySQL SQL only on stdin and its password only in `MYSQL_PWD`, never in argv;
+- use an unambiguous named MySQL `--database=<value>` option and reject option-shaped profile routing values;
+- enforce a 5-second connection timeout and 30-second host execution timeout for both engines;
+- cancel an active SQL Server request and close its one-connection pool on cancellation/timeout; MySQL terminates with `SIGTERM`, then bounded `SIGKILL` escalation;
+- bound SQL Server result serialization before the shared display formatter and stream at most 256 KiB MySQL stdout plus 64 KiB MySQL stderr into memory;
+- reduce raw client/driver failures to fixed nonsecret categories (`authentication_failed`, `connection_failed`, `database_unavailable`, `tls_error`, `query_error`, `client_incompatible`, or generic `client_error`) without returning raw exception or stderr text;
+- display at most 200 physical rows, 100 tab-separated columns, 4 KiB per cell, and 32 KiB/500 lines;
+- never write a full-output spill or temporary file.
 
-Client/runner result shapes and failure codes are validated and all unexpected throws are replaced with fixed `DatabaseQueryError` messages. CLI formatting provides bounded physical records, not perfect semantic SQL Server row/cell parsing.
+Client/runner result shapes and failure codes are validated and all unexpected throws are replaced with fixed `DatabaseQueryError` messages. Formatting provides bounded physical records, not perfect semantic SQL Server row/cell parsing.
 
 ### Residual executor assumptions
 
-Passwords in child environment variables may be observable to same-UID/root processes on some operating systems. The `mysql`/`sqlcmd` binaries and versions are not package-pinned; runtime admission checks file ownership/permissions but not semantic version. If either assumption is unacceptable, leave database execution disabled until exact pinned in-process MySQL and SQL Server drivers are approved and installed offline. JavaScript/SDK/client strings and child environments cannot be deterministically zeroized.
+The pinned npm dependency tree and the in-process Tedious/mssql implementation are trusted code. SQL Server profile/query/result values and driver strings cannot be deterministically zeroized. MySQL passwords in child environment variables may be observable to same-UID/root processes on some operating systems, and the admitted `mysql` binary is ownership/permission checked but not semantically version-pinned. Leave the relevant engine disabled if those assumptions are unacceptable.
 
 ## Protected legacy static compatibility
 

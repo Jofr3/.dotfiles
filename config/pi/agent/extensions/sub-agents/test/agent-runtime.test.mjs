@@ -18,6 +18,7 @@ const {
 	createSubAgentSession,
 	resolveEnabledChildTools,
 	resolveReadOnlyChildTools,
+	resolveSubAgentSessionWorkspace,
 } = await importSubAgentsModule("agent-runtime.ts");
 const { SubAgentManager } = await importSubAgentsModule("manager.ts");
 const { captureParentContextSnapshot } = await importSubAgentsModule("resource-loader.ts");
@@ -144,6 +145,64 @@ test("the child session factory creates one isolated reusable in-memory read-onl
 		await child.close();
 		await child.close();
 		assert.equal(child.disposed, true);
+	} finally {
+		if (child && !child.disposed) await child.close().catch(() => undefined);
+		await rm(root, { recursive: true, force: true });
+	}
+});
+
+test("the child session factory consumes a pre-resolved worktree workspace without provisioning Git", async () => {
+	const root = await mkdtemp(join(tmpdir(), "pi-sub-agent-runtime-worktree-seam-"));
+	let child;
+	try {
+		const logicalRoot = join(root, "state", "trees", "workspace");
+		const nested = join(logicalRoot, "packages", "a");
+		await mkdir(nested, { recursive: true });
+		const workspaceId = `saw1-${"A".repeat(32)}`;
+		const identity = Object.freeze({
+			mode: "worktree",
+			root: resolve(logicalRoot),
+			key: `sawk1-${"B".repeat(32)}`,
+			workspaceId,
+			branch: `refs/heads/pi/sub-agents/0123456789abcdef/${workspaceId}`,
+			baseCommit: "a".repeat(40),
+		});
+		const { resolvedModel } = await createOfflineResolvedModel("child-runtime-worktree-seam-faux");
+
+		child = await createSubAgentSession({
+			id: "sa1-agent-runtime-worktree-seam-1-child",
+			generation: "sag1-agent-runtime-worktree-seam",
+			cwd: join(root, "unused-parent-cwd"),
+			resolvedWorkspace: { identity, cwd: nested },
+			spec: childSpec({
+				tools: ["read", "ls"],
+				workspace: { mode: "worktree", bashPolicy: "disabled" },
+			}),
+			resolvedModel,
+			onEvent() {},
+			onReport() {},
+		});
+
+		assert.equal(child.cwd, resolve(nested));
+		assert.deepEqual(child.workspace, identity);
+		assert.ok(Object.isFrozen(child.workspace));
+		assert.equal(child.sessionManager.getCwd(), resolve(nested));
+		assert.deepEqual(child.selectedTools, ["read", "ls", "report_to_parent"]);
+		assert.equal(child.session.getToolDefinition("read").name, "read");
+		assert.equal(child.session.getToolDefinition("ls").name, "ls");
+
+		await assert.rejects(
+			resolveSubAgentSessionWorkspace(root, childSpec({ workspace: { mode: "worktree" } })),
+			(error) => assertFactoryError(error, "unsupported_workspace"),
+		);
+		await assert.rejects(
+			resolveSubAgentSessionWorkspace(
+				root,
+				childSpec({ workspace: { mode: "shared" } }),
+				{ identity, cwd: nested },
+			),
+			(error) => assertFactoryError(error, "invalid_runtime_request"),
+		);
 	} finally {
 		if (child && !child.disposed) await child.close().catch(() => undefined);
 		await rm(root, { recursive: true, force: true });

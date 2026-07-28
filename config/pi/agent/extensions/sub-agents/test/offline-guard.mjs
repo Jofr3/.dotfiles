@@ -634,6 +634,9 @@ function safeGitArgumentGrammar(args, layout) {
 	if (args.length === 7 && exactArguments(args.slice(0, 5), ["diff", "--no-ext-diff", "--no-textconv", "--numstat", "-z"])) {
 		return inOwnedFixtureWorktree && GIT_OBJECT_ID.test(args[5]) && args[6] === "--";
 	}
+	if (args.length === 8 && exactArguments(args.slice(0, 6), ["diff", "--no-ext-diff", "--no-textconv", "--no-color", "--patch", "--unified=3"])) {
+		return inOwnedFixtureWorktree && GIT_OBJECT_ID.test(args[6]) && args[7] === "--";
+	}
 	if (args.length === 3 && args[0] === "rev-parse" && args[1] === "--verify" && args[2].endsWith("^{commit}")) {
 		return inRepository && GIT_FULL_FIXTURE_BRANCH.test(args[2].slice(0, -"^{commit}".length));
 	}
@@ -848,6 +851,16 @@ function safeProductionGitArgumentGrammar(args, layout) {
 	}
 	if (args.length === 3 && args[0] === "read-tree" && args[1] === "--reset") return inWorktree && GIT_OBJECT_ID.test(args[2]);
 	if (args.length === 4 && exactArguments(args.slice(0, 3), ["ls-tree", "-rz", "--full-tree"])) return inWorktree && GIT_OBJECT_ID.test(args[3]);
+	if (args.length === 7 && exactArguments(args.slice(0, 5), ["diff", "--no-ext-diff", "--no-textconv", "--numstat", "-z"])) {
+		return inWorktree && GIT_OBJECT_ID.test(args[5]) && args[6] === "--";
+	}
+	if (args.length === 8 && exactArguments(args.slice(0, 6), ["diff", "--no-ext-diff", "--no-textconv", "--no-color", "--patch", "--unified=3"])) {
+		return inWorktree && GIT_OBJECT_ID.test(args[6]) && args[7] === "--";
+	}
+	if (args.length === 3 && args[0] === "rev-list" && args[1] === "--count") {
+		const range = String(args[2]).split("..");
+		return inWorktree && range.length === 2 && GIT_OBJECT_ID.test(range[0]) && range[1] === "HEAD";
+	}
 	if (args.length === 3 && args[0] === "rev-parse" && args[1] === "--verify" && args[2].endsWith("^{commit}")) {
 		return Boolean(productionBranchForLayout(args[2].slice(0, -"^{commit}".length), layout, true));
 	}

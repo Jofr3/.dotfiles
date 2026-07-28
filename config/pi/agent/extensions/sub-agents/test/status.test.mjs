@@ -339,6 +339,379 @@ function largeSnapshot(index) {
 	};
 }
 
+test("sub_agents_status exposes successful worktree workspace summaries without private paths", async () => {
+	const workspaceId = `saw1-${"z".repeat(32)}`;
+	const privateRoot = "/private/state/worktrees/hidden";
+	const snapshot = {
+		...largeSnapshot(1),
+		id: "sa1-status-worktree-summary",
+		spec: {
+			...largeSnapshot(1).spec,
+			name: "status-worktree-summary",
+			workspace: { mode: "worktree" },
+		},
+		workspace: {
+			mode: "worktree",
+			workspaceId,
+			branchRef: `refs/heads/pi/sub-agents/0123456789abcdef/${workspaceId}`,
+			baseCommit: "e".repeat(40),
+			disposition: "active",
+		},
+	};
+	const manager = {
+		generation: "sag1-status-worktree-summary",
+		listAgents() { return [snapshot]; },
+		getAgent() { return snapshot; },
+		async drainUsage() { throw new Error("unused"); },
+	};
+	const tool = createSubAgentsStatusTool(() => ({ manager, now: () => 10_000 }));
+	const result = await tool.execute("status-worktree-summary", {}, undefined, undefined, {});
+	assert.equal(result.details.outcomes[0].ok, true);
+	assert.equal(result.details.outcomes[0].workspace.workspaceId, workspaceId);
+	assert.equal(result.details.outcomes[0].workspace.disposition, "active");
+	assert.match(result.content[0].text, /worktree saw1-/);
+	assert.doesNotMatch(JSON.stringify(result), new RegExp(privateRoot.replaceAll("/", "\\/")));
+});
+
+test("sub_agents_status can include path-free exact-owned worktree change collection", async () => {
+	const workspaceId = `saw1-${"c".repeat(32)}`;
+	const branchRef = `refs/heads/pi/sub-agents/0123456789abcdef/${workspaceId}`;
+	const baseCommit = "1".repeat(40);
+	const currentCommit = "2".repeat(40);
+	const privateRoot = "/private/state/worktrees/hidden-status-collection";
+	const snapshot = {
+		...largeSnapshot(2),
+		id: "sa1-status-worktree-collection",
+		spec: {
+			...largeSnapshot(2).spec,
+			name: "status-worktree-collection",
+			workspace: { mode: "worktree" },
+		},
+		workspace: {
+			mode: "worktree",
+			workspaceId,
+			branchRef,
+			baseCommit,
+			disposition: "active",
+		},
+	};
+	let collected = 0;
+	const manager = {
+		generation: "sag1-status-worktree-collection",
+		listAgents() { return [snapshot]; },
+		getAgent() { return snapshot; },
+		async drainUsage() { throw new Error("unused"); },
+		async collectWorkspaceChanges(id) {
+			assert.equal(id, snapshot.id);
+			collected += 1;
+			return {
+				summary: {
+					workspaceId,
+					branchRef,
+					baseCommit: baseCommit.slice(0, 12),
+					lastObservedCommit: currentCommit.slice(0, 12),
+					disposition: "ready",
+				},
+				registered: true,
+				exactOwnership: true,
+				clean: false,
+				conflicted: false,
+				incomplete: false,
+				collection: {
+					registered: true,
+					head: currentCommit,
+					branchRef,
+					refCommit: currentCommit,
+					clean: false,
+					indexMatchesBase: true,
+					changedFileCount: 2,
+					changedFiles: [
+						{ path: "src/changed.ts", status: " M", kind: "modified" },
+						{ path: "src/new.ts", status: "??", kind: "untracked" },
+					],
+					changedFilesTruncated: false,
+					diffStat: {
+						filesChanged: 1,
+						insertions: 3,
+						deletions: 1,
+						binaryFiles: 0,
+						files: [{ path: "src/changed.ts", insertions: 3, deletions: 1, binary: false }],
+						truncated: false,
+					},
+					commitRange: { baseCommit, currentCommit, aheadCount: 1 },
+					patchPreview: {
+						lineCount: 6,
+						lines: ["diff --git a/src/changed.ts b/src/changed.ts", "--- a/src/changed.ts", "+++ b/src/changed.ts", "-old", "+new"],
+						truncated: false,
+						omittedLineCount: 1,
+						omittedByteCount: 0,
+					},
+					conflicted: false,
+					incomplete: false,
+				},
+			};
+		},
+	};
+	const tool = createSubAgentsStatusTool(() => ({ manager, now: () => 10_000 }));
+	const result = await tool.execute(
+		"status-worktree-collection",
+		{ ids: [snapshot.id], includeWorktreeChanges: true },
+		undefined,
+		undefined,
+		{},
+	);
+	assert.equal(collected, 1);
+	assert.equal(result.details.includeWorktreeChanges, true);
+	assert.equal(result.details.worktreeCollectionsFailed, 0);
+	const outcome = result.details.outcomes[0];
+	assert.equal(outcome.ok, true);
+	assert.equal(outcome.worktreeChanges.ok, true);
+	assert.equal(outcome.worktreeChanges.changedFileCount, 2);
+	assert.equal(outcome.worktreeChanges.diffStat.insertions, 3);
+	assert.equal(outcome.worktreeChanges.commitRange.aheadCount, 1);
+	assert.equal(outcome.worktreeChanges.patchPreview.lineCount, 6);
+	assert.ok(outcome.worktreeChanges.patchPreview.lines.some((line) => line.includes("+new")));
+	assert.match(result.content[0].text, /changes 2 files/);
+	assert.match(result.content[0].text, /patch 6 lines/);
+	assert.doesNotMatch(JSON.stringify(result), new RegExp(privateRoot.replaceAll("/", "\\/")));
+
+	const callComponent = tool.renderCall(
+		{ ids: [snapshot.id], includeWorktreeChanges: true },
+		fakeTheme(),
+		renderContext({ ids: [snapshot.id], includeWorktreeChanges: true }),
+	);
+	assert.match(callComponent.render(200).join("\n"), /worktree changes/);
+});
+
+test("sub_agents_status can collect retained worktree catalog changes by workspace ID", async () => {
+	const workspaceId = `saw1-${"r".repeat(32)}`;
+	const branchRef = `refs/heads/pi/sub-agents/0123456789abcdef/${workspaceId}`;
+	const baseCommit = "3".repeat(40);
+	const currentCommit = "4".repeat(40);
+	const privateRoot = "/private/state/worktrees/catalog-hidden";
+	const manager = {
+		generation: "sag1-status-catalog-collection",
+		listAgents() { return []; },
+		getAgent() { throw new Error("unused"); },
+		async drainUsage() { throw new Error("unused"); },
+	};
+	let collected = 0;
+	const tool = createSubAgentsStatusTool(() => ({
+		manager,
+		now: () => 10_000,
+		async collectWorktreeCatalogChanges(request) {
+			assert.equal(request.workspaceId, workspaceId);
+			assert.equal(request.expectedRevision, 9);
+			collected += 1;
+			return {
+				revision: 9,
+				summary: {
+					workspaceId,
+					branchRef,
+					baseCommit,
+					lastObservedCommit: currentCommit,
+					disposition: "retained",
+				},
+				registered: true,
+				exactOwnership: true,
+				clean: false,
+				conflicted: false,
+				incomplete: false,
+				collection: {
+					registered: true,
+					head: currentCommit,
+					branchRef,
+					refCommit: currentCommit,
+					clean: false,
+					indexMatchesBase: true,
+					changedFileCount: 1,
+					changedFiles: [{ path: "src/retained.ts", status: " M", kind: "modified" }],
+					changedFilesTruncated: false,
+					diffStat: {
+						filesChanged: 1,
+						insertions: 2,
+						deletions: 1,
+						binaryFiles: 0,
+						files: [{ path: "src/retained.ts", insertions: 2, deletions: 1, binary: false }],
+						truncated: false,
+					},
+					commitRange: { baseCommit, currentCommit, aheadCount: 2 },
+					patchPreview: {
+						lineCount: 4,
+						lines: ["diff --git a/src/retained.ts b/src/retained.ts", "--- a/src/retained.ts", "+++ b/src/retained.ts", "+retained"],
+						truncated: false,
+						omittedLineCount: 0,
+						omittedByteCount: 0,
+					},
+					conflicted: false,
+					incomplete: false,
+				},
+			};
+		},
+	}));
+	const result = await tool.execute(
+		"status-catalog-collection",
+		{ worktreeCatalogChanges: [{ workspaceId, expectedRevision: 9 }] },
+		undefined,
+		undefined,
+		{},
+	);
+	assert.equal(collected, 1);
+	assert.equal(result.details.worktreeCatalogRequested, 1);
+	assert.equal(result.details.worktreeCatalogFailed, 0);
+	assert.equal(result.details.worktreeCatalog[0].ok, true);
+	assert.equal(result.details.worktreeCatalog[0].revision, 9);
+	assert.equal(result.details.worktreeCatalog[0].workspace.disposition, "retained");
+	assert.equal(result.details.worktreeCatalog[0].changes.changedFileCount, 1);
+	assert.equal(result.details.worktreeCatalog[0].changes.patchPreview.lineCount, 4);
+	assert.ok(result.details.worktreeCatalog[0].changes.patchPreview.lines.some((line) => line.includes("+retained")));
+	assert.match(result.content[0].text, /worktree catalog/);
+	assert.match(result.content[0].text, /rev 9/);
+	assert.doesNotMatch(JSON.stringify(result), new RegExp(privateRoot.replaceAll("/", "\\/")));
+
+	const callComponent = tool.renderCall(
+		{ worktreeCatalogChanges: [{ workspaceId, expectedRevision: 9 }] },
+		fakeTheme(),
+		renderContext({ worktreeCatalogChanges: [{ workspaceId, expectedRevision: 9 }] }),
+	);
+	assert.match(callComponent.render(200).join("\n"), /1 catalog/);
+	const resultComponent = tool.renderResult(
+		result,
+		{ expanded: true, isPartial: false },
+		fakeTheme(),
+		renderContext({ worktreeCatalogChanges: [{ workspaceId, expectedRevision: 9 }] }),
+	);
+	assert.match(resultComponent.render(300).join("\n"), /catalog changes: 1 file/);
+});
+
+test("sub_agents_status reports retained worktree catalog collection failures path-free", async () => {
+	const workspaceId = `saw1-${"f".repeat(32)}`;
+	const manager = {
+		generation: "sag1-status-catalog-failure",
+		listAgents() { return []; },
+		getAgent() { throw new Error("unused"); },
+		async drainUsage() { throw new Error("unused"); },
+	};
+	const tool = createSubAgentsStatusTool(() => ({
+		manager,
+		async collectWorktreeCatalogChanges() {
+			throw new Error("PRIVATE_CATALOG_PATH_/tmp/secret-worktree");
+		},
+	}));
+	const result = await tool.execute(
+		"status-catalog-failure",
+		{ worktreeCatalogChanges: [{ workspaceId, expectedRevision: 3 }] },
+		undefined,
+		undefined,
+		{},
+	);
+	assert.equal(result.details.worktreeCatalogRequested, 1);
+	assert.equal(result.details.worktreeCatalogFailed, 1);
+	assert.equal(result.details.worktreeCatalog[0].ok, false);
+	assert.equal(result.details.worktreeCatalog[0].code, "catalog_collection_failed");
+	assert.doesNotMatch(JSON.stringify(result), /PRIVATE_CATALOG_PATH/);
+});
+
+function heavyCatalogCollection(workspaceId, index) {
+	const baseCommit = index % 2 === 0 ? "5".repeat(40) : "6".repeat(40);
+	const currentCommit = index % 2 === 0 ? "7".repeat(40) : "8".repeat(40);
+	const branchRef = `refs/heads/pi/sub-agents/${index.toString(16).padStart(16, "0")}/${workspaceId}`;
+	return {
+		revision: index + 1,
+		summary: {
+			workspaceId,
+			branchRef,
+			baseCommit,
+			lastObservedCommit: currentCommit,
+			disposition: index % 3 === 0 ? "uncertain" : "retained",
+		},
+		registered: true,
+		exactOwnership: true,
+		clean: false,
+		conflicted: index % 17 === 0,
+		incomplete: index % 19 === 0,
+		collection: {
+			registered: true,
+			head: currentCommit,
+			branchRef,
+			refCommit: currentCommit,
+			clean: false,
+			indexMatchesBase: true,
+			changedFileCount: 60,
+			changedFiles: Array.from({ length: 60 }, (_, file) => ({
+				path: `src/${index.toString().padStart(3, "0")}/${"changed-".repeat(12)}${file}.ts`,
+				status: file % 2 === 0 ? " M" : "??",
+				kind: file % 2 === 0 ? "modified" : "untracked",
+				oldPath: file % 5 === 0 ? `src/${index.toString().padStart(3, "0")}/old-${"renamed-".repeat(12)}${file}.ts` : undefined,
+			})),
+			changedFilesTruncated: true,
+			diffStat: {
+				filesChanged: 60,
+				insertions: 12_345 + index,
+				deletions: 6_789 + index,
+				binaryFiles: 2,
+				files: Array.from({ length: 60 }, (_, file) => ({
+					path: `src/${index.toString().padStart(3, "0")}/${"diff-".repeat(16)}${file}.ts`,
+					insertions: file % 7 === 0 ? null : 100 + file,
+					deletions: file % 7 === 0 ? null : 50 + file,
+					binary: file % 7 === 0,
+				})),
+				truncated: true,
+			},
+			commitRange: { baseCommit, currentCommit, aheadCount: 100 + index },
+			patchPreview: {
+				lineCount: 120,
+				lines: Array.from({ length: 120 }, (_, line) => `+catalog ${index} ${line} ${"patch-preview ".repeat(30)}`),
+				truncated: true,
+				omittedLineCount: 40,
+				omittedByteCount: 16_384,
+			},
+			conflicted: index % 17 === 0,
+			incomplete: index % 19 === 0,
+		},
+	};
+}
+
+test("maximum retained worktree catalog status preserves every target under transport bounds", async () => {
+	const requests = Array.from({ length: SUB_AGENT_BOUNDS.controlTargets }, (_, index) => ({
+		workspaceId: `saw1-maxcatalog-${index.toString().padStart(3, "0")}-${"m".repeat(24)}`,
+		expectedRevision: index + 1,
+	}));
+	const manager = {
+		generation: "sag1-status-catalog-bounds",
+		listAgents() { return []; },
+		getAgent() { throw new Error("unused"); },
+		async drainUsage() { throw new Error("unused"); },
+	};
+	const tool = createSubAgentsStatusTool(() => ({
+		manager,
+		async collectWorktreeCatalogChanges(request) {
+			const index = requests.findIndex((candidate) => candidate.workspaceId === request.workspaceId);
+			assert.notEqual(index, -1);
+			assert.equal(request.expectedRevision, index + 1);
+			return heavyCatalogCollection(request.workspaceId, index);
+		},
+	}));
+	const result = await tool.execute(
+		"status-catalog-bounds",
+		{ worktreeCatalogChanges: requests },
+		undefined,
+		undefined,
+		{},
+	);
+	assert.equal(result.details.worktreeCatalogRequested, SUB_AGENT_BOUNDS.controlTargets);
+	assert.equal(result.details.worktreeCatalogFailed, 0);
+	assert.equal(result.details.worktreeCatalog.length, SUB_AGENT_BOUNDS.controlTargets);
+	assert.equal(result.details.worktreeCatalog.every((outcome) => outcome.ok), true);
+	assert.equal(new Set(result.details.worktreeCatalog.map((outcome) => outcome.workspaceId)).size, requests.length);
+	assert.ok(result.details.worktreeCatalogTruncated > 0);
+	assert.equal(result.details.outputTruncated, true);
+	assert.ok(result.details.worktreeCatalog.every((outcome) => !outcome.ok || (outcome.changes.patchPreview?.lines.length ?? 0) === 0));
+	assert.ok(Buffer.byteLength(result.content[0].text, "utf8") <= 48 * 1024);
+	assert.ok(Buffer.byteLength(JSON.stringify(result.details), "utf8") <= 48 * 1024);
+	assert.ok(result.content[0].text.split("\n").length <= 2_000);
+});
+
 test("status event summaries use UTF-8 ellipsis markers and report their truncation", async () => {
 	const snapshot = largeSnapshot(0);
 	snapshot.id = "sa1-status-marker";

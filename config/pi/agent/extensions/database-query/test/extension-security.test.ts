@@ -283,6 +283,12 @@ test("fixed runner failures and output rejection never expose child diagnostics 
 	for (const result of [
 		Object.freeze({ ok: false, code: "client_unavailable", elapsedMs: 1 }),
 		Object.freeze({ ok: false, code: "client_error", elapsedMs: 1 }),
+		Object.freeze({ ok: false, code: "client_incompatible", elapsedMs: 1 }),
+		Object.freeze({ ok: false, code: "authentication_failed", elapsedMs: 1 }),
+		Object.freeze({ ok: false, code: "connection_failed", elapsedMs: 1 }),
+		Object.freeze({ ok: false, code: "database_unavailable", elapsedMs: 1 }),
+		Object.freeze({ ok: false, code: "query_error", elapsedMs: 1 }),
+		Object.freeze({ ok: false, code: "tls_error", elapsedMs: 1 }),
 		Object.freeze({ ok: false, code: "timeout", elapsedMs: 30_000 }),
 		Object.freeze({ ok: false, code: "aborted", elapsedMs: 1 }),
 		Object.freeze({ ok: false, code: "output_limit", elapsedMs: 1 }),

@@ -5,6 +5,7 @@ import type { SessionGeneration, SubAgentId, WorkspaceIdentity } from "../types.
 import type { WorkspaceRegistry } from "./registry.ts";
 import type {
 	RepositoryInspection,
+	WorktreeCollectionSummary,
 	WorktreeGitOperations,
 	WorktreeInspection,
 	WorktreeReconciliation,
@@ -87,6 +88,26 @@ export interface WorktreeOwnedInspection {
 	readonly registered: boolean;
 	readonly exactOwnership: boolean;
 	readonly clean: boolean;
+}
+
+export interface WorktreeOwnedChangeCollection {
+	readonly summary: Readonly<WorktreeOutcomeSummary>;
+	readonly registered: boolean;
+	readonly exactOwnership: boolean;
+	readonly clean: boolean;
+	readonly conflicted: boolean;
+	readonly incomplete: boolean;
+	readonly collection: Readonly<WorktreeCollectionSummary>;
+}
+
+export interface WorktreeCatalogChangeCollection extends WorktreeOwnedChangeCollection {
+	readonly revision: number;
+}
+
+export interface CollectWorktreeCatalogChangesOptions {
+	readonly workspaceId: string;
+	readonly expectedRevision?: number;
+	readonly signal?: AbortSignal;
 }
 
 export interface CreateWorktreeManagerOptions {
@@ -459,8 +480,86 @@ export class WorktreeManager {
 		});
 	}
 
+	/** Bounded read-only changed-file/diff/commit collection for one exact owned workspace. */
+	async collectOwnedChanges(allocation: Readonly<WorktreeAllocationHandle>, workspace: Readonly<WorkspaceIdentity>): Promise<Readonly<WorktreeOwnedChangeCollection>> {
+		const internal = this.#requireAllocation(allocation);
+		return this.#state.withRepositoryLock(internal.repository, async (transaction) => {
+			const record = await transaction.readRecord(allocation.workspaceId);
+			this.#assertRecord(record, allocation, internal.plan);
+			let repositoryExact = false;
+			try {
+				const current = await this.#git.inspectRepository({ cwd: record.repositoryTopLevel, trusted: true });
+				repositoryExact = current.trusted === true && current.insideWorkTree === true && current.bare === false &&
+					current.topLevel === internal.plan.repository.topLevel && current.commonDirectory === internal.plan.repository.commonDirectory &&
+					current.objectFormat === internal.plan.repository.objectFormat && current.configFingerprint === internal.plan.repository.configFingerprint;
+			} catch { repositoryExact = false; }
+			let registryExact = false;
+			try {
+				const registered = this.#registry.authorize(workspace, record.childId);
+				registryExact = registered.identity === workspace && workspace.root === record.logicalRoot && workspace.key === record.workspaceKey &&
+					workspace.workspaceId === record.workspaceId && workspace.branch === record.branchRef && workspace.baseCommit === record.baseCommit;
+			} catch { registryExact = false; }
+			const observed = await this.#git.collectSummary({ repository: internal.plan.repository, path: record.worktreePath, expectedBranchRef: record.branchRef, expectedBaseCommit: record.baseCommit });
+			return this.#collectionFromRecord(record, observed, repositoryExact && registryExact);
+		});
+	}
+
+	/** Bounded read-only collection from the protected retained/uncertain catalog. It never needs a live child allocation handle. */
+	async collectCatalogChanges(options: Readonly<CollectWorktreeCatalogChangesOptions>): Promise<Readonly<WorktreeCatalogChangeCollection>> {
+		if (!options || typeof options !== "object") fail("Catalog collection options are required");
+		const workspaceId = boundedText(options.workspaceId, "Catalog workspace ID");
+		const expectedRevision = options.expectedRevision;
+		if (expectedRevision !== undefined && (!Number.isSafeInteger(expectedRevision) || expectedRevision < 1)) fail("Catalog expected revision is invalid");
+		throwIfAborted(options.signal);
+		const lookup = await this.#state.readCatalogRecord(workspaceId);
+		return this.#state.withRepositoryLock(lookup.repository, async (transaction) => {
+			const record = await transaction.readRecord(workspaceId);
+			if (expectedRevision !== undefined && record.revision !== expectedRevision) fail("Catalog ownership record revision changed");
+			if (record.state === "allocating" || record.state === "cleanup-pending" || record.state === "cleaned") fail("Catalog worktree is not collectable");
+			let repositoryExact = false;
+			try {
+				const current = await this.#git.inspectRepository({ cwd: record.repositoryTopLevel, trusted: true, signal: options.signal });
+				repositoryExact = current.trusted === true && current.insideWorkTree === true && current.bare === false &&
+					current.topLevel === record.repositoryTopLevel && current.commonDirectory === record.gitCommonDirectory &&
+					current.objectFormat === (record.baseCommit.length === 64 ? "sha256" : "sha1") && current.configFingerprint.length === 64;
+			} catch { repositoryExact = false; }
+			const observed = await this.#git.collectSummary({ repository: {
+				trusted: true,
+				insideWorkTree: true,
+				bare: false,
+				topLevel: record.repositoryTopLevel,
+				commonDirectory: record.gitCommonDirectory,
+				headCommit: record.baseCommit,
+				objectFormat: record.baseCommit.length === 64 ? "sha256" : "sha1",
+				clean: true,
+				configFingerprint: "0".repeat(64),
+			}, path: record.worktreePath, expectedBranchRef: record.branchRef, expectedBaseCommit: record.baseCommit, signal: options.signal });
+			return Object.freeze({ ...this.#collectionFromRecord(record, observed, repositoryExact), revision: record.revision });
+		});
+	}
+
 	catalog(options?: WorktreeCatalogOptions): Promise<WorktreeCatalogResult> {
 		return this.#state.catalog(options);
+	}
+
+	#collectionFromRecord(
+		record: Readonly<WorktreeOwnershipRecordV1>,
+		observed: Readonly<WorktreeCollectionSummary>,
+		authorityExact: boolean,
+	): Readonly<WorktreeOwnedChangeCollection> {
+		const gitExact = observed.registered === true && observed.registration?.path === record.worktreePath &&
+			observed.registration.branch === record.branchRef && Boolean(observed.registration.locked) &&
+			observed.head !== undefined && observed.branchRef === record.branchRef && observed.refCommit === observed.head;
+		const { registration: _privateRegistration, ...pathFreeCollection } = observed;
+		return Object.freeze({
+			summary: summary(record),
+			registered: observed.registered,
+			exactOwnership: authorityExact && gitExact,
+			clean: observed.clean === true,
+			conflicted: observed.conflicted === true,
+			incomplete: observed.incomplete === true,
+			collection: Object.freeze(pathFreeCollection),
+		});
 	}
 
 	#requireAllocation(allocation: Readonly<WorktreeAllocationHandle>): AllocationInternal {

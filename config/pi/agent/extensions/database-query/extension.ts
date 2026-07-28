@@ -11,8 +11,8 @@ import {
 	type DatabaseRunFailureCode,
 	type DatabaseRunner,
 	type DatabaseRunResult,
-	SpawnDatabaseRunner,
 } from "./runner.ts";
+import { DefaultDatabaseRunner } from "./mssql-runner.ts";
 import { classifySql, type SqlSafetyDecision } from "./sql-safety.ts";
 import { loadProtectedStaticDatabaseProfile } from "./static-config.ts";
 
@@ -150,7 +150,8 @@ function failedToolResult(result: unknown): boolean {
 }
 
 const RUN_FAILURE_CODES = new Set<DatabaseRunFailureCode>([
-	"aborted", "client_error", "client_unavailable", "output_limit", "timeout",
+	"aborted", "authentication_failed", "client_error", "client_incompatible", "client_unavailable",
+	"connection_failed", "database_unavailable", "output_limit", "query_error", "timeout", "tls_error",
 ]);
 
 /** Admit only the fixed, data-only runner result shape so injected errors/codes cannot escape. */
@@ -195,7 +196,7 @@ export function registerDatabaseExtension(
 ): void {
 	const canonicalize = dependencies.canonicalizeProject ?? canonicalizeProjectScope;
 	const loadStatic = dependencies.loadStaticProfile ?? loadProtectedStaticDatabaseProfile;
-	const runner = dependencies.runner ?? new SpawnDatabaseRunner();
+	const runner = dependencies.runner ?? new DefaultDatabaseRunner();
 	const requirements = new DatabaseRequirementStore(pi.events);
 	const profileResolver = dependencies.profileResolver ?? new DatabaseProfileResolverConsumer(
 		pi.events,

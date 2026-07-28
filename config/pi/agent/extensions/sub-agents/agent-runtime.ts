@@ -47,7 +47,6 @@ import {
 	resolveSharedWorkspace,
 	type CanonicalWorkspacePath,
 	type CanonicalWriteScope,
-	type ResolvedSharedWorkspace,
 } from "./workspace/paths.ts";
 
 export const READ_ONLY_CHILD_TOOL_NAMES = Object.freeze([
@@ -117,11 +116,18 @@ export interface SubAgentSessionFactoryDependencies {
 	cleanupTimeoutMs?: number;
 }
 
+export interface ResolvedSubAgentWorkspace {
+	readonly identity: Readonly<WorkspaceIdentity>;
+	readonly cwd: string;
+}
+
 export interface CreateSubAgentSessionOptions {
 	id: SubAgentId;
 	generation: SessionGeneration;
-	/** Parent generation's canonical workspace boundary. */
+	/** Parent generation's canonical workspace boundary; used only for shared-mode fallback resolution. */
 	cwd: string;
+	/** Pre-resolved workspace/cwd from the runner/provisioner. Required by future worktree provisioning. */
+	resolvedWorkspace?: Readonly<ResolvedSubAgentWorkspace>;
 	spec: Readonly<DynamicAgentSpec>;
 	resolvedModel: ResolvedChildModel;
 	parentContext?: ParentContextSnapshotV1;
@@ -341,10 +347,74 @@ export class SubAgentSessionRuntime {
 	}
 }
 
-async function resolveChildWorkspace(
+function mapWorkspacePathError(error: WorkspacePathError): SubAgentSessionFactoryError {
+	if (error.code === "workspace_outside_root" || error.code === "path_outside_root") {
+		return new SubAgentSessionFactoryError(
+			"workspace_outside_root",
+			"The child workspace must remain inside its resolved workspace root",
+		);
+	}
+	if (error.code === "invalid_path") {
+		return new SubAgentSessionFactoryError(
+			"invalid_runtime_request",
+			"The child workspace path is invalid",
+		);
+	}
+	return new SubAgentSessionFactoryError(
+		"workspace_unavailable",
+		"The child workspace directory is unavailable",
+	);
+}
+
+async function validateResolvedWorkspace(
+	workspace: Readonly<ResolvedSubAgentWorkspace>,
+	specMode: WorkspaceIdentity["mode"],
+): Promise<ResolvedSubAgentWorkspace> {
+	if (!workspace || typeof workspace !== "object" || Array.isArray(workspace)) {
+		throw new SubAgentSessionFactoryError(
+			"invalid_runtime_request",
+			"A resolved child workspace is required",
+		);
+	}
+	if (workspace.identity?.mode !== specMode) {
+		throw new SubAgentSessionFactoryError(
+			"invalid_runtime_request",
+			"The resolved child workspace does not match the requested workspace mode",
+		);
+	}
+	try {
+		const root = await resolveCanonicalWorkspacePath({
+			workspace: workspace.identity,
+			cwd: workspace.identity.root,
+			path: ".",
+			allowMissing: false,
+			allowWorkspaceRoot: true,
+		});
+		if (root.path !== workspace.identity.root || root.relativePath !== "" || !root.exists) {
+			throw new WorkspacePathError("workspace_unavailable", "The resolved workspace root is not canonical");
+		}
+		const cwd = await resolveCanonicalWorkspacePath({
+			workspace: workspace.identity,
+			cwd: workspace.cwd,
+			path: ".",
+			allowMissing: false,
+			allowWorkspaceRoot: true,
+		});
+		return Object.freeze({
+			identity: Object.freeze({ ...workspace.identity }),
+			cwd: cwd.path,
+		});
+	} catch (error) {
+		if (error instanceof WorkspacePathError) throw mapWorkspacePathError(error);
+		throw error;
+	}
+}
+
+export async function resolveSubAgentSessionWorkspace(
 	parentCwd: string,
 	spec: Readonly<DynamicAgentSpec>,
-): Promise<ResolvedSharedWorkspace> {
+	resolvedWorkspace?: Readonly<ResolvedSubAgentWorkspace>,
+): Promise<ResolvedSubAgentWorkspace> {
 	if (!spec || typeof spec !== "object" || Array.isArray(spec)) {
 		throw new SubAgentSessionFactoryError(
 			"invalid_runtime_request",
@@ -361,13 +431,7 @@ async function resolveChildWorkspace(
 		);
 	}
 	const workspaceMode = spec.workspace?.mode ?? "shared";
-	if (workspaceMode === "worktree") {
-		throw new SubAgentSessionFactoryError(
-			"unsupported_workspace",
-			"Worktree child sessions are not enabled yet",
-		);
-	}
-	if (workspaceMode !== "shared") {
+	if (workspaceMode !== "shared" && workspaceMode !== "worktree") {
 		throw new SubAgentSessionFactoryError(
 			"invalid_runtime_request",
 			"The child workspace mode is invalid",
@@ -378,6 +442,16 @@ async function resolveChildWorkspace(
 		throw new SubAgentSessionFactoryError(
 			"invalid_runtime_request",
 			"The child bash policy is invalid",
+		);
+	}
+
+	if (resolvedWorkspace !== undefined) {
+		return validateResolvedWorkspace(resolvedWorkspace, workspaceMode);
+	}
+	if (workspaceMode === "worktree") {
+		throw new SubAgentSessionFactoryError(
+			"unsupported_workspace",
+			"Worktree child sessions require an approved pre-resolved workspace",
 		);
 	}
 
@@ -663,8 +737,15 @@ export async function createSubAgentSession(
 	]);
 	const reportToParentTool = createReportToParentTool(options.onReport);
 	const requestedThinkingLevel = resolveRequestedThinkingLevel(options.spec);
-	const workspace = await resolveChildWorkspace(options.cwd, options.spec);
+	const workspace = await resolveSubAgentSessionWorkspace(
+		options.cwd,
+		options.spec,
+		options.resolvedWorkspace,
+	);
 	const cwd = workspace.cwd;
+	const contextDisplayPathMapping = workspace.identity.mode === "worktree"
+		? Object.freeze({ parentRoot: options.cwd, workspace: workspace.identity })
+		: undefined;
 	let writeScope: CanonicalWriteScope | undefined;
 	try {
 		writeScope = await resolveCanonicalWriteScope(
@@ -680,7 +761,7 @@ export async function createSubAgentSession(
 					: "workspace_unavailable";
 			throw new SubAgentSessionFactoryError(
 				code,
-				"The child write scope could not be validated inside the shared workspace",
+				"The child write scope could not be validated inside the resolved workspace",
 			);
 		}
 		throw error;
@@ -779,6 +860,7 @@ export async function createSubAgentSession(
 			generation: options.generation,
 			spec: options.spec,
 			parentContext: options.parentContext,
+			contextDisplayPathMapping,
 		});
 		const result = await createSession({
 			cwd,

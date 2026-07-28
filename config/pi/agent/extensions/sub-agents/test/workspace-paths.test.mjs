@@ -206,6 +206,101 @@ test("missing targets canonicalize through inside aliases while outside, danglin
 	}
 });
 
+test("worktree workspace identities resolve equivalent paths under their own opaque key", async () => {
+	const { temporary } = await fixture("pi-sub-agent-worktree-path-");
+	try {
+		const rootA = join(temporary, "worktree-a", "project");
+		const rootB = join(temporary, "worktree-b", "project");
+		await Promise.all([
+			mkdir(join(rootA, "src"), { recursive: true }),
+			mkdir(join(rootB, "src"), { recursive: true }),
+		]);
+		await Promise.all([
+			writeFile(join(rootA, "src", "target.txt"), "a", "utf8"),
+			writeFile(join(rootB, "src", "target.txt"), "b", "utf8"),
+		]);
+		const workspaceA = Object.freeze({
+			mode: "worktree",
+			root: await realpath(rootA),
+			key: `sawk1-${"a".repeat(32)}`,
+			workspaceId: `saw1-${"a".repeat(32)}`,
+			branch: `refs/heads/pi/sub-agents/0123456789abcdef/saw1-${"a".repeat(32)}`,
+			baseCommit: "0".repeat(40),
+		});
+		const workspaceB = Object.freeze({
+			mode: "worktree",
+			root: await realpath(rootB),
+			key: `sawk1-${"b".repeat(32)}`,
+			workspaceId: `saw1-${"b".repeat(32)}`,
+			branch: `refs/heads/pi/sub-agents/fedcba9876543210/saw1-${"b".repeat(32)}`,
+			baseCommit: "1".repeat(40),
+		});
+
+		const targetA = await resolveCanonicalWorkspacePath({
+			workspace: workspaceA,
+			cwd: join(workspaceA.root, "src"),
+			path: "target.txt",
+		});
+		const targetB = await resolveCanonicalWorkspacePath({
+			workspace: workspaceB,
+			cwd: join(workspaceB.root, "src"),
+			path: "target.txt",
+		});
+		assert.equal(targetA.workspaceKey, workspaceA.key);
+		assert.equal(targetB.workspaceKey, workspaceB.key);
+		assert.equal(targetA.relativePath, "src/target.txt");
+		assert.equal(targetB.relativePath, "src/target.txt");
+		assert.notEqual(targetA.path, targetB.path);
+
+		const scope = await resolveCanonicalWriteScope(workspaceA, ["src/new.txt", "src/target.txt"]);
+		assert.equal(scope.workspaceKey, workspaceA.key);
+		assert.deepEqual(scope.paths.map((entry) => entry.relativePath), ["src/new.txt", "src/target.txt"]);
+		await assert.rejects(
+			resolveCanonicalWorkspacePath({
+				workspace: { ...workspaceA, key: "forged" },
+				path: "src/target.txt",
+			}),
+			(error) => assertPathError(error, "invalid_path"),
+		);
+	} finally {
+		await rm(temporary, { recursive: true, force: true });
+	}
+});
+
+test("guarded workspace paths deny git administrative entries", async () => {
+	const { temporary, project } = await fixture("pi-sub-agent-workspace-git-deny-");
+	try {
+		const workspace = await resolveSharedWorkspace(project);
+		await mkdir(join(project, ".git"), { recursive: true });
+		await writeFile(join(project, ".git", "config"), "[core]\n", "utf8");
+		await mkdir(join(project, "nested", ".git"), { recursive: true });
+
+		for (const path of [".git/config", "nested/.git/config", ".git/new.txt"]) {
+			await assert.rejects(
+				resolveCanonicalWorkspacePath({
+					workspace: workspace.identity,
+					path,
+					allowMissing: true,
+				}),
+				(error) => assertPathError(error, "path_unavailable"),
+			);
+		}
+		await assert.rejects(
+			resolveCanonicalWriteScope(workspace.identity, [".git/config"]),
+			(error) => assertPathError(error, "path_unavailable"),
+		);
+
+		await writeFile(join(project, ".gitignore"), "node_modules\n", "utf8");
+		const gitignore = await resolveCanonicalWorkspacePath({
+			workspace: workspace.identity,
+			path: ".gitignore",
+		});
+		assert.equal(gitignore.relativePath, ".gitignore");
+	} finally {
+		await rm(temporary, { recursive: true, force: true });
+	}
+});
+
 test("declared write scopes are relative, canonical, sorted, deduplicated, bounded, and exact-path enforced", async () => {
 	const { temporary, project } = await fixture("pi-sub-agent-workspace-scope-");
 	try {

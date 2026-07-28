@@ -136,6 +136,10 @@ test("private store creates strict records, CASes exact revisions, and emits a p
 		assert.equal(catalog.entries[0].baseCommit, OID.slice(0, 12));
 		assert.equal(JSON.stringify(catalog).includes(value.temporary), false);
 		assert.equal("correlationToken" in catalog.entries[0], false);
+		const lookup = await value.store.readCatalogRecord(identity.workspaceId);
+		assert.equal(lookup.record.revision, retained.revision);
+		assert.equal(lookup.repository.repositoryTopLevel, repository.repositoryTopLevel);
+		assert.equal(lookup.repository.recordsDirectory, repository.recordsDirectory);
 	} finally {
 		await cleanup(value);
 	}

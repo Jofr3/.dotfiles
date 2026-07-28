@@ -290,6 +290,19 @@ export interface WorkspaceIdentity {
 	readonly baseCommit?: string;
 }
 
+export type SubAgentWorkspaceDisposition = "active" | "retained" | "cleaned" | "uncertain";
+
+/** Path-free workspace identity summary safe for parent-facing management surfaces. */
+export type SubAgentWorkspaceSummary =
+	| { readonly mode: "shared" }
+	| {
+			readonly mode: "worktree";
+			readonly workspaceId: string;
+			readonly branchRef: string;
+			readonly baseCommit: string;
+			readonly disposition: SubAgentWorkspaceDisposition;
+		};
+
 export type WorkspaceLeaseKind = "file" | "workspace" | "parent-file" | "parent-workspace";
 
 export interface WorkspaceLeaseRecord {
@@ -330,6 +343,8 @@ export interface ManagedSubAgentSnapshot {
 	modelRoute?: ModelRoute;
 	effectiveThinkingLevel?: ThinkingLevel;
 	pendingModelReconfiguration?: PendingModelReconfiguration;
+	/** Path-free resolved workspace summary, present after successful runtime initialization. */
+	workspace?: SubAgentWorkspaceSummary;
 	lastError?: string;
 	events: BoundedAgentEvent[];
 	omittedEventCount: number;

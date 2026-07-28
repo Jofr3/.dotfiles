@@ -204,6 +204,99 @@ test("lease authority isolates equivalent sibling paths and rejects forged workt
 	}
 });
 
+test("worktree workspace leases are scoped away from sibling and parent workspaces", async () => {
+	const value = await fixture();
+	try {
+		const shared = await resolveSharedWorkspace(value.shared);
+		await writeFile(join(value.shared, "src", "same.txt"), "shared", "utf8");
+		let now = 100;
+		const leases = new WorkspaceLeaseManager({
+			generation,
+			workspaceRoot: value.shared,
+			now: () => ++now,
+		});
+		const first = leases.registerWorktree(
+			registration(value.first, workspaceIds.first, ownerOne),
+		);
+		const second = leases.registerWorktree(
+			registration(value.second, workspaceIds.second, ownerTwo),
+		);
+		const firstSame = await resolveCanonicalWorkspacePath({
+			workspace: first,
+			path: "src/same.txt",
+		});
+		const secondSame = await resolveCanonicalWorkspacePath({
+			workspace: second,
+			path: "src/same.txt",
+		});
+		const sharedSame = await resolveCanonicalWorkspacePath({
+			workspace: shared.identity,
+			path: "src/same.txt",
+		});
+
+		const firstBash = leases.claimChildWorkspace({
+			agentId: ownerOne,
+			agentName: "one",
+			workspace: first,
+		});
+		assert.deepEqual(firstBash, [{
+			kind: "workspace",
+			workspaceKey: `worktree:${workspaceIds.first}`,
+			ownerAgentId: ownerOne,
+			path: undefined,
+			acquiredAt: 101,
+		}]);
+		assert.deepEqual(
+			leases.claimChildFiles({
+				agentId: ownerOne,
+				agentName: "one",
+				workspace: first,
+				targets: [firstSame],
+			}).map((entry) => [entry.workspaceKey, entry.path]),
+			[[`worktree:${workspaceIds.first}`, "src/same.txt"]],
+		);
+
+		const secondFile = leases.claimChildFiles({
+			agentId: ownerTwo,
+			agentName: "two",
+			workspace: second,
+			targets: [secondSame],
+		});
+		assert.equal(secondFile[0].workspaceKey, `worktree:${workspaceIds.second}`);
+		assert.equal(secondFile[0].path, "src/same.txt");
+		const secondBash = leases.claimChildWorkspace({
+			agentId: ownerTwo,
+			agentName: "two",
+			workspace: second,
+		});
+		assert.equal(secondBash[0].workspaceKey, `worktree:${workspaceIds.second}`);
+		assert.equal(secondBash[0].kind, "workspace");
+
+		const parent = leases.reserveParentWorkspace({
+			reservationId: "parent-shared-bash",
+			workspace: shared.identity,
+		});
+		assert.equal(parent.leases[0].workspaceKey, "shared");
+		assert.equal(parent.leases[0].kind, "parent-workspace");
+		assert.equal(leases.releaseParentReservation(parent.token).length, 1);
+		const parentFile = leases.reserveParentFiles({
+			reservationId: "parent-shared-file",
+			workspace: shared.identity,
+			targets: [sharedSame],
+		});
+		assert.equal(parentFile.leases[0].workspaceKey, "shared");
+		assert.equal(parentFile.leases[0].path, "src/same.txt");
+		leases.assertInvariants();
+
+		const visible = JSON.stringify(leases.listLeases());
+		assert.equal(visible.includes(value.temporary), false);
+		assert.match(visible, new RegExp(`worktree:${workspaceIds.first}`));
+		assert.match(visible, new RegExp(`worktree:${workspaceIds.second}`));
+	} finally {
+		await rm(value.temporary, { recursive: true, force: true });
+	}
+});
+
 test("released workspaceRoot constructor and shared parent labels remain compatible", async () => {
 	const value = await fixture();
 	try {

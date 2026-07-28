@@ -9,11 +9,13 @@ import {
 	SubAgentManagerError,
 	type SubAgentManager,
 } from "../manager.ts";
+import type { WorktreeCatalogChangeCollection, WorktreeOwnedChangeCollection } from "../workspace/worktrees.ts";
 import type {
 	AgentLifecycleState,
 	BoundedAgentEvent,
 	ManagedSubAgentSnapshot,
 	SubAgentId,
+	SubAgentWorkspaceDisposition,
 	UsageCounters,
 	UsageLedger,
 } from "../types.ts";
@@ -29,6 +31,7 @@ const DETAILS_MAX_BYTES = 48 * 1024;
 const DETAILS_RICH_BUDGET_BYTES = 46 * 1024;
 const DISPLAY_LINE_BYTES = 420;
 const DISPLAY_CODE_BYTES = 64;
+const WORKTREE_WORKSPACE_ID = /^saw1-[A-Za-z0-9_-]+$/u;
 const USAGE_FIELDS = [
 	"input",
 	"output",
@@ -60,7 +63,14 @@ export interface SubAgentsStatusRuntime {
 	readonly manager: Pick<
 		SubAgentManager,
 		"generation" | "listAgents" | "getAgent" | "drainUsage"
-	>;
+	> & {
+		readonly collectWorkspaceChanges?: (id: SubAgentId) => Promise<Readonly<WorktreeOwnedChangeCollection> | undefined>;
+	};
+	readonly collectWorktreeCatalogChanges?: (request: Readonly<{
+		workspaceId: string;
+		expectedRevision?: number;
+		signal?: AbortSignal;
+	}>) => Promise<Readonly<WorktreeCatalogChangeCollection>>;
 	readonly now?: () => number;
 }
 
@@ -79,6 +89,77 @@ export interface StatusEventView {
 	summary: string;
 	timestamp: number;
 }
+
+export interface StatusWorktreeChangesView {
+	ok: boolean;
+	code?: string;
+	message?: string;
+	registered?: boolean;
+	exactOwnership?: boolean;
+	clean?: boolean;
+	conflicted?: boolean;
+	incomplete?: boolean;
+	changedFileCount?: number;
+	changedFiles?: Array<{
+		path: string;
+		status: string;
+		kind: string;
+		oldPath?: string;
+	}>;
+	omittedChangedFileCount?: number;
+	diffStat?: {
+		filesChanged: number;
+		insertions: number;
+		deletions: number;
+		binaryFiles: number;
+		truncated: boolean;
+		files: Array<{
+			path: string;
+			insertions: number | null;
+			deletions: number | null;
+			binary: boolean;
+		}>;
+		omittedFileCount: number;
+	};
+	commitRange?: {
+		baseCommit: string;
+		currentCommit: string | null;
+		aheadCount: number | null;
+	};
+	patchPreview?: {
+		lineCount: number;
+		lines: string[];
+		truncated: boolean;
+		omittedLineCount: number;
+		omittedByteCount: number;
+	};
+}
+
+export interface StatusWorktreeCatalogFailureOutcome {
+	ok: false;
+	workspaceId: string;
+	expectedRevision?: number;
+	code: string;
+	message: string;
+}
+
+export interface StatusWorktreeCatalogSuccessOutcome {
+	ok: true;
+	workspaceId: string;
+	expectedRevision?: number;
+	revision: number;
+	workspace: {
+		mode: "worktree";
+		workspaceId: string;
+		branchRef: string;
+		baseCommit: string;
+		disposition: SubAgentWorkspaceDisposition;
+	};
+	changes: StatusWorktreeChangesView;
+	truncated?: true;
+}
+
+export type StatusWorktreeCatalogOutcome = StatusWorktreeCatalogSuccessOutcome | StatusWorktreeCatalogFailureOutcome;
 
 export interface StatusAgentView {
 	ok: true;
@@ -130,6 +211,16 @@ export interface StatusAgentView {
 		afterAssignmentSequence?: number;
 		requestedThinkingLevel?: string;
 	};
+	workspace?:
+		| { mode: "shared" }
+		| {
+				mode: "worktree";
+				workspaceId: string;
+				branchRef: string;
+				baseCommit: string;
+				disposition: SubAgentWorkspaceDisposition;
+			};
+	worktreeChanges?: StatusWorktreeChangesView;
 	runtime?: {
 		phase: string;
 		preview?: string;
@@ -186,6 +277,7 @@ export interface SubAgentsStatusToolDetails {
 	detail: "compact" | "timeline";
 	eventLimit: number;
 	drainUsage: boolean;
+	includeWorktreeChanges: boolean;
 	requested: number;
 	returned: number;
 	succeeded: number;
@@ -193,6 +285,11 @@ export interface SubAgentsStatusToolDetails {
 	omitted: number;
 	truncatedAgentDetails: number;
 	timelineEventsOmittedByTransport: number;
+	worktreeCollectionsFailed: number;
+	worktreeCatalogRequested: number;
+	worktreeCatalogFailed: number;
+	worktreeCatalogTruncated: number;
+	worktreeCatalog?: StatusWorktreeCatalogOutcome[];
 	outputTruncated: boolean;
 	usageDrained?: UsageCounters;
 	usageAggregateClamped?: true;
@@ -223,6 +320,12 @@ interface DraftSuccess {
 	full: StatusAgentView;
 	minimal: StatusAgentView;
 	timeline: StatusEventView[];
+}
+
+interface CatalogDraftSuccess {
+	outcomeIndex: number;
+	full: StatusWorktreeCatalogSuccessOutcome;
+	minimal: StatusWorktreeCatalogSuccessOutcome;
 }
 
 function oneLine(value: unknown): string {
@@ -439,11 +542,207 @@ function eventView(event: BoundedAgentEvent, truncatedFields: string[]): StatusE
 	};
 }
 
+function workspaceView(
+	workspace: ManagedSubAgentSnapshot["workspace"],
+	truncatedFields: string[],
+): StatusAgentView["workspace"] {
+	if (!workspace) return undefined;
+	if (workspace.mode === "shared") return { mode: "shared" };
+	return {
+		mode: "worktree",
+		workspaceId: boundedField(workspace.workspaceId, 200, "workspace.workspaceId", truncatedFields),
+		branchRef: boundedField(workspace.branchRef, 512, "workspace.branchRef", truncatedFields),
+		baseCommit: boundedField(workspace.baseCommit, 64, "workspace.baseCommit", truncatedFields),
+		disposition: workspace.disposition,
+	};
+}
+
+function worktreeChangesView(
+	collection: Readonly<WorktreeOwnedChangeCollection> | undefined,
+	truncatedFields: string[],
+	options: Readonly<{ omitPatchLines?: boolean; minimal?: boolean }> = {},
+): StatusWorktreeChangesView | undefined {
+	if (!collection) return undefined;
+	const changedFileLimit = options.minimal ? 0 : 20;
+	const diffFileLimit = options.minimal ? 0 : 20;
+	const patchLineLimit = options.minimal || options.omitPatchLines ? 0 : 80;
+	const changedFiles = collection.collection.changedFiles.slice(0, changedFileLimit).map((file) => ({
+		path: boundedField(file.path, 160, "worktreeChanges.changedFiles.path", truncatedFields),
+		status: boundedField(file.status, 16, "worktreeChanges.changedFiles.status", truncatedFields),
+		kind: boundedField(file.kind, 32, "worktreeChanges.changedFiles.kind", truncatedFields),
+		oldPath: file.oldPath
+			? boundedField(file.oldPath, 160, "worktreeChanges.changedFiles.oldPath", truncatedFields)
+			: undefined,
+	}));
+	const diffFiles = collection.collection.diffStat.files.slice(0, diffFileLimit).map((file) => ({
+		path: boundedField(file.path, 160, "worktreeChanges.diffStat.files.path", truncatedFields),
+		insertions: file.insertions === null ? null : safeInteger(file.insertions),
+		deletions: file.deletions === null ? null : safeInteger(file.deletions),
+		binary: file.binary === true,
+	}));
+	const patchLines = collection.collection.patchPreview.lines.slice(0, patchLineLimit).map((line) =>
+		boundedField(line, 260, "worktreeChanges.patchPreview.lines", truncatedFields),
+	);
+	return {
+		ok: true,
+		registered: collection.registered === true,
+		exactOwnership: collection.exactOwnership === true,
+		clean: collection.clean === true,
+		conflicted: collection.conflicted === true,
+		incomplete: collection.incomplete === true,
+		changedFileCount: safeInteger(collection.collection.changedFileCount),
+		changedFiles,
+		omittedChangedFileCount:
+			Math.max(0, safeInteger(collection.collection.changedFileCount) - changedFiles.length) +
+			(collection.collection.changedFilesTruncated ? 1 : 0),
+		diffStat: {
+			filesChanged: safeInteger(collection.collection.diffStat.filesChanged),
+			insertions: safeInteger(collection.collection.diffStat.insertions),
+			deletions: safeInteger(collection.collection.diffStat.deletions),
+			binaryFiles: safeInteger(collection.collection.diffStat.binaryFiles),
+			truncated: collection.collection.diffStat.truncated === true,
+			files: diffFiles,
+			omittedFileCount: Math.max(0, safeInteger(collection.collection.diffStat.filesChanged) - diffFiles.length),
+		},
+		commitRange: {
+			baseCommit: boundedField(collection.collection.commitRange.baseCommit, 64, "worktreeChanges.commitRange.baseCommit", truncatedFields),
+			currentCommit: collection.collection.commitRange.currentCommit
+				? boundedField(collection.collection.commitRange.currentCommit, 64, "worktreeChanges.commitRange.currentCommit", truncatedFields)
+				: null,
+			aheadCount: collection.collection.commitRange.aheadCount === null
+				? null
+				: safeInteger(collection.collection.commitRange.aheadCount),
+		},
+		patchPreview: {
+			lineCount: safeInteger(collection.collection.patchPreview.lineCount),
+			lines: patchLines,
+			truncated: collection.collection.patchPreview.truncated === true,
+			omittedLineCount: Math.max(0, collection.collection.patchPreview.lines.length - patchLines.length) + safeInteger(collection.collection.patchPreview.omittedLineCount),
+			omittedByteCount: safeInteger(collection.collection.patchPreview.omittedByteCount),
+		},
+	};
+}
+
+function minimalWorktreeChangesView(collection: Readonly<WorktreeOwnedChangeCollection>): StatusWorktreeChangesView {
+	return {
+		ok: true,
+		registered: collection.registered === true,
+		exactOwnership: collection.exactOwnership === true,
+		clean: collection.clean === true,
+		conflicted: collection.conflicted === true,
+		incomplete: collection.incomplete === true,
+		changedFileCount: safeInteger(collection.collection.changedFileCount),
+		omittedChangedFileCount:
+			collection.collection.changedFiles.length +
+			(collection.collection.changedFilesTruncated ? 1 : 0),
+		patchPreview: {
+			lineCount: safeInteger(collection.collection.patchPreview.lineCount),
+			lines: [],
+			truncated: collection.collection.patchPreview.truncated === true || collection.collection.patchPreview.lines.length > 0,
+			omittedLineCount:
+				collection.collection.patchPreview.lines.length +
+				safeInteger(collection.collection.patchPreview.omittedLineCount),
+			omittedByteCount: safeInteger(collection.collection.patchPreview.omittedByteCount),
+		},
+	};
+}
+
+function sanitizeWorkspaceId(value: unknown): string {
+	const bounded = boundUtf8Line(value, SUB_AGENT_BOUNDS.agentIdChars);
+	return bounded || "unknown-worktree";
+}
+
+function catalogFailure(
+	workspaceId: unknown,
+	expectedRevision: unknown,
+	code: string,
+	message: string,
+): StatusWorktreeCatalogFailureOutcome {
+	return {
+		ok: false,
+		workspaceId: sanitizeWorkspaceId(workspaceId),
+		expectedRevision: typeof expectedRevision === "number" && Number.isSafeInteger(expectedRevision) && expectedRevision > 0
+			? expectedRevision
+			: undefined,
+		code: boundUtf8Line(code, DISPLAY_CODE_BYTES) || "catalog_collection_failed",
+		message: boundUtf8Line(message, DISPLAY_LINE_BYTES) || "Could not collect retained worktree changes",
+	};
+}
+
+function buildCatalogOutcome(
+	collection: Readonly<WorktreeCatalogChangeCollection>,
+	expectedRevision: number | undefined,
+): { full: StatusWorktreeCatalogSuccessOutcome; minimal: StatusWorktreeCatalogSuccessOutcome } {
+	const truncatedFields: string[] = [];
+	const workspaceId = boundedField(collection.summary.workspaceId, SUB_AGENT_BOUNDS.agentIdChars, "worktreeCatalog.workspaceId", truncatedFields);
+	const branchRef = boundedField(collection.summary.branchRef, 512, "worktreeCatalog.branchRef", truncatedFields);
+	const baseCommit = boundedField(collection.summary.baseCommit, 64, "worktreeCatalog.baseCommit", truncatedFields);
+	const workspace = {
+		mode: "worktree" as const,
+		workspaceId,
+		branchRef,
+		baseCommit,
+		disposition: collection.summary.disposition === "ready" ? "active" as const : collection.summary.disposition,
+	};
+	const fullChanges = worktreeChangesView(collection, truncatedFields) ?? { ok: false, code: "collection_failed", message: "Could not collect retained worktree changes" };
+	const minimalChanges = minimalWorktreeChangesView(collection);
+	const common = {
+		ok: true as const,
+		workspaceId,
+		expectedRevision,
+		revision: safeInteger(collection.revision),
+		workspace,
+	};
+	return {
+		full: Object.freeze({ ...common, changes: fullChanges, ...(truncatedFields.length > 0 ? { truncated: true as const } : {}) }),
+		minimal: Object.freeze({ ...common, changes: minimalChanges, truncated: true as const }),
+	};
+}
+
+function compactCatalogOutcome(outcome: StatusWorktreeCatalogSuccessOutcome): StatusWorktreeCatalogSuccessOutcome {
+	return Object.freeze({
+		ok: true,
+		workspaceId: outcome.workspaceId,
+		...(outcome.expectedRevision !== undefined ? { expectedRevision: outcome.expectedRevision } : {}),
+		revision: outcome.revision,
+		workspace: {
+			mode: "worktree" as const,
+			workspaceId: outcome.workspace.workspaceId,
+			branchRef: "",
+			baseCommit: "",
+			disposition: outcome.workspace.disposition,
+		},
+		changes: {
+			ok: true,
+			changedFileCount: outcome.changes.changedFileCount,
+			conflicted: outcome.changes.conflicted,
+			incomplete: outcome.changes.incomplete,
+		},
+		truncated: true as const,
+	});
+}
+
+function formatCatalogLine(outcome: StatusWorktreeCatalogOutcome): string {
+	if (!outcome.ok) {
+		return boundUtf8Line(
+			`- [catalog error] ${outcome.workspaceId}: ${outcome.code}: ${outcome.message}`,
+			DISPLAY_LINE_BYTES,
+		);
+	}
+	const ahead = outcome.changes.commitRange?.aheadCount;
+	const patchLines = outcome.changes.patchPreview?.lineCount;
+	return boundUtf8Line(
+		`- [worktree catalog] ${outcome.workspaceId} rev ${outcome.revision} ${outcome.workspace.disposition}: changes ${outcome.changes.changedFileCount ?? 0} files${ahead === null || ahead === undefined ? "" : ` · ahead ${ahead}`}${patchLines === undefined ? "" : ` · patch ${patchLines} lines`}${outcome.changes.conflicted ? " · conflicted" : ""}${outcome.changes.incomplete ? " · incomplete" : ""}${outcome.truncated ? " · detail truncated" : ""}`,
+		DISPLAY_LINE_BYTES,
+	);
+}
+
 function buildStatusView(
 	snapshot: ManagedSubAgentSnapshot,
 	now: number,
 	detail: "compact" | "timeline",
 	eventLimit: number,
+	worktreeChanges?: StatusWorktreeChangesView,
 ): { full: StatusAgentView; minimal: StatusAgentView; timeline: StatusEventView[] } {
 	const truncatedFields: string[] = [];
 	const name = boundedField(snapshot.spec.name, 96, "name", truncatedFields) || "unnamed";
@@ -562,6 +861,8 @@ function buildStatusView(
 						snapshot.pendingModelReconfiguration.requestedThinkingLevel,
 				}
 			: undefined,
+		workspace: workspaceView(snapshot.workspace, truncatedFields),
+		worktreeChanges,
 		runtime: {
 			phase: snapshot.runtime.phase,
 			preview: snapshot.runtime.streamingPreview
@@ -621,6 +922,10 @@ function buildStatusView(
 		full.events = [];
 		full.omittedEventCount = snapshot.omittedEventCount + snapshot.events.length;
 	}
+	if (worktreeChanges) {
+		if (!full.worktreeChanges) full.worktreeChanges = worktreeChanges;
+		else if (full.truncatedFields) full.truncatedFields = [...new Set([...full.truncatedFields, ...truncatedFields])];
+	}
 	if (truncatedFields.length > 0) full.truncatedFields = [...new Set(truncatedFields)];
 	return { full, minimal, timeline };
 }
@@ -632,17 +937,23 @@ function jsonBytes(value: unknown): number {
 function fitDetails(
 	base: Omit<
 		SubAgentsStatusToolDetails,
-		"outcomes" | "truncatedAgentDetails" | "timelineEventsOmittedByTransport" | "outputTruncated"
+		"outcomes" | "truncatedAgentDetails" | "timelineEventsOmittedByTransport" | "outputTruncated" | "worktreeCatalogTruncated"
 	>,
 	initial: StatusAgentOutcome[],
 	drafts: DraftSuccess[],
+	catalogInitial: StatusWorktreeCatalogOutcome[] = [],
+	catalogDrafts: CatalogDraftSuccess[] = [],
 ): SubAgentsStatusToolDetails {
 	const outcomes = [...initial];
+	const worktreeCatalog = [...catalogInitial];
 	const details: SubAgentsStatusToolDetails = {
 		...base,
 		truncatedAgentDetails: drafts.length,
 		timelineEventsOmittedByTransport: drafts.reduce((sum, draft) => sum + draft.timeline.length, 0),
-		outputTruncated: drafts.length > 0,
+		worktreeCollectionsFailed: base.worktreeCollectionsFailed,
+		worktreeCatalogTruncated: catalogDrafts.length,
+		...(worktreeCatalog.length > 0 ? { worktreeCatalog } : {}),
+		outputTruncated: drafts.length > 0 || catalogDrafts.length > 0,
 		outcomes,
 	};
 
@@ -653,6 +964,16 @@ function fitDetails(
 			details.truncatedAgentDetails -= 1;
 		} else {
 			outcomes[draft.outcomeIndex] = previous;
+		}
+	}
+
+	for (const draft of catalogDrafts) {
+		const previous = worktreeCatalog[draft.outcomeIndex];
+		worktreeCatalog[draft.outcomeIndex] = draft.full;
+		if (jsonBytes(details) <= DETAILS_RICH_BUDGET_BYTES) {
+			details.worktreeCatalogTruncated -= 1;
+		} else {
+			worktreeCatalog[draft.outcomeIndex] = previous;
 		}
 	}
 
@@ -684,15 +1005,22 @@ function fitDetails(
 	}
 
 	details.outputTruncated =
-		details.truncatedAgentDetails > 0 || details.timelineEventsOmittedByTransport > 0;
+		details.truncatedAgentDetails > 0 || details.timelineEventsOmittedByTransport > 0 || details.worktreeCatalogTruncated > 0;
 	if (jsonBytes(details) > DETAILS_MAX_BYTES) {
 		for (const draft of drafts) outcomes[draft.outcomeIndex] = draft.minimal;
+		for (const draft of catalogDrafts) worktreeCatalog[draft.outcomeIndex] = draft.minimal;
 		details.truncatedAgentDetails = drafts.length;
 		details.timelineEventsOmittedByTransport = drafts.reduce(
 			(sum, draft) => sum + draft.timeline.length,
 			0,
 		);
-		details.outputTruncated = drafts.length > 0;
+		details.worktreeCatalogTruncated = catalogDrafts.length;
+		details.outputTruncated = drafts.length > 0 || catalogDrafts.length > 0;
+	}
+	if (jsonBytes(details) > DETAILS_MAX_BYTES) {
+		for (const draft of catalogDrafts) worktreeCatalog[draft.outcomeIndex] = compactCatalogOutcome(draft.minimal);
+		details.worktreeCatalogTruncated = catalogDrafts.length;
+		details.outputTruncated = true;
 	}
 	return details;
 }
@@ -718,6 +1046,18 @@ function formatStatusLine(outcome: StatusAgentOutcome): string {
 	if (outcome.history) {
 		parts.push(`restored ${outcome.history.checkpointState} history`);
 	}
+	if (outcome.workspace?.mode === "worktree") {
+		parts.push(`worktree ${outcome.workspace.workspaceId} ${outcome.workspace.disposition}`);
+	}
+	if (outcome.worktreeChanges) {
+		if (outcome.worktreeChanges.ok) {
+			const ahead = outcome.worktreeChanges.commitRange?.aheadCount;
+			const patchLines = outcome.worktreeChanges.patchPreview?.lineCount;
+			parts.push(`changes ${outcome.worktreeChanges.changedFileCount ?? 0} files${ahead === null || ahead === undefined ? "" : ` · ahead ${ahead}`}${patchLines === undefined ? "" : ` · patch ${patchLines} lines`}${outcome.worktreeChanges.conflicted ? " · conflicted" : ""}${outcome.worktreeChanges.incomplete ? " · incomplete" : ""}`);
+		} else {
+			parts.push(`worktree changes unavailable: ${outcome.worktreeChanges.code ?? "collection_failed"}`);
+		}
+	}
 	if (outcome.assignment) {
 		parts.push(`assignment ${outcome.assignment.sequence} ${outcome.assignment.state}`);
 	}
@@ -740,8 +1080,9 @@ function formatStatusLine(outcome: StatusAgentOutcome): string {
 
 export function formatSubAgentsStatusResult(details: SubAgentsStatusToolDetails): string {
 	const lines = [
-		`sub_agents_status: ${details.succeeded} agents · ${details.failed} errors · ${details.omitted} omitted · generation ${details.generation}`,
+		`sub_agents_status: ${details.succeeded} agents · ${details.failed} errors · ${details.omitted} omitted${details.includeWorktreeChanges ? ` · ${details.worktreeCollectionsFailed} worktree collection errors` : ""}${details.worktreeCatalogRequested ? ` · ${details.worktreeCatalogFailed} catalog errors` : ""} · generation ${details.generation}`,
 		...details.outcomes.map(formatStatusLine),
+		...(details.worktreeCatalog ?? []).map(formatCatalogLine),
 	];
 	if (details.detail === "timeline") {
 		for (const outcome of details.outcomes) {
@@ -799,6 +1140,8 @@ export async function executeSubAgentsStatus(
 	const detail = params.detail ?? "compact";
 	const eventLimit = params.eventLimit ?? DEFAULT_EVENT_LIMIT;
 	const drainUsage = params.drainUsage ?? false;
+	const includeWorktreeChanges = params.includeWorktreeChanges ?? false;
+	const worktreeCatalogRequests = params.worktreeCatalogChanges ?? [];
 	const selection = selectAgents(params, runtime);
 	if (signal?.aborted) {
 		throw new SubAgentsStatusError(
@@ -833,6 +1176,7 @@ export async function executeSubAgentsStatus(
 	const now = safeNumber(runtime.now?.() ?? Date.now());
 	const initial: StatusAgentOutcome[] = [];
 	const drafts: DraftSuccess[] = [];
+	let worktreeCollectionsFailed = 0;
 	for (const selected of resolved) {
 		if (selected.failure || !selected.snapshot) {
 			initial.push(
@@ -845,10 +1189,87 @@ export async function executeSubAgentsStatus(
 			);
 			continue;
 		}
-		const view = buildStatusView(selected.snapshot, now, detail, eventLimit);
+		let worktreeChanges: StatusWorktreeChangesView | undefined;
+		if (
+			includeWorktreeChanges &&
+			selected.snapshot.workspace?.mode === "worktree" &&
+			!selected.snapshot.restoredHistory
+		) {
+			if (typeof runtime.manager.collectWorkspaceChanges === "function") {
+				try {
+					worktreeChanges = worktreeChangesView(
+						await runtime.manager.collectWorkspaceChanges(selected.id),
+						[],
+					);
+					if (!worktreeChanges) {
+						worktreeChanges = {
+							ok: false,
+							code: "collection_unavailable",
+							message: "No exact owned worktree collection is available for this child",
+						};
+						worktreeCollectionsFailed += 1;
+					}
+				} catch {
+					worktreeChanges = {
+						ok: false,
+						code: "collection_failed",
+						message: "Could not collect exact owned worktree changes",
+					};
+					worktreeCollectionsFailed += 1;
+				}
+			} else {
+				worktreeChanges = {
+					ok: false,
+					code: "collection_unavailable",
+					message: "No exact owned worktree collection is available for this child",
+				};
+				worktreeCollectionsFailed += 1;
+			}
+		}
+		const view = buildStatusView(selected.snapshot, now, detail, eventLimit, worktreeChanges);
 		const outcomeIndex = initial.length;
 		initial.push(view.minimal);
 		drafts.push({ outcomeIndex, ...view });
+	}
+
+	const catalogInitial: StatusWorktreeCatalogOutcome[] = [];
+	const catalogDrafts: CatalogDraftSuccess[] = [];
+	let worktreeCatalogFailed = 0;
+	for (const request of worktreeCatalogRequests) {
+		const workspaceId = request?.workspaceId;
+		const expectedRevision = request?.expectedRevision;
+		if (typeof workspaceId !== "string" || !WORKTREE_WORKSPACE_ID.test(workspaceId) || workspaceId.length > SUB_AGENT_BOUNDS.agentIdChars) {
+			catalogInitial.push(catalogFailure(workspaceId, expectedRevision, "invalid_catalog_target", "Catalog workspace ID is invalid"));
+			worktreeCatalogFailed += 1;
+			continue;
+		}
+		if (expectedRevision !== undefined && (!Number.isSafeInteger(expectedRevision) || expectedRevision < 1)) {
+			catalogInitial.push(catalogFailure(workspaceId, expectedRevision, "invalid_catalog_target", "Catalog expected revision is invalid"));
+			worktreeCatalogFailed += 1;
+			continue;
+		}
+		if (signal?.aborted) {
+			throw new SubAgentsStatusError("cancelled", "sub_agents_status was cancelled before retained worktree collection");
+		}
+		if (typeof runtime.collectWorktreeCatalogChanges !== "function") {
+			catalogInitial.push(catalogFailure(workspaceId, expectedRevision, "catalog_unavailable", "No retained worktree catalog collection is available"));
+			worktreeCatalogFailed += 1;
+			continue;
+		}
+		try {
+			const collection = await runtime.collectWorktreeCatalogChanges({
+				workspaceId,
+				...(expectedRevision !== undefined ? { expectedRevision } : {}),
+				signal,
+			});
+			const view = buildCatalogOutcome(collection, expectedRevision);
+			const outcomeIndex = catalogInitial.length;
+			catalogInitial.push(view.minimal);
+			catalogDrafts.push({ outcomeIndex, ...view });
+		} catch {
+			catalogInitial.push(catalogFailure(workspaceId, expectedRevision, "catalog_collection_failed", "Could not collect retained worktree changes"));
+			worktreeCatalogFailed += 1;
+		}
 	}
 
 	const failed = initial.filter((outcome) => !outcome.ok).length;
@@ -859,6 +1280,7 @@ export async function executeSubAgentsStatus(
 		detail,
 		eventLimit,
 		drainUsage,
+		includeWorktreeChanges,
 		requested: selection.requested,
 		returned: initial.length,
 		succeeded: initial.length - failed,
@@ -866,8 +1288,11 @@ export async function executeSubAgentsStatus(
 		omitted: selection.omitted,
 		usageDrained: drainUsage ? drained : undefined,
 		usageAggregateClamped: usageAggregateClamped ? true as const : undefined,
+		worktreeCollectionsFailed,
+		worktreeCatalogRequested: worktreeCatalogRequests.length,
+		worktreeCatalogFailed,
 	};
-	const details = fitDetails(base, initial, drafts);
+	const details = fitDetails(base, initial, drafts, catalogInitial, catalogDrafts);
 	const result: {
 		content: Array<{ type: "text"; text: string }>;
 		details: SubAgentsStatusToolDetails;
@@ -887,12 +1312,13 @@ export function createSubAgentsStatusTool(
 		name: "sub_agents_status",
 		label: "Sub-Agent Status",
 		description:
-			"Return a bounded compact or recent-timeline snapshot for selected or all current-generation sub-agents. Includes lifecycle, assignment, active/pending model route and effective thinking, active tools, leases, latest report/result, queue state, errors, elapsed time, and usage. Usage is observational by default; drainUsage=true atomically attaches only newly accrued usage to this tool result.",
+			"Return a bounded compact or recent-timeline snapshot for selected or all current-generation sub-agents. Includes lifecycle, assignment, active/pending model route and effective thinking, active tools, leases, latest report/result, queue state, errors, elapsed time, and usage. Usage is observational by default; drainUsage=true atomically attaches only newly accrued usage to this tool result. Optional worktree collection fields are read-only and do not create, clean up, merge, delete, push, or contact remotes.",
 		promptSnippet:
-			"Inspect bounded current-generation sub-agent state, activity, results, and usage",
+			"Inspect bounded current-generation sub-agent state, activity, results, usage, and optional read-only worktree changes",
 		promptGuidelines: [
 			"Use sub_agents_status with exact IDs when inspecting selected children; omit ids only when a bounded all-agent snapshot is intended.",
 			"Keep sub_agents_status drainUsage omitted or false for observation; set drainUsage=true only when intentionally advancing child usage accounting.",
+			"Use worktreeCatalogChanges only for read-only retained/uncertain worktree catalog collection by exact workspaceId/revision; it is not cleanup, merge, branch deletion, push, or worktree enablement.",
 		],
 		parameters: subAgentsStatusSchema,
 		executionMode: "parallel",

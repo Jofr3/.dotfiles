@@ -2,11 +2,11 @@
 
 **Specification:** [`SPEC.md`](./SPEC.md)
 
-**Current stage:** First stable shared-workspace release approved; Phase 8 architecture, disposable local-Git harness, and production manager/state/registry backend are complete, while worktree mode remains runtime-disabled and `SA-803` is next
+**Current stage:** First stable shared-workspace release approved; Phase 8 architecture, disposable local-Git harness, production manager/state/registry backend, worktree child-runtime integration (`SA-803`), and bounded commit/patch/status collection (`SA-804`) are complete. The canonical isolated offline runner passes against the active installed Pi SDK, while default public worktree mode remains runtime-disabled pending `SA-805` controls and the final `SA-809` release gate.
 
 **Current milestone:** Phase 8 — Git worktree isolation
 
-**Next recommended item:** `SA-803` — integrate approved worktree provisioning with child creation and workspace-scoped tools while preserving partial outcomes
+**Next recommended item:** `SA-805` — begin strict V2 worktree-summary persistence while preserving V1 and deterministic active-branch precedence
 
 This file is the resumable source of truth for implementation progress. Future sessions should update it before stopping so another session can continue without reconstructing decisions from conversation history.
 
@@ -73,7 +73,7 @@ Future changes to these require an explicit spec and decision-log update.
 These notes prevent future sessions from accidentally overwriting unrelated work.
 
 - The `sub-agents/` directory now contains the production Phase 1 entry point/state manager, the complete Phase 2 shared child runtime (model adapter/router, bounded prompt/resources, read-only session factory, event translator, reusable assignment runner, and atomic usage ledger), the validated six-tool Phase 3 control plane, complete Phase 4 observability (child `report_to_parent`, bounded coalesced parent notifications, persistent status widget, shared management-tool renderers, and the `/sub-agents` dashboard), the validated Phase 5 shared-workspace safety boundary, and complete Phase 6 persistence/session correctness. Restoration reads only the active branch, keeps old IDs out of the live registry, preserves old unreported usage observationally, and publishes no old runtime or lease authority. The lifecycle matrix covers reload/new/resume/fork/clone, tree, all compaction reasons including overflow retry, shutdown, and partial cleanup failure without retaining runtime or lease authority.
-- `WORKTREES.md` is the accepted `SA-800` architecture decision. `SA-801` completed the disposable local-Git/offline-guard prerequisite, and `SA-802` completed the production Git/state/transaction/registry backend. Worktree mode is still rejected by the child runtime pending `SA-803` and the later release gate.
+- `WORKTREES.md` is the accepted `SA-800` architecture decision. `SA-801` completed the disposable local-Git/offline-guard prerequisite, and `SA-802` completed the production Git/state/transaction/registry backend. The first `SA-803` slice generalized canonical path/write-scope utilities for registered worktree identities and denied `.git` administrative paths to guarded non-bash file tools. The second `SA-803` slice added a pre-resolved workspace/session-factory seam and default shared workspace resolver in the assignment runner. The third `SA-803` slice added an internal fake-approved worktree workspace resolver that prepares, approves, provisions, and passes exact identities through the assignment-runner seam, and retains a successfully provisioned allocation after child runtime initialization failure. The fourth `SA-803` slice remapped trusted parent context display paths into pre-resolved worktree logical roots without rereading context files. The fifth `SA-803` slice proved fake registered-worktree sibling/parent lease scoping. The sixth `SA-803` slice added path-free retained/uncertain worktree outcome metadata on runner failures and `sub_agents_spawn` results/renderers. The seventh `SA-803` slice added an approval-capable UI/RPC worktree-plan admission seam and optional spawn-runtime resolver wiring. The eighth `SA-803` slice wired a lazy default production worktree manager/provisioner into the default spawn runtime and exposed manager-owned worktree registry authority while keeping an explicit `worktreeModeEnabled: false` release gate, so public worktree mode still falls through to the normal unsupported-workspace path. The ninth `SA-803` slice added immutable per-call worktree spawn-batch metadata plus post-confirmation approval-digest rechecks, the tenth slice added a mixed-batch admission barrier that holds shared siblings until all enabled worktree entries are admitted, the eleventh slice consolidated per-child confirmations into one complete worktree batch admission object, the twelfth slice enabled/proved guarded worktree read/edit/write/bash tool contracts plus parent shared-workspace interception scoping over fake registered worktree identities, the thirteenth slice proved a reusable pre-resolved registered-worktree child reacquires file and workspace ownership before later assignment model work after explicit idle release, and the fourteenth slice proved the settled blocked-resume path reacquires registered-worktree file/workspace ownership before resumed model work while preserving the same assignment boundary.
 - At planning time, git reported `agent/extensions/dynamic-fleet.ts` as deleted in the pre-existing working tree. Do not restore or repurpose it unless the user explicitly asks.
 - At planning time, `agent/models-store.json` and `agent/settings.json` already had unrelated modifications. Do not overwrite or revert them.
 - No dependencies have been installed for `sub-agents`.
@@ -1669,28 +1669,87 @@ Implementation notes:
 
 ## `SA-803` Worktree child runtime integration
 
-**Status:** NEXT
+**Status:** DONE
 
-- [ ] Bind one immutable spawn plan and one-shot approval to exact repository/base/spec/workspace/bash metadata before side effects.
-- [ ] Preserve per-child partial success/retained/uncertain outcomes after batch approval.
-- [ ] Provision a resolved workspace before child session creation; the session factory consumes it rather than creating Git state.
-- [ ] Map child cwd and trusted context display paths into the worktree without filesystem rediscovery.
-- [ ] Generalize guarded read/edit/write/bash path/tool contracts while denying `.git` to every non-bash child tool.
-- [ ] Prove equivalent relative paths across sibling worktrees do not conflict and worktree bash does not acquire the parent/sibling workspace key.
-- [ ] Keep parent mutation interception scoped to the parent shared workspace.
+- [x] Bind one immutable spawn plan and one-shot approval to exact repository/base/spec/workspace/bash metadata before side effects.
+  - [x] Slice 7: `sub_agents_spawn` can construct a per-call approval-capable worktree resolver when an internal worktree manager is supplied; the approval callback displays bounded exact plan metadata through UI/RPC confirmation, returns the digest/correlation admission to provisioning, consumes each digest once, and keeps operator-only paths out of tool results.
+  - [x] Slice 8: the default production spawn runtime now carries a lazy production worktree manager/provisioner plus an explicit disabled `worktreeModeEnabled` release gate, so wiring exists without admitting public worktree creation.
+  - [x] Slice 9: `sub_agents_spawn` snapshots immutable per-call worktree batch metadata and the release-gate decision before launching child work, approval messages use that frozen snapshot even if caller-visible input is mutated later, per-agent resolvers force the frozen worktree cwd into preparation, and approval digests are rechecked after asynchronous confirmation so only one same-digest plan can reach provisioning.
+  - [x] Slice 10: mixed shared/worktree spawn batches now hold shared siblings behind a complete worktree-admission barrier when the internal worktree gate is enabled, so shared children cannot launch before every worktree entry has received its one-shot approval admission; failed pre-admission worktree entries keep shared siblings from launching.
+  - [x] Slice 11: per-child worktree plan confirmations are consolidated into one complete per-call batch admission object after every worktree plan is prepared and before any child-side provisioning; the one batch approval displays frozen metadata for all prepared worktree entries, duplicate approval digests fail before UI/provisioning, all plan admissions are published together, and shared siblings remain held until the batch is admitted.
+- [x] Preserve per-child partial success/retained/uncertain outcomes after batch approval.
+  - [x] Slice 6: runner failures can carry a path-free worktree outcome, retained-after-runtime-failure summaries are propagated after the internal retention callback, and `sub_agents_spawn` content/details/renderers expose bounded retained/uncertain per-child worktree outcomes without absolute paths.
+- [x] Provision a resolved workspace before child session creation; the session factory consumes it rather than creating Git state.
+  - [x] Slice 2: `SubAgentAssignmentRunner` resolves a workspace before session construction, `createSubAgentSession()` consumes an optional pre-resolved shared/worktree identity plus cwd, and the default path still rejects worktree mode without approved provisioning.
+  - [x] Slice 3: `createApprovedWorktreeWorkspaceResolver()` can use a supplied worktree manager plus exact approval callback to prepare, approve, provision, and pass a registered worktree identity/cwd into the runner, and the runner retains a provisioned allocation if later child runtime initialization fails.
+  - [x] Slice 8: `index.ts` builds the default provisioner from the production Git/state/worktree manager and the session manager's owned workspace registry authority lazily, but the spawn runtime does not call it unless a later release gate enables worktree mode.
+- [x] Map child cwd and trusted context display paths into the worktree without filesystem rediscovery.
+- [x] Generalize guarded read/edit/write/bash path/tool contracts while denying `.git` to every non-bash child tool.
+  - [x] Slice 1: canonical path and write-scope utilities accept exact generated worktree identities, preserve opaque workspace keys for equivalent sibling paths, reject forged structural identities, and deny `.git` path segments for guarded non-bash file tools.
+  - [x] Slice 12: guarded read/edit/write execute against a fake registered worktree identity, guarded bash now accepts shared or worktree registered identities and claims only that resolved workspace, guarded non-bash tools still deny `.git`, and extension-owned results/snapshots expose only bounded worktree labels.
+- [x] Prove equivalent relative paths across sibling worktrees do not conflict and worktree bash does not acquire the parent/sibling workspace key.
+- [x] Keep parent mutation interception scoped to the parent shared workspace.
+- [x] Prove reusable later-assignment ownership preparation/reacquisition over pre-resolved registered worktree identities.
+  - [x] Slice 13: a fake pre-resolved registered-worktree child with guarded file scope plus workspace-exclusive bash releases idle ownership, starts a later assignment, reacquires the same worktree-scoped file and workspace leases before model work, and keeps lease snapshots path-free.
+  - [x] Slice 14: a fake settled blocked pre-resolved registered-worktree child releases retained ownership, resumes the same assignment, reacquires the same worktree-scoped file and workspace leases before resumed model work, preserves the assignment ID/count, and keeps lease snapshots path-free.
+- [x] Expose a bounded path-free successful worktree workspace summary at runtime, spawn, and status boundaries.
+  - [x] Slice 15: successful pre-resolved registered-worktree runtime initialization records an active workspace summary on manager snapshots, `sub_agents_spawn` success content/details/renderers expose bounded workspace ID/branch/base/disposition, and `sub_agents_status` content/details/renderers expose the same summary without private roots.
+
+Implementation notes so far:
+
+- `workspace/paths.ts` now validates both released shared identities and generated worktree identities, including exact `saw1-` workspace IDs, `sawk1-` keys, generated full branch refs, and 40/64-hex base commits.
+- Canonical target resolution and declared write scopes now work under a registered worktree root without collapsing equivalent relative paths across sibling workspace keys.
+- Guarded non-bash file-tool path resolution rejects any `.git` path segment before read/edit/write/scope use; `.gitignore` remains ordinary project content.
+- `SubAgentAssignmentRunner` now owns a `resolveWorkspace` seam and passes the resolved workspace/cwd into `createSubAgentSession()`. The default resolver preserves released shared behavior; an exact pre-resolved worktree identity can be consumed by the internal factory seam without running Git.
+- `createApprovedWorktreeWorkspaceResolver()` is an internal testable provisioning adapter over the existing `WorktreeManager` contract. It preserves shared fallback behavior, requires an exact approval callback for worktree requests, forwards cancellation into prepare/provision, computes the child cwd from the published logical root plus relative cwd, and attaches a retention callback for the runner to call if child runtime construction fails after provisioning.
+- A focused fake-approved runner test proves prepare → approval → provision happens before `createSession`, the exact worktree identity/cwd reaches the session factory boundary, a ready allocation is retained after a synthetic session initialization failure, and the retained path-free summary remains attached to the thrown runner error.
+- `createSubAgentSession()` now passes a worktree-only context display-path mapping into the explicit resource loader. Trusted parent context file paths that are lexically inside the parent logical root are displayed at the equivalent pre-resolved worktree logical-root path, content is not reread, outside-context display paths remain unchanged, and shared-mode context behavior is preserved.
+- A focused fake-registered lease test proves a worktree-scoped workspace lease for one child can coexist with an equivalent sibling worktree file/workspace lease and with parent shared-workspace reservations; extension-owned lease snapshots expose only `worktree:<workspaceId>` labels and no private paths.
+- `sub_agents_spawn` now has bounded optional `worktree` metadata for failed per-child outcomes so retained/uncertain provisioning results can be reported without canonical paths once the public provisioner is wired. When an internal worktree manager is supplied to the spawn runtime and `worktreeModeEnabled` is true, the tool builds a frozen per-call worktree batch snapshot before child launches, captures the release-gate decision once, uses the frozen child/worktree/bash metadata for preparation cwd, prepares every requested worktree plan, presents one complete approval object for the whole prepared batch, rejects duplicate approval digests before UI/provisioning, publishes all per-plan admissions together before any child-side provisioning starts, and holds shared siblings until every worktree entry has reached that admission boundary. A worktree entry that fails before admission causes shared siblings to return bounded not-launched outcomes instead of starting ahead of an unadmitted worktree batch. The default runtime now supplies a lazy production worktree manager/provisioner, but it also sets `worktreeModeEnabled: false`, so `workspace.mode: "worktree"` remains disabled through the normal user-facing path and the production Git/state manager is not invoked.
+- `SubAgentManager` exposes only two internal manager-owned worktree registry methods for the production provisioner: exact worktree registration and exact workspace authorization. The registry remains owned by the lease coordinator; callers cannot inject an alternate registry authority.
+- `createGuardedChildBashTool()` now accepts either shared or exact registered worktree identities. A focused fake-registered runtime-tool test executes guarded read, bash, edit, and write against one worktree root, proves `.git` remains denied to guarded non-bash tools, verifies lease/result snapshots expose only `worktree:<workspaceId>` labels, and shows parent `edit`/`bash` interception still reserves only the parent shared workspace even while the worktree child owns its worktree workspace.
+- A focused fake runner test now registers one pre-resolved worktree identity for a reusable child, preclaims worktree file/workspace ownership, releases it at idle, then proves the later `prompt()` boundary reacquires both leases before child model work begins. A sibling focused fake runner test drives a settled blocked assignment through explicit release and `resumeBlocked()`, proving the resumed same assignment reacquires both leases before model work and keeps the assignment ID/count unchanged. The observed manager snapshots expose only `worktree:<workspaceId>` plus root-relative paths, not the private worktree root.
+- Successful runtime initialization now records a path-free active workspace summary from the resolved registered worktree identity. Spawn success outcomes and status views include only bounded workspace ID, generated branch ref, base commit, and `active` disposition; focused tests assert no private worktree root enters those parent-facing boundaries. Public worktree mode remains disabled by the release gate.
 
 ## `SA-804` Commit/patch collection
 
-**Status:** READY
+**Status:** DONE
 
-- [ ] Add bounded exact-workspace status, changed-file, diff-stat, commit-range, base/current OID, and conflict metadata.
-- [ ] Keep absolute private paths, Git config, ownership records, and unbounded patch/blob data out of model-visible results.
-- [ ] Do not create commits automatically.
-- [ ] Report uncertain/incomplete collection without retrying a possibly mutating operation.
+- [x] Add bounded exact-workspace status, changed-file, diff-stat, commit-range, base/current OID, and conflict metadata.
+  - [x] Slice 1: production Git `collectSummary()` now gathers bounded porcelain status, changed-file summaries, diff numstat, commit range count, base/current OIDs, clean/conflict flags, and incomplete metadata for an exact registered worktree without creating commits.
+  - [x] Slice 1: `WorktreeManager.collectOwnedChanges()` requires a manager-issued allocation, protected record, registry authorization, and exact Git workspace observation before returning path-free collection metadata.
+  - [x] Slice 2: `sub_agents_status({ includeWorktreeChanges: true })` can surface bounded path-free exact-owned worktree collection for active registered worktree children through a manager/runner collector hook, including changed files, diff-stat, commit range, clean/conflict, and incomplete flags.
+  - [x] Slice 3: active exact-owned collection now includes bounded patch-preview lines gathered through strict read-only Git diff grammar and surfaced through status details/content/renderers without enabling public worktree spawning.
+  - [x] Slice 4: `WorktreeStateStore.readCatalogRecord()` and `WorktreeManager.collectCatalogChanges()` can collect bounded path-free change/patch metadata from protected retained/uncertain catalog records by exact workspace ID and optional record revision without a live allocation handle.
+  - [x] Slice 5: `sub_agents_status({ worktreeCatalogChanges: [...] })` can collect retained/uncertain catalog changes by exact workspace ID and optional expected revision, returning bounded path-free changed-file, diff-stat, commit-range, patch-preview, clean/conflict, and incomplete metadata through content/details/renderers without enabling public worktree creation.
+  - [x] Slice 6: maximum retained/catalog status transport-bound validation preserves every exact workspace target while fitting content and structured details below 48 KiB through catalog-specific truncation tiers.
+- [x] Keep absolute private paths, Git config, ownership records, and unbounded patch/blob data out of model-visible results.
+  - [x] Slice 1: manager-facing collection strips private worktree registration paths and exposes only root-relative changed/diff paths, generated workspace summary, OIDs/counts, and bounded status metadata.
+  - [x] Slice 2: status-facing collection returns only root-relative paths, generated workspace/status metadata, OID/count summaries, and bounded collection-unavailable/failure codes; no private roots, Git config, allocation handles, correlation tokens, ownership records, patches, or blob data are included.
+  - [x] Slice 3: patch preview is explicitly bounded to retained line/byte budgets, sanitizes controls, omits private canonical worktree/state paths, and reports truncation/omission metadata rather than exposing unbounded patches or blobs.
+  - [x] Slice 5: retained/catalog status collection surfaces only generated workspace IDs, branch/OID/disposition/revision, root-relative changed/diff/patch metadata, and bounded unavailable/failure codes; private roots, Git config, ownership records, allocation handles, correlation tokens, and raw failure text remain omitted.
+  - [x] Slice 6: maximum retained/catalog status results preserve exact workspace IDs/revisions and omit oversized changed-file, diff-file, patch-line, branch, and OID detail before transport overflow can expose unbounded data.
+- [x] Do not create commits automatically.
+  - [x] Slice 1: collection uses read-only status/diff/rev-list operations only; tests mutate disposable worktree files but create no commits automatically.
+- [x] Report uncertain/incomplete collection without retrying a possibly mutating operation.
+  - [x] Slice 1: parser/inspection failures that are not cancellation/timeout/output-limit become `incomplete: true` collection results without retrying or mutating Git state.
+
+Implementation notes so far:
+
+- `workspace/worktree-git.ts` now defines `WorktreeCollectionSummary`, bounded changed-file/diff-stat/commit-range contracts, strict porcelain/status and numstat parsers, and a production `collectSummary()` implementation over allowlisted local Git commands.
+- `workspace/worktrees.ts` adds `collectOwnedChanges()` as the path-free exact-owned manager boundary. It verifies protected state, registry identity, repository/config identity, branch/ref/worktree registration, and locked ownership while allowing the branch `HEAD` to advance for child-created commits.
+- The offline guard production Git grammar now admits only the exact read-only `diff --no-ext-diff --no-textconv --numstat -z <oid> --`, `diff --no-ext-diff --no-textconv --no-color --patch --unified=3 <oid> --`, and `rev-list --count <oid>..HEAD` commands inside owned disposable production worktrees.
+- `assignment-runner.ts` now carries an optional collection hook alongside the retained allocation handle, the production provisioner exposes `collectOwnedChanges()`, and `SubAgentManager.collectWorkspaceChanges()` lets `sub_agents_status` request exact-owned active worktree collection without exposing the allocation handle.
+- `sub_agents_status` has an optional `includeWorktreeChanges` flag. Its details/content/renderers surface bounded changed-file, diff-stat, commit-range, patch-preview, clean/conflict, and incomplete metadata or a bounded collection-unavailable/failure code. The field is observational, creates no commits, and does not enable public worktree spawning.
+- The state store now has an internal exact catalog-record lookup, and `WorktreeManager.collectCatalogChanges()` can collect the same path-free bounded metadata from a retained/uncertain protected record using exact workspace ID plus optional expected revision. It holds the repository lock, rereads the protected record, rejects stale revisions and non-collectable lifecycle states, and does not expose private roots, allocation handles, or correlation tokens.
+- `sub_agents_status` now also accepts bounded `worktreeCatalogChanges` targets. The default status runtime exposes the lazy production catalog collector without initializing Git/state unless that read-only surface is requested, and renderers display only workspace ID, revision, disposition, changed-file count, ahead count, patch-preview line count, and bounded failure codes.
+- Focused fake-manager and production-disposable-Git tests prove bounded relative paths, diff counters, commit range metadata, bounded patch preview, active status collection, retained catalog collection, retained catalog status rendering, and absence of private paths/correlation tokens in manager-facing and status-facing collection.
+- Maximum retained/catalog status validation now drives 100 heavy catalog targets through `sub_agents_status`, preserves every exact workspace ID, keeps content/details under 48 KiB, and proves patch-preview lines are omitted at the transport fallback boundary.
+- Final validation passed against the active installed Pi SDK. The earlier failures were caused by explicitly pinning the runner to obsolete Pi `0.80.3`, whose coding-agent package predates the required public `ModelRuntime` export; the active `0.82.1` coding-agent package exposes `ModelRuntime.create`, and its paired Pi AI package exposes `InMemoryCredentialStore`.
 
 ## `SA-805` Persistence, retained controls, merge, and cleanup flow
 
-**Status:** BLOCKED by `SA-803` and `SA-804`
+**Status:** READY
 
 - [ ] Add strict `sub-agents-state-v2` worktree summary persistence while preserving V1 and deterministic active-branch precedence.
 - [ ] Add bounded generation-independent retained/uncertain catalog status and dashboard views keyed by exact workspace ID/revision.
@@ -4377,3 +4436,1112 @@ Append one entry at the end of every work session.
 - prior `SA-705` dashboard/manual-TUI documentation and fixture changes and `SA-801` harness changes present at session start
 
 **Recommended next item:** `SA-803` — integrate exact approved provisioning with child creation and workspace-scoped read/edit/write/bash contracts while preserving per-child partial, retained, and uncertain outcomes.
+
+## Handoff 053 — SA-803 slice 1 registered-worktree path identity support
+
+**Completed in this slice:**
+
+- Started `SA-803` without enabling public worktree runtime mode.
+- Generalized canonical workspace path and declared write-scope validation to accept exact generated worktree identities in addition to the released shared identity.
+- Added guarded non-bash `.git` administrative path denial at the common path-resolution layer.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/workspace/paths.ts`
+- `agent/extensions/sub-agents/test/workspace-paths.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/workspace-paths.test.mjs`
+- Result: 6 tests passed, 0 failed.
+- `git diff --check -- agent/extensions/sub-agents/workspace/paths.ts agent/extensions/sub-agents/test/workspace-paths.test.mjs`
+- Result: passed.
+- Attempted `node agent/extensions/sub-agents/test/run-offline.mjs` and the same command with `PI_CODING_AGENT_PACKAGE_DIR` set to the installed package root. Both failed for the current environment before/away from this slice's changed path tests because installed package discovery/imports do not expose the expected `ModelRuntime`/package shape; the path-focused tests pass when the installed package directory is supplied.
+
+**Key implementation results:**
+
+- `resolveCanonicalWorkspacePath()` now structurally validates generated `worktree` identities (`saw1-` workspace ID, `sawk1-` key, generated full branch ref, and exact base object ID) and preserves the workspace key in every canonical target.
+- Equivalent relative paths in two distinct worktree roots resolve to identical relative paths but distinct canonical paths and workspace keys, preparing the lease layer to keep sibling worktrees isolated.
+- `resolveCanonicalWriteScope()` now returns `undefined` without requiring a shared identity and validates present scopes against either shared or generated worktree identity.
+- Any `.git` path segment is denied for canonical guarded file targets and declared scopes; `.gitignore` remains ordinary project content.
+- `workspace.mode: "worktree"` is still rejected by child runtime construction because approved provisioning and the pre-resolved session-factory seam are not wired yet.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- No spawn plan approval, Git provisioning, worktree session cwd mapping, trusted context path remapping, or per-child retained/uncertain outcome wiring was added in this slice.
+- The full offline runner failure appears environmental/package-resolution related in this runtime; rerun after restoring the expected installed-package test environment before marking `SA-803` done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/4152.json`; it was not inspected
+
+**Recommended next item:** `SA-803` — add the next runtime-integration slice, preferably a pre-resolved workspace/session-factory seam so shared behavior keeps working while future approved worktree provisioning can pass an exact registered identity and cwd.
+
+## Handoff 054 — SA-803 slice 2 pre-resolved workspace/session-factory seam
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode.
+- Added a pre-resolved workspace seam so the assignment runner resolves a workspace before child session construction and the session factory consumes the exact resolved identity/cwd.
+- Preserved released shared-mode fallback behavior while allowing a future approved provisioner to pass an exact generated worktree identity into the internal factory boundary.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/agent-runtime-workspace-seam.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/test/agent-runtime.test.mjs`
+- `agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/agent-runtime-workspace-seam.test.mjs`
+- Result: 1 test passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "resolves a workspace before constructing" agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 1 test passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('assignment-runner.ts'); console.log('assignment-runner import ok');"`
+- Result: import passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed in the current environment with the pre-existing installed-package/runtime issue (`Cannot read properties of undefined (reading 'create')` / missing installed Pi `ModelRuntime.create` shape) across model-runtime-dependent tests; non-model workspace-focused tests ran, and this slice's focused tests passed.
+- `git diff --check -- agent/extensions/sub-agents/agent-runtime.ts agent/extensions/sub-agents/assignment-runner.ts agent/extensions/sub-agents/test/agent-runtime.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs agent/extensions/sub-agents/test/agent-runtime-workspace-seam.test.mjs`
+- Result: passed.
+
+**Key implementation results:**
+
+- `resolveSubAgentSessionWorkspace()` is the exported shared/default workspace resolver. Without a pre-resolved workspace it preserves shared behavior and rejects `workspace.mode: "worktree"` with `unsupported_workspace`.
+- `createSubAgentSession()` accepts `resolvedWorkspace`, validates that its exact mode/root/cwd remain canonical and inside the workspace, freezes a defensive identity copy, and uses it for guarded tool construction, write-scope resolution, and in-memory `SessionManager` cwd.
+- `SubAgentAssignmentRunner` has a `resolveWorkspace` dependency seam, calls it after model resolution and before `createSession`, and passes the exact prepared workspace through to the factory.
+- A fake generated worktree identity can now be consumed by the internal session-factory seam without creating Git state; public `sub_agents_spawn` still lacks an approval/provisioning resolver and remains gated.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- No spawn plan approval, one-shot authorization, Git provisioning, trusted context path remapping, per-child retained/uncertain outcome reporting, or public worktree-mode enablement was added in this slice.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- prior `SA-803` slice 1 changes in `workspace/paths.ts`, `test/workspace-paths.test.mjs`, and `BACKLOG.md` were present at session start
+
+**Recommended next item:** `SA-803` — add fake-approved worktree provisioning through the new assignment-runner workspace resolver seam, preserving shared siblings and public worktree gating.
+
+## Handoff 055 — SA-803 slice 3 fake-approved worktree provisioning resolver
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode.
+- Added an internal fake-approved worktree workspace resolver over the existing worktree manager contract.
+- Added runner-side retention of a successfully provisioned worktree allocation when child runtime initialization fails after provisioning.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "fake-approved worktree resolver" agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 1 test passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('assignment-runner.ts'); console.log('assignment-runner import ok');"`
+- Result: import passed.
+- `git diff --check -- agent/extensions/sub-agents/assignment-runner.ts agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed in the current environment with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 235 tests passed and 40 failed before runner exit. The new focused fake-approved worktree resolver test passed in that same environment.
+
+**Key implementation results:**
+
+- `createApprovedWorktreeWorkspaceResolver()` preserves shared fallback behavior and handles worktree requests by calling `prepare()`, exact approval, and `provisionApproved()` before session construction.
+- The resolver forwards cancellation to prepare/provision, maps `workspace.cwd` to the worktree manager's relative cwd, computes the child cwd under the published logical root, and returns the exact registered workspace identity through the existing runner seam.
+- The runner now recognizes provisioned workspace retention metadata and calls the attached `retain()` callback after a later session/runtime initialization failure, preserving the protected worktree outcome instead of dropping it on the floor.
+- The public spawn runtime still uses the default shared resolver, so `workspace.mode: "worktree"` remains gated and unsupported in normal user-facing calls.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- No real spawn approval UI/RPC path, public worktree-mode resolver wiring, trusted context display-path remapping, model-visible retained/uncertain per-child spawn outcome, or release-gate enablement was added in this slice.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/17020.json` and `../claude/sessions/18480.json`; they were not inspected
+- prior `SA-803` slice 1/2 changes were present at session start
+
+**Recommended next item:** `SA-803` — add the next runtime-integration slice, preferably trusted context/cwd display-path remapping for pre-resolved worktree workspaces while keeping public worktree mode gated.
+
+## Handoff 056 — SA-803 slice 4 trusted worktree context display-path remapping
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode.
+- Added worktree-only trusted parent context display-path remapping for pre-resolved child workspaces.
+- Preserved shared-mode context behavior and avoided filesystem rediscovery or content rereads.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/resource-loader.ts`
+- `agent/extensions/sub-agents/agent-runtime.ts`
+- `agent/extensions/sub-agents/test/agent-runtime-workspace-seam.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/agent-runtime-workspace-seam.test.mjs`
+- Result: 2 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "trusted parent context is copied" agent/extensions/sub-agents/test/resource-loader.test.mjs`
+- Result: 1 test passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('agent-runtime.ts'); await importSubAgentsModule('resource-loader.ts'); console.log('runtime/resource import ok');"`
+- Result: import passed.
+- `git diff --check -- agent/extensions/sub-agents/resource-loader.ts agent/extensions/sub-agents/agent-runtime.ts agent/extensions/sub-agents/test/agent-runtime-workspace-seam.test.mjs`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed in the current environment with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 236 tests passed and 40 failed before runner exit. The new focused worktree context-remapping test passed in that same run.
+
+**Key implementation results:**
+
+- `CreateSubAgentResourceLoaderOptions` now accepts an internal `contextDisplayPathMapping` for already approved context snapshots.
+- The mapping is active only for worktree identities. Absolute parent context paths lexically under the parent logical root are displayed under the equivalent pre-resolved worktree logical root; outside paths are left unchanged.
+- The remapped context still passes the existing strict file/path/content byte bounds and returns defensive copies. It does not stat, realpath, rediscover, or reread context files.
+- `createSubAgentSession()` supplies that mapping only after a pre-resolved worktree workspace/cwd validates; shared children continue to expose the original parent context display paths.
+- Public `sub_agents_spawn` still uses the default shared resolver, so `workspace.mode: "worktree"` remains gated and unsupported in normal user-facing calls.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- No real spawn approval UI/RPC path, public worktree-mode resolver wiring, model-visible retained/uncertain per-child spawn outcome, sibling worktree lease proof, or release-gate enablement was added in this slice.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- prior `SA-803` slice 1/2/3 changes were present at session start
+
+**Recommended next item:** `SA-803` — prove equivalent-path sibling worktree isolation and worktree-scoped bash/file lease behavior through fake pre-resolved identities while keeping public worktree mode gated.
+
+## Handoff 057 — SA-803 slice 5 fake registered-worktree lease-scope proof
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode.
+- Added a focused fake registered-worktree lease regression for equivalent sibling paths, worktree-scoped bash/workspace ownership, and parent shared-workspace reservation coexistence.
+- Preserved public worktree gating and made no production Git, branch, merge, cleanup, or real worktree side effect.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/test/workspace-registry.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/workspace-registry.test.mjs`
+- Result: 7 tests passed, 0 failed.
+- Full offline runner was not run because this slice is a focused lease-registry proof and does not mark `SA-803` done; the pre-existing installed-package/runtime issue from prior handoffs remains unresolved for later full-suite validation.
+
+**Key implementation results:**
+
+- One fake child can hold a worktree-scoped `workspace` lease (the guarded-bash authority shape) and same-owner file lease for `src/same.txt` without acquiring the shared parent or sibling workspace key.
+- A sibling fake child can simultaneously claim the equivalent `src/same.txt` path and a workspace lease inside its own registered worktree identity.
+- Parent shared `bash`/file reservations remain scoped to the released shared identity and coexist with worktree child ownership; lease snapshots expose bounded display labels only.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- No real spawn approval UI/RPC path, public worktree-mode resolver wiring, model-visible retained/uncertain per-child spawn outcome, or release-gate enablement was added in this slice.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- prior `SA-803` slice 1/2/3/4 changes were present at session start
+
+**Recommended next item:** `SA-803` — add public worktree-mode approval/provisioning outcome plumbing for per-child retained/uncertain spawn results while keeping the release gate closed.
+
+## Handoff 058 — SA-803 slice 6 retained/uncertain worktree spawn outcome plumbing
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added path-free worktree outcome metadata to runner failures after admitted provisioning boundaries.
+- Exposed retained/uncertain worktree outcomes through `sub_agents_spawn` details, model-visible text, and expanded TUI rendering.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/ui/renderers.ts`
+- `agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- `agent/extensions/sub-agents/test/spawn.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree" agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 2 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('assignment-runner.ts'); await importSubAgentsModule('tools/spawn.ts'); await importSubAgentsModule('ui/renderers.ts'); console.log('imports ok');"`
+- Result: imports passed.
+- `git diff --check -- agent/extensions/sub-agents/assignment-runner.ts agent/extensions/sub-agents/tools/spawn.ts agent/extensions/sub-agents/ui/renderers.ts agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: failed in the current environment with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) in model-runtime-dependent tests; the new worktree-focused spawn and runner tests passed in that run.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed in the current environment with the same pre-existing installed-package/runtime issue across model-runtime-dependent tests; 238 tests passed and 40 failed. The new `sub_agents_spawn` worktree outcome test passed as test 212 in that full run.
+
+**Key implementation results:**
+
+- `SubAgentAssignmentRunnerError` can now carry a bounded `worktreeOutcome` summary containing only workspace ID, generated branch ref, abbreviated commits, and disposition.
+- The fake-approved resolver surfaces retained/uncertain `provisionApproved()` results when no registered workspace can be published, and runtime-initialization failure after a ready allocation calls `retain()` then attaches the retained summary to the runner error.
+- `sub_agents_spawn` preserves optional path-free `worktree` metadata on failed per-child outcomes, including retained and uncertain dispositions, while continuing to redact unknown runtime failures.
+- Expanded spawn rendering shows the bounded workspace ID and disposition only; no canonical repository/worktree/state paths are introduced.
+- The default public spawn runtime still uses the shared resolver, so `workspace.mode: "worktree"` remains fail-closed in normal user-facing calls.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- No real public approval UI/RPC plan, default worktree provisioner wiring, release-gate enablement, V2 persistence, cleanup, merge, branch deletion, prune, push, or remote operation was added.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- modified `../claude/.last-cleanup`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/18480.json`; it was not inspected
+- prior `SA-803` slice 1/2/3/4/5 changes were present at session start
+
+**Recommended next item:** `SA-803` — add the real public worktree-mode approval-plan UI/RPC admission seam and wire it to the spawn runtime without opening the release gate.
+
+## Handoff 059 — SA-803 slice 7 approval-capable spawn worktree admission seam
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling default public worktree mode or creating any real source-repository worktree/branch.
+- Added a real approval-capable UI/RPC confirmation seam for exact generated worktree plans when an internal worktree manager is supplied to `sub_agents_spawn`.
+- Wired a per-call worktree workspace resolver through `sub_agents_spawn` into `SubAgentAssignmentRunner.createAndLaunch()` without changing the default shared runtime path.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/spawn.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree" agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 3 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('assignment-runner.ts'); await importSubAgentsModule('tools/spawn.ts'); console.log('imports ok');"`
+- Result: imports passed.
+- `git diff --check -- agent/extensions/sub-agents/assignment-runner.ts agent/extensions/sub-agents/tools/spawn.ts agent/extensions/sub-agents/test/spawn.test.mjs`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed in the current environment with the same pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 239 tests passed and 40 failed. The new `sub_agents_spawn` worktree approval test passed as test 212 in that full run.
+
+**Key implementation results:**
+
+- `SubAgentAssignmentRunner.createAndLaunch()` now accepts an optional per-launch `resolveWorkspace` override, preserving the constructor default resolver for shared-mode production behavior and existing callers.
+- `sub_agents_spawn` creates an approval-capable worktree resolver only when its runtime supplies an internal `worktrees` manager seam. The default `index.ts` runtime supplies none, so `workspace.mode: "worktree"` remains fail-closed for normal user-facing calls.
+- The approval prompt shows bounded child name/objective, operator-only repository path, base commit, generated workspace ID/branch, worktree count, bash count, retention warning, and bash risk warning before returning the exact approval digest plus correlation token to provisioning.
+- Each approval digest is consumed at most once inside the per-call resolver, cancellation is checked around the prompt, and tool results/details continue to omit canonical repository, state, and worktree paths.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- The approval seam is per generated plan over an optional internal worktree manager; the default production worktree manager/backends are still not constructed or injected by `index.ts`.
+- The full immutable batch-plan approval boundary, default spawn-runtime provisioner wiring, release-gate enablement, V2 persistence, cleanup, merge, branch deletion, prune, push, and remote operations remain unimplemented.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- modified `../claude/.last-cleanup`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- prior `SA-803` slice 1/2/3/4/5/6 changes were present at session start
+
+**Recommended next item:** `SA-803` — wire the default production worktree manager/provisioner into the spawn runtime behind the existing disabled release gate without enabling public worktree mode.
+
+## Handoff 060 — SA-803 slice 8 lazy default production provisioner behind disabled gate
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Wired a lazy default production worktree manager/provisioner into the default `sub_agents_spawn` runtime.
+- Added an explicit disabled `worktreeModeEnabled` release gate so a wired production provisioner cannot admit public worktree creation yet.
+- Exposed manager-owned internal worktree registry registration/authorization methods to the provisioner without allowing injected registry authority.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- `agent/extensions/sub-agents/test/spawn.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree|production worktree provisioner" agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- Result: 4 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/lifecycle.test.mjs`
+- Result: 17 tests passed, 1 failed with the pre-existing installed-package/runtime issue (`Cannot read properties of undefined (reading 'create')`) in the model-runtime-dependent production spawn test; the new gate/provisioner tests passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the same pre-existing installed-package/runtime issue across model-runtime-dependent tests; 241 tests passed and 40 failed. The new `sub_agents_spawn` disabled-gate test passed as test 214 in that run.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('index.ts'); await importSubAgentsModule('tools/spawn.ts'); console.log('imports ok');"`
+- Result: imports passed.
+- `git diff --check -- agent/extensions/sub-agents/index.ts agent/extensions/sub-agents/manager.ts agent/extensions/sub-agents/tools/spawn.ts agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/lifecycle.test.mjs agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+
+**Key implementation results:**
+
+- `createProductionWorktreeProvisioner()` lazily creates the production Git operations, state store, and `WorktreeManager` only when its methods are called; constructing the default spawn runtime remains side-effect-light and does not inspect or mutate Git state.
+- The default spawn runtime now includes the lazy production provisioner but sets `worktreeModeEnabled: false`. `createSpawnWorktreeWorkspaceResolver()` refuses to build an approval/provisioning resolver unless that flag is true, so public `workspace.mode: "worktree"` remains rejected by the normal default workspace resolver.
+- The provisioner receives exact worktree registry authority from the current `SubAgentManager`, which delegates to the lease coordinator's owned `WorkspaceRegistry`. The production manager can register/authorize generated worktree identities without accepting caller-supplied registry injection.
+- A focused spawn regression proves a wired worktree manager is not prepared or provisioned while the release gate is disabled.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- The public release gate remains disabled. No immutable full batch-plan approval object, V2 persistence, cleanup, merge, branch deletion, prune, push, or remote operation was added.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- modified `../claude/.last-cleanup`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/18480.json` and `../claude/sessions/46157.json`; they were not inspected
+- prior `SA-803` slice 1/2/3/4/5/6/7 changes were present at session start
+
+**Recommended next item:** `SA-803` — add the next runtime-integration slice: make the worktree approval/provisioning path bind an immutable per-call batch plan/release-gate decision before any production side effect, while keeping public worktree mode disabled.
+
+## Handoff 061 — SA-803 slice 9 immutable spawn-batch approval metadata
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added an immutable per-call worktree spawn-batch snapshot in `sub_agents_spawn` before child launches.
+- Bound the approval display and worktree preparation cwd to the frozen batch metadata rather than later mutable caller-visible input.
+- Rechecked one-shot approval digests after asynchronous confirmation so only one same-digest plan can reach provisioning.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/spawn.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree" agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 5 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('tools/spawn.ts'); console.log('spawn import ok');"`
+- Result: import passed.
+- `git diff --check -- agent/extensions/sub-agents/tools/spawn.ts agent/extensions/sub-agents/test/spawn.test.mjs`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the same pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 242 tests passed and 40 failed. The new immutable worktree batch test passed as test 214 in that run.
+
+**Key implementation results:**
+
+- `executeSubAgentsSpawn()` now snapshots worktree-request indexes, child name/objective, worktree cwd, bash flags, batch counts, generation, and the release-gate decision before mapping launch promises.
+- Worktree resolvers are created per request index, so shared siblings remain on the default path while worktree children use their frozen batch entry.
+- Approval messages use frozen batch metadata and remain stable even if the original `params` object is mutated before confirmation.
+- The resolver forces the frozen worktree cwd into `prepare()` and performs a second digest-consumption check immediately after approval returns, before `provisionApproved()` can start.
+- The default production runtime still sets `worktreeModeEnabled: false`, so public `workspace.mode: "worktree"` remains disabled and the production Git/state manager is not invoked.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- The release gate remains disabled. This slice does not add V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- modified `../claude/.last-cleanup`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/18480.json` and `../claude/sessions/46157.json`; they were not inspected
+- prior `SA-803` slice 1/2/3/4/5/6/7/8 changes were present at session start
+
+**Recommended next item:** `SA-803` — add the next runtime-integration slice: move worktree approval toward a complete admitted batch barrier before shared siblings launch, while keeping public worktree mode disabled.
+
+## Handoff 062 — SA-803 slice 10 mixed-batch admission barrier
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added a mixed shared/worktree admission barrier in `sub_agents_spawn` when the internal worktree release gate is enabled.
+- Held shared siblings until every worktree entry in the spawn call reached one-shot approval admission; a worktree entry that fails before admission now prevents shared siblings from launching ahead of an unadmitted retained-Git batch.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/spawn.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree" agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 6 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('tools/spawn.ts'); console.log('spawn import ok');"`
+- Result: import passed.
+- `git diff --check -- agent/extensions/sub-agents/tools/spawn.ts agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the same pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 243 tests passed and 40 failed. The new mixed-batch admission-barrier test passed as test 215 in that run.
+
+**Key implementation results:**
+
+- `executeSubAgentsSpawn()` now derives the frozen worktree index set before launch and creates a per-call admission barrier only for mixed shared/worktree batches with `worktreeModeEnabled: true` and an internal worktree manager.
+- Worktree entries still use the frozen per-index resolver; the resolver marks admission only after the digest is consumed and before provisioning can begin.
+- Shared siblings wait for every worktree index to reach that admission mark. If a worktree entry fails before admission, shared siblings return bounded `worktree_batch_not_admitted` outcomes and never call the runner.
+- The public default runtime still sets `worktreeModeEnabled: false`, so normal `workspace.mode: "worktree"` remains disabled and the production Git/state manager is not invoked.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- Worktree confirmations are still per generated child plan rather than one complete pre-child-ID batch admission object. The next slice should consolidate the admission surface further before child-side provisioning.
+- The release gate remains disabled. This slice does not add V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- modified `../claude/.last-cleanup`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/18480.json` and `../claude/sessions/46157.json`; they were not inspected
+- prior `SA-803` slice 1/2/3/4/5/6/7/8/9 changes were present at session start
+
+**Recommended next item:** `SA-803` — add the next runtime-integration slice: consolidate per-child worktree approvals toward one complete batch admission object before child-side provisioning, while keeping public worktree mode disabled.
+
+## Handoff 063 — SA-803 slice 11 consolidated worktree batch admission
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Replaced per-child worktree confirmation prompts with one complete per-call batch admission object after all worktree plans are prepared.
+- Ensured no child-side worktree provisioning starts until the single batch approval succeeds and all per-plan admissions are published together.
+- Rejected duplicate worktree approval digests before UI confirmation or provisioning, preserving one-shot admission semantics.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/test/spawn.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree" agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 7 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('tools/spawn.ts'); console.log('spawn import ok');"`
+- Result: import passed.
+- `git diff --check -- agent/extensions/sub-agents/tools/spawn.ts agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the same pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 244 tests passed and 40 failed. The new consolidated batch admission tests passed as tests 214 and 215 in that full run.
+
+**Key implementation results:**
+
+- `sub_agents_spawn` now coordinates prepared worktree plans through one batch admission coordinator instead of calling UI confirmation for each generated child plan.
+- The approval message contains frozen per-call metadata for all prepared worktree entries, including bounded child name/objective, workspace ID, branch ref, worktree count, bash count, repository path for operator approval only, base commit, retention warning, and bash risk warning.
+- Worktree entries wait on the same admission promise. After approval, all per-plan `{ approvalDigest, correlationToken }` admissions are returned together; only then can each resolver call `provisionApproved()`.
+- Duplicate approval digests fail the whole worktree batch before confirmation/provisioning. If a worktree entry fails before admission, the coordinator releases waiters with a bounded failure and the existing mixed-batch barrier keeps shared siblings from launching.
+- The public default runtime still sets `worktreeModeEnabled: false`, so normal `workspace.mode: "worktree"` remains disabled and the production Git/state manager is not invoked.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- The approval object is complete for the prepared child plans, but the public release gate remains disabled. This slice does not add V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- Additional runtime-tool integration proof remains: guarded worktree child read/edit/write/bash contracts and parent shared-workspace interception scoping should be exercised over pre-resolved registered worktree identities.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- modified `../claude/.last-cleanup`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/`; it was not inspected
+- prior `SA-803` slice 1/2/3/4/5/6/7/8/9/10 changes were present at session start
+
+**Recommended next item:** `SA-803` — add the next runtime-integration slice: prove guarded worktree child tool contracts and parent shared-workspace interception boundaries over pre-resolved registered worktree identities, while keeping public worktree mode disabled.
+
+## Handoff 064 — SA-803 slice 12 guarded worktree tool contracts and parent scope proof
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Enabled guarded child `bash` to accept exact registered worktree identities in addition to the released shared identity.
+- Added focused fake-registered runtime-tool coverage for guarded worktree `read`, `edit`, `write`, `bash`, `.git` denial, bounded lease/result visibility, and parent shared-workspace interception scoping.
+
+**Files created:**
+
+- `agent/extensions/sub-agents/test/worktree-runtime-tools.test.mjs`
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/workspace/guarded-tools.ts`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/worktree-runtime-tools.test.mjs`
+- Result: 2 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/worktree-runtime-tools.test.mjs agent/extensions/sub-agents/test/guarded-bash.test.mjs agent/extensions/sub-agents/test/parent-mutations.test.mjs agent/extensions/sub-agents/test/workspace-registry.test.mjs`
+- Result: 21 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 246 tests passed and 40 failed. The new worktree runtime-tool tests passed as tests 269 and 270 in that full run.
+- `git diff --check -- agent/extensions/sub-agents/workspace/guarded-tools.ts agent/extensions/sub-agents/test/worktree-runtime-tools.test.mjs agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+
+**Key implementation results:**
+
+- `createGuardedChildBashTool()` now validates shared or worktree registered workspace identities and reports resolved-workspace lease failures without requiring shared mode.
+- A fake registered worktree child can read, run bounded fake foreground bash, edit, and write inside its worktree while leaving the equivalent shared parent file unchanged.
+- Parent `edit` and parent `bash` interception still reserve only the shared parent workspace and are admitted while the child owns its worktree workspace.
+- Guarded non-bash worktree file tools still deny `.git` administrative paths before read/edit/write I/O, and manager-visible leases expose only `worktree:<workspaceId>` labels, not private roots.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- Public worktree mode remains disabled by the default release gate. This slice does not add V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- modified `../claude/.last-cleanup`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/`; it was not inspected
+- prior `SA-803` slice 1/2/3/4/5/6/7/8/9/10/11 changes were present at session start
+
+**Recommended next item:** `SA-803` — add the next runtime-integration slice: prove reusable worktree assignment-boundary ownership preparation/reacquisition over pre-resolved registered worktree identities, while keeping public worktree mode disabled.
+
+## Handoff 065 — SA-803 slice 13 reusable worktree assignment-boundary reacquisition
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added focused runner coverage proving a reusable pre-resolved registered-worktree child reacquires both file and workspace ownership after explicit idle release and before later assignment model work.
+- Preserved path-free manager-facing lease visibility for registered worktree ownership.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree child reacquires" agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 1 test passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree" agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 8 tests passed, 0 failed.
+- `git diff --check -- agent/extensions/sub-agents/test/assignment-runner.test.mjs agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 247 tests passed and 40 failed. The new worktree reacquisition test passed as part of the run.
+
+**Key implementation results:**
+
+- The new fake runner test registers one exact worktree identity through the manager-owned registry, preclaims a worktree-scoped workspace lease plus declared file lease, and observes those leases before the first model-work boundary.
+- After an explicit idle lease release, a later `runner.prompt()` assignment boundary reacquires the same registered worktree file/workspace leases before the child prompt begins.
+- The observed manager snapshots expose only `worktree:<workspaceId>` and the root-relative `src/owned.txt` path, not the private canonical worktree root.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- Public worktree mode remains disabled by the default release gate. This slice does not add V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- The blocked-resume path still needs the same registered-worktree ownership reacquisition proof.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- modified `../claude/.last-cleanup`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/`; it was not inspected
+- prior `SA-803` slice 1/2/3/4/5/6/7/8/9/10/11/12 changes were present at session start
+
+**Recommended next item:** `SA-803` — add the next runtime-integration slice: prove settled blocked worktree resume reacquires registered-worktree file/workspace ownership before child model work, while keeping public worktree mode disabled.
+
+## Handoff 066 — SA-803 slice 14 settled blocked worktree resume reacquisition
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added focused runner coverage proving a settled blocked pre-resolved registered-worktree child reacquires both file and workspace ownership after explicit blocked release and before resumed model work.
+- Preserved the existing blocked-resume assignment boundary: same assignment ID/count, retained runtime context, and path-free manager-facing lease visibility.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "blocked worktree child reacquires" agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- Result: 1 test passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree" agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs agent/extensions/sub-agents/test/worktree-runtime-tools.test.mjs agent/extensions/sub-agents/test/workspace-registry.test.mjs`
+- Result: 13 tests passed, 0 failed.
+- `git diff --check -- agent/extensions/sub-agents/test/assignment-runner.test.mjs agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 248 tests passed and 40 failed. The new settled blocked worktree resume test passed as part of the run.
+
+**Key implementation results:**
+
+- The new fake runner test registers one exact worktree identity through the manager-owned registry, preclaims a worktree-scoped workspace lease plus declared file lease, and intentionally settles the first assignment as blocked.
+- After explicit blocked-boundary lease release, `runner.resumeBlocked()` moves the same assignment back to running, reacquires both registered-worktree leases through `prepareAssignmentWorkspace()`, and only then lets child model work begin.
+- The resumed assignment keeps the original assignment ID and assignment count; observed snapshots expose only `worktree:<workspaceId>` and root-relative `src/owned.txt`, not the private canonical worktree root.
+
+**Unresolved issues / remaining `SA-803` work:**
+
+- Public worktree mode remains disabled by the default release gate. This slice does not add V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- Successful worktree child runtime/spawn/status boundaries still need a bounded path-free workspace summary before `SA-803` can be closed.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-803` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified `../mult/config.json`
+- modified `../claude/.last-cleanup`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/`; it was not inspected
+- prior `SA-803` slice 1/2/3/4/5/6/7/8/9/10/11/12/13 changes were present at session start
+
+**Recommended next item:** `SA-803` — add the next runtime-integration slice: expose a bounded path-free worktree workspace summary on successful worktree child runtime/spawn/status boundaries, while keeping public worktree mode disabled.
+
+## Handoff 067 — SA-803 slice 15 successful worktree workspace summaries
+
+**Completed in this slice:**
+
+- Continued `SA-803` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added a manager-owned path-free `active` workspace summary recorded at successful child runtime initialization for pre-resolved registered worktree identities.
+- Exposed the successful worktree summary through `sub_agents_spawn` success outcomes/content/renderers and `sub_agents_status` content/details/renderers while keeping private roots out of parent-facing surfaces.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/types.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/tools/spawn.ts`
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/ui/renderers.ts`
+- `agent/extensions/sub-agents/test/assignment-runner.test.mjs`
+- `agent/extensions/sub-agents/test/spawn.test.mjs`
+- `agent/extensions/sub-agents/test/status.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree.*summary|worktree|abort-and-switch" agent/extensions/sub-agents/test/assignment-runner.test.mjs agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/test/reconfigure.test.mjs`
+- Result: 12 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('types.ts'); await importSubAgentsModule('manager.ts'); await importSubAgentsModule('assignment-runner.ts'); await importSubAgentsModule('tools/spawn.ts'); await importSubAgentsModule('tools/status.ts'); await importSubAgentsModule('ui/renderers.ts'); console.log('imports ok');"`
+- Result: imports passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 250 tests passed and 40 failed. The new worktree summary runtime/spawn/status tests passed in that run.
+- `git diff --check -- agent/extensions/sub-agents/types.ts agent/extensions/sub-agents/manager.ts agent/extensions/sub-agents/assignment-runner.ts agent/extensions/sub-agents/tools/spawn.ts agent/extensions/sub-agents/tools/status.ts agent/extensions/sub-agents/ui/renderers.ts agent/extensions/sub-agents/test/assignment-runner.test.mjs agent/extensions/sub-agents/test/spawn.test.mjs agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+
+**Key implementation results:**
+
+- `ManagedSubAgentSnapshot.workspace` now carries only `{ mode: "shared" }` or bounded worktree metadata: workspace ID, generated branch ref, base commit, and disposition.
+- `SubAgentAssignmentRunner` records the resolved workspace summary immediately after successful session construction and before the first model-work boundary; fake runtime seams that omit `runtime.workspace` fall back to the already resolved workspace identity.
+- Successful worktree spawn/status outputs show only the path-free active workspace summary; focused assertions verify private worktree roots are absent.
+- Public worktree mode remains disabled by the default release gate, and this slice adds no V2 persistence, cleanup, merge, branch deletion, prune, push, or remote operation.
+
+**Unresolved issues / remaining work:**
+
+- `SA-803` is left `IN PROGRESS` rather than `DONE` because the full canonical offline runner still fails in this environment on the pre-existing installed-package/runtime issue. Focused validation for this slice passes.
+- `SA-804` can start the next bounded implementation slice for commit/patch collection while public worktree mode remains disabled.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified database-query files and deleted onepassword-secrets-manager files that were present at session start; they were not inspected or changed for this slice
+- modified `../mult/config.json` and `../claude/.last-cleanup`
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/`; it was not inspected
+- prior `SA-803` slice 1/2/3/4/5/6/7/8/9/10/11/12/13/14 changes were present at session start
+
+**Recommended next item:** `SA-804` — begin bounded exact-workspace status/changed-file/diff-stat/commit-range collection while keeping public worktree mode disabled.
+
+## Handoff 068 — SA-804 slice 1 exact-owned worktree collection backend
+
+**Completed in this slice:**
+
+- Started `SA-804` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added bounded production Git collection for exact worktree status, changed files, diff-stat, commit-range, base/current OIDs, clean/conflict, and incomplete metadata.
+- Added a manager-owned path-free exact-workspace collection boundary that verifies protected allocation, state record, registry identity, repository/config identity, and Git registration before returning collection data.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/workspace/worktree-git.ts`
+- `agent/extensions/sub-agents/workspace/worktrees.ts`
+- `agent/extensions/sub-agents/test/worktree-git.test.mjs`
+- `agent/extensions/sub-agents/test/worktrees.test.mjs`
+- `agent/extensions/sub-agents/test/offline-guard.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/worktrees.test.mjs agent/extensions/sub-agents/test/worktree-git.test.mjs`
+- Result: 15 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('workspace/worktree-git.ts'); await importSubAgentsModule('workspace/worktrees.ts'); console.log('imports ok');"`
+- Result: imports passed.
+- `git diff --check -- agent/extensions/sub-agents/workspace/worktree-git.ts agent/extensions/sub-agents/workspace/worktrees.ts agent/extensions/sub-agents/test/worktree-git.test.mjs agent/extensions/sub-agents/test/worktrees.test.mjs agent/extensions/sub-agents/test/offline-guard.mjs`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 251 tests passed and 40 failed. The new worktree collection tests passed as tests 270 and 291 in that full run.
+
+**Key implementation results:**
+
+- `WorktreeGitOperations.collectSummary()` now performs read-only `status`, `diff --numstat`, and `rev-list --count` collection under the strict production Git executor and returns bounded changed-file, diff-stat, commit-range, clean/conflict, and incomplete metadata.
+- Changed-file and diff paths are validated as relative Git tree paths; `.git`, traversal, malformed UTF-8/framing, unsafe path encodings, and unbounded counters fail closed.
+- `WorktreeManager.collectOwnedChanges()` strips the private Git worktree registration from parent-facing collection output and exposes no canonical path, correlation token, Git config, ownership record, patch, or blob data.
+- The production offline guard now admits only the exact additional read-only Git grammars needed for this collection inside owned disposable worktrees.
+
+**Unresolved issues / remaining work:**
+
+- Public worktree mode remains disabled by the default release gate. This slice does not add a model-callable retained-worktree status tool, V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- `SA-804` remains `IN PROGRESS`; next slices should surface this collection through bounded retained/status controls and add patch/diff preview collection if still required, while keeping unbounded patch/blob data out of model-visible surfaces.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-804` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified database-query files and deleted onepassword-secrets-manager files that were present at session start; they were not inspected or changed for this slice
+- modified `../mult/config.json`, `../claude/.last-cleanup`, `../nix/secrets/secrets.yaml`, and `../nvim/lua/plugins/dbee.lua`; they were not inspected or changed for this slice
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- prior `SA-803` slice changes were present at session start
+
+**Recommended next item:** `SA-804` — continue bounded commit/patch collection by adding a path-free retained/status-facing collection surface over `collectOwnedChanges()` while keeping public worktree mode disabled.
+
+## Handoff 069 — SA-804 slice 2 active status-facing worktree collection
+
+**Completed in this slice:**
+
+- Continued `SA-804` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added an optional active-child `sub_agents_status({ includeWorktreeChanges: true })` surface over exact-owned worktree collection.
+- Routed collection through the existing provisioned allocation handle without exposing that handle, private roots, Git config, ownership records, patches, or blob data.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/manager.ts`
+- `agent/extensions/sub-agents/tools/schemas.ts`
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/ui/renderers.ts`
+- `agent/extensions/sub-agents/test/status.test.mjs`
+- `agent/extensions/sub-agents/README.md`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/WORKTREES.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree change collection|worktree workspace summaries" agent/extensions/sub-agents/test/status.test.mjs`
+- Result: 2 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/test/schemas.test.mjs`
+- Result: 13 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('tools/status.ts'); await importSubAgentsModule('assignment-runner.ts'); await importSubAgentsModule('index.ts'); console.log('imports ok');"`
+- Result: imports passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "worktree|collect|reacquires" agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/test/assignment-runner.test.mjs agent/extensions/sub-agents/test/worktrees.test.mjs agent/extensions/sub-agents/test/worktree-git.test.mjs`
+- Result: 9 matching tests passed and 1 model-runtime-dependent test failed with the pre-existing installed-package/runtime issue (`Installed Pi ModelRuntime and in-memory credential store are required`); the new status collection and production worktree collection tests passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 252 tests passed and 40 failed. The new status collection test passed as test 230 in that full run.
+- `git diff --check -- agent/extensions/sub-agents/assignment-runner.ts agent/extensions/sub-agents/index.ts agent/extensions/sub-agents/manager.ts agent/extensions/sub-agents/tools/schemas.ts agent/extensions/sub-agents/tools/status.ts agent/extensions/sub-agents/ui/renderers.ts agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/README.md agent/extensions/sub-agents/SPEC.md agent/extensions/sub-agents/WORKTREES.md agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+
+**Key implementation results:**
+
+- The worktree provisioner interface now optionally exposes `collectOwnedChanges()`, and the production provisioner forwards it to `WorktreeManager.collectOwnedChanges()` lazily behind the still-disabled worktree release gate.
+- `SubAgentAssignmentRunner` retains an optional path-free collection hook for successfully provisioned registered worktree runtimes and registers it with the manager runtime-cleanup resource boundary.
+- `SubAgentManager.collectWorkspaceChanges()` provides the exact-ID status-facing collection seam while keeping allocation handles and registry authority private.
+- `sub_agents_status` adds `includeWorktreeChanges`. When requested for an active registered worktree child, it reports bounded changed files, diff-stat summaries, commit range, clean/conflict/incomplete flags, or bounded collection-unavailable/failure codes. The content/details/renderers remain path-free and bounded.
+- README, SPEC, and WORKTREES now document the optional observational status collection surface and that public worktree creation remains disabled.
+
+**Unresolved issues / remaining work:**
+
+- Public worktree mode remains disabled by the default release gate. This slice does not add retained/catalog status controls, patch preview collection, V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-804` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified database-query files and deleted onepassword-secrets-manager files present before this slice; they were not inspected or changed for this slice
+- modified `../mult/config.json`, `../claude/.last-cleanup`, `../nix/secrets/secrets.yaml`, and `../nvim/lua/plugins/dbee.lua`; they were not inspected or changed for this slice
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- prior `SA-803` and `SA-804` slice changes were present at session start
+
+**Recommended next item:** `SA-804` — continue bounded commit/patch collection by adding retained/catalog-facing collection surfaces or bounded patch-preview metadata over exact owned worktrees while keeping public worktree mode disabled.
+
+## Handoff 070 — SA-804 slice 3 bounded active worktree patch previews
+
+**Completed in this slice:**
+
+- Continued `SA-804` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added bounded patch-preview collection to exact-owned active worktree change summaries.
+- Surfaced patch-preview line/omission metadata through the existing optional `sub_agents_status({ includeWorktreeChanges: true })` path while keeping private roots, allocation handles, ownership records, Git config, and unbounded blobs out of status results.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/workspace/worktree-git.ts`
+- `agent/extensions/sub-agents/tools/schemas.ts`
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/ui/renderers.ts`
+- `agent/extensions/sub-agents/test/offline-guard.mjs`
+- `agent/extensions/sub-agents/test/worktree-git.test.mjs`
+- `agent/extensions/sub-agents/test/status.test.mjs`
+- `agent/extensions/sub-agents/README.md`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/WORKTREES.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/worktree-git.test.mjs agent/extensions/sub-agents/test/status.test.mjs`
+- Result: 11 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/test/schemas.test.mjs`
+- Result: 13 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('workspace/worktree-git.ts'); await importSubAgentsModule('tools/schemas.ts'); await importSubAgentsModule('tools/status.ts'); await importSubAgentsModule('ui/renderers.ts'); console.log('imports ok');"`
+- Result: imports passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 252 tests passed and 40 failed. The updated worktree Git/status patch-preview tests passed in that full run.
+- `git diff --check -- agent/extensions/sub-agents/workspace/worktree-git.ts agent/extensions/sub-agents/tools/schemas.ts agent/extensions/sub-agents/tools/status.ts agent/extensions/sub-agents/ui/renderers.ts agent/extensions/sub-agents/test/offline-guard.mjs agent/extensions/sub-agents/test/worktree-git.test.mjs agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/README.md agent/extensions/sub-agents/SPEC.md agent/extensions/sub-agents/WORKTREES.md agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+
+**Key implementation results:**
+
+- `WorktreeGitOperations.collectSummary()` now invokes the exact read-only `git diff --no-ext-diff --no-textconv --no-color --patch --unified=3 <base> --` grammar and reduces output to bounded UTF-8 patch-preview lines with line/byte omission metadata.
+- Patch preview lines are control-sanitized and capped by per-line, aggregate-byte, and line-count budgets; malformed patch collection marks the summary incomplete instead of retrying or mutating Git state.
+- `sub_agents_status` status details and compact renderers now include bounded patch-preview metadata only when the caller explicitly requests `includeWorktreeChanges`.
+- Focused disposable-Git and fake-manager tests prove patch previews include expected root-relative diff content and omit private canonical worktree/state paths.
+
+**Unresolved issues / remaining work:**
+
+- Public worktree mode remains disabled by the default release gate. This slice does not add retained/catalog status controls, V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- `SA-804` remains `IN PROGRESS`; retained/catalog-facing collection surfaces over exact owned worktrees remain the next bounded collection slice.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-804` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified database-query files and deleted onepassword-secrets-manager files present before this slice; they were not inspected or changed for this slice
+- modified `../mult/config.json`, `../claude/.last-cleanup`, `../nix/secrets/secrets.yaml`, and `../nvim/lua/plugins/dbee.lua`; they were not inspected or changed for this slice
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/`; it was not inspected
+- prior `SA-803` and `SA-804` slice changes were present at session start
+
+**Recommended next item:** `SA-804` — add retained/catalog-facing bounded change/patch collection surfaces over exact owned worktrees while keeping public worktree mode disabled.
+
+## Handoff 071 — SA-804 slice 4 retained/catalog collection backend
+
+**Completed in this slice:**
+
+- Continued `SA-804` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added an internal protected catalog-record lookup to the worktree state store.
+- Added `WorktreeManager.collectCatalogChanges()` so retained/uncertain exact workspace records can produce bounded path-free changed-file, diff-stat, commit-range, and patch-preview metadata without a live allocation handle.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/workspace/worktree-state.ts`
+- `agent/extensions/sub-agents/workspace/worktrees.ts`
+- `agent/extensions/sub-agents/test/worktree-state.test.mjs`
+- `agent/extensions/sub-agents/test/worktrees.test.mjs`
+- `agent/extensions/sub-agents/test/worktree-git.test.mjs`
+- `agent/extensions/sub-agents/README.md`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/WORKTREES.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/worktrees.test.mjs agent/extensions/sub-agents/test/worktree-state.test.mjs agent/extensions/sub-agents/test/worktree-git.test.mjs`
+- Result: 22 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('workspace/worktree-state.ts'); await importSubAgentsModule('workspace/worktrees.ts'); console.log('imports ok');"`
+- Result: imports passed.
+- `git diff --check -- agent/extensions/sub-agents/workspace/worktree-state.ts agent/extensions/sub-agents/workspace/worktrees.ts agent/extensions/sub-agents/test/worktree-state.test.mjs agent/extensions/sub-agents/test/worktrees.test.mjs agent/extensions/sub-agents/test/worktree-git.test.mjs agent/extensions/sub-agents/README.md agent/extensions/sub-agents/SPEC.md agent/extensions/sub-agents/WORKTREES.md agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 253 tests passed and 40 failed. The new retained/catalog collection tests passed as tests 276 and 293 in that full run.
+
+**Key implementation results:**
+
+- `WorktreeStateStore.readCatalogRecord()` locates one exact protected ownership record by workspace ID, verifies private directory provenance, validates record/repository/state-root identity, rejects ambiguous or malformed records, and returns the internal repository handle needed for locked operations.
+- `WorktreeManager.collectCatalogChanges()` holds the repository lock, rereads the protected record, enforces an optional expected revision, rejects allocating/cleanup-pending/cleaned states, runs read-only Git collection, and strips private registration paths from the result.
+- Retained collection requires no live child allocation handle or registry identity and still exposes only bounded workspace ID/branch/OID disposition plus root-relative changed-file/diff/patch metadata.
+- Focused fake-manager, state-store, and production-disposable-Git tests prove retained collection, stale-revision rejection, path/correlation-token omission, strict catalog lookup behavior, and real protected retained collection without cleanup.
+
+**Unresolved issues / remaining work:**
+
+- Public worktree mode remains disabled by the default release gate. This slice does not add a public retained/catalog status tool, dashboard view, V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- `SA-804` remains `IN PROGRESS`; the next slice should expose retained/catalog collection through a bounded path-free management or UI surface.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-804` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified database-query files and deleted onepassword-secrets-manager files present before this slice; they were not inspected or changed for this slice
+- modified `../mult/config.json`, `../claude/.last-cleanup`, `../nix/secrets/secrets.yaml`, and `../nvim/lua/plugins/dbee.lua`; they were not inspected or changed for this slice
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/`; it was not inspected
+- prior `SA-803` and `SA-804` slice changes were present at session start
+
+**Recommended next item:** `SA-804` — expose retained/catalog collection through a bounded path-free management/UI surface while keeping public worktree mode disabled.
+
+## Handoff 072 — SA-804 slice 5 retained/catalog status surface
+
+**Completed in this slice:**
+
+- Continued `SA-804` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added bounded `sub_agents_status({ worktreeCatalogChanges: [...] })` collection for retained/uncertain protected catalog records by exact workspace ID and optional expected revision.
+- Surfaced retained/catalog collection through status content, structured details, compact/expanded renderers, and the default lazy production status runtime while keeping cleanup/merge/branch deletion/push/remotes unavailable.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/assignment-runner.ts`
+- `agent/extensions/sub-agents/index.ts`
+- `agent/extensions/sub-agents/tools/schemas.ts`
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/ui/renderers.ts`
+- `agent/extensions/sub-agents/test/schemas.test.mjs`
+- `agent/extensions/sub-agents/test/status.test.mjs`
+- `agent/extensions/sub-agents/README.md`
+- `agent/extensions/sub-agents/SPEC.md`
+- `agent/extensions/sub-agents/WORKTREES.md`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/test/schemas.test.mjs`
+- Result: 15 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/renderers.test.mjs`
+- Result: 3 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('tools/status.ts'); await importSubAgentsModule('tools/schemas.ts'); await importSubAgentsModule('ui/renderers.ts'); await importSubAgentsModule('index.ts'); console.log('imports ok');"`
+- Result: imports passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+- Result: failed with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 255 tests passed and 40 failed. The new retained/catalog status tests passed as tests 231 and 232 in that full run.
+- `git diff --check -- agent/extensions/sub-agents/tools/schemas.ts agent/extensions/sub-agents/tools/status.ts agent/extensions/sub-agents/ui/renderers.ts agent/extensions/sub-agents/assignment-runner.ts agent/extensions/sub-agents/index.ts agent/extensions/sub-agents/test/schemas.test.mjs agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/README.md agent/extensions/sub-agents/SPEC.md agent/extensions/sub-agents/WORKTREES.md agent/extensions/sub-agents/BACKLOG.md`
+- Result: passed.
+
+**Key implementation results:**
+
+- `sub_agents_status` now accepts up to 100 `worktreeCatalogChanges` targets, each with an exact generated `saw1-...` workspace ID and optional positive `expectedRevision`.
+- The status runtime calls a lazy production catalog collector only when requested, returning bounded path-free workspace ID, branch, base/current OIDs, disposition, revision, changed files, diff-stat, commit range, patch-preview, clean/conflict, and incomplete metadata.
+- Catalog failures are per-target and redact internal/private errors. Model-visible and TUI surfaces omit private worktree/state paths, Git config, ownership records, allocation handles, correlation tokens, and unbounded patch/blob data.
+- The renderer summarizes catalog revision/disposition, changed-file count, ahead count, patch-preview line count, conflict/incomplete flags, and bounded failure codes.
+
+**Unresolved issues / remaining work:**
+
+- Public worktree mode remains disabled by the default release gate. This slice does not add V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+- `SA-804` remains `IN PROGRESS` because maximum retained/catalog transport-bound validation and a clean full offline-runner pass are still outstanding.
+- The full offline runner still needs the expected installed-package test environment restored before `SA-804` can be marked done.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified database-query files and deleted onepassword-secrets-manager files present before this slice; they were not inspected or changed for this slice
+- modified `../mult/config.json`, `../claude/.last-cleanup`, `../nix/secrets/secrets.yaml`, and `../nvim/lua/plugins/dbee.lua`; they were not inspected or changed for this slice
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/`; it was not inspected
+- prior `SA-803` and `SA-804` slice changes were present at session start
+
+**Recommended next item:** `SA-804` — add maximum retained/catalog status transport-bound validation and reconcile final `SA-804` completion once the installed-package offline-runner environment is healthy.
+
+## Handoff 073 — SA-804 slice 6 maximum retained/catalog status bounds
+
+**Completed in this slice:**
+
+- Continued `SA-804` without enabling public worktree runtime mode or creating any real source-repository worktree/branch.
+- Added maximum retained/catalog `sub_agents_status` transport-bound validation for 100 heavy catalog targets.
+- Added a catalog-specific final truncation tier that preserves every exact workspace ID/revision while omitting oversized branch/base/changed-file/diff-file/patch-line detail before structured details can exceed 48 KiB.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/tools/status.ts`
+- `agent/extensions/sub-agents/test/status.test.mjs`
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test --test-name-pattern "maximum retained worktree catalog" agent/extensions/sub-agents/test/status.test.mjs`
+  - Result: 1 test passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --test agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/test/schemas.test.mjs agent/extensions/sub-agents/test/renderers.test.mjs`
+  - Result: 19 tests passed, 0 failed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node --experimental-strip-types --input-type=module -e "const { importSubAgentsModule } = await import('./agent/extensions/sub-agents/test/installed-packages.mjs'); await importSubAgentsModule('tools/status.ts'); console.log('status import ok');"`
+  - Result: import passed.
+- `git diff --check -- agent/extensions/sub-agents/tools/status.ts agent/extensions/sub-agents/test/status.test.mjs agent/extensions/sub-agents/BACKLOG.md`
+  - Result: passed.
+- `PI_CODING_AGENT_PACKAGE_DIR=/nix/store/dng3z9c8aqy0r437mww1w49jq8z99ncz-pi-coding-agent-0.80.3/lib/node_modules/pi-monorepo node agent/extensions/sub-agents/test/run-offline.mjs`
+  - Result: failed with the pre-existing installed-package/runtime issue (`ModelRuntime.create` / in-memory credential-store shape unavailable) across model-runtime-dependent tests; 256 tests passed and 40 failed. The new maximum retained/catalog status test passed as test 233 in that full run.
+
+**Key implementation results:**
+
+- `fitDetails()` now has a retained/catalog-specific compact fallback after the existing rich/minimal passes, so worst-case retained catalog collections cannot push structured details beyond the 48 KiB budget.
+- The compact fallback keeps exact workspace IDs, expected revisions, protected-record revisions, disposition, changed-file counts, and conflict/incomplete flags while replacing oversized branch/base/commit/diff/patch arrays with explicit truncated metadata.
+- The maximum fake-manager test asserts every one of the 100 exact catalog targets remains present, content/details stay below 48 KiB, output truncation is reported, and patch-preview lines are omitted at the fallback boundary.
+
+**Unresolved issues / remaining work:**
+
+- `SA-804` is implementation-complete for focused collection/status bounds but remains blocked from final `DONE` status until the installed-package offline-runner environment is healthy enough for the canonical suite to pass.
+- Public worktree mode remains disabled by the default release gate. This slice does not add V2 persistence, cleanup, merge, branch deletion, prune, push, remote operations, or public worktree enablement.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- modified `agent/models-store.json`
+- modified database-query files and deleted onepassword-secrets-manager files present before this slice; they were not inspected or changed for this slice
+- modified `../mult/config.json`, `../claude/.last-cleanup`, `../nix/secrets/secrets.yaml`, and `../nvim/lua/plugins/dbee.lua`; they were not inspected or changed for this slice
+- untracked `agent/extensions/sub-agents/dev-loop.sh`
+- untracked `../claude/sessions/`; it was not inspected
+- prior `SA-803` and `SA-804` slice changes were present at session start
+
+**Recommended next item:** `SA-804` — reconcile final completion once the installed-package offline-runner environment is healthy.
+
+## Handoff 074 — SA-803/SA-804 installed-package validation reconciliation
+
+**Completed in this slice:**
+
+- Diagnosed the canonical-suite blocker as an obsolete explicit package override, not a production or offline-runner defect: the previously pinned Pi `0.80.3` coding-agent package does not export `ModelRuntime`, while the active Pi `0.82.1` distribution exports `ModelRuntime.create` and its paired Pi AI package exports `InMemoryCredentialStore`.
+- Re-ran the complete isolated offline suite against the active installed Pi SDK and closed the validation-only blockers on both `SA-803` and `SA-804`.
+- Marked `SA-805` ready without enabling public worktree mode or adding persistence, cleanup, merge, branch deletion, prune, push, or remote operations.
+
+**Files modified:**
+
+- `agent/extensions/sub-agents/BACKLOG.md`
+
+**Validation:**
+
+- `node agent/extensions/sub-agents/test/run-offline.mjs`
+  - Result: 296 tests passed, 0 failed through the canonical documented command and active Pi executable resolution.
+- Repeated with `PI_CODING_AGENT_PACKAGE_DIR` explicitly set to the active `@earendil-works/pi-coding-agent@0.82.1` package root:
+  - Result: 296 tests passed, 0 failed.
+- Active installed package capability check:
+  - `@earendil-works/pi-coding-agent@0.82.1`: `ModelRuntime` and `ModelRuntime.create` are available.
+  - `@earendil-works/pi-ai@0.82.1`: `InMemoryCredentialStore` is available.
+  - The obsolete `@earendil-works/pi-coding-agent@0.80.3` override lacks `ModelRuntime`, explaining the earlier 40 model-runtime-dependent failures.
+
+**Key results:**
+
+- `SA-803` and `SA-804` now satisfy their final canonical validation boundary and are `DONE`.
+- The offline guard remained active for the full run; tests used isolated home/temp roots, fake providers, disposable workspaces, and allowlisted local-only Git fixtures with no dependency installation, network access, live credentials, or external services.
+- Public worktree creation remains disabled by the default release gate.
+
+**Unrelated/pre-existing working-tree changes preserved:**
+
+- All pre-existing sub-agents implementation changes from the prior `SA-803`/`SA-804` slices.
+- Modified `agent/models-store.json`, database-query files, and deleted onepassword-secrets-manager test file present before this slice; they were not inspected or changed.
+- Untracked `agent/extensions/sub-agents/dev-loop.sh` and other pre-existing unrelated files; they were not inspected or changed.
+
+**Recommended next item:** `SA-805` — begin strict `sub-agents-state-v2` worktree-summary persistence while preserving V1 and deterministic active-branch precedence.

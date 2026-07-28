@@ -13,10 +13,16 @@ export const DATABASE_CLOSE_GRACE_MS = 1_500;
 
 export type DatabaseRunFailureCode =
 	| "aborted"
+	| "authentication_failed"
 	| "client_error"
+	| "client_incompatible"
 	| "client_unavailable"
+	| "connection_failed"
+	| "database_unavailable"
 	| "output_limit"
-	| "timeout";
+	| "query_error"
+	| "timeout"
+	| "tls_error";
 
 export type DatabaseRunResult =
 	| Readonly<{ ok: true; stdout: Buffer; elapsedMs: number }>
@@ -133,6 +139,43 @@ function signalAborted(signal: AbortSignal | undefined): boolean {
 	try { return signal.aborted === true; } catch { return true; }
 }
 
+/**
+ * Reduce bounded client stderr to a fixed, nonsecret failure category. Raw
+ * diagnostics never leave the runner. Specific connection categories are
+ * checked before generic SQL error markers because both clients prefix most
+ * failures with "error".
+ */
+export function classifyClientFailure(
+	engine: DatabaseProfile["engine"],
+	stderr: Buffer,
+): DatabaseRunFailureCode {
+	if (stderr.byteLength === 0) return "client_error";
+	let diagnostic = "";
+	try { diagnostic = stderr.toString("utf8").toLowerCase(); }
+	catch { return "client_error"; }
+	try {
+		if (
+			/unknown (?:shorthand )?flag|unknown option|unrecognized option|flag needs an argument|invalid argument .* for ["']?-|usage: (?:sqlcmd|mysql)/u.test(diagnostic)
+		) return "client_incompatible";
+		if (
+			/cannot open database|can't open database|unknown database|database .* (?:does not exist|is unavailable)|error\s*(?:number\s*)?(?:1049|4060)\b/u.test(diagnostic)
+		) return "database_unavailable";
+		if (
+			/login failed|authentication failed|access denied|not authorized|error\s*(?:number\s*)?(?:1045|18456)\b/u.test(diagnostic)
+		) return "authentication_failed";
+		if (/\b(?:tls|ssl|x509|certificate|encryption)\b/u.test(diagnostic)) return "tls_error";
+		if (
+			/dial tcp|connection (?:refused|reset|failed|timed out)|connect(?:ion)? timeout|context deadline exceeded|network is unreachable|no such host|server (?:is|was) not found|could not open a connection|unable to connect|cannot connect|can't connect|unknown mysql server host|lost connection|error\s*(?:number\s*)?(?:40|53|2002|2003|2005|2006|2013)\b/u.test(diagnostic)
+		) return "connection_failed";
+		if (
+			/(?:^|\n)msg\s+\d+\b|(?:^|\n)error\s+\d+\b|sql syntax|syntax error|incorrect syntax|invalid object name|unknown column|table .* doesn't exist|permission .* denied|sqlcmd: error:/u.test(diagnostic)
+		) return "query_error";
+		return engine === "mysql" && /(?:^|\n)error\b/u.test(diagnostic) ? "query_error" : "client_error";
+	} finally {
+		diagnostic = "";
+	}
+}
+
 export class SpawnDatabaseRunner implements DatabaseRunner {
 	readonly #spawn: NonNullable<DatabaseRunnerDependencies["spawnProcess"]>;
 	readonly #resolveExecutable: NonNullable<DatabaseRunnerDependencies["resolveExecutable"]>;
@@ -167,9 +210,11 @@ export class SpawnDatabaseRunner implements DatabaseRunner {
 			}
 			let settled = false;
 			let failure: DatabaseRunFailureCode | undefined;
+			let stdinFailed = false;
 			let stdoutBytes = 0;
 			let stderrBytes = 0;
 			const chunks: Buffer[] = [];
+			const stderrChunks: Buffer[] = [];
 			let killTimer: ReturnType<typeof setTimeout> | undefined;
 			let closeTimer: ReturnType<typeof setTimeout> | undefined;
 			const elapsed = (): number => Math.max(0, this.#now() - startedAt);
@@ -181,10 +226,21 @@ export class SpawnDatabaseRunner implements DatabaseRunner {
 					try { signal.removeEventListener("abort", onAbort); } catch { /* Fixed result remains authoritative. */ }
 				}
 			};
+			const discardStderr = (): void => {
+				for (const chunk of stderrChunks) chunk.fill(0);
+				stderrChunks.length = 0;
+				stderrBytes = 0;
+			};
+			const stderrFailure = (): DatabaseRunFailureCode => {
+				const bytes = Buffer.concat(stderrChunks, stderrBytes);
+				try { return classifyClientFailure(profile.engine, bytes); }
+				finally { bytes.fill(0); }
+			};
 			const finish = (result: DatabaseRunResult): void => {
 				if (settled) return;
 				settled = true;
 				cleanup();
+				discardStderr();
 				resolve(result);
 			};
 			const sendSignal = (name: NodeJS.Signals): void => {
@@ -216,15 +272,28 @@ export class SpawnDatabaseRunner implements DatabaseRunner {
 			});
 			child.stderr.on("data", (chunk: Buffer | string) => {
 				if (settled) return;
-				stderrBytes += Buffer.byteLength(chunk);
-				if (stderrBytes > MAX_STDERR_BYTES) stop("output_limit");
+				const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+				stderrBytes += bytes.byteLength;
+				if (stderrBytes > MAX_STDERR_BYTES) { stop("output_limit"); return; }
+				stderrChunks.push(Buffer.from(bytes));
 			});
-			child.stdin.on("error", () => { stop("client_error"); });
+			// EPIPE is common when a client rejects the connection before stdin is
+			// fully written. Preserve that fact, but let close classify its bounded
+			// stderr instead of masking the useful category as client_error.
+			child.stdin.on("error", () => { stdinFailed = true; });
 			child.on("error", () => { stop("client_error"); });
 			child.on("close", (code) => {
 				if (settled) return;
-				if (failure !== undefined || code !== 0) {
-					finish(Object.freeze({ ok: false, code: failure ?? "client_error", elapsedMs: elapsed() }));
+				if (failure !== undefined) {
+					finish(Object.freeze({ ok: false, code: failure, elapsedMs: elapsed() }));
+					return;
+				}
+				if (code !== 0) {
+					finish(Object.freeze({ ok: false, code: stderrFailure(), elapsedMs: elapsed() }));
+					return;
+				}
+				if (stdinFailed) {
+					finish(Object.freeze({ ok: false, code: "client_error", elapsedMs: elapsed() }));
 					return;
 				}
 				finish(Object.freeze({ ok: true, stdout: Buffer.concat(chunks, stdoutBytes), elapsedMs: elapsed() }));

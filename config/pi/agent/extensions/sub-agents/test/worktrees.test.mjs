@@ -131,6 +131,18 @@ class FakeState {
 		}
 		return result;
 	}
+	async readCatalogRecord() {
+		if (!this.record || this.deleted) throw coded("record_missing");
+		return Object.freeze({ repository: Object.freeze({
+			repoKey: "b".repeat(64),
+			repositoryTopLevel: this.record.repositoryTopLevel,
+			gitCommonDirectory: this.record.gitCommonDirectory,
+			repositoryStateDirectory: join(this.repositoryInput.temporary, "state"),
+			recordsDirectory: join(this.repositoryInput.temporary, "state", "records"),
+			treesDirectory: join(this.repositoryInput.temporary, "trees"),
+			emptyHooksDirectory: join(this.repositoryInput.temporary, "hooks"),
+		}), record: this.record });
+	}
 	async catalog() { return { entries: [], unresolvedRecords: 0, unresolvedRepositories: 0, truncated: false }; }
 }
 
@@ -340,5 +352,81 @@ test("exact ownership inspection requires manager handle, protected record, regi
 		const mismatch = await value.manager.inspectOwned(result.allocation, result.workspace);
 		assert.equal(mismatch.exactOwnership, false);
 		await assert.rejects(value.manager.inspectOwned(Object.freeze({ ...result.allocation }), result.workspace), /forged/u);
+	});
+});
+
+function collectedSummary(value, branchRef, head = "c".repeat(40)) {
+	return {
+		registered: true,
+		registration: { path: join(value.temporary, "trees", workspaceId), head, branch: branchRef, locked: true },
+		head,
+		branchRef,
+		refCommit: head,
+		clean: false,
+		indexMatchesBase: true,
+		changedFileCount: 2,
+		changedFiles: Object.freeze([
+			{ path: "src/value.txt", status: " M", kind: "modified" },
+			{ path: "new.txt", status: "??", kind: "untracked" },
+		]),
+		changedFilesTruncated: false,
+		diffStat: Object.freeze({
+			filesChanged: 1,
+			insertions: 3,
+			deletions: 1,
+			binaryFiles: 0,
+			files: Object.freeze([{ path: "src/value.txt", insertions: 3, deletions: 1, binary: false }]),
+			truncated: false,
+		}),
+		commitRange: Object.freeze({ baseCommit: oid, currentCommit: head, aheadCount: 1 }),
+		patchPreview: Object.freeze({
+			lineCount: 2,
+			lines: Object.freeze(["diff --git a/src/value.txt b/src/value.txt", "+changed"]),
+			truncated: false,
+			omittedLineCount: 0,
+			omittedByteCount: 0,
+		}),
+		conflicted: false,
+		incomplete: false,
+	};
+}
+
+test("bounded change collection reports only exact workspace-relative Git metadata", async () => {
+	await usingFixture({}, async (value) => {
+		const result = await value.admit(await value.prepare());
+		value.setCollected(collectedSummary(value, result.summary.branchRef));
+		const collected = await value.manager.collectOwnedChanges(result.allocation, result.workspace);
+		assert.equal(collected.exactOwnership, true);
+		assert.equal(collected.clean, false);
+		assert.equal(collected.collection.changedFileCount, 2);
+		assert.deepEqual(collected.collection.changedFiles.map((file) => file.path), ["src/value.txt", "new.txt"]);
+		assert.equal(collected.collection.diffStat.insertions, 3);
+		assert.equal(collected.collection.commitRange.aheadCount, 1);
+		const serialized = JSON.stringify(collected);
+		assert.equal(serialized.includes(value.temporary), false);
+		assert.equal(serialized.includes("correlationToken"), false);
+	});
+});
+
+test("catalog change collection uses protected retained records without a live allocation handle", async () => {
+	await usingFixture({}, async (value) => {
+		const result = await value.admit(await value.prepare());
+		const retained = await value.manager.retain(result.allocation);
+		assert.equal(retained.disposition, "retained");
+		value.registry.registered = undefined;
+		value.setCollected(collectedSummary(value, result.summary.branchRef));
+		const collected = await value.manager.collectCatalogChanges({ workspaceId, expectedRevision: value.state.record.revision });
+		assert.equal(collected.revision, value.state.record.revision);
+		assert.equal(collected.summary.disposition, "retained");
+		assert.equal(collected.exactOwnership, true);
+		assert.equal(collected.collection.patchPreview.lines[1], "+changed");
+		const serialized = JSON.stringify(collected);
+		assert.equal(serialized.includes(value.temporary), false);
+		assert.equal(serialized.includes("correlationToken"), false);
+		assert.equal(serialized.includes("allocation"), false);
+		await assert.rejects(
+			value.manager.collectCatalogChanges({ workspaceId, expectedRevision: collected.revision - 1 }),
+			/Catalog ownership record revision changed/u,
+		);
 	});
 });

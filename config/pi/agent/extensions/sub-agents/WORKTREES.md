@@ -370,6 +370,8 @@ Status/collection may report bounded:
 - commits reachable from the recorded base;
 - whether the linked worktree is active, retained, cleaned, or uncertain.
 
+`SA-804` starts this as optional `sub_agents_status` surfaces: `includeWorktreeChanges: true` for active registered worktree children, and `worktreeCatalogChanges: [{ workspaceId, expectedRevision? }]` for exact retained/uncertain protected catalog records. Both surfaces are path-free, observational, include bounded patch-preview metadata, and remain behind the disabled public worktree creation gate. Consequential retained-worktree controls such as cleanup, merge, branch deletion, prune, push, and remote access remain later Phase 8 work.
+
 No automatic commit is created. A child with approved bash may create commits through its own commands; otherwise edits may remain uncommitted and must be preserved.
 
 ### Cleanup

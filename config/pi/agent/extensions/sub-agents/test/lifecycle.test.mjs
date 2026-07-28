@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { importSubAgentsModule } from "./installed-packages.mjs";
 
-const { formatSubAgentsStatus, registerSubAgentsExtension } = await importSubAgentsModule("index.ts");
+const {
+	createProductionWorktreeProvisioner,
+	formatSubAgentsStatus,
+	registerSubAgentsExtension,
+} = await importSubAgentsModule("index.ts");
 
 function emptyCounts() {
 	return {
@@ -76,6 +80,13 @@ function createContext() {
 		},
 	};
 }
+
+test("production worktree provisioner construction is side-effect lazy for the disabled release gate", () => {
+	const provisioner = createProductionWorktreeProvisioner({});
+	assert.equal(typeof provisioner.prepare, "function");
+	assert.equal(typeof provisioner.provisionApproved, "function");
+	assert.equal(typeof provisioner.retain, "function");
+});
 
 test("the extension factory is inert until session_start and rotates managers at successful lifecycle boundaries", async () => {
 	const fakePi = createFakePi();

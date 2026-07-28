@@ -1,4 +1,6 @@
-import type { ExtensionAPI, SessionEntry } from "@earendil-works/pi-coding-agent";
+import { chmod, mkdir } from "node:fs/promises";
+import { join, resolve as resolvePath } from "node:path";
+import { getAgentDir, type ExtensionAPI, type SessionEntry } from "@earendil-works/pi-coding-agent";
 import { SubAgentAssignmentRunner } from "./assignment-runner.ts";
 import { SubAgentManager } from "./manager.ts";
 import { SubAgentModelRouter } from "./model-router.ts";
@@ -57,8 +59,82 @@ import {
 	type ParentMutationCompletionEvent,
 	type ParentMutationToolCallEvent,
 } from "./workspace/parent-mutations.ts";
+import { createWorktreeGitOperations } from "./workspace/worktree-git.ts";
+import { createWorktreeStateStore } from "./workspace/worktree-state.ts";
+import { createWorktreeManager } from "./workspace/worktrees.ts";
 
 const STATUS_ORDER = ["creating", "running", "idle", "blocked", "failed", "stopping"] as const;
+
+type SpawnWorktreeRuntime = NonNullable<SubAgentsSpawnRuntime["worktrees"]>;
+
+export interface ProductionWorktreeProvisionerOptions {
+	readonly agentDirectory?: string;
+	readonly stateRoot?: string;
+	readonly operationalEnvironment?: Readonly<NodeJS.ProcessEnv>;
+	readonly now?: () => Date;
+}
+
+async function ensurePrivateDirectory(path: string): Promise<string> {
+	const absolute = resolvePath(path);
+	await mkdir(absolute, { recursive: true, mode: 0o700 });
+	if (process.platform !== "win32") await chmod(absolute, 0o700);
+	return absolute;
+}
+
+/**
+ * Lazy production Phase 8 worktree provisioner. Constructing this object performs
+ * no Git/state side effect; initialization occurs only after the disabled public
+ * release gate is opened and a worktree request reaches the resolver.
+ */
+export function createProductionWorktreeProvisioner(
+	manager: SubAgentManager,
+	options: Readonly<ProductionWorktreeProvisionerOptions> = {},
+): SpawnWorktreeRuntime {
+	let promise: Promise<ReturnType<typeof createWorktreeManager>> | undefined;
+	const load = async () => {
+		if (!promise) {
+			promise = (async () => {
+				const state = createWorktreeStateStore({
+					agentDirectory: resolvePath(options.agentDirectory ?? getAgentDir()),
+					...(options.stateRoot ? { stateRoot: resolvePath(options.stateRoot) } : {}),
+					...(options.now ? { now: options.now } : {}),
+				});
+				const runtimeRoot = state.configuredStateRoot;
+				const [home, temporary, hooks] = await Promise.all([
+					ensurePrivateDirectory(join(runtimeRoot, "git-home")),
+					ensurePrivateDirectory(join(runtimeRoot, "git-temp")),
+					ensurePrivateDirectory(join(runtimeRoot, "empty-hooks")),
+				]);
+				const git = await createWorktreeGitOperations({
+					operationalEnvironment: options.operationalEnvironment,
+					privateHomeDirectory: home,
+					privateTemporaryDirectory: temporary,
+					emptyHooksDirectory: hooks,
+				});
+				return createWorktreeManager({
+					git,
+					state,
+					registry: {
+						registerWorktree: (input) => manager.registerWorktreeWorkspace(input),
+						authorize: (workspace, ownerAgentId) => manager.authorizeWorkspace(workspace, ownerAgentId),
+					},
+					...(options.now ? { now: options.now } : {}),
+				});
+			})();
+		}
+		return promise;
+	};
+	return Object.freeze({
+		prepare: async (request) => (await load()).prepare(request),
+		provisionApproved: async (plan, admission, runtimeOptions) =>
+			(await load()).provisionApproved(plan, admission, runtimeOptions),
+		retain: async (allocation) => (await load()).retain(allocation),
+		collectOwnedChanges: async (allocation, workspace) =>
+			(await load()).collectOwnedChanges(allocation, workspace),
+		collectCatalogChanges: async (request) =>
+			(await load()).collectCatalogChanges(request),
+	});
+}
 
 export interface ManagerLifecycle {
 	readonly generation: string;
@@ -179,13 +255,19 @@ export function registerSubAgentsExtension(
 				manager: current,
 				runner: new SubAgentAssignmentRunner(current),
 				router: new SubAgentModelRouter(current.modelRuntime),
+				worktrees: createProductionWorktreeProvisioner(current),
+				worktreeModeEnabled: false,
 			};
 		});
 	const createStatusRuntime =
 		dependencies.createStatusRuntime ??
 		((current: ManagerLifecycle): SubAgentsStatusRuntime | undefined => {
 			if (!(current instanceof SubAgentManager)) return undefined;
-			return { manager: current };
+			const worktrees = createProductionWorktreeProvisioner(current);
+			return {
+				manager: current,
+				collectWorktreeCatalogChanges: (request) => worktrees.collectCatalogChanges!(request),
+			};
 		});
 	const createSendRuntime =
 		dependencies.createSendRuntime ??

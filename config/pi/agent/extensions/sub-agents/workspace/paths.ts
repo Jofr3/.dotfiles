@@ -98,16 +98,54 @@ function sharedWorkspaceKey(root: string): string {
 	return `shared:${root}`;
 }
 
-function requireSharedWorkspace(workspace: Readonly<WorkspaceIdentity>): void {
+const WORKTREE_ID = /^saw1-[A-Za-z0-9_-]{32,180}$/u;
+const WORKTREE_KEY = /^sawk1-[A-Za-z0-9_-]{32,180}$/u;
+const GENERATED_WORKTREE_BRANCH = /^refs\/heads\/pi\/sub-agents\/[0-9a-f]{16}\/saw1-[A-Za-z0-9_-]{32,180}$/u;
+const GIT_OBJECT_ID = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u;
+
+function requireWorkspaceIdentity(workspace: Readonly<WorkspaceIdentity>): void {
 	if (
 		!workspace ||
-		workspace.mode !== "shared" ||
+		typeof workspace !== "object" ||
 		typeof workspace.root !== "string" ||
 		!isAbsolute(workspace.root) ||
-		workspace.key !== sharedWorkspaceKey(workspace.root) ||
-		workspace.branch !== undefined
+		typeof workspace.key !== "string"
 	) {
-		throw new WorkspacePathError("invalid_path", "The shared workspace identity is invalid");
+		throw new WorkspacePathError("invalid_path", "The workspace identity is invalid");
+	}
+	if (workspace.mode === "shared") {
+		if (
+			workspace.key !== sharedWorkspaceKey(workspace.root) ||
+			workspace.workspaceId !== undefined ||
+			workspace.branch !== undefined ||
+			workspace.baseCommit !== undefined
+		) {
+			throw new WorkspacePathError("invalid_path", "The shared workspace identity is invalid");
+		}
+		return;
+	}
+	if (workspace.mode === "worktree") {
+		if (
+			!WORKTREE_KEY.test(workspace.key) ||
+			typeof workspace.workspaceId !== "string" ||
+			!WORKTREE_ID.test(workspace.workspaceId) ||
+			typeof workspace.branch !== "string" ||
+			!GENERATED_WORKTREE_BRANCH.test(workspace.branch) ||
+			!workspace.branch.endsWith(`/${workspace.workspaceId}`) ||
+			typeof workspace.baseCommit !== "string" ||
+			!GIT_OBJECT_ID.test(workspace.baseCommit)
+		) {
+			throw new WorkspacePathError("invalid_path", "The worktree workspace identity is invalid");
+		}
+		return;
+	}
+	throw new WorkspacePathError("invalid_path", "The workspace mode is invalid");
+}
+
+function assertNotGitAdministrativePath(relativePath: string): void {
+	const segments = relativePath.split(/[\\/]+/u).filter(Boolean);
+	if (segments.some((segment) => segment.toLowerCase() === ".git")) {
+		throw new WorkspacePathError("path_unavailable", "Git administrative paths are unavailable to guarded child file tools");
 	}
 }
 
@@ -229,14 +267,14 @@ async function resolveFromNearestExistingAncestor(absolutePath: string): Promise
 export async function resolveCanonicalWorkspacePath(
 	options: ResolveCanonicalWorkspacePathOptions,
 ): Promise<CanonicalWorkspacePath> {
-	requireSharedWorkspace(options.workspace);
+	requireWorkspaceIdentity(options.workspace);
 	const rawPath = stripLeadingPathAt(requirePathText(options.path, "workspace path"));
 	if (!rawPath) throw new WorkspacePathError("invalid_path", "The workspace path is empty after removing its prefix");
 
 	const cwdInput = requirePathText(options.cwd ?? options.workspace.root, "workspace cwd");
 	const resolvedCwd = isAbsolute(cwdInput) ? resolve(cwdInput) : resolve(options.workspace.root, cwdInput);
 	if (!isPathWithinRoot(options.workspace.root, resolvedCwd)) {
-		throw new WorkspacePathError("path_outside_root", "The workspace path cwd is outside the shared root");
+		throw new WorkspacePathError("path_outside_root", "The workspace path cwd is outside the workspace root");
 	}
 	const canonicalCwd = await canonicalExistingDirectory(
 		resolvedCwd,
@@ -244,7 +282,7 @@ export async function resolveCanonicalWorkspacePath(
 		"The workspace path cwd is unavailable",
 	);
 	if (!isPathWithinRoot(options.workspace.root, canonicalCwd)) {
-		throw new WorkspacePathError("path_outside_root", "The workspace path cwd is outside the shared root");
+		throw new WorkspacePathError("path_outside_root", "The workspace path cwd is outside the workspace root");
 	}
 
 	const absolutePath = resolve(canonicalCwd, rawPath);
@@ -260,8 +298,9 @@ export async function resolveCanonicalWorkspacePath(
 	}
 	const relativePath = relative(options.workspace.root, canonical.path);
 	if (!relativePath && options.allowWorkspaceRoot !== true) {
-		throw new WorkspacePathError("invalid_path", "The shared workspace root is not a file target");
+		throw new WorkspacePathError("invalid_path", "The workspace root is not a file target");
 	}
+	assertNotGitAdministrativePath(relativePath);
 	return Object.freeze({
 		workspaceKey: options.workspace.key,
 		path: canonical.path,
@@ -278,8 +317,8 @@ export async function resolveCanonicalWriteScope(
 	workspace: Readonly<WorkspaceIdentity>,
 	paths: readonly string[] | undefined,
 ): Promise<CanonicalWriteScope | undefined> {
-	requireSharedWorkspace(workspace);
 	if (paths === undefined) return undefined;
+	requireWorkspaceIdentity(workspace);
 	if (!Array.isArray(paths) || paths.length > SUB_AGENT_BOUNDS.writeScopePaths) {
 		throw new WorkspacePathError(
 			"invalid_path",

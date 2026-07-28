@@ -177,6 +177,11 @@ export interface WorktreeCatalogResult {
 	readonly truncated: boolean;
 }
 
+export interface WorktreeCatalogRecordLookup {
+	readonly repository: Readonly<WorktreeRepositoryState>;
+	readonly record: Readonly<WorktreeOwnershipRecordV1>;
+}
+
 export interface WorktreeCatalogOptions {
 	readonly workspaceId?: string;
 	readonly maxRepositories?: number;
@@ -236,6 +241,7 @@ export interface WorktreeStateStoreApi {
 		operation: (transaction: WorktreeStateTransaction) => Promise<T>,
 	): Promise<T>;
 	readRecord(repository: Readonly<WorktreeRepositoryState>, workspaceId: string): Promise<Readonly<WorktreeOwnershipRecordV1>>;
+	readCatalogRecord(workspaceId: string): Promise<Readonly<WorktreeCatalogRecordLookup>>;
 	catalog(options?: WorktreeCatalogOptions): Promise<WorktreeCatalogResult>;
 }
 
@@ -1006,6 +1012,55 @@ export class WorktreeStateStore implements WorktreeStateStoreApi {
 		}
 		await validatePrivateDirectory(repositories);
 		return { root, repositories, agent };
+	}
+
+	async readCatalogRecord(workspaceId: string): Promise<Readonly<WorktreeCatalogRecordLookup>> {
+		if (!WORKSPACE_ID.test(workspaceId)) fail("invalid_input", "Catalog workspace ID is invalid");
+		const initialized = await this.#existingCatalogLayout();
+		if (!initialized) fail("record_missing", "Catalog ownership record does not exist");
+		const repositories = await directEntries(initialized.repositories, WORKTREE_STATE_DEFAULT_MAX_REPOSITORIES);
+		if (repositories.truncated) fail("catalog_limit", "Catalog repository lookup exceeded its bound");
+		let found: WorktreeCatalogRecordLookup | undefined;
+		for (const repoName of repositories.names) {
+			if (!REPO_KEY.test(repoName)) continue;
+			const repoDirectory = join(initialized.repositories, repoName);
+			const recordsDirectory = join(repoDirectory, "records");
+			const treesDirectory = join(repoDirectory, "trees");
+			const emptyHooksDirectory = join(repoDirectory, "empty-hooks");
+			try {
+				await validatePrivateDirectory(repoDirectory);
+				await validatePrivateDirectory(recordsDirectory);
+				await validatePrivateDirectory(treesDirectory);
+				await validatePrivateDirectory(emptyHooksDirectory);
+			} catch { continue; }
+			let record: Readonly<WorktreeOwnershipRecordV1>;
+			try { ({ record } = await readRecordPath(join(recordsDirectory, `${workspaceId}.json`))); }
+			catch (error) {
+				if (error instanceof WorktreeStateError && error.code === "record_missing") continue;
+				throw error;
+			}
+			const expectedWorktreePath = join(treesDirectory, record.workspaceId);
+			if (record.workspaceId !== workspaceId || record.workspaceId !== record.branchRef.split("/").at(-1) ||
+				createHash("sha256").update(record.gitCommonDirectory, "utf8").digest("hex") !== repoName ||
+				record.worktreePath !== expectedWorktreePath || !isWithin(expectedWorktreePath, record.logicalRoot) ||
+				record.branchRef !== `refs/heads/pi/sub-agents/${repoName.slice(0, 16)}/${record.workspaceId}`) {
+				fail("malformed_record", "Catalog ownership record identity is inconsistent");
+			}
+			requireDisjoint(initialized.root, record.repositoryTopLevel);
+			requireDisjoint(initialized.root, record.gitCommonDirectory);
+			if (!isWithin(initialized.root, record.worktreePath) || !isWithin(initialized.root, record.logicalRoot)) {
+				fail("malformed_record", "Catalog ownership record path is outside the protected state root");
+			}
+			if (found) fail("malformed_record", "Catalog workspace ID is ambiguous");
+			const repository = await this.openRepository(record.repositoryTopLevel, record.gitCommonDirectory);
+			if (repository.repoKey !== repoName || repository.repositoryStateDirectory !== repoDirectory || repository.recordsDirectory !== recordsDirectory ||
+				repository.treesDirectory !== treesDirectory || repository.emptyHooksDirectory !== emptyHooksDirectory) {
+				fail("malformed_record", "Catalog ownership record does not match the issued repository handle");
+			}
+			found = Object.freeze({ repository, record });
+		}
+		if (!found) fail("record_missing", "Catalog ownership record does not exist");
+		return found;
 	}
 
 	async catalog(options: WorktreeCatalogOptions = {}): Promise<WorktreeCatalogResult> {

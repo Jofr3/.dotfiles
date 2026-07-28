@@ -37,7 +37,7 @@ test("database README and model-facing guidance document the exact direct one-sh
 		"fresh profile",
 		"process-wide event bus is not an authentication boundary",
 		"MYSQL_PWD",
-		"SQLCMDPASSWORD",
+		"mssql@11.0.1",
 		"200 physical rows",
 		"full-output",
 	]) assert.equal(readme.includes(required), true, required);

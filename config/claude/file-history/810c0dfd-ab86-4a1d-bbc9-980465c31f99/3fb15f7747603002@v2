@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "jofre-local",
+  "description": "Local Claude Code plugins kept in the dotfiles repo",
+  "owner": {
+    "name": "Jofre",
+    "email": "jofrescari@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "toolbox-db",
+      "description": "Talk to your databases through an MCP Toolbox server using the googleapis/mcp-toolbox-sdk-js core SDK. Every Toolbox tool is exposed as a native Claude Code tool; credentials come from session environment variables.",
+      "category": "database",
+      "source": "./plugins/toolbox-db"
+    }
+  ]
+}

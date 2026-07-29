@@ -1,0 +1,77 @@
+---
+name: toolbox-db
+description: Use when querying, inspecting, or modifying a database through the toolbox-db plugin's MCP Toolbox tools — reading rows, exploring schema, running the pre-defined SQL tools, or when those tools are missing, erroring, or asking for auth. Covers what the Toolbox tools can and cannot do and how to use them safely.
+---
+
+# Working with databases via MCP Toolbox
+
+The `toolbox-db` plugin bridges an [MCP Toolbox](https://mcp-toolbox.dev) server into Claude Code.
+Each tool the Toolbox server exposes becomes a Claude Code tool backed by a **pre-defined,
+parameterized statement written by the user in `tools.yaml`** — not by arbitrary SQL from you.
+
+## Ground rules
+
+- **Only the loaded tools exist.** You cannot invent SQL. If the user asks for something no tool
+  covers, say so and offer to add a tool to their `tools.yaml` (then they restart the Toolbox
+  server and you call `toolbox_reload`).
+- **Parameters are the only input.** Pass values as arguments; never try to smuggle SQL fragments
+  into a string parameter — the statement is fixed server-side and that only produces literals.
+- **Assume production.** Before calling any tool whose name or description implies a write
+  (`insert`, `update`, `delete`, `drop`, `create`, `migrate`, `grant`), state what it will change
+  and get the user's confirmation. Read-only tools need no confirmation.
+- **Results are text.** Tool output is whatever the Toolbox server returned, usually JSON rows.
+  Large result sets are common — summarize rather than pasting everything back.
+- **Never echo credentials.** `toolbox_status` redacts secrets; keep it that way in your replies.
+
+## Starting a database task
+
+1. Call `toolbox_status` if you have not yet seen the tool list this session. It shows the Toolbox
+   URL, the active toolset, and every loaded tool.
+2. Read the tool descriptions before choosing one — they describe the exact query and its
+   parameters, including whether it is scoped to a tenant/user.
+3. If a schema-inspection tool exists (`list_tables`, `describe_table`, `execute_sql`, …), use it
+   to ground yourself before answering questions about the data model. Do not guess column names.
+
+## When tools are missing or failing
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| Only `toolbox_status` / `toolbox_reload` are available | Toolset never loaded | Call `toolbox_status`, read `lastLoadError`; usually the Toolbox server is not running or `TOOLBOX_URL` is wrong |
+| `404` / "toolset not found" | `TOOLBOX_TOOLSET` names a toolset absent from `tools.yaml` | Correct the variable (needs a Claude Code restart) or the file |
+| `401` / `403` from the tool | Toolbox server requires client auth | `TOOLBOX_API_KEY` or `TOOLBOX_GOOGLE_ID_TOKEN=1` must be exported before Claude Code starts |
+| "auth token required" naming a service | The tool declares an auth service with no token | Export `TOOLBOX_AUTH_TOKENS='{"<service>":"<token>"}'` |
+| Tools list is stale after editing `tools.yaml` | Cached at load time | Restart the Toolbox server, then call `toolbox_reload` |
+| Tool errors on a value the user did supply | Parameter is pre-bound via `TOOLBOX_BOUND_PARAMS` | Bound params are fixed for the session; check `toolbox_status` |
+| A configured token/param seems to be ignored | No tool in the toolset uses it, so the bridge dropped it | See `warnings` in `toolbox_status`; fix the variable or the toolset |
+
+Run `/toolbox-db:doctor` for a full diagnostic, `/toolbox-db:setup` to configure from scratch.
+
+## Adding a new tool for the user
+
+Tools live in the Toolbox server's `tools.yaml`, keyed to a `source`:
+
+```yaml
+tools:
+  orders-by-customer:
+    kind: postgres-sql
+    source: my-pg
+    description: Recent orders for one customer, newest first.
+    parameters:
+      - name: customer_id
+        type: string
+        description: Customer UUID.
+      - name: limit
+        type: integer
+        description: Max rows (<= 200).
+    statement: |
+      SELECT id, total_cents, status, created_at
+      FROM orders WHERE customer_id = $1
+      ORDER BY created_at DESC LIMIT $2;
+toolsets:
+  default:
+    - orders-by-customer
+```
+
+Write descriptions for the model that will call them: say what the query returns and what each
+parameter means. Keep statements parameterized (`$1`, `?`) — never interpolate values. After
+editing, the user restarts the Toolbox server and you call `toolbox_reload`.

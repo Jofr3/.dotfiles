@@ -7,19 +7,6 @@
     "typescript-lsp@claude-plugins-official": true,
     "php-lsp@claude-plugins-official": true
   },
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$HOME/.claude/skills/mem/build/session-relay.mjs\"",
-            "timeout": 15
-          }
-        ]
-      }
-    ]
-  },
   "spinnerTipsEnabled": false,
   "tui": "fullscreen",
   "theme": "dark"

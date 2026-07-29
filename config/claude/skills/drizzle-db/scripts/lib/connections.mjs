@@ -1,0 +1,357 @@
+// Resolves database connections from session (environment) variables.
+//
+// A single session variable may hold an ARRAY of connections, e.g.
+//   DATABASES='[{"name":"prod","url":"postgres://..."},{"name":"local","url":"file:./dev.db"}]'
+// See references/connections.md for the full accepted shape.
+
+/** Session vars that may contain many connections (JSON array / object map / newline list). */
+export const MULTI_VARS = [
+  'DATABASES',
+  'DB_CONNECTIONS',
+  'DATABASE_CONNECTIONS',
+  'DATABASE_URLS',
+];
+
+/** Session vars that hold exactly one connection. `driver` is a hint, not a forced value. */
+export const SINGLE_VARS = [
+  ['DRIZZLE_DATABASE_URL', null],
+  ['DATABASE_URL', null],
+  ['DB_URL', null],
+  ['POSTGRES_URL', 'postgres-js'],
+  ['POSTGRESQL_URL', 'postgres-js'],
+  ['NEON_DATABASE_URL', null],
+  ['MYSQL_URL', 'mysql2'],
+  ['MYSQL_DATABASE_URL', 'mysql2'],
+  ['SQLITE_URL', 'better-sqlite3'],
+  ['SQLITE_PATH', 'better-sqlite3'],
+  ['TURSO_DATABASE_URL', 'libsql'],
+  ['LIBSQL_URL', 'libsql'],
+  ['MSSQL_URL', 'mssql'],
+];
+
+export const DRIVER_DIALECT = {
+  'postgres-js': 'postgresql',
+  'node-postgres': 'postgresql',
+  'neon-http': 'postgresql',
+  mysql2: 'mysql',
+  'better-sqlite3': 'sqlite',
+  libsql: 'sqlite',
+  mssql: 'mssql',
+};
+
+export const DIALECT_DEFAULT_DRIVER = {
+  postgresql: 'postgres-js',
+  postgres: 'postgres-js',
+  pg: 'postgres-js',
+  cockroach: 'postgres-js',
+  mysql: 'mysql2',
+  singlestore: 'mysql2',
+  sqlite: 'better-sqlite3',
+  turso: 'libsql',
+  mssql: 'mssql',
+  sqlserver: 'mssql',
+};
+
+const SECRET_KEYS = /^(password|pass|pwd|authToken|auth_token|token|secret|apiKey|api_key)$/i;
+
+function looksLikeConnectionObject(o) {
+  return ['url', 'connectionString', 'uri', 'dsn', 'host', 'file', 'path', 'database', 'dialect', 'driver']
+    .some((k) => k in o);
+}
+
+function parseMulti(raw, source) {
+  const text = String(raw).trim();
+  if (!text) return [];
+
+  if (text.startsWith('[') || text.startsWith('{')) {
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (err) {
+      throw new Error(`${source} is not valid JSON: ${err.message}`);
+    }
+    if (Array.isArray(parsed)) return parsed.map((e) => ({ entry: e, source }));
+    if (parsed && typeof parsed === 'object') {
+      // Either one connection object, or a { name: connection } map.
+      if (looksLikeConnectionObject(parsed)) return [{ entry: parsed, source }];
+      return Object.entries(parsed).map(([name, value]) => ({
+        entry: typeof value === 'string' ? { name, url: value } : { name, ...value },
+        source,
+      }));
+    }
+    return [];
+  }
+
+  // Plain list of URLs, newline- or comma-separated.
+  return text
+    .split(/[\n;]+|,(?=\s*\w+:\/\/)/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((url) => ({ entry: url, source }));
+}
+
+function normalizeSsl(value) {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value === 'string') {
+    const v = value.toLowerCase();
+    if (v === 'false' || v === 'disable' || v === 'off' || v === '0') return false;
+    if (v === 'true' || v === 'on' || v === '1') return true;
+    return value; // 'require' | 'prefer' | 'verify-full' — passed through to the driver
+  }
+  return value;
+}
+
+function urlFromParts(e, dialectHint) {
+  if (!e.host && !e.server) return null;
+  const dialect = String(dialectHint || e.dialect || '').toLowerCase();
+  const scheme = dialect.startsWith('my') ? 'mysql'
+    : dialect.startsWith('ms') || dialect.startsWith('sqlserver') ? 'sqlserver'
+      : 'postgresql';
+  const auth = e.user || e.username
+    ? `${encodeURIComponent(e.user || e.username)}${e.password ? `:${encodeURIComponent(e.password)}` : ''}@`
+    : '';
+  const host = e.host || e.server;
+  const port = e.port ? `:${e.port}` : '';
+  const db = e.database || e.db || '';
+  return `${scheme}://${auth}${host}${port}/${db}`;
+}
+
+/** Matches a Go (go-sql-driver) DSN: `user:pass@tcp(host:port)/db?params`. */
+const GO_DSN = /^(?:(.*)@)?tcp\(([^)]*)\)\/([^?]*)(\?.*)?$/;
+
+/**
+ * Convert a Go (go-sql-driver) DSN into a mysql:// URL. These carry no scheme, so
+ * `inferDriver` cannot classify them and `new URL()` cannot parse out the database.
+ * Returns null for anything that is not a Go DSN.
+ */
+export function goDsnToUrl(dsn) {
+  const m = GO_DSN.exec(String(dsn || ''));
+  if (!m) return null;
+  const [, userinfo, address, database, params = ''] = m;
+
+  let auth = '';
+  if (userinfo) {
+    const sep = userinfo.indexOf(':');
+    const user = sep === -1 ? userinfo : userinfo.slice(0, sep);
+    const pass = sep === -1 ? '' : userinfo.slice(sep + 1);
+    auth = `${encodeURIComponent(user)}${pass ? `:${encodeURIComponent(pass)}` : ''}@`;
+  }
+  // go-sql-driver defaults to 3306 when the address omits a port.
+  const host = address.includes(':') ? address : `${address}:3306`;
+  return `mysql://${auth}${host}/${database}${params}`;
+}
+
+/** Guess the driver from a connection URL. */
+export function inferDriver(url, hint) {
+  if (hint && DRIVER_DIALECT[hint]) return hint;
+  const u = String(url || '');
+  const scheme = (u.match(/^([a-z0-9+.-]+):/i) || [])[1]?.toLowerCase();
+
+  switch (scheme) {
+    case 'postgres':
+    case 'postgresql':
+    case 'pg':
+    case 'cockroachdb':
+      return 'postgres-js';
+    case 'mysql':
+    case 'mysql2':
+    case 'mariadb':
+    case 'singlestore':
+      return 'mysql2';
+    case 'libsql':
+    case 'turso':
+      return 'libsql';
+    case 'sqlite':
+    case 'file':
+      return 'better-sqlite3';
+    case 'mssql':
+    case 'sqlserver':
+    case 'jdbc':
+      return 'mssql';
+    case 'http':
+    case 'https':
+      // Serverless HTTP endpoints: Neon vs Turso/libsql.
+      return /neon\.(tech|build)/i.test(u) ? 'neon-http' : 'libsql';
+    default:
+      break;
+  }
+
+  if (u === ':memory:' || /\.(db|sqlite|sqlite3)(\?|$)/i.test(u) || u.startsWith('./') || u.startsWith('/')) {
+    return 'better-sqlite3';
+  }
+  return null;
+}
+
+function normalize(rawEntry, index, source, env) {
+  const e = typeof rawEntry === 'string' ? { url: rawEntry } : { ...(rawEntry || {}) };
+
+  const dialectHint = String(e.dialect || e.type || '').toLowerCase();
+
+  const rawUrl = e.url || e.connectionString || e.uri || e.dsn || e.file || e.path
+    || urlFromParts(e, dialectHint);
+  if (!rawUrl) {
+    throw new Error(
+      `Connection #${index + 1} from ${source} has no url (expected one of: url, connectionString, uri, dsn, file, path, or host+database).`,
+    );
+  }
+
+  // Go DSNs have no scheme; normalize to a URL so inference and redaction both work.
+  const url = goDsnToUrl(rawUrl) || rawUrl;
+
+  const driver = e.driver && DRIVER_DIALECT[e.driver]
+    ? e.driver
+    : inferDriver(url, DIALECT_DEFAULT_DRIVER[dialectHint]) || DIALECT_DEFAULT_DRIVER[dialectHint];
+
+  if (!driver) {
+    throw new Error(
+      `Cannot determine a driver for connection "${e.name || index + 1}" from ${source}. `
+      + `Add "driver" (one of ${Object.keys(DRIVER_DIALECT).join(', ')}) or "dialect".`,
+    );
+  }
+
+  const dialect = DRIVER_DIALECT[driver];
+  let database;
+  try {
+    database = driver === 'better-sqlite3'
+      ? url.replace(/^file:/, '')
+      : decodeURIComponent(new URL(url).pathname.replace(/^\//, '')) || undefined;
+  } catch {
+    database = undefined;
+  }
+
+  return {
+    name: String(e.name || e.id || e.label || database || `conn${index + 1}`),
+    url: String(url),
+    driver,
+    dialect,
+    database,
+    schema: e.schema || e.searchPath || e.search_path || undefined,
+    authToken: e.authToken || e.auth_token || e.token || (driver === 'libsql' ? env.TURSO_AUTH_TOKEN : undefined),
+    ssl: normalizeSsl(e.ssl),
+    readonly: e.readonly === true || e.readOnly === true || e.mode === 'readonly',
+    isDefault: e.default === true || e.isDefault === true,
+    options: e.options && typeof e.options === 'object' ? e.options : undefined,
+    source,
+  };
+}
+
+/** Read every connection exposed through the session's environment variables. */
+export function loadConnections(env = process.env) {
+  const found = [];
+  const errors = [];
+
+  for (const varName of MULTI_VARS) {
+    if (!env[varName]) continue;
+    try {
+      found.push(...parseMulti(env[varName], varName));
+    } catch (err) {
+      errors.push(err.message);
+    }
+  }
+
+  if (found.length === 0) {
+    for (const [varName, driverHint] of SINGLE_VARS) {
+      if (!env[varName]) continue;
+      found.push({ entry: { name: varName, url: env[varName], driver: driverHint || undefined }, source: varName });
+    }
+  }
+
+  const connections = [];
+  const seen = new Set();
+  found.forEach(({ entry, source }, i) => {
+    let conn;
+    try {
+      conn = normalize(entry, i, source, env);
+    } catch (err) {
+      errors.push(err.message);
+      return;
+    }
+    let name = conn.name;
+    for (let n = 2; seen.has(name); n += 1) name = `${conn.name}-${n}`;
+    seen.add(name);
+    connections.push({ ...conn, name });
+  });
+
+  const preferred = env.DATABASES_DEFAULT || env.DB_DEFAULT_CONNECTION;
+  if (preferred) {
+    for (const c of connections) c.isDefault = c.name === preferred;
+  }
+
+  return { connections, errors };
+}
+
+/** Pick one connection by name (exact, then case-insensitive, then unique prefix). */
+export function selectConnection(connections, requested) {
+  if (connections.length === 0) {
+    throw new Error(
+      'No database connections found in the session environment. Set DATABASES (JSON array) '
+      + 'or DATABASE_URL. See references/connections.md.',
+    );
+  }
+
+  if (requested) {
+    const exact = connections.find((c) => c.name === requested);
+    if (exact) return exact;
+    const ci = connections.filter((c) => c.name.toLowerCase() === requested.toLowerCase());
+    if (ci.length === 1) return ci[0];
+    const prefix = connections.filter((c) => c.name.toLowerCase().startsWith(requested.toLowerCase()));
+    if (prefix.length === 1) return prefix[0];
+    throw new Error(
+      `No connection matches "${requested}". Available: ${connections.map((c) => c.name).join(', ')}`,
+    );
+  }
+
+  const flagged = connections.filter((c) => c.isDefault);
+  if (flagged.length === 1) return flagged[0];
+  if (connections.length === 1) return connections[0];
+
+  throw new Error(
+    `Multiple connections configured — pass --conn <name>. Available: ${connections.map((c) => c.name).join(', ')}`,
+  );
+}
+
+/** Strip the password out of a connection URL so it is safe to print. */
+export function redactUrl(url) {
+  const raw = String(url ?? '');
+
+  // Go DSNs must be handled before new URL(): a leading `user:` parses as a scheme, so
+  // the URL branch below would succeed, find no password, and hand back the secret intact.
+  const dsn = raw.match(/^([^:@/]*):(.*)@((?:tcp|unix)\(.*)$/);
+  if (dsn) return `${dsn[1]}:***@${dsn[3]}`;
+
+  try {
+    const u = new URL(raw);
+    let changed = false;
+    if (u.password) {
+      u.password = '***';
+      changed = true;
+    }
+    for (const key of [...u.searchParams.keys()]) {
+      if (SECRET_KEYS.test(key)) {
+        u.searchParams.set(key, '***');
+        changed = true;
+      }
+    }
+    // Nothing secret to hide — return the original so file paths are not URL-normalized.
+    return changed ? u.toString() : raw;
+  } catch {
+    return raw
+      .replace(/:\/\/([^:@/]+):([^@/]+)@/, '://$1:***@')
+      // Go DSN: `user:pass@tcp(...)` — no scheme, so the rule above cannot match it.
+      .replace(/^([^:@/]*):(.*)@((?:tcp|unix)\()/, '$1:***@$3');
+  }
+}
+
+/** Public, credential-free view of a connection. */
+export function describeConnection(conn) {
+  return {
+    name: conn.name,
+    dialect: conn.dialect,
+    driver: conn.driver,
+    database: conn.database,
+    url: redactUrl(conn.url),
+    readonly: conn.readonly || undefined,
+    default: conn.isDefault || undefined,
+    source: conn.source,
+  };
+}

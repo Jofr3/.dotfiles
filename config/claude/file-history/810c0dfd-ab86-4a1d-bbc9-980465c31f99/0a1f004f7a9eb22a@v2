@@ -1,0 +1,109 @@
+/**
+ * Reads every setting from session environment variables.
+ *
+ * Nothing is persisted to disk: whatever is exported in the shell that starts
+ * Claude Code (or set with `/env` for the session) is what the bridge uses.
+ */
+
+const AUTH_VAR_PREFIX = 'TOOLBOX_AUTH_';
+/** Env vars that start with TOOLBOX_AUTH_ but are not per-service tokens. */
+const AUTH_VAR_EXCEPTIONS = new Set(['TOOLBOX_AUTH_TOKENS']);
+
+function str(env, name) {
+  const value = env[name];
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed === '' ? undefined : trimmed;
+}
+
+function bool(env, name, fallback = false) {
+  const value = str(env, name);
+  if (value === undefined) return fallback;
+  return !['0', 'false', 'no', 'off'].includes(value.toLowerCase());
+}
+
+function json(env, name) {
+  const value = str(env, name);
+  if (value === undefined) return undefined;
+  let parsed;
+  try {
+    parsed = JSON.parse(value);
+  } catch (error) {
+    throw new Error(`${name} must be valid JSON: ${error.message}`);
+  }
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error(`${name} must be a JSON object, got ${Array.isArray(parsed) ? 'array' : typeof parsed}`);
+  }
+  return parsed;
+}
+
+/**
+ * TOOLBOX_AUTH_MY_SERVICE=token  ->  { my_service: 'token' }
+ * Merged under TOOLBOX_AUTH_TOKENS, which wins on conflicts because it can
+ * express service names that are not valid env var names.
+ */
+function authTokensFromEnv(env) {
+  const tokens = {};
+  for (const [key, value] of Object.entries(env)) {
+    if (!key.startsWith(AUTH_VAR_PREFIX)) continue;
+    if (AUTH_VAR_EXCEPTIONS.has(key)) continue;
+    if (typeof value !== 'string' || value.trim() === '') continue;
+    tokens[key.slice(AUTH_VAR_PREFIX.length).toLowerCase()] = value.trim();
+  }
+  return tokens;
+}
+
+export function loadConfig(env = process.env) {
+  const url = str(env, 'TOOLBOX_URL') ?? 'http://127.0.0.1:5000';
+
+  const authTokens = {
+    ...authTokensFromEnv(env),
+    ...(json(env, 'TOOLBOX_AUTH_TOKENS') ?? {}),
+  };
+  for (const [service, token] of Object.entries(authTokens)) {
+    if (typeof token !== 'string') {
+      throw new Error(`Auth token for "${service}" must be a string, got ${typeof token}`);
+    }
+  }
+
+  const clientHeaders = json(env, 'TOOLBOX_CLIENT_HEADERS') ?? {};
+  for (const [header, value] of Object.entries(clientHeaders)) {
+    if (typeof value !== 'string') {
+      throw new Error(`TOOLBOX_CLIENT_HEADERS["${header}"] must be a string, got ${typeof value}`);
+    }
+  }
+
+  return {
+    url,
+    toolset: str(env, 'TOOLBOX_TOOLSET'),
+    toolPrefix: str(env, 'TOOLBOX_TOOL_PREFIX') ?? '',
+    apiKey: str(env, 'TOOLBOX_API_KEY'),
+    useGoogleIdToken: bool(env, 'TOOLBOX_GOOGLE_ID_TOKEN'),
+    clientHeaders,
+    authTokens,
+    boundParams: json(env, 'TOOLBOX_BOUND_PARAMS') ?? {},
+    protocol: str(env, 'TOOLBOX_PROTOCOL'),
+    strict: bool(env, 'TOOLBOX_STRICT'),
+    autoInstall: bool(env, 'TOOLBOX_AUTO_INSTALL', true),
+  };
+}
+
+/** Same shape as the config, with every secret replaced by a redacted marker. */
+export function describeConfig(config) {
+  const redact = (value) => (value ? `set (${value.length} chars, redacted)` : 'not set');
+  return {
+    toolboxUrl: config.url,
+    toolset: config.toolset ?? '(default toolset)',
+    toolPrefix: config.toolPrefix || '(none)',
+    clientToServerAuth: config.useGoogleIdToken
+      ? 'Google ID token (TOOLBOX_GOOGLE_ID_TOKEN)'
+      : config.apiKey
+        ? `bearer token from TOOLBOX_API_KEY — ${redact(config.apiKey)}`
+        : 'none',
+    extraClientHeaders: Object.keys(config.clientHeaders),
+    toolAuthServices: Object.keys(config.authTokens),
+    boundParams: Object.keys(config.boundParams),
+    protocol: config.protocol ?? '(sdk default)',
+    strict: config.strict,
+  };
+}

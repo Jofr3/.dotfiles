@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# Headless build loop: one fresh `claude -p` session per slice.
+#
+# Context isolation is structural here — each iteration is a brand new process
+# and a brand new session, so nothing leaks between slices except STATE.json.
+#
+#   ./loop.sh                 run until done, blocked, or the slice cap
+#   ./loop.sh --max 3         run at most 3 slices
+#   ./loop.sh --dry           print the prompts, run nothing
+#
+# Stops on: a slice that doesn't advance, a blocked slice, the cap, or ./STOP.
+
+set -uo pipefail
+
+BUILD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$BUILD_DIR/.." && pwd)"
+LOGS="$BUILD_DIR/logs"
+MAX=99
+DRY=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --max) MAX="$2"; shift 2 ;;
+    --dry) DRY=1; shift ;;
+    *) echo "unknown flag: $1" >&2; exit 2 ;;
+  esac
+done
+
+mkdir -p "$LOGS"
+cd "$ROOT" || exit 1
+
+for (( i=1; i<=MAX; i++ )); do
+  if [[ -f "$BUILD_DIR/STOP" ]]; then
+    echo "==> STOP file present, halting."; rm -f "$BUILD_DIR/STOP"; break
+  fi
+
+  before="$(node "$BUILD_DIR/mem-build" status | tail -1)"
+  if [[ "$before" == *"All slices complete."* ]]; then
+    echo "==> All slices complete."; break
+  fi
+
+  slice_id="$(node -e '
+    const s=require("'"$BUILD_DIR"'/STATE.json");
+    const n=s.slices.find(x=>x.status==="todo"||x.status==="in_progress");
+    process.stdout.write(n?n.id:"");
+  ')"
+  [[ -z "$slice_id" ]] && { echo "==> Nothing to do."; break; }
+
+  # A blocked slice must never be retried in a loop — that is how you burn tokens all night.
+  blocked="$(node -e '
+    const s=require("'"$BUILD_DIR"'/STATE.json");
+    process.stdout.write(s.slices.some(x=>x.status==="blocked")?"yes":"");
+  ')"
+  [[ -n "$blocked" ]] && { echo "==> A slice is blocked. Resolve it, then \`mem-build reset <id>\`."; break; }
+
+  echo ""
+  echo "=============================================================="
+  echo "  slice $slice_id   (iteration $i/$MAX)"
+  echo "=============================================================="
+
+  prompt="$(node "$BUILD_DIR/mem-build" prompt)"
+
+  if [[ $DRY -eq 1 ]]; then
+    echo "$prompt"; echo "--- (dry run, not executing) ---"
+    break
+  fi
+
+  log="$LOGS/slice-$slice_id-$(date +%Y%m%d-%H%M%S).json"
+  claude -p "$prompt" \
+    --permission-mode acceptEdits \
+    --output-format json \
+    > "$log" 2>&1
+  rc=$?
+
+  node -e '
+    try {
+      const r = require("'"$log"'");
+      console.log(`    turns=${r.num_turns ?? "?"} cost=$${(r.total_cost_usd ?? 0).toFixed(3)} ${((r.duration_ms??0)/1000).toFixed(0)}s`);
+    } catch { console.log("    (no JSON result; see log)"); }
+  ' 2>/dev/null
+
+  after="$(node -e '
+    const s=require("'"$BUILD_DIR"'/STATE.json");
+    process.stdout.write(String(s.slices.filter(x=>x.status==="done").length));
+  ')"
+
+  # The real guard: did the ledger actually advance? If the session ended without
+  # calling `mem-build done`, the verify never passed. Don't spin.
+  if [[ "$(node -e '
+      const s=require("'"$BUILD_DIR"'/STATE.json");
+      const n=s.slices.find(x=>x.status==="todo"||x.status==="in_progress");
+      process.stdout.write(n?n.id:"");
+    ')" == "$slice_id" ]]; then
+    echo "==> Slice $slice_id did not complete (claude exit $rc). Log: $log"
+    echo "    Inspect, fix, and re-run. Not retrying automatically."
+    exit 1
+  fi
+
+  echo "==> slice $slice_id done ($after complete)"
+done
+
+node "$BUILD_DIR/mem-build" status

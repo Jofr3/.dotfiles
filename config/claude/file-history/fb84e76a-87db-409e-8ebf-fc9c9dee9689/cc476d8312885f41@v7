@@ -1,0 +1,297 @@
+{
+  "active": true,
+  "root": "/home/jofre/.dotfiles/config/claude/skills/mem",
+  "plan": "PLAN.md",
+  "current": "2.1",
+  "slices": [
+    {
+      "id": "0.1",
+      "phase": "0 — Foundation",
+      "title": "Plugin skeleton",
+      "plan": "Layout",
+      "goal": "Create .claude-plugin/plugin.json (name \"mem\"), bin/mem with a arg router and a `doctor` subcommand that prints resolved paths, and src/paths.mjs resolving CLAUDE_PLUGIN_DATA with an XDG fallback. No database or embeddings yet.",
+      "verify": "node bin/mem doctor",
+      "status": "done",
+      "handoff": "Slice 0.1 done. Three files, no deps, nothing touches a DB yet.\n\nBUILT\n- .claude-plugin/plugin.json — name 'mem', version 0.1.0. Version is read back by the CLI, so bump it here only.\n- src/paths.mjs — pluginRoot from import.meta.url (two dirnames up from src/). resolveDataDir(env) returns {dir, source} following CLAUDE_PLUGIN_DATA -> $XDG_DATA_HOME/claude-mem -> ~/.local/share/claude-mem; 'source' exists so doctor can explain where the dir came from. resolvePaths() adds dbPath/modelsDir/nodeModulesDir. ensureDataDir() mkdir -p's dataDir+modelsDir.\n- bin/mem — arg router: doctor, help, --version, --json, unknown command -> stderr + exit 1. Commands live in one 'commands' object that help() renders, so adding a subcommand is one entry.\n\nNEXT SESSION MUST KNOW\n- doctor is READ-ONLY on purpose: it reports whether dataDir/db/models/node_modules exist and creates none of them. Slice 0.2 must call ensureDataDir() itself before installing deps; don't make doctor do it.\n- Both env vars take precedence in that order and are resolve()'d, so relative values work. Pass a custom env to resolvePaths(env) in tests rather than mutating process.env.\n- Added config/claude/skills/mem/.gitignore (node_modules/, *.db, *.db-*, build/logs/). PLAN's Layout section ALSO asks for a guard in .dotfiles/.gitignore ('config/claude/skills/mem/node_modules' and '*.db*') — NOT done, that path is outside this session's allowed working dir. Worth adding by hand.\n\nSURPRISES\n- bin/mem was committed non-executable; needed chmod +x. Check the mode on any future hook/bin script.\n- This session could not execute node scripts without per-command approval, and approval is granted per exact command string — 'node bin/mem doctor' being allowed did not allow 'node bin/mem doctor --json'. If you drive the build headlessly, allowlist Bash(node:*) first or every slice stalls on its verify step.",
+      "completed_at": "2026-07-29T10:50:45.285Z"
+    },
+    {
+      "id": "0.2",
+      "phase": "0 — Foundation",
+      "title": "Dependency bootstrap",
+      "plan": "Layout",
+      "goal": "src/deps.mjs: lazily install @tursodatabase/database and @huggingface/transformers into ${CLAUDE_PLUGIN_DATA}/node_modules on first use, resolving from there. Model the approach on ~/.claude/skills/drizzle-db/scripts/lib/deps.mjs. `mem doctor` reports installed versions.",
+      "verify": "node bin/mem doctor",
+      "status": "done",
+      "handoff": "BUILT src/deps.mjs + wired it into bin/mem.\n\n- DEPS pins exact versions: @tursodatabase/database 0.7.1, @huggingface/transformers 4.2.0. Bumping a version there is the whole upgrade procedure; nothing else hardcodes them. Exported specs TURSO / TRANSFORMERS so callers never retype the package names.\n- Resolution is from dataDir ONLY (createRequire anchored at dataDir), never process.cwd() — a random repo's turso pin must not leak in. depStatus() is the read-only view doctor uses; depsReady() is the boolean.\n- ensureDeps(names) installs the missing/mismatched ones via 'npm install --prefix <dataDir>'; loadModule(spec) = ensureDeps + dynamic import, memoised. Sugar: loadTurso(), loadTransformers(). Next slices should call loadTurso()/loadTransformers() rather than importing anything directly.\n- npm stdout is PIPED, not inherited, and progress goes to stderr — hooks and --json must keep stdout clean. Install has a 5-min timeout.\n- Cross-process mkdir lock at <dataDir>/.install.lock (steals after 10 min stale) so two hooks racing on first use can't run npm on the same prefix concurrently. Re-checks inside the lock before installing.\n- MEM_NO_INSTALL=1 turns auto-install into a clear error and creates nothing on disk.\n- bin/mem: doctor now prints a 'dependencies (pinned)' block (wanted vs installed, plus a 'Run mem install' hint) and carries deps[] in --json. Added 'mem install' — doctor stays read-only, so without it the lazy path would only ever be exercised from library code.\n\nVERIFIED: deps really installed into ~/.local/share/claude-mem/node_modules; doctor reports 0.7.1/4.2.0 ok; re-running install is a no-op; loadTurso() gives {Database,SqliteError,Transaction,connect} and loadTransformers().pipeline is a function.\n\nSURPRISES / NEXT SESSION MUST KNOW\n- npm writes package.json + package-lock.json into dataDir alongside mem.db and models/. That is intended (makes the dir reinstallable by hand) — don't treat those files as strays.\n- The handoff warning about per-command approval is real and also bites env-var prefixes: 'env MEM_NO_INSTALL=1 ... node bin/mem install' was denied outright. Test env-dependent paths via node -e passing a custom {paths, env} to ensureDeps instead — every deps.mjs entrypoint takes them.\n- Still not done (outside allowed working dir): the .dotfiles/.gitignore guard for 'config/claude/skills/mem/node_modules' and '*.db*' that PLAN's Layout section asks for.",
+      "completed_at": "2026-07-29T10:56:17.124Z"
+    },
+    {
+      "id": "0.3",
+      "phase": "0 — Foundation",
+      "title": "Schema + migrations",
+      "plan": "Schema v1",
+      "goal": "src/db.mjs: open the DB, run a real migration runner keyed on meta.schema_version, create schema v1 exactly as in PLAN.md including the (status, scope, project_key) index. Idempotent on re-run.",
+      "verify": "node bin/mem doctor && node bin/mem doctor",
+      "status": "done",
+      "handoff": "BUILT src/db.mjs (schema v1 + migration runner) + 'mem init' + a database block in doctor + build/tests/db.test.mjs (10 tests, all pass).\n\n- MIGRATIONS is an ordered array of {version, name, statements[]}; SCHEMA_VERSION is derived from the last entry. Append, never edit. Statements are separate strings so a failure names the exact one. v1 is PLAN's Schema v1 verbatim, including CREATE INDEX memories_lookup ON memories(status, scope, project_key).\n- Version lives in meta.schema_version (TEXT), NOT PRAGMA user_version — meta is where emb_model will live too and it survives export/import as ordinary rows. Version 0 is detected by the ABSENCE of the meta table, so migration v1 can create meta with plain PLAN SQL and no IF NOT EXISTS anywhere.\n- Each migration commits its DDL and its own version bump in ONE transactionAsync(...).immediate(). Verified: DDL rolls back on error in turso 0.7.1, so an interrupted run leaves a real version, never a half-schema.\n- Two refusals rather than silent damage: version > SCHEMA_VERSION ('upgrade the plugin'), and a meta table with no schema_version row (someone else's db).\n- Exports: openDb({paths, env, readonly, runMigrations, timeout}), withDb(fn, opts), migrate(conn), readSchemaVersion, pendingMigrations, checkpoint(conn) (wal_checkpoint(TRUNCATE) — PLAN's 21s bulk-insert stall), dbStatus(paths), initDb(opts).\n- dbStatus() is the read-only doctor view: bails early if !depsReady() so doctor NEVER triggers an npm install, opens {readonly:true, fileMustExist:true}, and turns any error into report.error instead of throwing.\n\nNEXT SESSION MUST KNOW\n- doctor is still READ-ONLY and creates no db. 'mem init' is the mutating command, mirroring how 0.2 added 'mem install'. Slice 0.4 must not make doctor create the file; time the cold path against an existing db and report n/a otherwise.\n- bin/mem's main() is now async and the file ends in 'process.exitCode = await main(...)'. Top-level await works fine in the extensionless entrypoint (Node 22 module detection). New subcommands may be async.\n- Turso 0.7.1 API is all promise-based: await connect(path, opts), await conn.exec/run/get/all, await conn.close(). conn.pragma(source, options) needs BOTH args — conn.pragma('journal_mode', {}). Journal mode is already 'wal' by default. transactionAsync callbacks MUST declare the tx parameter and all SQL inside must go through tx, not conn, or it deadlocks.\n- Use loadTurso()/withDb — nothing outside db.mjs should import turso.\n\nSURPRISES\n- 'node --test build/tests/' does NOT work on node v22.23.1: a directory positional throws MODULE_NOT_FOUND. Use 'node --test \"build/tests/**/*.test.mjs\"' (verified working). Slices 1.1-1.5 and 4.1, 5a.*, 5b.* all have the broken directory form as their verify command — they will fail on the harness until changed.\n- Tests point dbPath at a tmpdir but keep dataDir at the real one, because deps resolve from dataDir; a fully fake paths object would trigger an npm install per test.\n- Still not done (outside allowed working dir): the .dotfiles/.gitignore guard for 'config/claude/skills/mem/node_modules' and '*.db*'.",
+      "completed_at": "2026-07-29T11:01:43.086Z"
+    },
+    {
+      "id": "0.4",
+      "phase": "0 — Foundation",
+      "title": "Embeddings + doctor",
+      "plan": "Measured facts",
+      "goal": "src/embed.mjs wrapping transformers.js (Xenova/all-MiniLM-L6-v2, dtype q8, 384d, mean pooling, normalised), caching the model under ${CLAUDE_PLUGIN_DATA}/models. `mem doctor` reports cold-path timings: model load, single embed, db open, empty query.",
+      "verify": "node bin/mem doctor",
+      "status": "done",
+      "handoff": "BUILT src/embed.mjs, 'mem warm', an embedding-model + cold-path-timings block in doctor, db.mjs's vectorProbe(), and build/tests/embed.test.mjs (12 tests; 22 total, all pass).\n\n- Pins live at the top of embed.mjs: EMB_MODEL_ID Xenova/all-MiniLM-L6-v2, EMB_DTYPE q8, EMB_MODEL 'Xenova/all-MiniLM-L6-v2@q8' (what goes in memories.emb_model), EMB_DIM 384. Vectors are mean-pooled + L2 normalised, so cosine = dot and vector_distance_cos = 1 - cosine (asserted against Turso in the tests).\n- Exports: loadExtractor (memoised once per process, failed loads not memoised), embed, embedMany, cosine, vectorBlob, modelCached, modelDir, embedStatus (read-only, for doctor), warmModel, resetExtractor (tests / future model swap).\n- Model cache is dataDir/models via env.cacheDir, laid out models/Xenova/all-MiniLM-L6-v2/{config.json,tokenizer.json,tokenizer_config.json,onnx/model_quantized.onnx} (23.7 MB).\n- An 'offline' option (defaults to MEM_NO_INSTALL=1) refuses to download and errors with 'run mem warm'. doctor and the hooks should pass offline:true.\n- db.mjs now exports vectorProbe(conn, vector, {projectKey, limit}) — PLAN retrieval steps 1+2 as real SQL, so doctor times the true query shape. It imports vectorBlob from embed.mjs (pure function, no load side effects). search.mjs should grow out of it in 1.3.\n\nMEASURED on this machine, cold process (doctor prints these): node+imports 24ms, transformers import 102ms, model load 105ms, single embed 6ms, db open 12ms, vector query 0.7ms => hook budget 251ms. PLAN's ~300ms holds.\n\nNEXT SESSION MUST KNOW\n- BATCHING PERTURBS VECTORS. On transformers 4.2.0 q8, a vector from embedMany([a,b]) is only 0.97-0.99 cosine to the same text via embed(a) — the kernel is batch-size sensitive, not a padding bug (same-token-length pairs still drift; a batch of ONE is bit-identical). So write-time dedup (1.2, threshold 0.93) must embed one at a time; embedMany is for seeding/bulk. Documented on embedMany, pinned by a test.\n- transformers.js REJECTS allowLocalModels=false together with allowRemoteModels=false ('both local and remote models are disabled'). Offline mode therefore sets localModelPath = modelsDir and keeps allowLocalModels=true — it works because the FS cache layout and the localModelPath layout are the same dir/model/file shape.\n- vector32(?) accepts EITHER '[1,2,3]' text or the raw little-endian f32 Buffer (both verified); vectorBlob() uses the Buffer form.\n- doctor is STILL read-only: verified it creates nothing against an empty data dir, prints n/a per leg plus a note, and never downloads or npm-installs. 'mem warm' is the mutating command for the model, like 'mem install' and 'mem init'.\n- Tests skip (not hang) when the model isn't cached; run 'mem warm' first. Use node --test with the glob 'build/tests/**/*.test.mjs' — the directory form is still broken on node 22.\n- Still not done (outside allowed working dir): the .dotfiles/.gitignore guard for 'config/claude/skills/mem/node_modules' and '*.db*'.",
+      "completed_at": "2026-07-29T11:10:43.284Z"
+    },
+    {
+      "id": "1.1",
+      "phase": "1 — CLI core",
+      "title": "Scope + secret scrubbing",
+      "plan": "The real risk is precision",
+      "goal": "src/scope.mjs resolving project_key from git remote (normalised) falling back to abs path. src/scrub.mjs rejecting writes containing key/token patterns (sk-, ghp_, AKIA, xox[baprs]-, -----BEGIN, JWTs, long hex/base64, password=). Unit tests in build/tests/.",
+      "verify": "node --test 'build/tests/**/*.test.mjs'",
+      "status": "done",
+      "handoff": "BUILT src/scope.mjs + src/scrub.mjs and build/tests/{scope,scrub}.test.mjs (56 new tests; 78 total, all pass).\n\nscope.mjs exports: normaliseRemote(url), gitRoot(cwd), gitRemoteUrl(cwd), gitAvailable(cwd), resolveProjectKey({cwd,env}) -> {projectKey, source, root, remote}, resolveScope({scope,cwd,env}) -> {scope, projectKey, ...}. source is one of env|git-remote|git-root|cwd|global, so mem add/doctor can show WHY a memory scoped where it did. Key order: MEM_PROJECT_KEY override > normalised remote (origin, then upstream, then first remote) > realpath of the git worktree root > realpath of cwd. Path fallbacks are absolute so they never collide with a 'host/owner/repo' remote key. Remote normalisation lowercases only the HOST (paths stay case-sensitive) and strips creds/port/.git/trailing slashes; unrecognised remotes return null and fall through to the path rather than inventing a key. All git calls are execFileSync with a 1.5s timeout, GIT_TERMINAL_PROMPT=0, and never throw.\n\nscrub.mjs exports: RULES, findSecrets(text), isClean(text), scanFields({text,why}), assertNoSecrets(fieldsOrString,{env}) throwing SecretError (code MEM_SECRET_DETECTED, .findings). 1.2's write path should call assertNoSecrets BEFORE embedding so a rejected write costs nothing. 13 rules cover PLAN's list plus stripe/google/npm. Findings carry a masked sample ('sk-p...N chars'); hex/base64 rules are marked opaque and reveal zero characters, so nothing echoes a secret into a log. Overlapping matches are deduped by span (a JWT reports once, not also as base64).\n\nNEXT SESSION MUST KNOW\n- THE LEDGER'S VERIFY COMMAND WAS BROKEN AND I PATCHED IT. 'node --test build/tests/' does not scan the directory on this node 22.23.1 - it tries to require the path and dies with MODULE_NOT_FOUND, so it failed before running a single test. I rewrote verify to \"node --test 'build/tests/**/*.test.mjs'\" (quoted, so node globs, not bash) in all 12 todo slices that used the directory form. No other STATE.json field touched.\n- Precision tuning that is deliberate, not accidental, in scrub.mjs: the credential-assignment rule has NO leading \\b (env vars end in the keyword: OPENAI_API_KEY=, GITHUB_TOKEN=) and captures <...>/quoted values whole so '<your key>' reads as a placeholder; placeholder values (<x>, \\$VAR, ***, changeme, xxx) are allowed; exactly-40 and exactly-64 hex chars are allowed near commit/sha/hash/digest words (git SHAs are a legitimate thing to remember, other lengths are not exempt); the base64 rule needs mixed case + a digit and at most 2 slashes, which is what stops a long CamelCase file path reading as a blob.\n- MEM_ALLOW_SECRETS=1 skips the check at the assert layer only (findSecrets always reports). It exists because a rule will eventually be wrong; if you'd rather it not exist, remove it in 1.2 before anything depends on it.\n- Two of my own tests failed first run and both were real bugs, not bad tests: the placeholder gap above, and a Google-key fake of the wrong length silently falling through to the base64 rule. Keep the 'every rule has a fake sample and fires on it' test - it is what caught the second one.\n- scope tests build real throwaway git repos and skip if git is absent; they pass env:{} explicitly so an ambient MEM_PROJECT_KEY cannot green them.\n- Still not done (outside allowed working dir): the .dotfiles/.gitignore guard for 'config/claude/skills/mem/node_modules' and '*.db*'.",
+      "completed_at": "2026-07-29T11:18:52.042Z"
+    },
+    {
+      "id": "1.2",
+      "phase": "1 — CLI core",
+      "title": "Write path with dedup",
+      "plan": "Schema v1",
+      "goal": "src/write.mjs + `mem add`. Embeds, scrubs, resolves scope, and dedups: cosine >= 0.93 within the same scope updates the existing row (bump confidence, update text if longer) instead of inserting. Writes a memory_events row for every mutation.",
+      "verify": "node --test 'build/tests/**/*.test.mjs'",
+      "status": "done",
+      "handoff": "BUILT src/write.mjs + `mem add` and build/tests/write.test.mjs (36 new tests; 114 total, all pass).\n\nwrite.mjs exports: KINDS, WRITABLE_STATUSES, SOURCE_KINDS, DEDUP_THRESHOLD (0.93), CONFIDENCE_BUMP (0.25), MAX_TEXT (1000) / MAX_WHY (2000), EVENT_CREATED/EVENT_MERGED, WriteError (code MEM_INVALID | MEM_DUPLICATE_UID), normaliseText, normaliseInput, bumpConfidence, mergePlan(existing,incoming) -> [{field,from,to}], nearestInScope(conn,vec,{scope,projectKey,statuses,embModel,embDim}) -> {...row, similarity} | null, recordEvent, prepareMemory, commitMemory, addMemory(input,{conn,paths,env,cwd,now,dedup,threshold,dedupStatuses}) -> {action,row,changes,similarity,nearest,eventId,scopeSource}.\n\nPipeline order is load-bearing: validate -> assertNoSecrets -> resolveScope -> embed -> one immediate transaction holding both the dedup lookup and the write (so two racing adds cannot both decide they are first). A rejected write never loads the model.\n\nDECISIONS THE NEXT SLICES INHERIT\n- TIMESTAMPS ARE EPOCH MILLISECONDS (plain Date.now()) in created_at/updated_at/expires_at. The schema does not say which; it is fixed in write.mjs and 1.3/1.5/phase-5 decay must agree.\n- Dedup scope is NARROWER than retrieval scope: scope = ? AND project_key IS ? (null-safe), never the 'global OR project' union - merging a project fact into a global one would silently widen its blast radius. Also requires matching emb_model/emb_dim (cross-vector-space distances are meaningless) and emb IS NOT NULL (a phase-5 tombstone would otherwise sort FIRST, since NULL sorts ahead of every real distance in ASC).\n- Dedup is SAME-STATUS by default (dedupStatuses defaults to [status]). A staged auto-capture must not silently bump the confidence of a memory a human already reviewed; it queues as its own staged row. Repeat captures still collapse into each other, so the review queue stays readable. Override via dedupStatuses if phase 4 wants promotion-time merging.\n- Merge policy (mergePlan, pure and unit-tested): longer text wins and the embedding travels with it; longer/absent why wins; confidence always bumps saturating toward 1 (0.5 -> 0.63 -> 0.72, never reaches 1); salience only rises when the caller passed it EXPLICITLY (normaliseInput records .explicit so a default 0.5 cannot overwrite a deliberate 0.2); pinned is sticky. A merge never demotes anything and never changes status, kind, uid, created_at or the counts.\n- add can only write status staged|active. archived/superseded are outcomes of pruning/consolidation - an add able to name them would forge a decision that was never taken.\n- Every mutation writes one memory_events row. 'merged' detail carries {similarity, threshold, changes:[{field,from,to}], previous:{updated_at}, incoming} - enough to invert without a backup. It deliberately does NOT store the old embedding blob: it stores the old TEXT, and re-embedding is 11ms. 'created' detail records the runner-up {id,similarity} that did NOT clear the threshold, which is the evidence for retuning 0.93 later.\n\nMEASURED, NOT GUESSED - 0.93 IS TIGHT\n  'always use pnpm' vs 'always use pnpm, never npm'                        0.9005  -> stays 2 rows\n  'always use pnpm to install dependencies' vs '... in this repo'          0.9301  -> merges, barely\n  'always use pnpm to install dependencies' vs '..., never npm'            0.9448  -> merges\n  'deploy with nix' vs 'deploy with nix, not docker images'                0.7630  -> stays 2 rows\nShort facts differing by a clause routinely land at 0.90 and do NOT merge. Two of my tests failed first run purely because I assumed a pair was a duplicate and it was not - measure the pair before asserting on it. The test file pins these strings as PNPM / PNPM_LONGER / UNRELATED constants with the numbers in a comment; reuse them. Do not pick 0.9301-class pairs for tests, they sit on the knife edge.\n\nCLI: mem add <text...> [--why --kind --global|--project --pin --staged --salience --confidence --expires-in <days> --source --session --threshold --no-dedup --cwd --json]. Loose positional words are joined with spaces so quoting is optional, and unknown --flags are REJECTED rather than folded into the memory text (silently storing '--whi typo' as part of a fact is exactly the corruption a memory store must not have). Exit 2 (not 1) on MEM_SECRET_DETECTED so a hook can tell 'you gave me a secret' from 'mem is broken'. --json strips emb (1.5KB of float noise).\n\nTESTING NOTE FOR 1.3/1.4: the CLI tests get real isolation by pointing CLAUDE_PLUGIN_DATA at a temp dir and SYMLINKING node_modules + models in from the real data dir - no download, no npm, own database. Copy that pattern; overriding only dbPath does not work for a subprocess.\n\nKept MEM_ALLOW_SECRETS=1 (1.1 offered to remove it). It is now depended on by nothing except assertNoSecrets itself; the write path passes env straight through.\n\nStill not done (outside allowed working dir): the .dotfiles/.gitignore guard for 'config/claude/skills/mem/node_modules' and '*.db*'.",
+      "completed_at": "2026-07-29T11:30:06.243Z"
+    },
+    {
+      "id": "1.3",
+      "phase": "1 — CLI core",
+      "title": "Hybrid retrieval",
+      "plan": "Retrieval",
+      "goal": "src/search.mjs implementing the 7 steps in PLAN.md: scoped candidates, vector leg (LIMIT 20), lexical leg via fts_match, RRF fusion at k=60, strength boost, threshold gate, cap 5. Returns [] when nothing clears the gate. `mem search <query>` with --json.",
+      "verify": "node --test 'build/tests/**/*.test.mjs'",
+      "status": "done",
+      "handoff": "BUILT src/search.mjs + `mem search` + build/tests/search.test.mjs (44 new tests; 158 total, all pass). Cold-process search at 200 rows: ~310ms (phase-1 exit budget is 400ms).\n\nsearch.mjs exports: VECTOR_LIMIT/LEXICAL_LIMIT (20), RRF_K (60), MAX_RESULTS (5), VECTOR_THRESHOLD (0.35), LEXICAL_GATE_COVERAGE (0.6), STRENGTH_WEIGHT (0.3), PINNED_WEIGHT (0.2), HALFLIFE_H0 (30), HALFLIFE_ALPHA (0.6), DAY_MS, MAX_TERMS (12), STOPWORDS, tokenise, queryTerms, halflifeDays, retention, strength, boostFactor, fuse, rankLexical, countCandidates, vectorLeg, lexicalLeg, searchScoped(conn,vector,terms,opts) -> {results,stats}, searchDetail(query,opts) -> {query,terms,results,stats}, search(query,opts) -> Result[].\n\nMEASURED fts_match IN THIS TURSO BUILD — it is NOT SQLite FTS5, do not assume FTS5 semantics anywhere later:\n  fts_match(text,'a b')  pure OR across terms, never AND\n  operators              none — AND/OR/NOT are matched as ordinary terms\n  quoted phrases         not honoured ('\"dependencies install\"' matched reversed text)\n  'depend*'              no match — no prefix, no stemming, no substring\n  tokenizer              splits on EVERY non-alphanumeric (MEM_PROJECT_KEY -> mem|project|key,\n                         pnpm-lock.yaml -> pnpm|lock|yaml, don't -> don|t) but NOT camelCase\n                         (getUserById stays one token; 'user' does not match it)\n  case                   insensitive\n  fts_score(text)        returns 0 — scoring index is feature-gated off\nTwo consequences: (a) a raw prompt must be tokenised+stopworded before it reaches fts_match or it matches everything containing 'the'/'use'; (b) the lexical leg CANNOT be ranked in SQL, so SQL only prunes and JS ranks.\n\nDEVIATION FROM PLAN, deliberate: PLAN says lexical leg 'LIMIT 20' in SQL. There is nothing to ORDER BY (fts_score dead), so a SQL LIMIT would return an arbitrary 20 in rowid order — the 20 oldest. The fetch is unbounded and the cap is applied after JS ranking. This is also load-bearing for correctness: document frequencies are counted from the full match set, and because fts_match is pure OR that set provably contains every candidate holding a term, making the df exact rather than sampled. Affordable because it pulls text while the vector leg beside it already reads the 1.5KB embedding of every candidate.\n\nDECISIONS THE NEXT SLICES INHERIT\n- Lexical score = IDF COVERAGE: of the total idf mass of the query's terms, the fraction this row accounts for. idf = ln(1 + N/(1+df)). This is what makes 'exact lexical hit' meaningful under OR semantics — one shared common word scores ~0.15 and cannot clear the 0.6 gate, while a lone rare identifier scores ~1.0. The lexical leg exists for identifiers (MEM_PROJECT_KEY, pnpm-lock.yaml) because that is what the embedding model represents worst.\n- THE GATE IS A DISJUNCTION: sim >= 0.35 OR coverage >= 0.6. One of my tests failed first run because I assumed raising --threshold alone would empty the results; it did not, the row cleared lexically. Tighten both legs to close it. Gate runs BEFORE the cap, so five weak items cannot hide a sixth that cleared.\n- DECAY IS APPLIED ONCE. PLAN step 5 says '× (1+0.3·salience+0.2·pinned) × recency_decay' but the decay section supersedes it ('strength replaces raw salience in the retrieval boost'). retention already lives inside strength; multiplying recency in again would square the decay. boostFactor = 1 + 0.3·strength + 0.2·pinned. Verified halflifeDays(5)=87.9 matches PLAN's '≈87'.\n- An unused memory decays from updated_at (last_used_at -> updated_at -> created_at), else 'never used' and 'used a moment ago' score identically.\n- EXPIRY IS ENFORCED AT READ TIME, not in PLAN's step 1: '(expires_at IS NULL OR expires_at > ?)' is in the candidate WHERE. TTL expiry is a scheduled tier-1 job, and between two runs an expired row is still status='active'; injecting a fact the user gave a lifetime to is an error nobody notices. Phase 5a should still archive them, this is just the guard in between.\n- Vector leg skips emb IS NULL and mismatched emb_model/emb_dim, same reasoning as write.mjs. Consequence: after a model change retrieval silently returns nothing until re-embed. A lexical-only row (tombstone, or outside the vector top-20) gets similarity: null and can still pass the gate on coverage.\n- Sequential, not Promise.all, for the two legs — one connection, interleaved statements are not a guarantee this driver makes.\n- search() returns [] and `mem search` EXITS 0 when nothing clears the gate. A hook asks on every prompt; nothing-matched is the designed answer, not a failure.\n\nSCHEMA CONFLICT FOR PHASE 5 (found, not fixed — outside this slice): PLAN's pruning ladder rung 3 tombstones with 'emb = NULL', but schema v1 declares 'emb BLOB NOT NULL'. Tombstoning needs a migration (v2 table rebuild) before it can run. search.mjs already tolerates NULL embs.\n\nTUNING EVIDENCE FOR PHASE 3 (measured query->memory cosines, real model):\n  'how do I install dependencies?'  vs 'always use pnpm to install dependencies'  0.534\n  'what do we use for testing?'     vs 'prefer Vitest over Jest for unit tests'   0.430\n  'which package manager should I use?' vs the pnpm memory                        0.387  <- near the gate\n  'how is the app deployed?'        vs 'deploy with nix flakes, not docker'       0.212  <- MISSED, and\n      lexical cannot rescue it either: no stemming, so 'deployed' != 'deploy'. This is the honest\n      cost of 0.35 and the clearest thing for the phase-3 harness to weigh.\n  any unrelated prompt (France, otters) vs anything                              < 0.15\nJunk is rejected by a wide margin, so 'inject nothing on an unrelated prompt' holds comfortably; the risk at 0.35 is false negatives, not false positives. Do not use 0.387-class pairs as test fixtures.\n\nSTILL NOT DONE (outside allowed working dir, inherited from 1.1/1.2): the .dotfiles/.gitignore guard for 'config/claude/skills/mem/node_modules' and '*.db*'.",
+      "completed_at": "2026-07-29T11:42:04.352Z"
+    },
+    {
+      "id": "1.4",
+      "phase": "1 — CLI core",
+      "title": "CLI surface",
+      "plan": "Layout",
+      "goal": "`mem list|show|forget|pin|export|import`. export/import use JSONL and must round-trip identically (uid is the stable key).",
+      "verify": "node --test 'build/tests/**/*.test.mjs'",
+      "status": "done",
+      "handoff": "BUILT src/manage.mjs (list/show/forget/pin), src/transfer.mjs (JSONL export/import), those six commands in bin/mem, and build/tests/{manage,transfer}.test.mjs. 71 new tests; 229 total, all pass. Also added STATUSES + exported requireOneOf/requireUnitInterval/requireTimestamp from write.mjs (import validates the same fields against the same rules; two copies would drift).\n\nROUND TRIP holds as export -> import -> export byte-identical, tested both in-process and as 'mem export | mem import' across two data dirs. Three things make it true and the next slices must not break them: (1) EXPORT_FIELDS is a fixed literal order, (2) export ORDERs BY created_at, uid — never by id, since ids are assigned in import order, (3) nulls are omitted, absent == null on the way back in.\n\nFORMAT DECISIONS\n- The embedding is NOT exported. It is 1.5KB of noise per row, it is derivable, and leaving it out is what lets an export survive a model change: there is no emb_model stamp in the file to be wrong about, and import re-embeds with whatever model is current and stamps that. Importing therefore rewrites every row's vector — a repair, not a loss. Import batches through embedMany (32 at a time), so imported vectors are the batch-kernel variant (0.97-0.99 self-cosine vs a single embed, per embed.mjs) — fine for ranking, and a later 'mem add' of the same fact still merges well above 0.93.\n- superseded_by travels as superseded_uid, resolved in a second pass inside the same transaction (a row may be superseded by one further down the file). Exporting it as an integer would silently point at an unrelated memory after a restore. Unresolvable targets are reported, never guessed.\n- No header line, no wrapper: plain JSONL so jq/grep/git diff work. Import identifies a file by validating fields, not by a magic key.\n- IMPORT IS KEYED ON UID AND DOES NO SEMANTIC DEDUP. Deliberate and tested: the 0.93 merge is right for a human restating a preference and wrong for a restore, which must not collapse two memories into one. Whole import is one transaction (all-or-nothing), then a WAL checkpoint.\n\nMANAGE DECISIONS\n- list/show/forget/pin never embed. The manage tests seed rows through raw SQL with a synthetic vector32 and run with no model cached at all — worth keeping: inspecting the store must not need a 23MB download. Only import needs the model, and 'import --dry-run' validates a file offline.\n- The inspection surface shows what retrieval hides and MARKS it (expired / archived / staged / tombstoned 'no-emb') rather than filtering it. Expiry is a read-time guard in search.mjs, not a status, so an expired row is still status='active' — list says so.\n- forget = archive (rung 2, reversible); --hard = purge (rung 4) and it deletes the memory_events rows too, plus clears any superseded_by pointing at it (a dangling FK would break the next write). The purge event carries id/uid/counts and NO text: leaving the text in the audit log would make 'purge' a lie. Pinned rows refuse both without --force.\n- --restore returns a memory to the status it was archived FROM, read back off the archive event, not blindly to 'active'. Restoring a staged auto-capture to active would promote something nobody reviewed straight into retrieval.\n- Archive/restore/pin/unpin never touch updated_at: an unused memory decays from it (search.mjs), so bumping it would reset the decay clock of a memory nobody has actually restated.\n- A numeric ref is ALWAYS an id, never a uid prefix — the rule has to be decidable without a round-trip. Non-numeric refs are exact uid then unique prefix (>=4 chars); an ambiguous prefix is an error naming the candidates.\n- buildFilter() in manage.mjs is shared by list and export, but their DEFAULTS differ on purpose: list scopes to this project and status=active, export filters nothing at all (a backup that omits archived rows and other projects is worse than no backup).\n\nSTILL NOT DONE, inherited from 1.1/1.2 and outside the allowed working dir: the .dotfiles/.gitignore guard for 'config/claude/skills/mem/node_modules' and '*.db*'. The plugin's own .gitignore covers it locally.\nSCHEMA CONFLICT still open for phase 5 (found in 1.3): PLAN's pruning rung 3 tombstones with emb=NULL but schema v1 says emb BLOB NOT NULL — needs a v2 rebuild. manage.mjs already reports such a row as 'no-emb' and search.mjs tolerates it.",
+      "completed_at": "2026-07-29T11:58:56.603Z"
+    },
+    {
+      "id": "1.5",
+      "phase": "1 — CLI core",
+      "title": "Seed + perf gate",
+      "plan": "Measured facts",
+      "goal": "build/seed.mjs generating 200 realistic memories. Perf test asserting cold-process search < 400ms. Confirm the WAL checkpoint after bulk insert (the 21s pathology in PLAN.md).",
+      "verify": "node build/seed.mjs --count 200 && node --test 'build/tests/**/*.test.mjs'",
+      "status": "done",
+      "handoff": "BUILT build/seed.mjs (a 203-fact corpus -> N synthetic memories, deterministic from --seed) plus build/tests/seed.test.mjs and build/tests/perf.test.mjs. 35 new tests; 264 total, all pass. It seeds into <dataDir>/seed, never the real mem.db without --force, and symlinks the deps+model cache in so 'CLAUDE_PLUGIN_DATA=<dataDir>/seed mem search ...' works by hand.\n\nTHE PLAN IS WRONG ABOUT THE BULK-INSERT GOTCHA and I have amended its measured-facts section. The 21s post-bulk-insert query stall does NOT reproduce: at 20k rows x 384d the same-process query is 38ms before the checkpoint and 37ms after. The real pathology is 'superseded_by INTEGER REFERENCES memories(id)' with foreign_keys ON, which makes every INSERT cost O(rows already inserted) EVEN WITH THE COLUMN NULL - 5k rows: 4.7s on vs 0.55s off; 20k rows: 134s. Not WAL-related (chunking + checkpointing between chunks changes nothing; a table without the self-reference stays linear). So seed.mjs bulk-loads with foreign_keys OFF and then looks for dangling references in plain SQL, because PRAGMA foreign_key_check returns [] in this build even when a reference really is dangling. mem import still runs with FKs on (one transaction, correctness over speed) - a multi-thousand-row restore will be slow, and phase 5a's 5k-row fixture must use the FK-off path.\n\nTHE CHECKPOINT STAYS anyway: 6ms to fold an 80MB WAL back into the file. Tested as 'skip it -> WAL non-empty; run it -> WAL exactly 0 bytes'.\n\nFIXTURE INVARIANT worth not breaking: no pair inside a (scope, project_key, status) group is within the 0.93 dedup threshold, measured on the real vectors every run (worst is 0.485). That is the write path's own rule, so the fixture is a store mem add could have converged to; a seed that drifted into 200 near-copies would still pass the perf gate while making its number meaningless. The six superseded/newer pairs are deliberately above it and legal for the same reason the write path allows them - different status groups. The corpus also carries staged, archived, pinned and already-expired-but-still-active rows, and useful_count <= injected_count by construction.\n\nPERF GATE: cold 'mem search' is ~310ms idle (scan itself 2ms; the rest is node boot + model load), against PLAN's 400ms. Under the full parallel suite the same command measures 600-880ms, so the test samples until it gets a quiet run (min 3, deadline 60s) and gates on the best sample, printing all of them. Do not 'fix' that into a median assertion without also fixing test-file concurrency.\n\nSTILL NOT DONE, inherited: the .dotfiles/.gitignore guard for 'config/claude/skills/mem/node_modules' and '*.db*' (outside the allowed working dir). SCHEMA CONFLICT still open for phase 5: pruning rung 3 tombstones with emb=NULL but schema v1 says emb BLOB NOT NULL - needs a v2 rebuild.",
+      "completed_at": "2026-07-29T12:27:37.535Z"
+    },
+    {
+      "id": "1.6",
+      "phase": "1 — CLI core",
+      "title": "Embedding model selection",
+      "plan": "Retrieval",
+      "goal": "all-MiniLM-L6-v2 is a SYMMETRIC similarity model and retrieval here is asymmetric (a question against a stored statement). Measured on the real build: relevant matches scored 0.273-0.354 while irrelevant ones scored 0.244-0.256 — the bands OVERLAP, so no threshold separates them. Literal token overlap carried the passing cases (\"pnpm\" verbatim = 0.673, paraphrase = 0.273). This is a model problem, not a tuning problem.\n\nBuild build/embed-bench.mjs comparing at least: Xenova/all-MiniLM-L6-v2@q8 (incumbent), Xenova/e5-small-v2, Xenova/bge-small-en-v1.5. All are 384d and run on the same transformers.js pipeline; e5 and bge need their query:/passage: (or equivalent) prefixes applied correctly — asymmetric prefixing is the whole point, so get it right per model.\n\nEvaluate against the 200-memory seed corpus from 1.5 with ~30 hand-written (question -> expected memory) pairs, INCLUDING paraphrased questions that share no vocabulary with the memory, and negatives that must match nothing.\n\nReport per model: recall@5, MRR, and most importantly SEPARATION — the margin between the worst relevant score and the best irrelevant score. Separation is the metric that decides whether any threshold can work; recall@5 alone will hide the problem. Also report model load ms and per-embed ms: the hook budget must stay under ~400ms (currently 276ms).\n\nCommit the winner in src/embed.mjs (model id, dtype, dim, prefixes). Add `mem reembed` to re-embed existing rows when emb_model changes — the schema already stores emb_model/emb_dim per row for exactly this. Append the numbers and the decision to PLAN.md under Retrieval.",
+      "verify": "node build/embed-bench.mjs --json",
+      "status": "done",
+      "handoff": "SWAPPED THE EMBEDDING MODEL: all-MiniLM-L6-v2 -> Xenova/gte-small@q8, still 384d, no query/passage prefix (the prefix machinery exists in embed.mjs anyway: QUERY_PREFIX/PASSAGE_PREFIX + prefixFor(role), and embedQuery() is now a named function so search.mjs cannot accidentally embed a question as a passage). Built build/embed-bench.mjs (10 configs, each in its own child process for honest cold-load timing; 200-memory seed corpus, 32 questions of which 24 are zero-vocabulary-overlap paraphrases, 9 unanswerable negatives). Added src/reembed.mjs + 'mem reembed [--dry-run] [--json]' and build/tests/reembed.test.mjs. 277 tests pass (was 264).\n\nTHE HEADLINE IS NOT SEPARATION. Strict separation (worst-relevant minus best-irrelevant) is NEGATIVE FOR ALL TEN MODELS, so it ranks nothing - and recall@5/MRR sit within 6 points across the whole table while the models differ enormously. The metric that actually separates them is AUC (P(right answer outscores a junk query)): gte 0.969 vs MiniLM 0.854 vs bge-small 0.885 vs e5-small 0.792. I added AUC + a threshold sweep + p10/p90 separation to the bench for this reason; gte is the only model with positive p10 separation (+0.005), i.e. its overlap is a two-query tail rather than the whole distribution. Operating point: MiniLM at its shipped 0.35 keeps 53% of right answers at 0/9 junk; gte at 0.82 keeps 72%, at 0.814 keeps 78%.\n\nTWO CONSTANTS ARE MODEL GEOMETRY AND MUST MOVE WITH THE MODEL. search.mjs VECTOR_THRESHOLD 0.35 -> 0.82 (gte packs everything into ~0.75-0.95; at 0.35 the gate is OFF and every junk prompt passes - this is silent, not loud). I chose 0.82 over the efficient 0.814 because 0.814 is a hair above the MAXIMUM of a 9-sample negative distribution; 3.3 re-tunes. write.mjs DEDUP_THRESHOLD 0.93 SURVIVED unchanged and got better: it now catches 6/12 hand-written restatements vs 1/12 under MiniLM, and still clears the closest genuinely-distinct corpus pair (0.915) - but that is only 0.015 of headroom, so re-measure on any future swap. The bench reports this calibration every run.\n\nRULED OUT BY MEASUREMENT, so nobody re-litigates them: q8 vs fp32 moves AUC by <=0.007 in no consistent direction while costing 2-3x embed time and blowing the 400ms budget; 768d is WORSE not better (multi-qa-mpnet 0.788 AUC, below the incumbent, 461ms cold); and score normalisation does not rescue a bad model - mean-centring and per-query z-scoring both made separation worse for every model (gte: -0.031 raw, -0.251 centred, -2.686 z). Raw cosine, the thing vector_distance_cos computes, is the best scoring function available. Cost of the swap: load 157ms (was 109), embed 2.0ms (was 1.2), cold end-to-end 321ms against 400ms, download 34MB not 23MB.\n\nSURPRISES / TRAPS. (1) The seed fixture's dedup invariant and the perf gate both still pass under gte - I did not have to touch seed.mjs. (2) One test hard-coded a MiniLM score band (/0\\.5\\d/) in a CLI output regex; loosened to /0\\.\\d\\d/ since what counts as a high cosine is model geometry. (3) schema v1 says 'emb BLOB NOT NULL', so I COULD NOT test reembed's emb-IS-NULL tombstone guard - the row is uninsertable. The guard is written and correct, waiting on the v2 rebuild that phase 5 still owes (this is the same inherited SCHEMA CONFLICT, now with a second caller depending on it). (4) When smoke-testing by hand, remember seed.mjs scatters facts across four project keys - searching with the wrong MEM_PROJECT_KEY returns nothing and looks exactly like a broken model.\n\nSTILL OPEN, INHERITED: the .dotfiles/.gitignore guard for 'config/claude/skills/mem/node_modules' and '*.db*' (outside the allowed working dir, so I could not add it). Residual retrieval weakness worth knowing before 3.3: paraphrases with zero shared vocabulary ('overwrite a colleague's remote history' -> 'never force push a branch somebody else is working on') still fall below word-overlap negatives ('review my landlord's tenancy agreement' -> 'review for correctness first'), and the lexical leg cannot rescue them because there is no token to hit.",
+      "completed_at": "2026-07-29T12:54:34.480Z"
+    },
+    {
+      "id": "2.1",
+      "phase": "2 — Skills",
+      "title": "Skill definitions",
+      "plan": "Layout",
+      "goal": "skills/remember/SKILL.md, skills/recall/SKILL.md, skills/forget/SKILL.md. Descriptions must trigger on natural phrasings without firing constantly. Each documents the CLI it wraps.",
+      "verify": "test -f skills/remember/SKILL.md && test -f skills/recall/SKILL.md && test -f skills/forget/SKILL.md",
+      "status": "todo"
+    },
+    {
+      "id": "2.2",
+      "phase": "2 — Skills",
+      "title": "Live verification",
+      "plan": "Phase 2",
+      "goal": "MANUAL SLICE. Restart Claude Code, confirm mem@skills-dir loads and /mem:remember works end to end, surviving a /clear. Record the result in the handoff.",
+      "verify": "node bin/mem list --json",
+      "status": "todo",
+      "manual": true
+    },
+    {
+      "id": "3.1",
+      "phase": "3 — Recall hooks",
+      "title": "SessionStart injection",
+      "plan": "Retrieval",
+      "goal": "hooks/session-start.mjs injecting pinned + core globals (max 3) as additionalContext, framed as recollection-not-instruction with ids and ages. Must fail open and silent: any error exits 0 with no output.",
+      "verify": "echo '{\"hook_event_name\":\"SessionStart\",\"source\":\"startup\",\"cwd\":\".\"}' | node hooks/session-start.mjs",
+      "status": "todo"
+    },
+    {
+      "id": "3.2",
+      "phase": "3 — Recall hooks",
+      "title": "UserPromptSubmit retrieval",
+      "plan": "Retrieval",
+      "goal": "hooks/prompt-recall.mjs: embed user_message, run search, inject only what clears the threshold, increment injected_count and record what was injected this turn (the Stop hook needs it in 5a.2). Hard timeout, fail open.",
+      "verify": "echo '{\"hook_event_name\":\"UserPromptSubmit\",\"user_message\":\"what package manager do I use\",\"cwd\":\".\"}' | node hooks/prompt-recall.mjs",
+      "status": "todo"
+    },
+    {
+      "id": "3.3",
+      "phase": "3 — Recall hooks",
+      "title": "Tuning harness",
+      "plan": "Phase 3",
+      "goal": "build/harness.json with {prompt, should_retrieve:[uid]|[]} cases including negatives that must retrieve NOTHING. `mem tune` sweeps thresholds and reports precision/recall/p95 latency per candidate. Pick and commit the threshold.",
+      "verify": "node bin/mem tune --json",
+      "status": "todo"
+    },
+    {
+      "id": "4.1",
+      "phase": "4 — Gated capture",
+      "title": "Capture gate",
+      "plan": "Capture gate",
+      "goal": "Extend hooks/prompt-recall.mjs with the regex gate. On a hit, append the nudge to additionalContext. `mem add --staged` writes status='staged'; staged rows are excluded from all retrieval. Gate must run in <20ms with no LLM.",
+      "verify": "node --test 'build/tests/**/*.test.mjs'",
+      "status": "todo"
+    },
+    {
+      "id": "4.2",
+      "phase": "4 — Gated capture",
+      "title": "Review triage",
+      "plan": "Capture gate",
+      "goal": "`mem review` listing staged items with promote/edit/discard, and skills/review/SKILL.md driving it. This is also the surface consolidation proposals land in later, so design the queue generically now.",
+      "verify": "node bin/mem review --json",
+      "status": "todo"
+    },
+    {
+      "id": "5a.1",
+      "phase": "5a — Maintenance",
+      "title": "Decay + strength",
+      "plan": "Decay: spaced repetition",
+      "goal": "Implement the halflife/retention/strength formula in SQL (exp/ln/pow are available). strength replaces salience in the search boost. pinned forces retention 1.0. Split injected_count and useful_count on the schema (migration v2).",
+      "verify": "node --test 'build/tests/**/*.test.mjs'",
+      "status": "todo"
+    },
+    {
+      "id": "5a.2",
+      "phase": "5a — Maintenance",
+      "title": "Echo heuristic",
+      "plan": "Measuring \"useful\"",
+      "goal": "hooks/stop-echo.mjs: compare this turn's injected memories against last_assistant_message on distinctive tokens; increment useful_count on an echo. Plus `mem touch <id>` for the explicit signal.",
+      "verify": "node --test 'build/tests/**/*.test.mjs'",
+      "status": "todo"
+    },
+    {
+      "id": "5a.3",
+      "phase": "5a — Maintenance",
+      "title": "Archiving + stats",
+      "plan": "The pruning ladder",
+      "goal": "SCHEMA v2 MIGRATION FIRST: drop the NOT NULL on memories.emb — the pruning ladder tombstones with emb=NULL and schema v1 makes that row uninsertable. Slices 1.3, 1.4, 1.5 and 1.6 all flagged this; src/reembed.mjs already has an untested emb-IS-NULL guard waiting on it. Verify every vector query filters emb IS NOT NULL (NULL sorts ahead of all real distances in ASC and would otherwise be the nearest neighbour to everything) and matches emb_model/emb_dim.\n\nTHEN: Rule-based archiving (strength<0.15 AND useful_count=0 AND age>60d), TTL expiry, dead-scope flagging with 90-day grace, tombstoning after 6 months. `mem stats` reporting every metric in the 'Knowing whether it's working' section including active-row scan time.",
+      "verify": "node bin/mem stats --json",
+      "status": "todo"
+    },
+    {
+      "id": "5a.4",
+      "phase": "5a — Maintenance",
+      "title": "Maintenance run + undo",
+      "plan": "Reversibility",
+      "goal": "`mem maintain` running the whole tier under one run_id, writing invertible memory_events. `mem undo <run_id>`. Wire it to fire detached at SessionStart so it never blocks. Exit test: synthetic 5k store with varied age/usage; active count drops, scan time falls proportionally, nothing pinned or recently-useful is touched, undo restores exactly.",
+      "verify": "node build/seed.mjs --count 5000 --aged && node --test 'build/tests/**/*.test.mjs'",
+      "status": "todo"
+    },
+    {
+      "id": "5b.1",
+      "phase": "5b — Consolidation",
+      "title": "Pair detection",
+      "plan": "Contradiction handling",
+      "goal": "Find cosine>=0.85 pairs within a scope where at least one member changed since consolidated_at. Cache 'unrelated' verdicts so pairs are never re-judged. Pure mechanical, no LLM.",
+      "verify": "node --test 'build/tests/**/*.test.mjs'",
+      "status": "todo"
+    },
+    {
+      "id": "5b.2",
+      "phase": "5b — Consolidation",
+      "title": "Judge + resolution",
+      "plan": "Contradiction handling",
+      "goal": "Batch ~20 pairs per `claude -p` call with structured output classifying duplicate/contradiction/refinement/complementary/unrelated. Apply the resolution table. Enforce the guard: older pinned, or confidence 0.3+ higher, routes to review instead of auto-resolving.",
+      "verify": "node --test 'build/tests/**/*.test.mjs'",
+      "status": "todo"
+    },
+    {
+      "id": "5b.3",
+      "phase": "5b — Consolidation",
+      "title": "Adversarial exit test",
+      "plan": "Phase 5b",
+      "goal": "`mem consolidate` dry-run by default, --apply for duplicates only, contradictions always to review. run_id + undo + pre-run export (keep 10). Hand-built adversarial set: genuine duplicates, genuine contradictions, refinements that must NOT be read as contradictions, and a newer-but-wrong memory facing a pinned one.",
+      "verify": "node --test 'build/tests/**/*.test.mjs'",
+      "status": "todo"
+    }
+  ],
+  "log": [
+    {
+      "at": "2026-07-29T10:50:45.285Z",
+      "slice": "0.1",
+      "event": "done"
+    },
+    {
+      "at": "2026-07-29T10:56:17.124Z",
+      "slice": "0.2",
+      "event": "done"
+    },
+    {
+      "at": "2026-07-29T11:01:43.086Z",
+      "slice": "0.3",
+      "event": "done"
+    },
+    {
+      "at": "2026-07-29T11:10:43.284Z",
+      "slice": "0.4",
+      "event": "done"
+    },
+    {
+      "at": "2026-07-29T11:18:52.042Z",
+      "slice": "1.1",
+      "event": "done"
+    },
+    {
+      "at": "2026-07-29T11:30:06.243Z",
+      "slice": "1.2",
+      "event": "done"
+    },
+    {
+      "at": "2026-07-29T11:42:04.352Z",
+      "slice": "1.3",
+      "event": "done"
+    },
+    {
+      "at": "2026-07-29T11:58:56.603Z",
+      "slice": "1.4",
+      "event": "done"
+    },
+    {
+      "at": "2026-07-29T12:27:37.535Z",
+      "slice": "1.5",
+      "event": "done"
+    },
+    {
+      "at": "2026-07-29T12:54:34.480Z",
+      "slice": "1.6",
+      "event": "done"
+    }
+  ]
+}

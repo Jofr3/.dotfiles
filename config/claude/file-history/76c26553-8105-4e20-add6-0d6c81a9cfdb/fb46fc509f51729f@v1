@@ -1,0 +1,106 @@
+---
+name: drizzle-db
+description: Use when interacting with a SQL database through drizzle-orm — inspecting schemas, listing tables, running queries, checking data, or writing drizzle schema/query/migration code. Credentials come from session environment variables (DATABASES may hold an array of connections; DATABASE_URL holds one). Triggers on "query the database", "what tables are in", "describe the table", "check the data in prod", "connect to the db", "drizzle schema", "drizzle-kit", "drizzle migration", "db.select", "run this SQL", or any mention of postgres/mysql/sqlite/turso/neon work in a drizzle project.
+version: 1.0.0
+---
+
+# Drizzle DB
+
+Talk to SQL databases through [drizzle-orm](https://orm.drizzle.team/docs/overview), with credentials
+supplied by the session's environment variables. Covers two jobs:
+
+1. **Live database access** — inspect and query a real database via the bundled `drizzle-db` CLI.
+2. **Writing drizzle code** — schemas, queries and migrations in the user's project.
+
+## 1. Live database access
+
+Everything runs through one script. Always use it rather than hand-rolling a connection script:
+
+```bash
+node ~/.claude/skills/drizzle-db/scripts/drizzle-db.mjs <command> [options]
+```
+
+It resolves `drizzle-orm` and the right driver from the project's `node_modules` first, and falls back
+to a shared cache in `~/.cache/claude-drizzle-db`, installing on demand. Nothing is added to the
+user's project.
+
+### Start every session here
+
+```bash
+node ~/.claude/skills/drizzle-db/scripts/drizzle-db.mjs connections
+```
+
+This prints every connection the session exposes, with passwords redacted. It tells you the names to
+pass to `--conn`, which dialect each one is, and which are marked `readonly`. If it reports no
+connections, tell the user which variable to set (see `references/connections.md`) — do not go hunting
+for credentials in `.env` files, config files, or shell history.
+
+### Commands
+
+| Command | What it does |
+| --- | --- |
+| `connections` | List configured connections (credentials redacted) |
+| `ping [--all]` | Verify connectivity, report server version |
+| `tables [--schema s]` | List tables and views |
+| `describe <table>` | Columns, constraints, indexes. Accepts `schema.table` |
+| `count <table>` | Row count |
+| `query <sql>` | Run a statement. `-` reads it from stdin |
+| `query-file <path>` | Run SQL from a file |
+
+Useful options: `--conn <name>` (required when several connections exist), `--json`,
+`--max-rows <n>` (default 100), `--max-width <n>` (default 80), `--timeout <ms>` (default 30000).
+
+For multi-line or quote-heavy SQL, pipe it in rather than fighting shell escaping:
+
+```bash
+node ~/.claude/skills/drizzle-db/scripts/drizzle-db.mjs query - --conn prod <<'SQL'
+select u.email, count(o.id) as orders
+from users u left join orders o on o.user_id = u.id
+group by 1 order by 2 desc limit 20
+SQL
+```
+
+### Rules for touching real data
+
+These are enforced by the script, but hold to them yourself as well:
+
+- **Reads are free; writes are not.** `INSERT`/`UPDATE`/`DELETE`/`MERGE` are refused without
+  `--write`, and `DROP`/`TRUNCATE`/`ALTER`/`GRANT`/`REVOKE` also need `--force`. Before passing either
+  flag, tell the user exactly which statement will run against which named connection and get
+  confirmation. Never add them speculatively.
+- **Confirm the target.** When more than one connection exists, `--conn` is mandatory — the script
+  will not guess. Re-read the connection name before any write; `prod` and `staging` differ by four
+  characters.
+- **Never print credentials.** Report connections using the script's redacted output. Do not echo
+  `DATABASES`/`DATABASE_URL`, do not `env | grep`, and do not copy a URL with a password
+  into a file, a commit, or a summary.
+- **Bound your reads.** Add `limit` to exploratory queries on unfamiliar tables.
+- **A `readonly` connection is a hard stop.** Do not work around it by adding a duplicate connection.
+
+## 2. Writing drizzle code in a project
+
+When the task is code rather than a live lookup:
+
+- Read the project's existing schema before adding to it — usually `src/db/schema.ts`,
+  `drizzle/schema.ts`, or wherever `drizzle.config.ts` points. Match its table naming, id strategy,
+  and timestamp conventions instead of importing a different house style.
+- Use the project's installed `drizzle-orm` version and its own scripts (`package.json`) for
+  drizzle-kit commands.
+- If the database exists but the project has no schema file, `drizzle-kit pull` generates one from the
+  live database — better than writing it by hand from `describe` output.
+
+Reference material, read as needed:
+
+- `references/connections.md` — the session-variable format, every accepted field, dialect/driver inference
+- `references/queries.md` — select/insert/update/delete, joins, relational queries, transactions, raw SQL
+- `references/schema.md` — table, column, index, relation and enum definitions per dialect
+- `references/migrations.md` — drizzle-kit config and the generate/migrate/push/pull workflows
+
+## Choosing between the two
+
+If the user asks *what is in* the database — data, row counts, schema shape, a sanity check — use the
+CLI and answer directly. Do not write a throwaway script in their repo to answer a question.
+
+If the user asks for *code that talks to* the database, write it into their project using their
+drizzle version, and use the CLI to verify the schema you are coding against actually matches
+production.

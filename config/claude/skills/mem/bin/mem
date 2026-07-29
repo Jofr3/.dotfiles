@@ -1,0 +1,1124 @@
+#!/usr/bin/env node
+// mem — CLI entrypoint. Costs zero context until invoked, which is why this
+// plugin has a CLI and no MCP server.
+
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { resolvePaths } from '../src/paths.mjs';
+import { depStatus, depsReady, ensureDeps, loadTransformers } from '../src/deps.mjs';
+import { dbStatus, initDb, openDb, SCHEMA_VERSION, vectorProbe } from '../src/db.mjs';
+import { embed, embedStatus, EMB_MODEL, loadExtractor, warmModel } from '../src/embed.mjs';
+import { addMemory, KINDS, STATUSES } from '../src/write.mjs';
+import { searchDetail } from '../src/search.mjs';
+import { forget as forgetMemories, list as listMemories, pin as pinMemories, show as showMemories, SORTS } from '../src/manage.mjs';
+import { exportJsonl, importJsonl } from '../src/transfer.mjs';
+import { resolveProjectKey } from '../src/scope.mjs';
+import { reembed } from '../src/reembed.mjs';
+
+const commands = {
+  add: { summary: 'Store a memory (merges into a near-duplicate in the same scope)', run: add },
+  search: { summary: 'Find memories for a query (nothing relevant → nothing returned)', run: search },
+  list: { summary: 'List what is stored, newest first', run: list },
+  show: { summary: 'Show one memory in full, with its audit log', run: show },
+  forget: { summary: 'Archive a memory (--hard to purge it, --restore to undo)', run: forget },
+  pin: { summary: 'Pin a memory so it never decays or gets pruned (--off to unpin)', run: pin },
+  export: { summary: 'Write the store to JSONL on stdout', run: exportCmd },
+  import: { summary: 'Read JSONL back in, keyed on uid', run: importCmd },
+  doctor: { summary: 'Show resolved paths, environment and cold-path timings', run: doctor },
+  install: { summary: 'Install the pinned dependencies now', run: install },
+  init: { summary: 'Create or migrate the database', run: init },
+  warm: { summary: 'Download and load the embedding model now', run: warm },
+  reembed: { summary: 'Rewrite vectors left behind by an embedding model change', run: reembedCmd },
+  help: { summary: 'Show this help', run: help },
+};
+
+// Time from process start to here: node boot plus this file's imports. It is
+// part of every hook's budget, so doctor reports it alongside the rest.
+const STARTUP_MS = performance.now();
+
+// A realistic recall query — doctor times the shape the hooks will run.
+const PROBE_TEXT = 'which package manager does this project use?';
+
+const round = (ms) => Math.round(ms * 10) / 10;
+
+function readVersion(pluginRoot) {
+  try {
+    const manifest = JSON.parse(
+      readFileSync(join(pluginRoot, '.claude-plugin', 'plugin.json'), 'utf8'),
+    );
+    return manifest.version ?? 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
+
+function help() {
+  const paths = resolvePaths();
+  const lines = [
+    `mem ${readVersion(paths.pluginRoot)} — memory for Claude Code`,
+    '',
+    'Usage: mem <command> [options]',
+    '',
+    'Commands:',
+    ...Object.entries(commands).map(([name, c]) => `  ${name.padEnd(10)}${c.summary}`),
+    '',
+    'Options:',
+    '  --json    machine-readable output, where supported',
+    '  --version print the plugin version',
+    '',
+    'mem add <text> [--why <text>] [--kind ' + KINDS.join('|') + ']',
+    '                [--global | --project] [--pin] [--staged]',
+    '                [--salience <0-1>] [--confidence <0-1>] [--expires-in <days>]',
+    '                [--source user|auto|import] [--session <id>]',
+    '                [--threshold <0-1>] [--no-dedup] [--cwd <dir>] [--json]',
+    '',
+    'mem search <query> [--limit <n>] [--threshold <0-1>] [--global]',
+    '                   [--status <staged|active|…>] [--no-gate] [--explain]',
+    '                   [--cwd <dir>] [--json]',
+    '',
+    `mem list [--status ${STATUSES.join(',')}] [--kind <k,k>] [--pinned | --unpinned]`,
+    '         [--global | --project | --all] [--sort ' + SORTS.join('|') + ']',
+    '         [--limit <n>] [--offset <n>] [--cwd <dir>] [--json]',
+    '',
+    'mem show <id|uid> [<id|uid> …] [--events <n>] [--json]',
+    'mem forget <id|uid> […] [--hard] [--restore] [--force] [--json]',
+    'mem pin <id|uid> […] [--off] [--json]',
+    '',
+    'mem export [--out <file>] [--status <s,s>] [--kind <k,k>]',
+    '           [--global | --project | --all] [--cwd <dir>]',
+    'mem import [<file>] [--update] [--dry-run] [--skip-invalid] [--json]',
+    '',
+    'mem reembed [--dry-run] [--json]      after the pinned model in embed.mjs changes',
+  ];
+  console.log(lines.join('\n'));
+  return 0;
+}
+
+/**
+ * Minimal flag parser: enough for this CLI, and it *rejects* unknown options
+ * rather than folding them into the memory text — `mem add use pnpm --whi ...`
+ * silently storing "--whi ..." as part of the fact is exactly the kind of
+ * quiet corruption a memory store must not have.
+ */
+function parseFlags(argv, { booleans = [], values = [] } = {}) {
+  const flags = {};
+  const positional = [];
+
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === '--') {
+      positional.push(...argv.slice(i + 1));
+      break;
+    }
+    if (!arg.startsWith('--')) {
+      positional.push(arg);
+      continue;
+    }
+
+    const eq = arg.indexOf('=');
+    const name = eq === -1 ? arg.slice(2) : arg.slice(2, eq);
+
+    if (booleans.includes(name)) {
+      if (eq !== -1) throw new Error(`--${name} takes no value.`);
+      flags[name] = true;
+    } else if (values.includes(name)) {
+      const value = eq === -1 ? argv[(i += 1)] : arg.slice(eq + 1);
+      if (value === undefined) throw new Error(`--${name} needs a value.`);
+      flags[name] = value;
+    } else {
+      throw new Error(`unknown option '--${name}'.`);
+    }
+  }
+
+  return { flags, positional };
+}
+
+const ADD_BOOLEANS = ['global', 'project', 'pin', 'staged', 'no-dedup', 'json'];
+const ADD_VALUES = [
+  'why', 'kind', 'scope', 'source', 'session',
+  'salience', 'confidence', 'expires-in', 'threshold', 'cwd',
+];
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function numberFlag(flags, name) {
+  if (flags[name] === undefined) return undefined;
+  const n = Number(flags[name]);
+  if (!Number.isFinite(n)) throw new Error(`--${name} must be a number, got '${flags[name]}'.`);
+  return n;
+}
+
+/** Turn the parsed flags into addMemory()'s input. Throws on contradictions. */
+function addInput(flags, text) {
+  if (flags.global && flags.project) throw new Error('--global and --project contradict each other.');
+  if (flags.scope && (flags.global || flags.project)) {
+    throw new Error('--scope conflicts with --global/--project — use one or the other.');
+  }
+  const days = numberFlag(flags, 'expires-in');
+  if (days !== undefined && days <= 0) throw new Error('--expires-in must be a positive number of days.');
+
+  return {
+    text,
+    why: flags.why,
+    kind: flags.kind,
+    scope: flags.scope ?? (flags.global ? 'global' : 'project'),
+    status: flags.staged ? 'staged' : 'active',
+    sourceKind: flags.source,
+    sourceSession: flags.session,
+    salience: numberFlag(flags, 'salience'),
+    confidence: numberFlag(flags, 'confidence'),
+    pinned: flags.pin === true,
+    expiresAt: days === undefined ? null : Date.now() + Math.round(days * DAY_MS),
+  };
+}
+
+const fmtNum = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
+
+function describeChanges(changes) {
+  if (changes.length === 0) return 'nothing changed';
+  return changes
+    .map((c) => (typeof c.to === 'number' ? `${c.field} ${fmtNum(c.from)} → ${fmtNum(c.to)}` : c.field))
+    .join(', ');
+}
+
+function describeScope(row, scopeSource) {
+  return row.scope === 'global' ? 'global' : `project ${row.project_key} (${scopeSource})`;
+}
+
+/**
+ * Store one memory. Exit 2 rather than 1 when the text was rejected as a
+ * credential, so a hook or script can tell "you gave me a secret" apart from
+ * "mem is broken" without parsing the message.
+ */
+async function add(argv) {
+  const paths = resolvePaths();
+  let result;
+  let json = false;
+
+  try {
+    const { flags, positional } = parseFlags(argv, { booleans: ADD_BOOLEANS, values: ADD_VALUES });
+    json = flags.json === true;
+
+    const text = positional.join(' ').trim();
+    if (text === '') throw new Error('nothing to store. Usage: mem add <text> [options]');
+
+    const threshold = numberFlag(flags, 'threshold');
+    result = await addMemory(addInput(flags, text), {
+      paths,
+      cwd: flags.cwd,
+      dedup: flags['no-dedup'] !== true,
+      ...(threshold === undefined ? {} : { threshold }),
+    });
+  } catch (err) {
+    console.error(`mem add: ${err.message}`);
+    return err.code === 'MEM_SECRET_DETECTED' ? 2 : 1;
+  }
+
+  const { row, action, changes, similarity, nearest, scopeSource, eventId } = result;
+
+  if (json) {
+    // The embedding is 1.5 KB of float noise; the row is otherwise the memory.
+    const { emb, ...rest } = row;
+    const near = nearest ? { id: nearest.id, uid: nearest.uid, similarity } : null;
+    console.log(JSON.stringify({ action, memory: rest, changes, similarity, nearest: near, eventId }, null, 2));
+    return 0;
+  }
+
+  const lines =
+    action === 'merged'
+      ? [
+          `Merged into #${row.id} · ${similarity.toFixed(3)} similar · ${describeScope(row, scopeSource)}`,
+          `  ${row.text}`,
+          `  ${describeChanges(changes)}`,
+        ]
+      : [
+          `Added #${row.id} · ${row.kind} · ${row.status} · ${describeScope(row, scopeSource)}`,
+          `  ${row.text}`,
+          ...(nearest ? [`  nearest existing: #${nearest.id} at ${similarity.toFixed(3)} (kept separate)`] : []),
+        ];
+  console.log(lines.join('\n'));
+  return 0;
+}
+
+const SEARCH_BOOLEANS = ['global', 'project', 'json', 'explain', 'no-gate'];
+const SEARCH_VALUES = ['limit', 'threshold', 'coverage', 'status', 'cwd', 'scope'];
+
+/** "3d", "2mo" — enough to judge staleness without printing a timestamp. */
+function age(ms, now) {
+  if (!ms) return '?';
+  const days = Math.max(0, (now - ms) / DAY_MS);
+  if (days < 1) return 'today';
+  if (days < 60) return `${Math.round(days)}d`;
+  return `${Math.round(days / 30)}mo`;
+}
+
+function describeResult(r, now, explain) {
+  const where = r.scope === 'global' ? 'global' : `project ${r.project_key}`;
+  const sim = r.similarity === null ? ' lex ' : r.similarity.toFixed(2);
+  const lines = [
+    `  #${r.id}  ${sim}  ${r.kind}  ${where}  ${age(r.updated_at, now)}${r.pinned ? '  pinned' : ''}`,
+    `      ${r.text}`,
+  ];
+  if (r.why) lines.push(`      why: ${r.why}`);
+  if (explain) {
+    const ranks = Object.entries(r.ranks).map(([leg, n]) => `${leg} #${n}`).join(', ') || 'none';
+    lines.push(
+      `      rrf ${r.rrf.toFixed(4)} (${ranks}) · strength ${r.strength.toFixed(2)}` +
+        ` · boost ${r.boost.toFixed(2)} · score ${r.score.toFixed(4)}` +
+        (r.terms.length ? ` · terms ${r.terms.join('/')} (${r.coverage.toFixed(2)})` : ''),
+    );
+  }
+  return lines.join('\n');
+}
+
+/**
+ * Retrieve. Exits 0 with no results when nothing clears the gate — that is the
+ * designed answer on an unrelated query, not a failure, and a hook that treated
+ * it as one would be wrong on most prompts.
+ */
+async function search(argv) {
+  const paths = resolvePaths();
+  const now = Date.now();
+  let found;
+  let json = false;
+  let explain = false;
+
+  try {
+    const { flags, positional } = parseFlags(argv, {
+      booleans: SEARCH_BOOLEANS,
+      values: SEARCH_VALUES,
+    });
+    json = flags.json === true;
+    explain = flags.explain === true;
+
+    const query = positional.join(' ').trim();
+    if (query === '') throw new Error('nothing to search for. Usage: mem search <query> [options]');
+    if (flags.global && flags.project) throw new Error('--global and --project contradict each other.');
+
+    const limit = numberFlag(flags, 'limit');
+    if (limit !== undefined && (!Number.isInteger(limit) || limit < 1)) {
+      throw new Error('--limit must be a positive whole number.');
+    }
+    const threshold = numberFlag(flags, 'threshold');
+    const coverage = numberFlag(flags, 'coverage');
+
+    found = await searchDetail(query, {
+      paths,
+      cwd: flags.cwd,
+      scope: flags.scope ?? (flags.global ? 'global' : 'project'),
+      now,
+      gate: flags['no-gate'] !== true,
+      ...(flags.status ? { statuses: flags.status.split(',').map((s) => s.trim()) } : {}),
+      ...(limit === undefined ? {} : { limit }),
+      ...(threshold === undefined ? {} : { threshold }),
+      ...(coverage === undefined ? {} : { coverage }),
+    });
+  } catch (err) {
+    console.error(`mem search: ${err.message}`);
+    return 1;
+  }
+
+  const { results, stats, terms, query } = found;
+
+  if (json) {
+    console.log(JSON.stringify({ query, terms, count: results.length, results, stats }, null, 2));
+    return 0;
+  }
+
+  if (results.length === 0) {
+    console.log(
+      `Nothing relevant to "${query}" — searched ${stats.candidates}, ` +
+        `${stats.gated} of ${stats.fused} candidates fell below the gate.`,
+    );
+    return 0;
+  }
+
+  console.log(
+    [
+      `${results.length} ${results.length === 1 ? 'memory' : 'memories'} for "${query}"` +
+        `  ·  searched ${stats.candidates}`,
+      '',
+      ...results.map((r) => describeResult(r, now, explain)),
+    ].join('\n'),
+  );
+  return 0;
+}
+
+// ---------------------------------------------------------------- curation --
+//
+// list/show/forget/pin never embed anything, so they stay fast and keep working
+// with no model cached. Only `import` needs the model, because it re-embeds.
+
+/** Split a comma-separated flag into trimmed, non-empty values. */
+function listFlag(value) {
+  if (value === undefined) return undefined;
+  const parts = value.split(',').map((s) => s.trim()).filter((s) => s !== '');
+  if (parts.length === 0) throw new Error('a comma-separated list cannot be empty.');
+  return parts;
+}
+
+/**
+ * Which memories a command looks at. `list` and `export` differ in default
+ * (see manage.mjs) but share the flags, so --global means the same thing in
+ * both.
+ */
+function scopeFlags(flags, fallback) {
+  const chosen = ['global', 'project', 'all'].filter((name) => flags[name] === true);
+  if (chosen.length > 1) throw new Error(`--${chosen[0]} and --${chosen[1]} contradict each other.`);
+  if (flags.global) return 'global';
+  if (flags.project) return 'project-only';
+  if (flags.all) return 'all';
+  return fallback;
+}
+
+/** The project key, resolved only when the chosen scope actually needs it. */
+function projectKeyFor(scope, flags) {
+  if (scope !== 'project' && scope !== 'project-only') return null;
+  return resolveProjectKey({ cwd: flags.cwd }).projectKey;
+}
+
+function pinnedFlag(flags) {
+  if (flags.pinned && flags.unpinned) throw new Error('--pinned and --unpinned contradict each other.');
+  if (flags.pinned) return true;
+  if (flags.unpinned) return false;
+  return null;
+}
+
+function positiveInt(flags, name, { min = 1 } = {}) {
+  const n = numberFlag(flags, name);
+  if (n === undefined) return undefined;
+  if (!Number.isInteger(n) || n < min) {
+    throw new Error(`--${name} must be a whole number of at least ${min}.`);
+  }
+  return n;
+}
+
+const day = (ms) => (ms ? new Date(ms).toISOString().slice(0, 10) : 'never');
+const clip = (text, max = 84) => (text.length <= max ? text : `${text.slice(0, max - 1)}…`);
+
+/** Pad every column to its widest cell; the last column runs free. */
+function table(rows) {
+  const widths = [];
+  for (const row of rows) {
+    row.forEach((cell, i) => {
+      widths[i] = Math.max(widths[i] ?? 0, String(cell).length);
+    });
+  }
+  return rows.map((row) =>
+    row
+      .map((cell, i) => (i === row.length - 1 ? String(cell) : String(cell).padEnd(widths[i])))
+      .join('  ')
+      .trimEnd(),
+  );
+}
+
+/** What retrieval would have done with this row but the store still holds. */
+function rowFlags(row) {
+  const marks = [];
+  if (row.pinned) marks.push('pinned');
+  if (row.expired) marks.push('expired');
+  if (!row.embedded) marks.push('no-emb');
+  return marks.join(',');
+}
+
+const LIST_BOOLEANS = ['global', 'project', 'all', 'pinned', 'unpinned', 'json'];
+const LIST_VALUES = ['status', 'kind', 'sort', 'limit', 'offset', 'cwd'];
+
+/**
+ * What is actually in the store. Unlike `search`, this hides nothing it was not
+ * asked to hide — an expired or tombstoned row is listed and marked, because the
+ * whole point of an inspection surface is to show what retrieval will not.
+ */
+async function list(argv) {
+  const paths = resolvePaths();
+  const now = Date.now();
+  let found;
+  let json = false;
+  let scope;
+
+  try {
+    const { flags, positional } = parseFlags(argv, { booleans: LIST_BOOLEANS, values: LIST_VALUES });
+    if (positional.length > 0) {
+      throw new Error(`unexpected argument '${positional[0]}' — did you mean 'mem search'?`);
+    }
+    json = flags.json === true;
+    scope = scopeFlags(flags, 'project');
+
+    found = await listMemories({
+      paths,
+      now,
+      scope,
+      projectKey: projectKeyFor(scope, flags),
+      statuses: listFlag(flags.status) ?? ['active'],
+      kinds: listFlag(flags.kind),
+      pinned: pinnedFlag(flags),
+      sort: flags.sort ?? 'updated',
+      limit: positiveInt(flags, 'limit') ?? 20,
+      offset: positiveInt(flags, 'offset', { min: 0 }) ?? 0,
+    });
+  } catch (err) {
+    console.error(`mem list: ${err.message}`);
+    return 1;
+  }
+
+  const { rows, total } = found;
+
+  if (json) {
+    console.log(JSON.stringify({ total, count: rows.length, scope, memories: rows }, null, 2));
+    return 0;
+  }
+
+  if (rows.length === 0) {
+    console.log(total === 0 ? 'Nothing stored here yet.' : 'No memories match those filters.');
+    return 0;
+  }
+
+  const showKey = scope === 'all';
+  console.log(
+    [
+      ...table([
+        ['id', 'status', 'kind', showKey ? 'project' : 'scope', 'str', 'age', 'flags', 'text'],
+        ...rows.map((r) => [
+          `#${r.id}`,
+          r.status,
+          r.kind,
+          r.scope === 'global' ? 'global' : (showKey ? r.project_key : 'project'),
+          r.strength.toFixed(2),
+          age(r.updated_at, now),
+          rowFlags(r),
+          clip(r.text),
+        ]),
+      ]),
+      '',
+      rows.length < total
+        ? `${rows.length} of ${total} — use --limit, --offset or 'mem export' for the lot.`
+        : `${total} ${total === 1 ? 'memory' : 'memories'}.`,
+    ].join('\n'),
+  );
+  return 0;
+}
+
+function describeEvent(event) {
+  const detail = event.detail ?? {};
+  const parts = [];
+  if (detail.similarity !== undefined) parts.push(`similarity ${Number(detail.similarity).toFixed(3)}`);
+  if (Array.isArray(detail.changes) && detail.changes.length > 0) {
+    parts.push(detail.changes.map((c) => c.field).join(', '));
+  }
+  if (detail.previous?.status) parts.push(`was ${detail.previous.status}`);
+  if (detail.via) parts.push(detail.via);
+  if (detail.reason) parts.push(String(detail.reason));
+  return parts.join(' · ');
+}
+
+function renderMemory({ memory: m, events }, now) {
+  const lines = [
+    `#${m.id}  ${m.uid}`,
+    `  ${m.text}`,
+    ...(m.why ? [`  why: ${m.why}`] : []),
+    '',
+    ...table([
+      ['  status', `${m.status}${m.pinned ? ', pinned' : ''}${m.expired ? ', expired' : ''}`],
+      ['  kind', m.kind],
+      ['  scope', m.scope === 'global' ? 'global' : `project ${m.project_key}`],
+      ['  strength', `${m.strength.toFixed(3)}  (salience ${m.salience.toFixed(2)} × retention ${m.retention.toFixed(3)} × confidence ${m.confidence.toFixed(2)})`],
+      ['  created', `${day(m.created_at)}  (${age(m.created_at, now)})`],
+      ['  updated', `${day(m.updated_at)}  (${age(m.updated_at, now)})`],
+      ['  expires', m.expires_at ? day(m.expires_at) : 'never'],
+      ['  injected', `${m.injected_count}${m.last_injected_at ? `, last ${age(m.last_injected_at, now)} ago` : ''}`],
+      ['  useful', `${m.useful_count}${m.last_used_at ? `, last ${age(m.last_used_at, now)} ago` : ''}`],
+      ['  source', `${m.source_kind ?? '—'}${m.source_session ? ` / ${m.source_session}` : ''}`],
+      ['  embedding', m.embedded ? `${m.emb_model} ${m.emb_dim}d` : 'none (tombstoned — lexical recall only)'],
+      ...(m.superseded_by ? [['  superseded by', `#${m.superseded_by}`]] : []),
+    ]),
+  ];
+
+  if (events.length > 0) {
+    lines.push(
+      '',
+      '  history',
+      ...table(events.map((e) => [`    ${day(e.at)}`, e.event, describeEvent(e)])),
+    );
+  }
+  return lines.join('\n');
+}
+
+async function show(argv) {
+  const paths = resolvePaths();
+  const now = Date.now();
+  let found;
+  let json = false;
+
+  try {
+    const { flags, positional } = parseFlags(argv, { booleans: ['json'], values: ['events'] });
+    json = flags.json === true;
+    if (positional.length === 0) throw new Error('which memory? Usage: mem show <id|uid>');
+    const events = positiveInt(flags, 'events', { min: 0 }) ?? 10;
+    found = [];
+    for (const ref of positional) found.push(await showMemories(ref, { paths, now, events }));
+  } catch (err) {
+    console.error(`mem show: ${err.message}`);
+    return 1;
+  }
+
+  if (json) {
+    console.log(JSON.stringify({ count: found.length, memories: found }, null, 2));
+    return 0;
+  }
+  console.log(found.map((entry) => renderMemory(entry, now)).join('\n\n'));
+  return 0;
+}
+
+/**
+ * PLAN's pruning ladder from the outside: archive by default, purge only when a
+ * human types --hard. Exit 1 when a ref does not resolve — unlike `search`,
+ * "nothing matched" here means the command did not do what was asked.
+ */
+async function forget(argv) {
+  const paths = resolvePaths();
+  const now = Date.now();
+  let results;
+  let json = false;
+  let hard = false;
+
+  try {
+    const { flags, positional } = parseFlags(argv, {
+      booleans: ['hard', 'restore', 'force', 'json'],
+      values: ['reason'],
+    });
+    json = flags.json === true;
+    hard = flags.hard === true;
+    if (positional.length === 0) throw new Error('which memory? Usage: mem forget <id|uid> [--hard]');
+
+    results = await forgetMemories(positional, {
+      paths,
+      now,
+      hard,
+      restore: flags.restore === true,
+      force: flags.force === true,
+      reason: flags.reason ?? null,
+    });
+  } catch (err) {
+    console.error(`mem forget: ${err.message}`);
+    return 1;
+  }
+
+  if (json) {
+    console.log(JSON.stringify({ results }, null, 2));
+    return 0;
+  }
+
+  console.log(
+    results
+      .map((r) => {
+        if (r.action === 'purged') {
+          return `Purged #${r.id} (${r.uid}) and ${r.eventsDeleted} events. This cannot be undone.\n  ${clip(r.text)}`;
+        }
+        if (r.action === 'restored') {
+          return `Restored #${r.id} to ${r.to}.\n  ${clip(r.text)}`;
+        }
+        return `Archived #${r.id} — out of retrieval, restore with 'mem forget ${r.id} --restore'.\n  ${clip(r.text)}`;
+      })
+      .join('\n'),
+  );
+  return 0;
+}
+
+async function pin(argv) {
+  const paths = resolvePaths();
+  let results;
+  let json = false;
+  let on = true;
+
+  try {
+    const { flags, positional } = parseFlags(argv, { booleans: ['off', 'json'], values: [] });
+    json = flags.json === true;
+    on = flags.off !== true;
+    if (positional.length === 0) throw new Error('which memory? Usage: mem pin <id|uid> [--off]');
+    results = await pinMemories(positional, on, { paths });
+  } catch (err) {
+    console.error(`mem pin: ${err.message}`);
+    return 1;
+  }
+
+  if (json) {
+    console.log(JSON.stringify({ results }, null, 2));
+    return 0;
+  }
+
+  console.log(
+    results
+      .map((r) => {
+        const what = r.changed
+          ? on
+            ? `Pinned #${r.id} — it will never decay or be pruned.`
+            : `Unpinned #${r.id} — it decays again.`
+          : `#${r.id} was already ${on ? 'pinned' : 'unpinned'}.`;
+        return `${what}\n  ${clip(r.text)}`;
+      })
+      .join('\n'),
+  );
+  return 0;
+}
+
+// ----------------------------------------------------------------- transfer --
+
+const EXPORT_BOOLEANS = ['global', 'project', 'all'];
+const EXPORT_VALUES = ['out', 'status', 'kind', 'cwd'];
+
+/**
+ * PLAN countermeasure #7. Everything by default — archived rows, staged rows,
+ * every project — because a backup that quietly omits what retrieval hides is
+ * worse than no backup.
+ */
+async function exportCmd(argv) {
+  const paths = resolvePaths();
+  let result;
+  let out;
+
+  try {
+    const { flags, positional } = parseFlags(argv, {
+      booleans: EXPORT_BOOLEANS,
+      values: EXPORT_VALUES,
+    });
+    if (positional.length > 0) throw new Error(`unexpected argument '${positional[0]}'.`);
+    out = flags.out;
+    const scope = scopeFlags(flags, 'all');
+
+    result = await exportJsonl({
+      paths,
+      scope,
+      projectKey: projectKeyFor(scope, flags),
+      statuses: listFlag(flags.status),
+      kinds: listFlag(flags.kind),
+    });
+  } catch (err) {
+    console.error(`mem export: ${err.message}`);
+    return 1;
+  }
+
+  if (out === undefined) {
+    // No trailing newline of its own: serialise() already ends every record with
+    // one, and process.stdout.write keeps `mem export | mem import` byte-exact.
+    process.stdout.write(result.text);
+    return 0;
+  }
+
+  writeFileSync(out, result.text);
+  console.error(`Exported ${result.count} ${result.count === 1 ? 'memory' : 'memories'} to ${out}`);
+  return 0;
+}
+
+async function readStdin() {
+  const chunks = [];
+  for await (const chunk of process.stdin) chunks.push(chunk);
+  return Buffer.concat(chunks).toString('utf8');
+}
+
+/**
+ * Import is keyed on uid and does no semantic dedup — see transfer.mjs. Existing
+ * uids are skipped unless --update, so re-running an import is a no-op rather
+ * than a way to double the store.
+ */
+async function importCmd(argv) {
+  const paths = resolvePaths();
+  let result;
+  let json = false;
+  let source;
+
+  try {
+    const { flags, positional } = parseFlags(argv, {
+      booleans: ['update', 'dry-run', 'skip-invalid', 'json'],
+      values: [],
+    });
+    json = flags.json === true;
+    if (positional.length > 1) throw new Error('one file at a time, or pipe JSONL on stdin.');
+
+    const file = positional[0];
+    if ((file === undefined || file === '-') && process.stdin.isTTY) {
+      throw new Error('nothing to import. Usage: mem import <file>, or pipe JSONL in.');
+    }
+    source = file === undefined || file === '-' ? 'stdin' : file;
+    const text = source === 'stdin' ? await readStdin() : readFileSync(file, 'utf8');
+
+    result = await importJsonl(text, {
+      paths,
+      source,
+      mode: flags.update ? 'update' : 'skip',
+      dryRun: flags['dry-run'] === true,
+      skipInvalid: flags['skip-invalid'] === true,
+    });
+  } catch (err) {
+    console.error(`mem import: ${err.message}`);
+    return err.code === 'MEM_SECRET_DETECTED' ? 2 : 1;
+  }
+
+  if (json) {
+    console.log(JSON.stringify(result, null, 2));
+    return 0;
+  }
+
+  const lines = [
+    `${result.dryRun ? 'Would import' : 'Imported'} ${result.total} records from ${source}: ` +
+      `${result.inserted} added, ${result.updated} updated, ${result.skipped} already present.`,
+  ];
+  if (result.generatedUids > 0) {
+    lines.push(`  ${result.generatedUids} had no uid and were given a new one.`);
+  }
+  if (result.linked > 0) lines.push(`  ${result.linked} supersession links restored.`);
+  if (result.unresolved.length > 0) {
+    lines.push(`  ${result.unresolved.length} supersession links point outside this file.`);
+  }
+  if (result.invalid.length > 0) {
+    lines.push(
+      `  ${result.invalid.length} skipped as invalid:`,
+      ...result.invalid.map((i) => `    ${i.message}`),
+    );
+  }
+  console.log(lines.join('\n'));
+  return 0;
+}
+
+// Read-only by design: doctor reports what is there, it does not create it.
+// `mem init` is the command that creates the database, the way `mem install`
+// is the command that installs the dependencies.
+/**
+ * Walk the whole hook path once, in a fresh process, and time each leg: this is
+ * the number PLAN budgets at ~300ms. Runs before any other doctor probe so the
+ * measurements are genuinely cold. Reports `null` for legs it cannot run rather
+ * than creating a database or downloading a model to make them measurable.
+ */
+async function measureColdPath(paths, { depsOk, modelReady, dbExists }) {
+  const timings = {
+    startupMs: round(STARTUP_MS),
+    importMs: null,
+    modelLoadMs: null,
+    embedMs: null,
+    dbOpenMs: null,
+    emptyQueryMs: null,
+    candidates: null,
+    totalMs: null,
+    notes: [],
+  };
+
+  if (!depsOk) {
+    timings.notes.push("dependencies not installed — run 'mem install'");
+    return timings;
+  }
+
+  let vector = null;
+  if (!modelReady) {
+    timings.notes.push("embedding model not cached — run 'mem warm'");
+  } else {
+    try {
+      const t0 = performance.now();
+      await loadTransformers({ paths });
+      const t1 = performance.now();
+      await loadExtractor({ paths, offline: true });
+      const t2 = performance.now();
+      vector = await embed(PROBE_TEXT, { paths, offline: true });
+      const t3 = performance.now();
+      timings.importMs = round(t1 - t0);
+      timings.modelLoadMs = round(t2 - t1);
+      timings.embedMs = round(t3 - t2);
+    } catch (err) {
+      timings.notes.push(`embedding failed: ${err.message}`);
+    }
+  }
+
+  if (!dbExists) {
+    timings.notes.push("database not created — run 'mem init'");
+  } else {
+    let conn;
+    try {
+      const t0 = performance.now();
+      conn = await openDb({ paths, readonly: true, runMigrations: false });
+      timings.dbOpenMs = round(performance.now() - t0);
+
+      if (vector) {
+        const t1 = performance.now();
+        timings.candidates = (await vectorProbe(conn, vector)).length;
+        timings.emptyQueryMs = round(performance.now() - t1);
+      }
+    } catch (err) {
+      timings.notes.push(`database probe failed: ${err.message}`);
+    } finally {
+      if (conn) await conn.close().catch(() => {});
+    }
+  }
+
+  const legs = [
+    timings.startupMs,
+    timings.importMs,
+    timings.modelLoadMs,
+    timings.embedMs,
+    timings.dbOpenMs,
+    timings.emptyQueryMs,
+  ];
+  if (legs.every((leg) => leg !== null)) {
+    timings.totalMs = round(legs.reduce((sum, leg) => sum + leg, 0));
+  }
+  return timings;
+}
+
+async function doctor(argv) {
+  const paths = resolvePaths();
+  const embedding = embedStatus(paths);
+  const timings = await measureColdPath(paths, {
+    depsOk: depsReady(paths),
+    modelReady: embedding.cached && embedding.depsReady,
+    dbExists: existsSync(paths.dbPath),
+  });
+
+  const report = {
+    version: readVersion(paths.pluginRoot),
+    node: process.version,
+    platform: `${process.platform}-${process.arch}`,
+    paths: {
+      pluginRoot: paths.pluginRoot,
+      dataDir: paths.dataDir,
+      dataDirSource: paths.dataDirSource,
+      dbPath: paths.dbPath,
+      modelsDir: paths.modelsDir,
+      nodeModulesDir: paths.nodeModulesDir,
+    },
+    exists: {
+      dataDir: existsSync(paths.dataDir),
+      db: existsSync(paths.dbPath),
+      models: existsSync(paths.modelsDir),
+      nodeModules: existsSync(paths.nodeModulesDir),
+    },
+    deps: depStatus(paths),
+    db: await dbStatus(paths),
+    embedding,
+    timings,
+  };
+
+  if (argv.includes('--json')) {
+    console.log(JSON.stringify(report, null, 2));
+    return 0;
+  }
+
+  const mark = (ok) => (ok ? 'yes' : 'no');
+  console.log(
+    [
+      `mem ${report.version}   node ${report.node}   ${report.platform}`,
+      '',
+      `plugin root    ${report.paths.pluginRoot}`,
+      `data dir       ${report.paths.dataDir}  (from ${report.paths.dataDirSource})`,
+      `database       ${report.paths.dbPath}`,
+      `models cache   ${report.paths.modelsDir}`,
+      `deps           ${report.paths.nodeModulesDir}`,
+      '',
+      `data dir present    ${mark(report.exists.dataDir)}`,
+      `database present    ${mark(report.exists.db)}`,
+      `models present      ${mark(report.exists.models)}`,
+      '',
+      'dependencies (pinned)',
+      ...report.deps.map(
+        (d) => `  ${d.name.padEnd(28)}${d.wanted.padEnd(10)}${describeDep(d)}`,
+      ),
+      report.deps.every((d) => d.status === 'ok') ? '' : "\nRun 'mem install' to install them.",
+      'database',
+      `  schema              ${describeSchema(report.db)}`,
+      `  tables              ${report.db.tables.join(', ') || '—'}`,
+      `  memories            ${report.db.memories ?? '—'}`,
+      needsInit(report.db) ? "\nRun 'mem init' to create or migrate it." : '',
+      'embedding model',
+      `  model               ${report.embedding.model}  (${report.embedding.dim}d)`,
+      `  cache               ${report.embedding.cacheDir}`,
+      `  cached              ${describeModelCache(report.embedding)}`,
+      report.embedding.cached ? '' : "\nRun 'mem warm' to download it.",
+      'cold path (this process)',
+      ...describeTimings(report.timings),
+      ...report.timings.notes.map((n) => `  note: ${n}`),
+    ].join('\n'),
+  );
+  return 0;
+}
+
+function describeModelCache(embedding) {
+  if (!embedding.cached) {
+    const missing = embedding.files.filter((f) => !f.present).length;
+    return `no (${missing}/${embedding.files.length} files missing)`;
+  }
+  return `yes (${(embedding.bytes / 1e6).toFixed(1)} MB)`;
+}
+
+function describeTimings(t) {
+  const rows = [
+    ['node + imports', t.startupMs],
+    ['transformers import', t.importMs],
+    ['model load', t.modelLoadMs],
+    ['single embed', t.embedMs],
+    ['db open', t.dbOpenMs],
+    [
+      t.candidates === null ? 'vector query' : `vector query (${t.candidates} hits)`,
+      t.emptyQueryMs,
+    ],
+  ];
+  const line = (label, ms) =>
+    `  ${label.padEnd(23)}${ms === null ? 'n/a' : `${ms.toFixed(1)} ms`}`;
+
+  return [
+    ...rows.map(([label, ms]) => line(label, ms)),
+    `  ${'-'.repeat(30)}`,
+    line('hook budget', t.totalMs),
+  ];
+}
+
+function describeDep(d) {
+  if (d.status === 'ok') return 'installed';
+  if (d.installed === null) return 'not installed';
+  return `installed ${d.installed} — expected ${d.wanted}`;
+}
+
+function needsInit(db) {
+  return !db.exists || db.pending.length > 0;
+}
+
+function describeSchema(db) {
+  if (!db.exists) return `not created — expected v${db.latestVersion}`;
+  if (db.error) return `unreadable — ${db.error}`;
+  if (db.pending.length > 0) {
+    return `v${db.schemaVersion}, pending: v${db.pending.join(', v')}`;
+  }
+  return `v${db.schemaVersion} (current)`;
+}
+
+function install(argv) {
+  const paths = resolvePaths();
+  let changed;
+  try {
+    changed = ensureDeps(undefined, { paths });
+  } catch (err) {
+    console.error(`mem: ${err.message}`);
+    return 1;
+  }
+
+  const result = { installed: changed, deps: depStatus(paths) };
+  if (argv.includes('--json')) {
+    console.log(JSON.stringify(result, null, 2));
+    return 0;
+  }
+  console.log(
+    changed.length === 0
+      ? 'Dependencies already installed.'
+      : `Installed: ${changed.join(', ')}`,
+  );
+  return 0;
+}
+
+async function init(argv) {
+  const paths = resolvePaths();
+  let result;
+  try {
+    result = await initDb({ paths });
+  } catch (err) {
+    console.error(`mem: ${err.message}`);
+    return 1;
+  }
+
+  if (argv.includes('--json')) {
+    console.log(JSON.stringify({ ...result, dbPath: paths.dbPath }, null, 2));
+    return 0;
+  }
+  console.log(
+    result.applied.length === 0
+      ? `Database already at schema v${SCHEMA_VERSION}: ${paths.dbPath}`
+      : `Migrated ${paths.dbPath}: v${result.from} -> v${result.to} (applied v${result.applied.join(', v')})`,
+  );
+  return 0;
+}
+
+// Downloading ~23 MB the first time a hook fires would blow the latency budget,
+// so the download gets its own command — the way `mem install` owns npm.
+async function warm(argv) {
+  const paths = resolvePaths();
+  let result;
+  try {
+    result = await warmModel({ paths });
+  } catch (err) {
+    console.error(`mem: ${err.message}`);
+    return 1;
+  }
+
+  if (argv.includes('--json')) {
+    console.log(JSON.stringify(result, null, 2));
+    return 0;
+  }
+  console.log(
+    [
+      result.downloaded
+        ? `Downloaded ${EMB_MODEL} to ${result.cacheDir}`
+        : `${EMB_MODEL} already cached in ${result.cacheDir}`,
+      `Loaded in ${result.loadMs.toFixed(0)} ms, embedded ${result.dim} dimensions in ${result.embedMs.toFixed(0)} ms.`,
+    ].join('\n'),
+  );
+  return 0;
+}
+
+// Changing the pinned model in embed.mjs makes every stored row invisible to
+// search — retrieval filters on emb_model so it never compares vectors from two
+// different spaces. This is how the store catches up.
+async function reembedCmd(argv) {
+  const paths = resolvePaths();
+  const json = argv.includes('--json');
+  const dryRun = argv.includes('--dry-run') || argv.includes('-n');
+
+  let result;
+  try {
+    result = await reembed({
+      paths,
+      dryRun,
+      // Long enough to look stuck otherwise: a few thousand rows is a few
+      // thousand forward passes. Silent under --json.
+      onProgress: json ? undefined : ({ done, total }) =>
+        process.stderr.write(`\rembedding ${done}/${total}`),
+    });
+  } catch (err) {
+    console.error(`mem: ${err.message}`);
+    return 1;
+  }
+  if (!json && result.stale > 0 && !dryRun) process.stderr.write('\r\x1b[K');
+
+  if (json) {
+    console.log(JSON.stringify(result, null, 2));
+    return 0;
+  }
+
+  const stamps = result.after
+    .map((s) => `  ${s.emb_model ?? '(none)'} ${s.emb_dim ?? '?'}d — ${s.n} row${s.n === 1 ? '' : 's'}` +
+      (s.tombstoned > 0 ? ` (${s.tombstoned} tombstoned, left alone)` : ''))
+    .join('\n');
+
+  if (result.stale === 0) {
+    console.log(`All ${result.total} memories already embedded with ${result.model}.\n${stamps}`);
+  } else if (dryRun) {
+    console.log(
+      `${result.stale} of ${result.total} memories would be re-embedded with ${result.model}:\n${stamps}`,
+    );
+  } else {
+    console.log(`Re-embedded ${result.reembedded} of ${result.total} memories with ${result.model}.\n${stamps}`);
+  }
+  return 0;
+}
+
+async function main(argv) {
+  if (argv.includes('--version')) {
+    console.log(readVersion(resolvePaths().pluginRoot));
+    return 0;
+  }
+
+  const name = argv[0];
+  if (!name || name === '-h' || name === '--help') return help();
+
+  const command = commands[name];
+  if (!command) {
+    console.error(`mem: unknown command '${name}'. Try 'mem help'.`);
+    return 1;
+  }
+  return command.run(argv.slice(1));
+}
+
+process.exitCode = await main(process.argv.slice(2));

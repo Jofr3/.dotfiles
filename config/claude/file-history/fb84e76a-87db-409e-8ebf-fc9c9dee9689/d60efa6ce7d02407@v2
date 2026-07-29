@@ -1,0 +1,211 @@
+# `mem` — a Turso-backed memory system for Claude Code
+
+Design + phased build plan. Written 2026-07-29.
+
+## Decisions taken
+
+| Decision | Choice |
+|---|---|
+| Capture | Gated auto-capture — cheap regex gate, staged writes, manual promotion |
+| Content | Curated facts only (preferences, decisions, constraints, corrections) |
+| Storage | Local file only, no cloud sync |
+| Distribution | Personal, skills-directory plugin in dotfiles |
+| Surface | Skills + hooks + CLI. **No MCP server.** |
+
+Rationale for no MCP: MCP tool schemas occupy context on every turn forever. A `bin/` CLI
+costs zero tokens until invoked, and hooks cover the automatic paths.
+
+## Measured facts this design rests on
+
+Probed on this machine (NixOS, node v22.23.1, `@tursodatabase/database` 0.7.0):
+
+```
+Turso vector:  vector32() + vector_distance_cos()          ✅ works
+Turso ANN:     libsql_vector_idx / vector_top_k            ❌ absent in the Rust rewrite
+Turso FTS5:    CREATE VIRTUAL TABLE ... USING fts5         ❌ "no such module: fts5"
+Turso fts_*:   fts_match(col,'term') scalar                ✅ works (hit/miss verified)
+               fts_score(col)                              ⚠️  returns 0 without the
+                                                              feature-gated fts index
+BEGIN CONCURRENT                                           ❌ needs MVCC build flag
+
+KNN, 20k rows × 768d, fresh process:  open 5ms · query 50ms · db 81MB
+  (at 384d expect ~25ms / ~40MB — comfortably fine to ~100k rows)
+Bulk-insert gotcha: querying in the same process right after a 20k-row insert
+  txn took 21s (WAL spill). Checkpoint after bulk writes.
+
+Embeddings — transformers.js, Xenova/all-MiniLM-L6-v2 q8, 384d:
+  model load 222ms (cached) · single embed 11ms · batch of 32 43ms
+  ⇒ hook budget: node start + load + embed + query ≈ 300ms, fully offline
+```
+
+**Linear scan is the right call at this scale.** Exact KNN has zero recall loss and no index
+to maintain. libSQL (`@libsql/client`) does have DiskANN, but it's the legacy path and buys
+nothing below ~100k rows. Revisit only if the store grows past that.
+
+## The real risk is precision, not performance
+
+Memory systems fail by retrieving five stale half-relevant facts on every prompt until the
+model starts obeying them. Countermeasures, built in from day one:
+
+1. **Distance threshold, not fixed top-k.** When nothing clears the bar, inject *nothing*.
+2. **Hard scoping.** Global vs per-project; recall unions only those two.
+3. **Write-time dedup + supersession.** Near-duplicates update, they don't accumulate.
+4. **Staging.** Auto-captured items are `status='staged'` and never injected until promoted.
+5. **Framed as data.** Injected text is labelled recollection-not-instruction, with id + age.
+6. **Secret scrubbing.** Reject writes matching key/token patterns rather than storing them.
+7. **Plain-text export.** `mem export` to JSONL so the store is never a black box.
+
+## Layout
+
+```
+~/.claude/skills/mem/                  ← git-tracked in dotfiles
+├── .claude-plugin/plugin.json         name: "mem"
+├── skills/
+│   ├── remember/SKILL.md              model-invoked capture
+│   ├── recall/SKILL.md                explicit search
+│   └── review/SKILL.md                staging triage + hygiene
+├── hooks/hooks.json                   SessionStart · UserPromptSubmit
+├── hooks/*.mjs                        hook handlers
+├── bin/mem                            CLI entrypoint
+├── src/{db,embed,search,write,scope,scrub,deps}.mjs
+└── PLAN.md
+
+${CLAUDE_PLUGIN_DATA}/                 ← NOT git-tracked
+├── mem.db                             the database
+├── models/                            transformers.js cache
+└── node_modules/                      lazily installed deps
+```
+
+Fall back to `$XDG_DATA_HOME/claude-mem` when `CLAUDE_PLUGIN_DATA` is unset, so the CLI
+works when run by hand. Add `config/claude/skills/mem/node_modules` and `*.db*` to
+`.dotfiles/.gitignore` regardless, as a belt-and-braces guard.
+
+Slash commands land as `/mem:remember`, `/mem:recall`, `/mem:review`.
+
+## Schema v1
+
+```sql
+CREATE TABLE memories (
+  id             INTEGER PRIMARY KEY,
+  uid            TEXT UNIQUE,          -- stable id, survives export/import
+  kind           TEXT NOT NULL,        -- preference|decision|constraint|fact|correction|reference
+  scope          TEXT NOT NULL,        -- global | project
+  project_key    TEXT,                 -- normalised git remote, else abs path; NULL when global
+  text           TEXT NOT NULL,        -- ONE fact, self-contained, imperative
+  why            TEXT,                 -- rationale / where it came from
+  emb            BLOB NOT NULL,        -- vector32
+  emb_model      TEXT NOT NULL,        -- 'Xenova/all-MiniLM-L6-v2@q8'
+  emb_dim        INTEGER NOT NULL,
+  salience       REAL NOT NULL DEFAULT 0.5,
+  confidence     REAL NOT NULL DEFAULT 0.5,
+  pinned         INTEGER NOT NULL DEFAULT 0,
+  status         TEXT NOT NULL DEFAULT 'active',  -- staged|active|archived|superseded
+  superseded_by  INTEGER REFERENCES memories(id),
+  source_kind    TEXT,                 -- user|auto|import
+  source_session TEXT,
+  created_at     INTEGER, updated_at INTEGER,
+  last_used_at   INTEGER, use_count INTEGER NOT NULL DEFAULT 0,
+  expires_at     INTEGER
+);
+CREATE INDEX memories_lookup ON memories(status, scope, project_key);
+
+CREATE TABLE memory_links  (src INTEGER, dst INTEGER, rel TEXT, PRIMARY KEY(src,dst,rel));
+CREATE TABLE memory_events (id INTEGER PRIMARY KEY, memory_id INTEGER, event TEXT,
+                            detail TEXT, at INTEGER);
+CREATE TABLE meta          (k TEXT PRIMARY KEY, v TEXT);  -- schema_version, emb_model
+```
+
+Storing `emb_model`/`emb_dim` per row is what makes changing embedding model later a
+migration rather than a rebuild-from-scratch.
+
+## Retrieval
+
+1. Candidates: `status='active' AND (scope='global' OR project_key = ?)`
+2. Vector leg: `ORDER BY vector_distance_cos(emb, vector32(?)) LIMIT 20`
+3. Lexical leg: `fts_match(text, ?)` over query terms, LIMIT 20
+4. Fuse by reciprocal rank: `Σ 1/(60 + rank)`
+5. Boost: `× (1 + 0.3·salience + 0.2·pinned) × recency_decay`
+6. **Gate:** keep only vector-sim ≥ ~0.35 or an exact lexical hit. Cap 5 items / ~600 tokens.
+   Nothing clears it → inject nothing.
+7. `SessionStart` injects pinned + core globals (≤3) once; `UserPromptSubmit` does the
+   per-prompt retrieval.
+
+The 0.35 threshold is a starting guess and must be tuned against the harness in Phase 3.
+
+## Capture gate
+
+Fire on **`UserPromptSubmit`**, not `Stop` — the user's exact words are in the hook input
+(`user_message`), no transcript parsing, and it runs before the model call.
+
+Pure-JS regex, target <20ms, no LLM: `always|never|from now on|prefer|instead|actually|
+don't |stop |I use |we use |let's go with|remember `, plus correction shapes ("no, …").
+
+When it fires, inject `additionalContext`: *"this prompt may contain a durable preference —
+if so, record it with `mem remember`"*. The model already in the loop does the extraction,
+so there is **no extra API call**. Writes land as `status='staged'`. Upgrade path if
+precision disappoints: switch to a `prompt`- or `agent`-type hook doing dedicated extraction.
+
+---
+
+# Phases
+
+Each phase ends with something usable and a concrete exit test.
+
+### Phase 0 — Foundation (½ day)
+Plugin skeleton, `plugin.json`, dependency bootstrap into `CLAUDE_PLUGIN_DATA`, `db.mjs`
+with schema + a real migration runner (`meta.schema_version`), `embed.mjs`.
+**Exit:** `mem doctor` prints resolved paths, turso version, embed model, and cold-path
+timings. Plugin shows up in `/plugin` as `mem@skills-dir`.
+
+### Phase 1 — CLI core (1 day)
+`mem add | search | list | show | forget | export | import`. Write-time dedup (cosine ≥ 0.93
+in same scope → update + bump confidence, don't insert), secret scrubbing, project-key
+resolution from git remote.
+**Exit:** seed 200 synthetic memories; search returns sane top-5 in <400ms from a cold
+process; `export | import` round-trips byte-identically; a fake `sk-...` is rejected.
+
+### Phase 2 — Skills (½ day)
+`remember`, `recall`, `forget` SKILL.md files. Descriptions written to trigger on the right
+phrasings. No hooks yet — pure model-invoked.
+**Exit:** in a live session, "remember that I …" persists; after `/clear`, `/mem:recall`
+finds it.
+
+### Phase 3 — Recall hooks (1 day)
+`SessionStart` core-profile injection; `UserPromptSubmit` threshold retrieval. Build a
+tuning harness: a JSON corpus of `{prompt, should_retrieve: [ids] | []}` cases, and
+`mem tune` reporting precision/recall across candidate thresholds.
+**Exit:** measured precision on the harness; p95 hook latency <400ms; **injects nothing**
+on prompts unrelated to any stored memory (this is the test that matters most).
+
+### Phase 4 — Gated capture (1 day)
+Regex gate, staged writes, `/mem:review` triage UI (list staged, promote/edit/discard in
+batch).
+**Exit:** after a week of real use, staged candidates have ≥50% promote rate. Below that,
+tighten the gate rather than living with the noise.
+
+### Phase 5 — Hygiene (1 day)
+Salience decay for unused memories, archive-not-delete, contradiction detection and
+supersession, `mem consolidate` doing LLM-judged merges via `claude -p`. Scheduled weekly
+via `/loop` or cron.
+**Exit:** run against a deliberately contradictory seed set — old memories end up
+`superseded_by` the new ones, not duplicated alongside them.
+
+### Phase 6 — Optional hardening
+`vector8` quantisation (4× smaller) if the store passes ~50k rows · re-embed migration when
+changing model · import existing `~/.claude/projects/*/memory/*.md` files · Turso Cloud sync
+(revisit only with a deliberate decision about memories leaving the device).
+
+---
+
+## Risk register
+
+| Risk | Mitigation |
+|---|---|
+| Retrieval noise poisons turns | Threshold gate, hard scoping, staging, ≤5 items |
+| Hook latency drags every prompt | Measured 300ms budget; hard timeout, fail-open silently |
+| Turso rewrite is young (v0.6.x) | Pin the version; schema is plain SQLite, portable to libSQL or better-sqlite3 + a JS cosine loop if needed |
+| No ANN index | Exact scan measured fine to ~100k rows; quantise or move to libSQL past that |
+| Secrets captured into the DB | Scrub-on-write, reject rather than store; `mem export` for audit |
+| DB committed to dotfiles | Data lives in `CLAUDE_PLUGIN_DATA`; `.gitignore` guard |
+| Embedding model change invalidates vectors | `emb_model`/`emb_dim` per row + re-embed command |
+| Memory rot / staleness | Decay + supersession + weekly consolidation (Phase 5) |

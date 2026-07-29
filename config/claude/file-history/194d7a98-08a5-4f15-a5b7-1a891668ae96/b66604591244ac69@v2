@@ -1,0 +1,90 @@
+# Mòdul: Subcolaboradors
+
+## Estat
+
+Migrat parcialment
+
+## Objectiu
+
+Gestionar els subcolaboradors associats als colaboradors existents, mantenint les dades de la taula heretada `colaboradors_externs`.
+
+## Referència CRM antic
+
+No hi ha codi antic disponible al projecte per aquest punt. La pantalla Laravel treballa directament sobre la taula SQL Server existent.
+
+## Rutes Laravel
+
+- `admin.gestio.subcolaboradors`
+- `admin.gestio.subcolaboradors.table`
+- `admin.gestio.subcolaboradors.form`
+- `admin.gestio.subcolaboradors.formData`
+- `admin.gestio.subcolaboradors.store`
+- `admin.gestio.subcolaboradors.update`
+
+## Controladors
+
+- `App\Http\Controllers\SubColaborador\GestioController`
+
+## Models
+
+No s'utilitza model específic en aquest mòdul; la gestió es fa amb consultes SQL via servei.
+
+## Taules SQL Server
+
+- `colaboradors`
+- `colaboradors_externs`
+
+## Camps importants
+
+- `colaboradors.idcolaborador`
+- `colaboradors_externs.idtipus`
+- `colaboradors_externs.idcol_extern`
+- `colaboradors_externs.nom_colaborador`
+- `colaboradors_externs.nick_colaborador`
+- `colaboradors_externs.actiu`
+- `colaboradors_externs.color_web`
+- Camps de percentatges, emails i dades de facturació gestionats al formulari.
+
+## Vistes Blade
+
+- `resources/views/admin/gestio/subcolaboradors/index.blade.php`
+- `resources/views/admin/gestio/subcolaboradors/_table_body.blade.php`
+- `resources/views/admin/gestio/subcolaboradors/_panel_form.blade.php`
+- `resources/views/components/gestio/subcolaboradors/form.blade.php`
+
+## Traduccions
+
+- `resources/lang/ca/gestio/subcolaboradors.php`
+- `resources/lang/es/gestio/subcolaboradors.php`
+- `resources/lang/en/gestio/subcolaboradors.php`
+
+## Permisos
+
+Les rutes estan dins del grup d'administració definit a `routes/web.php`. No s'han documentat permisos més granulars en aquest punt.
+
+## Validacions
+
+- Creació: `idtipus` obligatori i `nom_colaborador` obligatori amb mínim de 2 caràcters.
+- Edició: `nom_colaborador` obligatori amb mínim de 2 caràcters.
+
+## Flux funcional
+
+1. El llistat carrega els colaboradors i subcolaboradors per AJAX.
+2. El formulari es carrega en panell via `ContentSwap`.
+3. La creació calcula el següent `idcol_extern` per al `idtipus` seleccionat.
+4. L'edició actualitza el registre existent identificat per `idtipus` i `idcol_extern`.
+
+## Criteris visuals
+
+Es reutilitzen taules, botons, panell `ContentSwap` i `custom-switch` ja presents al projecte.
+
+## Punts pendents
+
+- No s'ha contrastat el flux complet amb el CRM antic.
+- No hi ha model Eloquent específic per aquesta pantalla.
+
+## Historial de canvis
+
+- 2026-07-29: Corregida la creació de subcolaboradors. El `dataalta` s'enviava com a `date('Y-m-d')` i el servidor SQL Server (idioma `Español`, `DATEFORMAT dmy`) rebutjava la cadena `YYYY-MM-DD` amb l'error 242 («La conversión del tipo de datos varchar en datetime produjo un valor fuera de intervalo»), fent fallar sempre l'INSERT. Ara s'envia en format ISO 8601 (`Y-m-d\TH:i:s`), que és independent del `DATEFORMAT`.
+- 2026-05-28: Corregit el guardat del camp `actiu` perquè el valor `0` del formulari no es tracti com a actiu.
+- 2026-05-28: Creada documentació inicial del mòdul abans de revisar el guardat del camp `actiu`.

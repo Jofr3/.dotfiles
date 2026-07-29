@@ -1,0 +1,17 @@
+{
+  "name": "toolbox-db-mcp-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Bridges an MCP Toolbox server's tools into Claude Code via @toolbox-sdk/core",
+  "main": "server.mjs",
+  "scripts": {
+    "doctor": "node doctor.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@toolbox-sdk/core": "^1.0.1",
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.25.2"
+  }
+}

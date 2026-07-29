@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "plugins": {
+    "typescript-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/home/jofre/.claude/plugins/cache/claude-plugins-official/typescript-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-07-29T08:47:58.414Z",
+        "lastUpdated": "2026-07-29T08:47:58.414Z"
+      }
+    ],
+    "php-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/home/jofre/.claude/plugins/cache/claude-plugins-official/php-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-07-29T10:17:49.918Z",
+        "lastUpdated": "2026-07-29T10:17:49.918Z"
+      }
+    ]
+  }
+}

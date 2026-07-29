@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "toolbox-db": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/launch.mjs"],
+      "env": {
+        "TOOLBOX_PLUGIN_ROOT": "${CLAUDE_PLUGIN_ROOT}",
+        "TOOLBOX_URL": "${TOOLBOX_URL:-http://127.0.0.1:5000}",
+        "TOOLBOX_TOOLSET": "${TOOLBOX_TOOLSET:-}",
+        "TOOLBOX_TOOL_PREFIX": "${TOOLBOX_TOOL_PREFIX:-}",
+        "TOOLBOX_API_KEY": "${TOOLBOX_API_KEY:-}",
+        "TOOLBOX_GOOGLE_ID_TOKEN": "${TOOLBOX_GOOGLE_ID_TOKEN:-}",
+        "TOOLBOX_CLIENT_HEADERS": "${TOOLBOX_CLIENT_HEADERS:-}",
+        "TOOLBOX_AUTH_TOKENS": "${TOOLBOX_AUTH_TOKENS:-}",
+        "TOOLBOX_BOUND_PARAMS": "${TOOLBOX_BOUND_PARAMS:-}",
+        "TOOLBOX_PROTOCOL": "${TOOLBOX_PROTOCOL:-}",
+        "TOOLBOX_STRICT": "${TOOLBOX_STRICT:-}",
+        "TOOLBOX_AUTO_INSTALL": "${TOOLBOX_AUTO_INSTALL:-1}"
+      }
+    }
+  }
+}

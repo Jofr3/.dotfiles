@@ -1,0 +1,596 @@
+<?
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Methods: *");
+
+if (!isset($_SESSION))
+    session_start();
+include_once('../../../connexio.php');
+include_once('../../../permissos.php');
+include_once('../../../funcions.php');
+
+
+foreach ($_POST as $key => $value){
+	$$key = $value;
+}
+$origen_id = 1;
+	if(isset($_REQUEST['id_visita']) && !empty($_REQUEST['id_visita'])){
+		$origen_id = 2;
+	}
+//Si hi ha l'id_projecte_promo recuperem l'informació, sinó inicialitzem els valors del formulari necessaris
+if($id_projecte_promo != ''){
+
+	$show_panels = '';
+
+	$sql_s = "SELECT 
+                ep.Acronim_planta,
+                Projectes_promocio.*,
+                e.Nom_Empresa,
+                Empreses_interessos.tipus_subvencions,
+                Empreses_interessos.tipus_financiacio,
+                Empreses_interessos.tipus_deduccions,
+                Empreses_interessos.max_financiacio,
+                Empreses_interessos.altres_ajudes,
+                Empreses_interessos.id_competencia,
+                Empreses_interessos.per_compte_propi
+            FROM Projectes_promocio
+			LEFT JOIN Empreses_interessos ON Projectes_promocio.nif = Empreses_interessos.NIF AND Empreses_interessos.id_projecte_promo = $id_projecte_promo
+			LEFT JOIN Empreses e on e.nif = Projectes_promocio.nif
+            LEFT JOIN Empreses_planta ep on ep.nif = Projectes_promocio.nif and ep.id_planta = Projectes_promocio.id_planta
+			WHERE Projectes_promocio.nif='$nif'
+			AND Projectes_promocio.id_projecte_promo = $id_projecte_promo";
+	$resultat_s = mssql_query($sql_s, $connexio_ateinsa);
+    //echo '<pre>'.$sql_s.'</pre>';
+    $text_estat = '';
+	
+	if(mssql_num_rows($resultat_s)>0){
+
+		$fila_s = mssql_fetch_assoc($resultat_s);
+
+		//Assignar les variables
+        $nif_fila = $fila_s['nif'];
+        $import_bloquejat = $fila_s['bloqueig_import'];
+		$dates_bloquejades =$fila_s['bloqueig_dtini'] == 'S' || $fila_s['bloqueig_dtfi'] == 'S' ? 'S' : 'N';
+		$data_ini_bloq = $fila_s['bloqueig_dtini'];
+		$data_fi_bloq = $fila_s['bloqueig_dtfi'];
+        $color_estat = 'transparent';
+        
+
+        if ($fila_s['estat'] == 0)
+        {
+            $color_estat = '#d60202';
+            $text_estat = 'Desestimada';
+        }
+        if ($fila_s['estat'] == 1)
+        {
+            $color_estat = '#f77f00';
+            $text_estat = 'Pendiente aprobación';
+        }
+        if ($fila_s['estat'] == 2)
+        {
+            $color_estat = '#3aaf00';
+            $text_estat = 'Aprobada';
+        }
+
+        $id_planta_fila = $fila_s['id_planta'];
+        $nom_planta_fila = $fila_s['Acronim_planta'];
+		$titol_promo = maju($fila_s['titol_promo']);
+		$data_creacio = $fila_s['data_creacio'];
+		$descripcio = utf8_decode(maju($fila_s['descripcio']));
+		$px = $fila_s['px'];
+		$any = $fila_s['any'];
+		$origen_id = $fila_s['origen_id'];
+		$data_ini = retorn_dia_datepicker($fila_s['data_ini']);
+		$data_fi = retorn_dia_datepicker($fila_s['data_fi']);
+		$inversio = $fila_s['inversio'];
+		$estat = $fila_s['estat'];
+        $accio_ini = $fila_s['accio_ini'];
+        $nom_empresa = $fila_s['Nom_Empresa'];
+		$data_creacio = retorn_dia_datepicker($fila_s['data_creacio']);
+		$data_reunio = retorn_dia_datepicker($fila_s['data_reunio']);
+		$id_responsable_promo = $fila_s['id_responsable'];
+		$capex = $fila_s['capex'];
+		$iddoc_capex = $fila_s['iddoc_capex'];
+		$id_usuari_promo = $fila_s['id_usuari'];
+		$increment_productivitat = $fila_s['increment_productivitat'];
+		$increment_productivitat_val = $fila_s['increment_productivitat_val'];
+		$increment_exportacio = $fila_s['increment_exportacio'];
+		$increment_exportacio_val = $fila_s['increment_exportacio_val'];
+		$nou_producte = $fila_s['nou_producte'];
+		$nou_producte_val = $fila_s['nou_producte_val'];
+		$creacio_llocs_treball = $fila_s['creacio_llocs_treball'];
+		$creacio_llocs_treball_val = $fila_s['creacio_llocs_treball_val'];
+		$financiacio = $fila_s['financiacio'];
+		$id_contacte_empresa = $fila_s['id_contacte_empresa'];
+		$colaborador_promo = $fila_s['colext_id'];
+		$subcolaborador_promo = $fila_s['subcolext_id'];
+		$subvencionable = $fila_s['subvencionable'];
+
+		if($data_ini!='' && $data_fi != '' && $data_ini != '01/01/1970' && $data_fi != '01/01/1970'){
+			$data = $data_ini." - ".$data_fi;
+		}else{
+			$data = ""; 
+		}
+
+		
+
+		//Checkboxes states
+		if($increment_productivitat == 1){
+			$chk_ip = ' checked="checked"';
+		}else{
+			$chk_ip = '';
+		}
+		if($increment_exportacio == 1){
+			$chk_ie = ' checked="checked"';
+		}else{
+			$chk_ie = '';
+		}
+		if($nou_producte == 1){
+			$chk_np = ' checked="checked"';
+		}else{
+			$chk_np = '';
+		}
+		if($creacio_llocs_treball == 1){
+			$chk_lt = ' checked="checked"';
+		}else{
+			$chk_lt = '';
+		}
+
+		//Variables interessos
+		$tipus_subvencions = $fila_s['tipus_subvencions'];
+		$tipus_financiacio = $fila_s['tipus_financiacio'];
+		$tipus_deduccions = $fila_s['tipus_deduccions'];
+		$max_financiacio = $fila_s['max_financiacio'];
+		$altres_ajudes = $fila_s['altres_ajudes'];
+		$id_competencia = $fila_s['id_competencia'];
+		$per_compte_propi = $fila_s['per_compte_propi'];
+
+	}else{
+		die("No s'ha pogut recuperar l'informació de la inversió");
+	}
+}else{
+
+    $_sql_emp = "
+        select nom_empresa
+        from empreses 
+        where nif = '$nif'
+    ";
+    $_res_emp = mssql_query($_sql_emp, $connexio_ateinsa);
+    $_emp = mssql_fetch_assoc($_res_emp);
+
+	$show_panels = ' style="display:none;"';
+	//Assignar les variables
+    $id_planta_fila = '';
+    $color_estat = 'transparent';
+    $nom_planta_fila = '';
+    $nom_empresa = $_emp['nom_empresa'];
+	$titol_promo = '';
+	$data_creacio = '';
+	$descripcio = '';
+	$px = '';
+	$any = date('Y');
+	$data_ini = '';
+	$data_fi = '';
+	$inversio = 0;
+	$estat = 2;
+	$accio_ini = 0;
+	$data_creacio = date("d/m/Y");
+	$data_reunio = "";
+	$id_responsable_promo = 0;
+	$capex = '';
+    $import_bloquejat = 'N';
+	$iddoc_capex = '';
+	$id_usuari_promo = 0;
+	$increment_productivitat = 0;
+	$increment_productivitat_val = 0;
+	$increment_exportacio = 0;
+	$increment_exportacio_val = 0;
+	$nou_producte = 0;
+	$nou_producte_val = 0;
+	$creacio_llocs_treball = 0;
+	$creacio_llocs_treball_val = 0;
+	$financiacio = '';
+
+	$id_contacte_empresa='';
+
+	//Checkboxes states
+	$chk_ip = '';
+	$chk_ie = '';
+	$chk_np = '';
+	$chk_lt = '';
+
+	//Variables interessos
+	$tipus_subvencions = 0;
+	$tipus_financiacio = 0;
+	$tipus_deduccions = 0;
+	$max_financiacio = 0.00;
+	$altres_ajudes = '';
+	$id_competencia = 0;
+	$per_compte_propi = 0;
+
+	$my_date = new DateTime();
+ 
+	$my_date->modify('first day of january '.date('Y'));
+	$data_ini = $my_date->format('d/m/Y');
+	$data_ini_cal = $my_date->format('Y-m-d');
+	 
+	$my_date->modify('last day of december '.date('Y'));
+	$data_fi = $my_date->format('d/m/Y');
+	$data_fi_cal = $my_date->format('Y-m-d');
+
+	$data = "";
+	$subvencionable = 1;
+
+	
+}
+
+$arr_tipologia_inversions = llistat_tipologia_inversions($connexio_certific);
+
+$arr_values_tipologia_inversions=array();
+if (!empty($id_projecte_promo))
+{
+	$sql_vti="
+        select dt.codi as id_tipologia
+        from projectes_promocio_tags pp_tags
+        inner join certific.dbo.docum_tags dt on dt.codi = pp_tags.id_tag
+        where id_inversio = $id_projecte_promo
+    ";
+	$resultat_vti = mssql_query($sql_vti, $connexio_ateinsa);
+	while ($fila_vti=mssql_fetch_array($resultat_vti))
+	{
+		$arr_values_tipologia_inversions[]=$fila_vti['id_tipologia'];
+	}
+}
+$arr_etiquetes_especifiques = [];
+get_etiquetes_especifiques_inversio($id_projecte_promo, $arr_etiquetes_especifiques);
+
+if (isset($id_proposta) && $id_proposta != '')
+{
+	$sql_prop = "select * from propostes_informacio_subvencions where id = $id_proposta and deleted_at is null";
+	$res_prop = mssql_query($sql_prop, $connexio_ateinsa);
+	$proposta = mssql_fetch_assoc($res_prop);
+
+	if ($proposta)
+	{
+		$colaborador_promo = $proposta['colext_id'];
+		$colext_id = $proposta['colext_id'];
+		$subcolaborador_promo = $proposta['subcolext_id'];
+		$inversio = $proposta['pressupost_inv'];
+		if (strpos($proposta['calendario_ejec_inv'], '-') !== false) $data = $proposta['calendario_ejec_inv'];
+		$arr_values_tipologia_inversions = explode(',', $proposta['tipologia_inversio']);
+		$descripcio = $proposta['altre_info_inv'];
+		$titol_promo = utf8_encode($proposta['titol_inversio']);
+	}
+}
+
+?>
+
+<style>
+	.bootstrap-tagsinput {
+		width: 100%;
+	}
+</style>
+
+<div class="col-md-12">
+	<div class="">
+	<?php if(isset($id_visita) && !empty($id_visita)){ ?>
+    <input type="hidden" name="id_visita" value="<?=$id_visita?>" />
+<?php } ?>
+
+		<div class="col-md-3 col-sm-6 thin-padding-col" style="">
+			<label class="label-theme">Planta</label>
+			<select class="form-control selectpicker" name="id_planta">
+				<?php
+				$sql_p = "SELECT * FROM Empreses_Planta WHERE nif = '".$nif."' and (eliminat <> 1 or eliminat is null) order by Acronim_Planta";
+				$result_p = mssql_query($sql_p, $connexio_ateinsa);
+				while($fila_p = mssql_fetch_array($result_p)){
+					if($id_planta_fila==$fila_p['id_planta']){
+						$selected="selected";
+					}else{
+						$selected="";
+					}
+				?>
+					<option <?=$selected?> value="<?=$fila_p['id_planta']?>"><?=utf8_encode($fila_p['Acronim_planta'])?></option>
+				<?php
+				}
+				?>
+			</select>
+		</div>
+			<div class="col-md-3 col-sm-6 thin-padding-col" style="">
+				<label class="label-theme">CAPEX</label>
+				<input type="text" name="capex" id="capex_og" class="form-control" value="<?=$capex?>">
+			</div>
+		<div class="col-md-2 col-sm-6 thin-padding-col" style="">
+			<label class="label-theme">Codigo</label>
+			<input type="text" name="px" id="px" class="form-control" value="<?=$px?>">
+		</div>
+		<?php if (!te_acces(array(6, 15))) { ?>
+			<div class="col-md-3 col-sm-6 thin-padding-col" style="">
+				<label class="label-theme">Estado</label>
+				<select class="form-control selectpicker" name="estat">
+					<option <?php if($estat==2){ ?> selected <?php } ?> value="2">Aprobada</option>
+					<option <?php if($estat==3){ ?> selected <?php } ?> value="3">En estudio</option>
+					<option <?php if($estat==1){ ?> selected <?php } ?> value="1">Pendiente</option>
+					<option <?php if($estat==0){ ?> selected <?php } ?> value="0">Cancelada</option>
+				</select>
+			</div>
+		<?php } ?>
+		<div class="col-md-3 col-sm-6 thin-padding-col" style="">
+			<label class="label-theme">Titulo</label>
+			<input type="text" class="form-control" name="titol" value="<?=$titol_promo?>">
+		</div>
+		<div class="col-md-2 col-sm-6 thin-padding-col" style="">
+			<label class="label-theme">Importe</label>
+			<input type="text" <?php if ($import_bloquejat === 'S') { ?> disabled <?php } ?> id="inversio" name="inversio" class="form-control text-right numero2" value="<?=number_format($inversio,2,',','.')?>">
+		</div>
+		<!--
+		<div class="col-md-3 thin-padding-col" style="">
+			<label class="label-theme">Periodo</label>
+			<input type="text" <?php if ($dates_bloquejades === 'S') { ?> disabled <?php } ?> id="dates_inversio" name="dates_inversio" autocomplete="off" class="form-control" placeholder="Fechas de las inversiones" data-rel="<?=$data?>" value="<?=$data?>">
+		</div>
+		-->
+		<div class="col-md-2 col-sm-6 thin-padding-col">
+			<label class="label-theme">Fecha inicio</label>
+			<input type="text" value="<?=$data_ini?>" id="data_inici_inv" name="data_inici_inv" <?php if ($data_ini_bloq === 'S') { ?> disabled <?php } ?> class="form-control datepicker"/>
+		</div>
+		<div class="col-md-2 col-sm-6 thin-padding-col">
+			<label class="label-theme">Fecha fin</label>
+			<input type="text" value="<?=$data_fi?>" id="data_fi_inv" name="data_fi_inv" <?php if ($data_fi_bloq === 'S') { ?> disabled <?php } ?> class="form-control datepicker"/>
+		</div>
+		
+		<div class="col-md-3 col-sm-6 thin-padding-col" style="" class="except-select-wrapper">
+			<div class="form-group">
+				<label class="label-theme">Tipologia de la inversión</label>
+				<select name="tipologia_inversio[]" class="form-control selectpicker" id="inv_tipologia_inversio" data-none-selected-text="Ninguna tipologia seleccionada" multiple>
+					<?php foreach ($arr_tipologia_inversions as $tipologia) { ?>
+						<option value="<?=$tipologia['codi_tipologia']?>" <? if (in_array($tipologia['codi_tipologia'],$arr_values_tipologia_inversions)) { ?> selected <? } ?>><?=($tipologia['descripcio_tipologia'])?></option>
+					<?php } ?>
+				</select>
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-6 thin-padding-col">
+			<div class="form-group">
+				<label for="">Origen</label>
+				<?php $sql_get_origens = "SELECT * FROM projectes_promocio_origens";
+					$res_origens = mssql_query($sql_get_origens, $connexio_ateinsa);
+				?>
+				<select name="origen_id" id="origen_id" class="form-control selectpicker">
+					<?php while($origen = mssql_fetch_assoc($res_origens)) { ?>
+						<option value="<?=$origen['id']?>" <?=$origen['id'] == $origen_id ? 'selected="selected"' : ''?>><?=utf8_encode($origen['name'])?></option>
+					<?php } ?>
+				</select>
+				<?php ?>
+			</div>
+		</div>
+		<div class="col-md-12 thin-padding-col" style="margin-top: -12px" class="except-select-wrapper">
+			<div class="form-group">
+				<label class="label-theme">Etiquetas específicas</label>
+				<input type="hidden" name="etiquetas_especificas_form" value="1" />
+				<select name="etiquetas_especificas[]" class="form-control selectpicker" data-live-search="true" id="inv_etiquetas_especificas" data-none-selected-text="Ninguna etiqueta seleccionada" multiple>
+					<?php foreach ($arr_etiquetes_especifiques as $etiqueta) { ?>
+						<option value="<?=$etiqueta['id']?>" 
+						<?php if ($etiqueta['selected'] == 1) { ?>
+							selected
+						<?php } ?>
+						>
+						<?php 
+							for ($c = 0; $c < $etiqueta['nivell']; $c++) {
+								echo '&nbsp;&nbsp;';	
+							} 
+						?>
+						<?=($etiqueta['idx'])?>.&nbsp;<?=($etiqueta['titol'])?></option>
+					<?php } ?>
+				</select>
+			</div>
+		</div>
+		<div class="col-md-6 thin-padding-col" style="margin-top: -12px;">
+			<label class="label-theme">Etiquetas PROMO</label>
+			<div id="inversio-tags-container"></div>
+		</div>
+			<div class="col-md-6 thin-padding-col" style="margin-top: -12px;">
+			<label class="label-theme">TAGS PRODUCCIÓ</label>
+			<div id="">
+				<?php 
+					$tagsproduccioguardats = [];
+					if($id_projecte_promo != ""){
+						$sqltagsguardats = "SELECT * from projectes_promocio_tags_new where id_inversio = $id_projecte_promo";
+						$restagsguardats = mssql_query($sqltagsguardats, $connexio_ateinsa);
+						while($filatagg = mssql_fetch_assoc($restagsguardats)){
+							$tagsproduccioguardats[] = $filatagg['id_tag'];
+						}
+					}
+				
+			
+				
+					$sql_tags_produccio = "SELECT * from certific.dbo.docum_tags_new dtn WHERE ocult = 'N' order by ordre";
+					$res_tags_produccio = mssql_query($sql_tags_produccio, $connexio_ateinsa);
+				?>
+				<select name="tags_produccio[]" id="tags_produccio" class="form-control selectpicker required" multiple >
+					<option value="" disabled>Selecciona TAGS</option>
+					<?php while($tag_produccio = mssql_fetch_assoc($res_tags_produccio)) { ?>
+						<option value="<?=$tag_produccio['codi']?>" <?php if(in_array($tag_produccio['codi'],$tagsproduccioguardats)){ ?> selected="selected" <?php } ?>><?=utf8_encode($tag_produccio['descripcio'])?></option>
+					<?php } ?>
+				</select>
+
+			</div>
+		</div>
+		<div class="col-md-12 thin-padding-col" style="margin-top: -12px">
+			<label class="label-theme">Descripción</label>
+			<textarea class="form-control" rows="3" id="editor" type="hidden" name="descripcio"><?=utf8_encode($descripcio)?></textarea>
+		</div>
+	</div>
+</div>
+
+<script>
+	var desc_inversion = null;
+
+	$(document).ready(function() {
+
+		setTimeout(function(){
+			initEditor();
+			desc_inversion = CKEDITOR.instances['editor'].getData();
+		}, 10);
+
+		if ( CKEDITOR.env.ie && CKEDITOR.env.version < 9 )
+			CKEDITOR.tools.enableHtml5Elements( document );
+
+		CKEDITOR.config.height = 150;
+		CKEDITOR.config.width = 'auto';
+		CKEDITOR.config.enterMode = CKEDITOR.ENTER_BR;
+
+		CKEDITOR.config.toolbar = [
+			['Styles','Format','Font','FontSize'],
+			['Bold','Italic','Underline','StrikeThrough','-','Undo','Redo','-','Cut','Copy','Paste','Replace','-','Outdent','Indent','-','Print'],
+			['NumberedList','BulletedList','-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+			['Image','Table','-','TextColor','BGColor']
+		] ;
+
+		var initEditor = ( function() {
+			var wysiwygareaAvailable = isWysiwygareaAvailable(),
+				isBBCodeBuiltIn = !!CKEDITOR.plugins.get( 'bbcode' );
+
+			return function() {
+				var editorElement = CKEDITOR.document.getById( 'editor' );
+
+				if ( isBBCodeBuiltIn ) {
+					editorElement.setHtml();
+				}
+
+				if ( wysiwygareaAvailable ) {
+					CKEDITOR.replace( 'editor' );
+				} else {
+					editorElement.setAttribute( 'contenteditable', 'true' );
+					CKEDITOR.inline( 'editor' );
+				}
+			};
+
+			function isWysiwygareaAvailable() {
+				// If in development mode, then the wysiwygarea must be available.
+				// Split REV into two strings so builder does not replace it :D.
+				if ( CKEDITOR.revision == ( '%RE' + 'V%' ) ) {
+					return true;
+				}
+
+				return !!CKEDITOR.plugins.get( 'wysiwygarea' );
+			}
+		} )();
+
+		$.fn.modal.Constructor.prototype.enforceFocus = function() {
+			$( document )
+				.off( 'focusin.bs.modal' ) // guard against infinite focus loop
+				.on( 'focusin.bs.modal', $.proxy( function( e ) {
+					if (
+						this.$element[ 0 ] !== e.target && !this.$element.has( e.target ).length
+						// CKEditor compatibility fix start.
+						&& !$( e.target ).closest( '.cke_dialog, .cke' ).length
+						// CKEditor compatibility fix end.
+					) {
+						this.$element.trigger( 'focus' );
+					}
+				}, this ) );
+		};
+
+		//var contingut = CKEDITOR.instances.pl_contingut.getData();
+
+		print_tags_inversio('<?=$id_projecte_promo?>', 'inversio-tags-container');
+		$('.numero2').number( true, 0, ',', '.');
+        $('.selectpicker').selectpicker();
+		$('#data_fi_inv').datepicker({
+			format: 'dd/mm/yyyy',
+			autoclose: true,
+			language: 'es'
+		}).on('hide', function(e) {
+			e.stopPropagation();
+		}).on('change', function(e, dateText) {
+		
+			var arr_date = $("#data_inici_inv").val().split('/');
+			arr_date = arr_date.reverse();
+			var new_date = arr_date.join('/');
+			var v = new_date,
+				d = new Date(v);
+			var comparing_timestamp_ini = 0;
+			if (v.length > 0) {
+				comparing_timestamp_ini = (d.getTime() / 1000);
+			}
+
+			var arr_date2 = $("#data_fi_inv").val().split('/');
+			arr_date2 = arr_date2.reverse();
+			var new_date2 = arr_date2.join('/');
+			var v2 = new_date2,
+				d2 = new Date(v2);
+			var comparing_timestamp_fi = 0;
+			if (v2.length > 0) {
+				comparing_timestamp_fi = (d2.getTime() / 1000);
+			}
+
+			if (comparing_timestamp_fi < comparing_timestamp_ini)
+				$("#data_fi_inv").val('');
+		});
+
+		$('#data_inici_inv').datepicker({
+			format: 'dd/mm/yyyy',
+			autoclose: true,
+			language: 'es'
+		}).on('hide', function(e) {
+			e.stopPropagation();
+		}).on('change', function(e, dateText) {
+			var arr_date = $("#data_inici_inv").val().split('/');
+			arr_date = arr_date.reverse();
+			var new_date = arr_date.join('/');
+			var v = new_date,
+				d = new Date(v);
+			var comparing_timestamp_ini = 0;
+			if (v.length > 0) {
+				comparing_timestamp_ini = (d.getTime() / 1000);
+			}
+
+			var arr_date2 = $("#data_fi_inv").val().split('/');
+			arr_date2 = arr_date2.reverse();
+			var new_date2 = arr_date2.join('/');
+			var v2 = new_date2,
+				d2 = new Date(v2);
+			var comparing_timestamp_fi = 0;
+			if (v2.length > 0) {
+				comparing_timestamp_fi = (d2.getTime() / 1000);
+			}
+			if ($("#data_fi_inv").val() != '')
+			{
+				if (comparing_timestamp_fi < comparing_timestamp_ini)
+					$("#data_inici_inv").val('');
+			}
+		});
+
+		
+
+		$('#dates_inversio').daterangepicker({
+			timePicker: false,
+			opens: 'left',
+			autoApply: true,
+			"autoUpdateInput": false,
+
+			locale: {
+				format: 'DD/MM/YYYY',
+				separator: " - ",
+				applyLabel: "Aplicar",
+				cancelLabel: "Cancelar",
+				fromLabel: "De",
+				toLabel: "Hasta",
+				customRangeLabel: "Definir",
+				firstDay: 1
+			}
+		}).on('apply.daterangepicker', function (ev, picker) {
+			$(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));			
+		}).on('hide.daterangepicker', function(ev, picker) { // <-----------	
+			$(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));	
+		});
+	});
+
+	function CKupdate(){
+	    for ( instance in CKEDITOR.instances )
+	        CKEDITOR.instances[instance].updateElement();
+	}
+
+	function toTimestamp(strDate){
+	var datum = Date.parse(strDate);
+	return datum/1000;
+	}
+</script>

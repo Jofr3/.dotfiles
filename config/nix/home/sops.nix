@@ -5,7 +5,7 @@
     defaultSopsFile = ../secrets/secrets.yaml;
     age.sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/keys/sops" ];
 
-    secrets.DBEE_CONNECTIONS = { };
+    secrets.DATABASES = { };
     secrets.OP_SERVICE_ACCOUNT_TOKEN = { };
   };
 }

@@ -1,0 +1,10 @@
+# Data lives in CLAUDE_PLUGIN_DATA, never in the checkout.
+# Belt and braces in case any of it ever lands here anyway.
+node_modules/
+*.db
+*.db-*
+build/logs/
+build/STOP
+
+# Bench output. Regenerate with: node build/embed-bench.mjs --json
+build/bench/

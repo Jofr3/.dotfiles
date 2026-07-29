@@ -1,32 +1,9 @@
 {
-  "permissions": {
-    "allow": [],
-    "deny": [
-      "Bash(homedir-marker *)"
-    ],
-    "defaultMode": "auto"
-  },
-  "model": "opus[1m]",
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"/home/jofre/.claude/hooks/context-mode-cache-heal.mjs\""
-          }
-        ]
-      }
-    ]
-  },
-  "enabledPlugins": {
-    "context-mode@context-mode": true,
-    "typescript-lsp@claude-plugins-official": true
-  },
-  "spinnerTipsEnabled": false,
-  "effortLevel": "xhigh",
-  "tui": "fullscreen",
-  "skipWorkflowUsageWarning": true,
   "theme": "dark",
-  "skipAutoPermissionPrompt": true
+  "model": "claude-opus-5[1m]",
+  "tui": "fullscreen",
+  "spinnerTipsEnabled": false,
+  "permissions": {
+    "defaultMode": "auto"
+  }
 }

@@ -19,6 +19,9 @@ in
     qutebrowser.source = "${dotfiles}/config/qutebrowser";
   };
 
-  home.file.".claude".source = "${dotfiles}/config/claude";
+  home.file.".claude" = {
+    source = "${dotfiles}/config/claude";
+    recursive = true;
+  };
   home.file.".pi".source = "${dotfiles}/config/pi";
 }

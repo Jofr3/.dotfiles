@@ -1,30 +1,8 @@
-# Session data and conversation histories
-debug/
-todos/
-tasks/
-session-env/
-shell-snapshots/
-file-history/
-.claude/
-cache/
-plugins/
-chrome/
-logs/
-paste-cache/
-image-cache/
-plans/
-ide/
-backups/
-
-# Analytics and telemetry
-statsig/
-telemetry/
-
-# Command history
+.credentials.json
 history.jsonl
 
-# Local settings (machine-specific or sensitive)
-settings.local.json
-.credentials.json
-stats-cache.json
-.last-cleanup
+backups/
+cache/
+projects/
+sessions/
+shell-snapshots/

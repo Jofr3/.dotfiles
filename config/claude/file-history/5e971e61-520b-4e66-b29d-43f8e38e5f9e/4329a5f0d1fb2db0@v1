@@ -1,0 +1,8 @@
+{
+  "theme": "dark",
+  "model": "claude-opus-5[1m]",
+  "tui": "fullscreen",
+  "permissions": {
+    "defaultMode": "auto"
+  }
+}

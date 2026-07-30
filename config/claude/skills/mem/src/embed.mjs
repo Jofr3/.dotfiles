@@ -35,7 +35,8 @@
 // score worse, not better. Quantisation and dimensionality were never it.
 //
 // TWO CONSTANTS MOVE WITH THIS ONE, because both are model geometry:
-// search.mjs VECTOR_THRESHOLD (0.35 -> 0.82) and, at least to re-measure,
+// search.mjs VECTOR_THRESHOLD (0.35 -> 0.82 here, then 0.85 once slice 3.3
+// measured the shipped path with `mem tune`) and, at least to re-measure,
 // write.mjs DEDUP_THRESHOLD (0.93 survived; see PLAN.md).
 //
 // Measured, cached, this machine: model load 157ms, single embed 2.0ms, cold

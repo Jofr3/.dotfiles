@@ -9,8 +9,26 @@
 import { existsSync } from 'node:fs';
 
 import { depsReady, loadTurso } from './deps.mjs';
-import { vectorBlob } from './embed.mjs';
+import { EMB_DIM, EMB_MODEL, vectorBlob } from './embed.mjs';
 import { ensureDataDir, resolvePaths } from './paths.mjs';
+
+/**
+ * Every column of `memories`, in schema order. Named once because migration v2
+ * rebuilds the table and a copy that silently omits a column would lose data
+ * without failing.
+ */
+export const MEMORY_COLUMNS = [
+  'id', 'uid', 'kind', 'scope', 'project_key', 'text', 'why',
+  'emb', 'emb_model', 'emb_dim',
+  'salience', 'confidence', 'pinned', 'status', 'superseded_by',
+  'source_kind', 'source_session',
+  'created_at', 'updated_at', 'last_injected_at', 'injected_count',
+  'last_used_at', 'useful_count', 'expires_at', 'consolidated_at',
+];
+
+// Everything except the self-referencing FK. The v2 copy inserts these first and
+// fills superseded_by afterwards — see the migration's comment.
+const COPY_COLUMNS = MEMORY_COLUMNS.filter((c) => c !== 'superseded_by').join(', ');
 
 /**
  * Ordered migrations. Append, never edit: a released version has already run
@@ -53,6 +71,69 @@ export const MIGRATIONS = [
       `CREATE TABLE memory_events (id INTEGER PRIMARY KEY, memory_id INTEGER, event TEXT,
                                    detail TEXT, at INTEGER)`,
       `CREATE TABLE meta          (k TEXT PRIMARY KEY, v TEXT)`,
+    ],
+  },
+  {
+    version: 2,
+    name: 'emb-nullable',
+    // The debt PLAN's schema section records against this slice: v1 shipped
+    // `emb BLOB NOT NULL`, and the pruning ladder's rung 3 tombstones a row by
+    // setting `emb = NULL`, which that constraint makes impossible. Slices 1.3,
+    // 1.4, 1.5 and 1.6 each tripped over it; reembed.mjs has carried an
+    // untestable `emb IS NULL` guard since 1.6 waiting for this.
+    //
+    // SQLite cannot drop a column constraint, so the table is rebuilt. The order
+    // below is not the textbook twelve steps and each deviation was forced by
+    // this build, measured rather than assumed:
+    //
+    //   `PRAGMA defer_foreign_keys` does NOT take effect here, so the copy
+    //   cannot carry superseded_by in one pass — a row superseded by a *higher*
+    //   id fails the FK the moment it is inserted. So the copy leaves that
+    //   column NULL and a second UPDATE fills it once every id exists.
+    //
+    //   `DROP TABLE` performs an implicit DELETE with foreign keys enabled, and
+    //   memories references itself, so dropping a table whose rows still point
+    //   at each other fails too. Clearing the old table's pointers first is
+    //   safe: their values are already in the new table.
+    //
+    //   `ALTER TABLE … RENAME` rewrites the new table's own FK clause to name
+    //   `memories`, so the self-reference survives (asserted in db.test.mjs).
+    //   The index goes with the dropped table and is recreated by hand.
+    //
+    // Everything runs inside the runner's transaction, so an interruption leaves
+    // the database at v1 with its data intact rather than half-rebuilt.
+    statements: [
+      `CREATE TABLE memories_v2 (
+         id             INTEGER PRIMARY KEY,
+         uid            TEXT UNIQUE,
+         kind           TEXT NOT NULL,
+         scope          TEXT NOT NULL,
+         project_key    TEXT,
+         text           TEXT NOT NULL,
+         why            TEXT,
+         emb            BLOB,                 -- NULL only for tombstoned rows (ladder rung 3)
+         emb_model      TEXT NOT NULL,
+         emb_dim        INTEGER NOT NULL,
+         salience       REAL NOT NULL DEFAULT 0.5,
+         confidence     REAL NOT NULL DEFAULT 0.5,
+         pinned         INTEGER NOT NULL DEFAULT 0,
+         status         TEXT NOT NULL DEFAULT 'active',
+         superseded_by  INTEGER REFERENCES memories_v2(id),
+         source_kind    TEXT,
+         source_session TEXT,
+         created_at     INTEGER, updated_at INTEGER,
+         last_injected_at INTEGER, injected_count INTEGER NOT NULL DEFAULT 0,
+         last_used_at     INTEGER, useful_count   INTEGER NOT NULL DEFAULT 0,
+         expires_at     INTEGER,
+         consolidated_at INTEGER
+       )`,
+      `INSERT INTO memories_v2 (${COPY_COLUMNS}) SELECT ${COPY_COLUMNS} FROM memories`,
+      `UPDATE memories_v2
+          SET superseded_by = (SELECT m.superseded_by FROM memories m WHERE m.id = memories_v2.id)`,
+      `UPDATE memories SET superseded_by = NULL`,
+      `DROP TABLE memories`,
+      `ALTER TABLE memories_v2 RENAME TO memories`,
+      `CREATE INDEX memories_lookup ON memories(status, scope, project_key)`,
     ],
   },
 ];
@@ -184,16 +265,31 @@ export async function checkpoint(conn) {
  * own so `doctor` can time the real query shape (and prove vector32 /
  * vector_distance_cos are present in the installed Turso) before search.mjs
  * exists. Passing `projectKey = null` scopes it to globals only.
+ *
+ * Carries the same two guards as search.mjs's vectorLeg, added in slice 5a.3
+ * when the audit of every vector query found this one — the oldest — without
+ * them. `emb IS NOT NULL` is not the mis-ranking hazard PLAN predicted in this
+ * Turso build: `vector_distance_cos(NULL, v)` *throws* ("Conversion error:
+ * Invalid vector type") and takes the whole statement with it, so one tombstone
+ * would have made `mem doctor`'s cold-path timing report a failed probe rather
+ * than a slightly wrong neighbour. Louder, but only where someone is looking.
  */
-export async function vectorProbe(conn, vector, { projectKey = null, limit = 20 } = {}) {
+export async function vectorProbe(
+  conn,
+  vector,
+  { projectKey = null, limit = 20, embModel = EMB_MODEL, embDim = EMB_DIM } = {},
+) {
   return conn.all(
     `SELECT id, uid, vector_distance_cos(emb, vector32(?)) AS dist
        FROM memories
       WHERE status = 'active' AND (scope = 'global' OR project_key = ?)
+        AND emb IS NOT NULL AND emb_model = ? AND emb_dim = ?
       ORDER BY dist
       LIMIT ?`,
     vectorBlob(vector),
     projectKey,
+    embModel,
+    embDim,
     limit,
   );
 }

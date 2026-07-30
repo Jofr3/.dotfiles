@@ -29,6 +29,15 @@ const SELECT_STALE = `SELECT id, uid, text, emb_model, emb_dim
                          AND (emb_model IS NOT ? OR emb_dim IS NOT ?)
                        ORDER BY id`;
 
+/**
+ * Rows the pruning ladder tombstoned (rung 3) and someone has since restored out
+ * of `archived` — see `findTombstoned`.
+ */
+const SELECT_TOMBSTONED = `SELECT id, uid, text, emb_model, emb_dim
+                             FROM memories
+                            WHERE emb IS NULL AND status <> 'archived'
+                            ORDER BY id`;
+
 const UPDATE_ROW = `UPDATE memories
                        SET emb = vector32(?), emb_model = ?, emb_dim = ?
                      WHERE id = ?`;
@@ -48,6 +57,22 @@ export async function findStale(conn, { embModel = EMB_MODEL, embDim = EMB_DIM }
   return conn.all(SELECT_STALE, embModel, embDim);
 }
 
+/**
+ * The other half of the tombstone guard above, and what makes PLAN's rung 3
+ * reversible in practice: "Restoring requires re-embedding, which is 11ms."
+ *
+ * `status <> 'archived'` is the whole rule, and it is what keeps this from
+ * contradicting `findStale`'s deliberate skip. A row that is still archived was
+ * tombstoned on purpose and refilling its vector would undo that decision behind
+ * the user's back; a row that is tombstoned and *no longer archived* was restored
+ * by hand (`mem forget --restore`, which cannot embed — manage.mjs is model-free
+ * so curation keeps working with no model cached) and is currently findable only
+ * through the lexical leg. That is the gap this closes.
+ */
+export async function findTombstoned(conn) {
+  return conn.all(SELECT_TOMBSTONED);
+}
+
 /** What the store looks like right now, grouped by stamp — what `--dry-run` reports. */
 export async function stampCounts(conn) {
   return conn.all(
@@ -60,7 +85,8 @@ export async function stampCounts(conn) {
 }
 
 /**
- * Rewrite the vectors of every stale row.
+ * Rewrite the vectors of every stale row, and — with `tombstoned` — of every row
+ * the pruning ladder emptied that is no longer archived.
  *
  * One transaction: a half-migrated store is one where some memories are
  * retrievable and some are not, with nothing recording which. Failing back to
@@ -74,16 +100,32 @@ export async function stampCounts(conn) {
  */
 export async function reembedStale(
   conn,
-  { paths = resolvePaths(), env = process.env, dryRun = false, batch = EMBED_BATCH, onProgress } = {},
+  {
+    paths = resolvePaths(),
+    env = process.env,
+    dryRun = false,
+    batch = EMBED_BATCH,
+    tombstoned = false,
+    onProgress,
+  } = {},
 ) {
   const before = await stampCounts(conn);
   const stale = await findStale(conn);
+  // Disjoint by construction — one query wants `emb IS NOT NULL` and the other
+  // `emb IS NULL` — so this can never embed the same row twice.
+  const restored = tombstoned ? await findTombstoned(conn) : [];
+  const work = [...stale, ...restored];
 
   const report = {
     model: EMB_MODEL,
     dim: EMB_DIM,
     total: (await conn.get('SELECT count(*) AS n FROM memories'))?.n ?? 0,
     stale: stale.length,
+    // Two counts, not one: "12 rows carry an old model" and "3 rows were restored
+    // from a tombstone and have no vector at all" are different repairs and the
+    // second only happens when it was asked for.
+    restored: restored.length,
+    pending: work.length,
     reembedded: 0,
     batches: 0,
     dryRun,
@@ -91,27 +133,27 @@ export async function reembedStale(
     after: before,
   };
 
-  if (stale.length === 0 || dryRun) return report;
+  if (work.length === 0 || dryRun) return report;
 
   // Embed outside the transaction: the forward passes are the slow part and
   // holding a write lock across them would block every other mem process for
   // the duration, for no benefit — the vectors do not depend on the database.
   const vectors = [];
-  for (let i = 0; i < stale.length; i += batch) {
-    const slice = stale.slice(i, i + batch);
+  for (let i = 0; i < work.length; i += batch) {
+    const slice = work.slice(i, i + batch);
     vectors.push(...(await embedMany(slice.map((r) => r.text), { paths, env, role: 'passage' })));
     report.batches += 1;
-    onProgress?.({ done: Math.min(i + batch, stale.length), total: stale.length });
+    onProgress?.({ done: Math.min(i + batch, work.length), total: work.length });
   }
 
   const apply = conn.transactionAsync(async (tx) => {
-    for (let i = 0; i < stale.length; i += 1) {
-      await tx.run(UPDATE_ROW, vectorBlob(vectors[i]), EMB_MODEL, EMB_DIM, stale[i].id);
+    for (let i = 0; i < work.length; i += 1) {
+      await tx.run(UPDATE_ROW, vectorBlob(vectors[i]), EMB_MODEL, EMB_DIM, work[i].id);
     }
   });
   await apply.immediate();
 
-  report.reembedded = stale.length;
+  report.reembedded = work.length;
   report.after = await stampCounts(conn);
   return report;
 }

@@ -20,7 +20,7 @@ import { after, describe, it } from 'node:test';
 import { withDb } from '../../src/db.mjs';
 import { EMB_DIM, EMB_MODEL, cosine, embed, modelCached } from '../../src/embed.mjs';
 import { resolvePaths } from '../../src/paths.mjs';
-import { findStale, reembedStale, stampCounts } from '../../src/reembed.mjs';
+import { findStale, findTombstoned, reembedStale, stampCounts } from '../../src/reembed.mjs';
 
 const paths = resolvePaths();
 const needsModel = { skip: modelCached(paths) ? false : `model not cached — run 'mem warm'` };
@@ -45,15 +45,24 @@ const INSERT = `INSERT INTO memories (uid, kind, scope, project_key, text, emb, 
                 VALUES (?, 'fact', 'global', NULL, ?, vector32(?), ?, ?, 'active', 1, 1)`;
 
 /**
+ * A row the pruning ladder tombstoned: text and stamp intact, vector gone. The
+ * NULL is a literal because `vector32(NULL)` throws, and this insert is only legal
+ * at all since the schema v2 rebuild in slice 5a.3.
+ */
+const TOMBSTONE_INSERT = `INSERT INTO memories (uid, kind, scope, project_key, text, emb, emb_model, emb_dim,
+                                                status, created_at, updated_at)
+                          VALUES (?, 'fact', 'global', NULL, ?, NULL, ?, ?, ?, 1, 1)`;
+
+/**
  * A store with `stale` rows stamped with the old model and `fresh` rows already
  * on the current one — the realistic mid-migration shape, not an all-or-nothing
  * one, because the interesting bug is re-embedding rows that did not need it.
  *
- * NOT COVERED, and not coverable yet: tombstoned rows. reembed.mjs skips
- * `emb IS NULL` because pruning drops those vectors deliberately, but schema v1
- * declares `emb BLOB NOT NULL`, so such a row cannot be inserted to test the
- * guard against. That contradiction is a known open item for phase 5 (PLAN's
- * pruning rung 3 needs a v2 rebuild); the guard is here ready for it.
+ * Tombstoned rows were the gap here from slice 1.6 until 5a.3: reembed.mjs has
+ * always skipped `emb IS NULL` because pruning drops those vectors deliberately,
+ * but schema v1's `emb BLOB NOT NULL` made such a row impossible to insert, so
+ * the guard could not be tested. The v2 rebuild closed that, and the tombstone
+ * tests below are what the guard had been waiting for.
  */
 async function seedStore(conn, { stale = 3, fresh = 0 } = {}) {
   for (let i = 0; i < stale; i += 1) {
@@ -91,6 +100,78 @@ describe('findStale', () => {
     });
   });
 
+  // Waiting since slice 1.6 for a schema that could hold the row. Pruning dropped
+  // that vector on purpose to bound file growth, and quietly refilling it on the
+  // next model swap would undo the decision behind the user's back.
+  it('skips a tombstoned row even when its stamp is stale', async () => {
+    await withStore({ stale: 1 }, async (conn) => {
+      await conn.run(TOMBSTONE_INSERT, 'tomb', 'archived long ago, vector dropped', OLD_MODEL, 384, 'archived');
+      const stale = await findStale(conn);
+      assert.deepEqual(stale.map((r) => r.uid), ['stale-0']);
+    });
+  });
+});
+
+// PLAN rung 3 is only reversible if there is a way back: "Restoring requires
+// re-embedding, which is 11ms." `mem forget --restore` puts the status back but
+// cannot embed (manage.mjs is model-free on purpose), so the row lands active with
+// no vector — findable lexically, invisible to the vector leg. This closes it.
+describe('findTombstoned', () => {
+  it('finds a restored tombstone and leaves the still-archived ones alone', async () => {
+    await withStore({ stale: 0 }, async (conn) => {
+      await conn.run(TOMBSTONE_INSERT, 'still-archived', 'nobody restored this', EMB_MODEL, EMB_DIM, 'archived');
+      await conn.run(TOMBSTONE_INSERT, 'restored', 'somebody restored this', EMB_MODEL, EMB_DIM, 'active');
+      await conn.run(TOMBSTONE_INSERT, 'restored-staged', 'and this went back to the queue', EMB_MODEL, EMB_DIM, 'staged');
+
+      const found = await findTombstoned(conn);
+      assert.deepEqual(found.map((r) => r.uid), ['restored', 'restored-staged']);
+    });
+  });
+
+  it('is what --tombstoned adds to the work list, and nothing else', async () => {
+    await withStore({ stale: 2 }, async (conn) => {
+      await conn.run(TOMBSTONE_INSERT, 'restored', 'back in retrieval with no vector', EMB_MODEL, EMB_DIM, 'active');
+      await conn.run(TOMBSTONE_INSERT, 'archived', 'left alone', EMB_MODEL, EMB_DIM, 'archived');
+
+      const without = await reembedStale(conn, { paths, dryRun: true });
+      assert.equal(without.stale, 2);
+      assert.equal(without.restored, 0);
+      assert.equal(without.pending, 2);
+
+      const with_ = await reembedStale(conn, { paths, dryRun: true, tombstoned: true });
+      assert.equal(with_.stale, 2);
+      assert.equal(with_.restored, 1);
+      assert.equal(with_.pending, 3);
+    });
+  });
+
+  it('refills the restored row for real, so it is findable by vector again', { ...needsModel }, async () => {
+    await withStore({ stale: 0 }, async (conn) => {
+      await conn.run(
+        TOMBSTONE_INSERT, 'restored', 'never force push a branch somebody else is working on',
+        EMB_MODEL, EMB_DIM, 'active',
+      );
+      await conn.run(TOMBSTONE_INSERT, 'archived', 'stays empty', EMB_MODEL, EMB_DIM, 'archived');
+
+      const report = await reembedStale(conn, { paths, tombstoned: true });
+      assert.equal(report.reembedded, 1);
+
+      const rows = await conn.all('SELECT uid, emb IS NULL AS empty FROM memories ORDER BY uid');
+      assert.deepEqual(rows, [
+        { uid: 'archived', empty: 1 },
+        { uid: 'restored', empty: 0 },
+      ]);
+      assert.deepEqual(await findTombstoned(conn), []);
+
+      // And the refilled vector is the one this model makes for that text.
+      const vector = await embed('never force push a branch somebody else is working on', { paths });
+      const hit = await conn.get(
+        "SELECT vector_distance_cos(emb, vector32(?)) AS dist FROM memories WHERE uid = 'restored'",
+        Buffer.from(Float32Array.from(vector).buffer),
+      );
+      assert.ok(1 - hit.dist > 0.99, `similarity ${1 - hit.dist}`);
+    });
+  });
 });
 
 describe('reembedStale', () => {

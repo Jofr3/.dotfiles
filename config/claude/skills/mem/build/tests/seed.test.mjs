@@ -172,6 +172,73 @@ describe('generate', () => {
   });
 });
 
+describe('the aged fixture (--aged)', () => {
+  const plain = generate({ count: 400, now: NOW });
+  const aged = generate({ count: 400, now: NOW, aged: true });
+
+  it('changes four distributions and nothing else about the corpus', () => {
+    // Same sentences, same shape — an aged fixture that also changed the texts
+    // would make the two measurements incomparable. Compared against a larger
+    // plain sample rather than the same 400: the status rolls differ, so which
+    // rows get a superseded older phrasing differs too, and at equal counts the
+    // two text sets legitimately differ by one or two sentences.
+    const universe = new Set(generate({ count: 1000, now: NOW }).map((r) => r.text));
+    for (const r of aged) {
+      assert.ok(universe.has(r.text), `aged fixture invented a sentence: ${r.text}`);
+      assert.ok(KINDS.includes(r.kind));
+      assert.ok(STATUSES.includes(r.status));
+    }
+  });
+
+  it('ages past the plain fixture and leaves most rows never useful', () => {
+    const oldest = (rows) => Math.max(...rows.map((r) => NOW - r.createdAt));
+    assert.ok(oldest(aged) > oldest(plain), 'aged rows must reach further back');
+    const neverUseful = aged.filter((r) => r.usefulCount === 0).length / aged.length;
+    const plainNeverUseful = plain.filter((r) => r.usefulCount === 0).length / plain.length;
+    // `useful_count = 0` is the term the stale rule turns on, so this is the
+    // reason the flag exists rather than a cosmetic difference. Measured 82%
+    // against the plain fixture's 55%; the bar is under both so the test is
+    // about the shift, not about the exact draw.
+    assert.ok(neverUseful > 0.75, `only ${Math.round(neverUseful * 100)}% never useful`);
+    assert.ok(neverUseful > plainNeverUseful + 0.2, `${neverUseful} vs plain ${plainNeverUseful}`);
+    assert.ok(aged.filter((r) => r.status === 'archived').length > plain.filter((r) => r.status === 'archived').length);
+  });
+
+  it('dates every archived row, and only those', () => {
+    // Rung 3 reads its clock from the audit log (prune.mjs's tombstoneDue), so
+    // without these the whole rung is exercised only through its fallback.
+    for (const r of aged) {
+      if (r.status === 'archived') {
+        assert.ok(r.archivedAt, `${r.uid} is archived with no date`);
+        assert.ok(r.archivedAt >= r.createdAt, 'archived before it was created');
+        assert.ok(r.archivedAt <= NOW);
+      } else {
+        assert.equal(r.archivedAt, null, `${r.uid} is ${r.status} but carries an archive date`);
+      }
+    }
+    assert.ok(aged.some((r) => NOW - r.archivedAt > 182 * 24 * 3600 * 1000), 'nothing old enough to tombstone');
+    assert.ok(aged.some((r) => r.status === 'archived' && NOW - r.archivedAt < 182 * 24 * 3600 * 1000),
+      'nothing archived recently — the tombstone cutoff would be untested');
+  });
+
+  it('is reproducible, and the plain fixture is unchanged by the flag existing', () => {
+    assert.deepEqual(generate({ count: 400, now: NOW, aged: true }), aged);
+    assert.deepEqual(generate({ count: 400, now: NOW, aged: false }), plain);
+  });
+
+  it('passes the same write-path validation', () => {
+    assert.equal(seedRecords({ count: 200, now: NOW, aged: true }).length, 200);
+  });
+
+  it('gets its own directory, because harness.json is pinned to the plain one', () => {
+    // tune.test.mjs cross-checks 52 retrieval cases against the uids in
+    // <dataDir>/seed. An aged 5k seed landing there fails the suite; it is a
+    // different fixture, so it is a different store.
+    assert.equal(seedPaths(paths, { aged: true }).dataDir, join(paths.dataDir, 'seed-aged'));
+    assert.notEqual(seedPaths(paths, { aged: true }).dbPath, seedPaths(paths).dbPath);
+  });
+});
+
 describe('seedRecords', () => {
   it('passes every record through the write path validation', () => {
     // The point of the assertion is that seedRecords does not throw: it runs

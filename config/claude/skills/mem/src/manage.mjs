@@ -17,7 +17,8 @@
 // been there.
 
 import { withDb } from './db.mjs';
-import { retention, strength } from './search.mjs';
+import { retention, strength, strengthSql } from './decay.mjs';
+import { dropVerdictsFor } from './pairs.mjs';
 import { KINDS, STATUSES, recordEvent } from './write.mjs';
 
 /** One screenful. `list` is a scanning surface, not a dump — `export` is that. */
@@ -30,7 +31,31 @@ export const LIST_LIMIT = 20;
  */
 export const MIN_UID_PREFIX = 4;
 
-export const SORTS = ['updated', 'created', 'id', 'strength'];
+/**
+ * The ORDER BY behind each `--sort`, as a function of `now` because one of them
+ * needs it.
+ *
+ * 'oldest' is the odd one out and earns its place: everything else here answers
+ * "what is newest / strongest", and a queue is drained from the front — the
+ * review surface needs the item that has been waiting longest, not the one that
+ * arrived last.
+ *
+ * 'strength' became a real ORDER BY in slice 5a.1. It used to fetch the whole
+ * filtered set and sort it in JS, because strength is not a column; it is not a
+ * column still, but decay.mjs can now write it as an expression, so the database
+ * does the ordering and `--limit`/`--offset` mean what they say instead of
+ * paginating a list already materialised in memory.
+ */
+const ORDER_BY = {
+  updated: () => 'updated_at DESC, id DESC',
+  created: () => 'created_at DESC, id DESC',
+  oldest: () => 'created_at ASC, id ASC',
+  id: () => 'id DESC',
+  strength: (now) => `${strengthSql({ now })} DESC, id ASC`,
+};
+
+/** Derived from ORDER_BY so a sort can never be offered without being implemented. */
+export const SORTS = Object.keys(ORDER_BY);
 
 export const EVENT_ARCHIVED = 'archived';
 export const EVENT_RESTORED = 'restored';
@@ -160,6 +185,9 @@ export function buildFilter({
   scope = 'all',
   projectKey = null,
   pinned = null,
+  minStrength = null,
+  maxStrength = null,
+  now = Date.now(),
 } = {}) {
   const clauses = [];
   const params = [];
@@ -193,23 +221,42 @@ export function buildFilter({
 
   if (pinned !== null && pinned !== undefined) clauses.push(`pinned = ${pinned ? 1 : 0}`);
 
+  // Strength bounds are a WHERE clause over an expression, not over a column —
+  // decay.mjs writes it. This is the filter that answers "what has gone stale",
+  // and it is the same shape phase 5a.3's archiving rule takes, one threshold and
+  // a couple of extra conjuncts. Having it here means the rule gets measured by
+  // hand on a real store before anything automatic starts acting on it.
+  if (minStrength !== null && minStrength !== undefined) {
+    clauses.push(`${strengthSql({ now })} >= ${requireStrength(minStrength, 'min-strength')}`);
+  }
+  if (maxStrength !== null && maxStrength !== undefined) {
+    clauses.push(`${strengthSql({ now })} <= ${requireStrength(maxStrength, 'max-strength')}`);
+  }
+
   return { sql: clauses.length === 0 ? '1' : clauses.join(' AND '), params };
 }
 
-const ORDER_BY = {
-  updated: 'updated_at DESC, id DESC',
-  created: 'created_at DESC, id DESC',
-  id: 'id DESC',
-};
+/**
+ * Strength is a product of three values in [0, 1], so it cannot leave that range.
+ * A bound outside it is a typo (`--min-strength 15` for 0.15) that would
+ * otherwise silently match nothing or everything.
+ */
+function requireStrength(value, field) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0 || n > 1) {
+    throw new ManageError(`--${field} must be between 0 and 1, got ${JSON.stringify(value)}.`);
+  }
+  return String(n);
+}
 
 /**
  * List memories. Returns `{ rows, total }` — `total` is the number the filter
  * matched, so the caller can say "20 of 143" instead of implying it showed
  * everything.
  *
- * 'strength' is not a column, so sorting by it fetches the filtered set and
- * sorts in JS. That is the expensive sort and it is the one worth having: it is
- * how you find what has gone stale before the pruning ladder gets to it.
+ * One SQL path for every sort since 5a.1, strength included. `now` is threaded
+ * into both the filter and the ORDER BY so a query that bounds strength and
+ * orders by it reads one clock, not two.
  */
 export async function listMemories(
   conn,
@@ -218,21 +265,13 @@ export async function listMemories(
   if (!SORTS.includes(sort)) {
     throw new ManageError(`Unknown sort '${sort}' — expected one of: ${SORTS.join(', ')}.`);
   }
-  const { sql, params } = buildFilter(filter);
+  const { sql, params } = buildFilter({ ...filter, now });
 
   const counted = await conn.get(`SELECT count(*) AS n FROM memories WHERE ${sql}`, ...params);
   const total = counted?.n ?? 0;
 
-  if (sort === 'strength') {
-    const all = await conn.all(`SELECT ${ROW_COLUMNS} FROM memories WHERE ${sql}`, ...params);
-    const scored = all
-      .map((row) => decorate(row, now))
-      .sort((a, b) => b.strength - a.strength || a.id - b.id);
-    return { rows: scored.slice(offset, offset + limit), total };
-  }
-
   const rows = await conn.all(
-    `SELECT ${ROW_COLUMNS} FROM memories WHERE ${sql} ORDER BY ${ORDER_BY[sort]} LIMIT ? OFFSET ?`,
+    `SELECT ${ROW_COLUMNS} FROM memories WHERE ${sql} ORDER BY ${ORDER_BY[sort](now)} LIMIT ? OFFSET ?`,
     ...params,
     limit,
     offset,
@@ -346,6 +385,11 @@ export async function forgetMemory(
     );
     await conn.run('DELETE FROM memory_events WHERE memory_id = ?', row.id);
     await conn.run('DELETE FROM memory_links WHERE src = ? OR dst = ?', row.id, row.id);
+    // And the consolidation verdicts about it (slice 5b.1). Not tidiness: SQLite
+    // hands the next INSERT the highest rowid + 1, so purging the newest row means
+    // some later memory gets this id — and a leftover `pair:<id>:<other>` entry
+    // would suppress a judgement between two rows that never met.
+    const verdicts = await dropVerdictsFor(conn, row.id);
     // Any row that superseded this one now points at nothing; leave the pointer
     // dangling and the FK would fail on the next write.
     await conn.run('UPDATE memories SET superseded_by = NULL WHERE superseded_by = ?', row.id);
@@ -357,7 +401,14 @@ export async function forgetMemory(
       memoryId: null,
       event: EVENT_PURGED,
       at: now,
-      detail: { id: row.id, uid: row.uid, status: row.status, events_deleted: events?.n ?? 0, reason },
+      detail: {
+        id: row.id,
+        uid: row.uid,
+        status: row.status,
+        events_deleted: events?.n ?? 0,
+        pair_verdicts_deleted: verdicts,
+        reason,
+      },
     });
     return {
       action: EVENT_PURGED,
@@ -367,6 +418,7 @@ export async function forgetMemory(
       from: row.status,
       to: null,
       eventsDeleted: events?.n ?? 0,
+      verdictsDeleted: verdicts,
       eventId,
     };
   }

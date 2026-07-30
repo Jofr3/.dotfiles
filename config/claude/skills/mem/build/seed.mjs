@@ -379,8 +379,8 @@ function seededUid(rand) {
  * rows that are still status='active' (search.mjs's read-time guard), and a
  * spread of ages and usage counts wide enough that strength actually varies.
  */
-function profile(rand, now, { pinned = false, status = 'active' } = {}) {
-  const ageDays = between(rand, 0, 540);
+function profile(rand, now, { pinned = false, status = 'active', aged = false } = {}) {
+  const ageDays = between(rand, 0, aged ? 900 : 540);
   const createdAt = Math.round(now - ageDays * DAY_MS);
   // Most memories are never restated; the ones that are, were restated
   // somewhere between when they were written and now.
@@ -391,7 +391,15 @@ function profile(rand, now, { pinned = false, status = 'active' } = {}) {
   // useful in a turn it was never injected into. PLAN reads the ratio of these
   // two as the over-general-slop signature, so an impossible pair would poison
   // the one statistic that catches it.
-  const usefulCount = injectedCount === 0 ? 0 : Math.floor(rand() * (injectedCount * 0.4 + 1));
+  //
+  // `aged` makes most rows never-useful, which is the term the archiving rule
+  // actually turns on: `useful_count = 0` spares a row permanently, so a fixture
+  // where three quarters of rows echoed once has nothing for the ladder to reach
+  // however old it is.
+  const usefulCount =
+    injectedCount === 0 || (aged && rand() < 0.75)
+      ? 0
+      : Math.floor(rand() * (injectedCount * 0.4 + 1));
 
   return {
     pinned,
@@ -414,8 +422,18 @@ function profile(rand, now, { pinned = false, status = 'active' } = {}) {
  * Records come out in insert order. A superseding entry emits its older phrasing
  * first and the replacement straight after, carrying `supersededByUid` — the
  * link is resolved after the insert, because the target does not have an id yet.
+ *
+ * `aged` (slice 5a.4) is the maintenance-tier fixture: the same corpus, aged and
+ * used the way a store that has been running for two years would be. It changes
+ * four distributions and nothing else — ages up to 900 days, three quarters of
+ * rows never useful, a quarter already archived, and every archived row carries a
+ * dated `archived` event. That last one is the reason the flag exists rather than
+ * just turning `--count` up: rung 3 reads its clock from the audit log
+ * (prune.mjs's tombstoneDue), so without those events the whole rung is exercised
+ * only through its `coalesce(…, updated_at)` fallback, which is the branch that
+ * matters least.
  */
-export function generate({ count = DEFAULT_COUNT, seed = DEFAULT_SEED, now = Date.now() } = {}) {
+export function generate({ count = DEFAULT_COUNT, seed = DEFAULT_SEED, now = Date.now(), aged = false } = {}) {
   const rand = rng(seed);
   const records = [];
 
@@ -433,7 +451,9 @@ export function generate({ count = DEFAULT_COUNT, seed = DEFAULT_SEED, now = Dat
     const scope = global ? 'global' : 'project';
 
     const roll = rand();
-    const status = roll < 0.06 ? 'staged' : roll < 0.11 ? 'archived' : 'active';
+    const status = aged
+      ? roll < 0.05 ? 'staged' : roll < 0.3 ? 'archived' : 'active'
+      : roll < 0.06 ? 'staged' : roll < 0.11 ? 'archived' : 'active';
     // Pinned only where it means something: a global preference or constraint
     // the user would actually protect from decay.
     const pinned = status === 'active' && global && rand() < 0.25;
@@ -447,8 +467,16 @@ export function generate({ count = DEFAULT_COUNT, seed = DEFAULT_SEED, now = Dat
       projectKey,
       sourceKind: status === 'staged' ? 'auto' : 'user',
       sourceSession: status === 'staged' ? `seed-session-${cycle}` : null,
-      ...profile(rand, now, { pinned, status }),
+      ...profile(rand, now, { pinned, status, aged }),
     };
+
+    // When it was archived, for the rows that are. Spread from "last week" to
+    // "over a year ago" so the tombstone rung has rows on both sides of its
+    // 182-day cutoff rather than all of them past it.
+    base.archivedAt =
+      aged && status === 'archived'
+        ? Math.max(base.createdAt, Math.round(now - between(rand, 7, 400) * DAY_MS))
+        : null;
 
     // A handful of memories with a lifetime, and two already past it: an expired
     // row keeps status='active' until a tier-1 sweep runs, which is precisely the
@@ -470,6 +498,7 @@ export function generate({ count = DEFAULT_COUNT, seed = DEFAULT_SEED, now = Dat
         status: 'superseded',
         pinned: false,
         expiresAt: null,
+        archivedAt: null,
         // The older phrasing was written before the one that replaced it.
         createdAt: Math.round(base.createdAt - between(rand, 30, 200) * DAY_MS),
         updatedAt: base.createdAt,
@@ -505,9 +534,17 @@ export function seedRecords(opts) {
 
 // ------------------------------------------------------------------ seeding --
 
-/** Where the seeded store lives: beside the real one, never on top of it. */
-export function seedPaths(base = resolvePaths()) {
-  const dataDir = join(base.dataDir, 'seed');
+/**
+ * Where the seeded store lives: beside the real one, never on top of it.
+ *
+ * `aged` gets its OWN directory, and that is not tidiness. `build/harness.json`
+ * pins 52 retrieval cases to the uids of the default 200-row fixture and
+ * `tune.test.mjs` cross-checks every one of them against the store at this path
+ * — so an aged 5k seed landing here does not "replace the fixture", it fails the
+ * suite with forty stale-uid errors. Two fixtures, two directories.
+ */
+export function seedPaths(base = resolvePaths(), { aged = false } = {}) {
+  const dataDir = join(base.dataDir, aged ? 'seed-aged' : 'seed');
   return { ...base, dataDir, dbPath: join(dataDir, 'mem.db') };
 }
 
@@ -621,6 +658,7 @@ export async function seedDatabase({
   verifyDistinct = count <= 1000,
   link = true,
   force = false,
+  aged = false,
 } = {}) {
   if (!force && paths.dbPath === base.dbPath) {
     throw new Error(
@@ -634,7 +672,7 @@ export async function seedDatabase({
   if (reset) for (const suffix of ['', '-wal', '-shm']) rmSync(paths.dbPath + suffix, { force: true });
 
   const t0 = performance.now();
-  const records = seedRecords({ count, seed, now });
+  const records = seedRecords({ count, seed, now, aged });
   const generateMs = performance.now() - t0;
 
   const t1 = performance.now();
@@ -653,7 +691,7 @@ export async function seedDatabase({
     const work = conn.transactionAsync(async (tx) => {
       for (let i = 0; i < records.length; i += 1) {
         const r = records[i];
-        await tx.run(
+        const info = await tx.run(
           INSERT,
           r.uid, r.kind, r.scope, r.projectKey, r.text, r.why,
           vectorBlob(vectors[i]), EMB_MODEL, EMB_DIM,
@@ -663,8 +701,12 @@ export async function seedDatabase({
           r.lastInjectedAt, r.injectedCount,
           r.lastUsedAt, r.usefulCount, r.expiresAt,
         );
+        // The row's own id rather than last_insert_rowid(): the second event
+        // below would otherwise attach itself to the first event's rowid.
+        const id = info.lastInsertRowid;
         await tx.run(
-          'INSERT INTO memory_events (memory_id, event, detail, at) VALUES (last_insert_rowid(), ?, ?, ?)',
+          'INSERT INTO memory_events (memory_id, event, detail, at) VALUES (?, ?, ?, ?)',
+          id,
           'created',
           // Marked as generated: an audit log that let synthetic rows pass for
           // captured ones would make every later question about provenance
@@ -672,6 +714,18 @@ export async function seedDatabase({
           JSON.stringify({ generator: 'build/seed.mjs', seed, index: i, uid: r.uid }),
           r.createdAt,
         );
+        // `--aged` only: the event rung 3 reads its clock from. Same shape a
+        // hand `mem forget` and prune.mjs both write, so tombstoneDue sees what
+        // it would see on a real store.
+        if (r.archivedAt) {
+          await tx.run(
+            'INSERT INTO memory_events (memory_id, event, detail, at) VALUES (?, ?, ?, ?)',
+            id,
+            'archived',
+            JSON.stringify({ generator: 'build/seed.mjs', previous: { status: 'active' } }),
+            r.archivedAt,
+          );
+        }
       }
 
       for (const r of records) {
@@ -745,12 +799,18 @@ export async function seedDatabase({
     );
     const superseded = await conn.get('SELECT count(*) AS n FROM memories WHERE superseded_by IS NOT NULL');
 
+    const archivedEvents = await conn.get(
+      "SELECT count(*) AS n FROM memory_events WHERE event = 'archived'",
+    );
+
     return {
       dbPath: paths.dbPath,
       dataDir: paths.dataDir,
       seed,
+      aged,
       count: total.n,
       requested: count,
+      archivedEvents: archivedEvents.n,
       statuses: Object.fromEntries(counts.map((r) => [r.status, r.n])),
       projects: PROJECTS.length,
       pinned: pinned.n,
@@ -793,6 +853,7 @@ function parseArgs(argv) {
       case '--json': opts.json = true; break;
       case '--force': opts.force = true; break;
       case '--keep': opts.reset = false; break;
+      case '--aged': opts.aged = true; break;
       case '--no-checkpoint': opts.checkpoint = false; break;
       case '-h':
       case '--help': opts.help = true; break;
@@ -811,11 +872,16 @@ function parseArgs(argv) {
 const HELP = `seed — build a synthetic mem store for benchmarking
 
 Usage: node build/seed.mjs [--count 200] [--seed <int>] [--data-dir <dir>]
-                           [--keep] [--no-checkpoint] [--force] [--json]
+                           [--aged] [--keep] [--no-checkpoint] [--force] [--json]
 
   --count N        how many memories (default ${DEFAULT_COUNT})
   --seed N         PRNG seed; the same seed rebuilds the same store
-  --data-dir DIR   where to put it (default <dataDir>/seed)
+  --data-dir DIR   where to put it (default <dataDir>/seed, or <dataDir>/seed-aged)
+  --aged           a store that has been running for two years: ages to 900 days,
+                   most rows never useful, a quarter archived with dated events.
+                   The fixture the maintenance tier is measured against. Goes in
+                   its own directory: build/harness.json pins retrieval cases to
+                   the uids of the plain fixture.
   --keep           add to the existing store instead of rebuilding it
   --no-checkpoint  skip the WAL checkpoint after the bulk insert
   --force          allow writing to the real mem.db
@@ -842,7 +908,7 @@ async function main(argv) {
     ? { ...base, dataDir: opts.dataDir, dbPath: join(opts.dataDir, 'mem.db') }
     : opts.force
       ? base
-      : seedPaths(base);
+      : seedPaths(base, { aged: opts.aged === true });
 
   let stats;
   try {
@@ -854,6 +920,7 @@ async function main(argv) {
       seed: opts.seed,
       reset: opts.reset,
       doCheckpoint: opts.checkpoint,
+      aged: opts.aged === true,
     });
   } catch (err) {
     console.error(`seed: ${err.message}`);
@@ -868,8 +935,10 @@ async function main(argv) {
   const t = stats.timings;
   console.log(
     [
-      `Seeded ${stats.count} memories into ${stats.dbPath}  (seed ${stats.seed}, ${mb(stats.dbBytes)})`,
-      `  status      ${Object.entries(stats.statuses).map(([k, v]) => `${k} ${v}`).join(' · ')}`,
+      `Seeded ${stats.count} memories into ${stats.dbPath}  (seed ${stats.seed}, ${mb(stats.dbBytes)}` +
+        `${stats.aged ? ', aged' : ''})`,
+      `  status      ${Object.entries(stats.statuses).map(([k, v]) => `${k} ${v}`).join(' · ')}` +
+        `${stats.aged ? `   (${stats.archivedEvents} dated archive events)` : ''}`,
       `  scope       ${stats.globals} global · ${stats.count - stats.globals} across ${stats.projects} projects`,
       `  flags       ${stats.pinned} pinned · ${stats.expired} expired · ${stats.supersededPairs} superseded`,
       `  distinct    worst in-group similarity ${

@@ -151,13 +151,32 @@ row by setting `emb = NULL` (rung 3), so the column cannot be `NOT NULL` — the
 schema here said otherwise and slices 1.3 through 1.6 each tripped over it. Two consequences,
 both load-bearing:
 
-- Any candidate query needs `emb IS NOT NULL`. `NULL` sorts *ahead of* every real distance in
-  an `ASC` ordering, so a single tombstone would otherwise come back as the nearest neighbour
-  to everything. Silent, not loud.
+- Any candidate query needs `emb IS NOT NULL`. **Measured in slice 5a.3, and it is worse than
+  written above:** `vector_distance_cos(NULL, v)` does not return `NULL` in this Turso build,
+  it *throws* (`Conversion error: Invalid vector type`) and takes the whole statement with it.
+  So an unguarded query does not mis-rank one row, it fails — and since every hook fails open
+  and silent, the whole store would go dark rather than one tombstone jumping the queue.
 - Distances are only meaningful within one vector space, so candidates must also match on
   `emb_model` and `emb_dim`. Mid-migration, a store legitimately holds both.
 
-Schema v1 shipped with the `NOT NULL`; phase 5a.3 owes the v2 rebuild that drops it.
+Schema v1 shipped with the `NOT NULL`. **Migration v2, `emb-nullable`, is the rebuild that
+drops it** (slice 5a.3) — SQLite cannot drop a column constraint, so the table is recreated,
+the rows copied, the old one dropped and the new one renamed. Two steps of that are not the
+textbook procedure and both were forced by this build rather than guessed:
+
+- `PRAGMA defer_foreign_keys` has no effect inside the migration runner's transaction, so the
+  copy cannot carry `superseded_by` in one pass — a row superseded by a *higher* id fails the
+  self-FK the instant it is inserted. The copy leaves that column NULL and a second `UPDATE`
+  fills it once every id exists.
+- `DROP TABLE` runs an implicit `DELETE` with foreign keys on, so dropping a table whose rows
+  still point at each other fails too. The old table's pointers are cleared first, which is
+  safe because their values are already in the new one.
+
+`ALTER TABLE … RENAME` does rewrite the new table's own FK clause to name `memories`, so the
+self-reference survives; the index does not, and is recreated by hand. `db.test.mjs` asserts
+all of it against a v1 fixture holding a forward self-reference, a link, an event and a NULL in
+every nullable column, because a rebuild is exactly the migration where data goes missing
+quietly.
 
 ## Retrieval
 
@@ -285,10 +304,215 @@ against the 400ms hook budget. The download is 34MB rather than 23MB.
 per-row stamp existed for. Retrieval filters on the stamp, so until it runs, rows written by
 the old model are invisible rather than wrong.
 
+### Built in slice 3.1 — the session-start profile costs no embedding
+
+Step 7's first half is `src/profile.mjs` + `hooks/session-start.mjs`. The thing worth writing
+down: **this path never embeds anything.** It has no query to embed, so it is a scoped column
+read — no transformers import (~100ms), no model load (~150ms). Measured over 15 spawns of the
+real hook: **p95 48ms isolated, 224ms with the whole test suite loading ONNX models alongside
+it**, both inside the 400ms budget with room to spare. The budget pressure in phase 3 belongs
+entirely to 3.2.
+
+Selection is a hard tier, not a score: pinned first (any scope — pinning a project memory means
+exactly that inside that project), then globals ranked by `strength`, capped at 3. A 0.2 boost
+would let a strong global outbid a pin, and "I pinned this" is not a preference. Unpinned
+*project* memories are excluded on purpose — they are the bulk of a real store and 3.2 owns
+them; injecting them unqueried is the failure the threshold gate exists to prevent.
+`MIN_STRENGTH = 0.05` floors the unpinned tier (a default-scored global drops out after ~10
+unused weeks) and never applies to a pin. It is a judgment call, not a measurement: 3.3's
+harness tunes the *query* threshold and has no cases for this path.
+
+The hook is read-only and never migrates — `readonly` implies `fileMustExist`, so a machine
+with no store injects nothing rather than creating a database from a hook, and nothing here can
+lock or corrupt. It checks `depsReady()` before the first turso import and passes
+`MEM_NO_INSTALL=1`, because `loadModule()` would otherwise run `npm install` at session start.
+It does **not** bump `injected_count`/`last_injected_at`: 3.2 owns injection accounting, and
+5a.2's echo heuristic reads those columns to judge whether an injection was *useful* — an
+unqueried session-start injection is not evidence either way.
+
+Framing is load-bearing and treated as part of the deliverable, not decoration.
+`additionalContext` lands where a user turn lands, so a bare list of imperatives ("always use
+pnpm") reads as instructions for *this* prompt and gets answered. The block is named as
+recollection, marked possibly-stale with the user's present words winning, told not to act and
+not to mention, and carries `#id` + a coarse age per item so a wrong memory can be corrected by
+reference. Age comes from `created_at`, not `updated_at`: dedup merges and maintenance rewrites
+move `updated_at`, and reporting that as the age makes an old belief look freshly held.
+
+### Built in slice 3.2 — the per-prompt hook, and the field name nobody agrees on
+
+Step 7's second half is `src/recall.mjs` + `hooks/prompt-recall.mjs`. It reuses the gate in
+`search.mjs` unchanged and passes **no threshold override** — 3.3 owns that number — so the
+new decisions are all about cost, accounting, and framing.
+
+**Cost.** This is the one recall path that must embed, so it pays what session start does not:
+the transformers import plus the model load, in a fresh process, every prompt. Measured over 9
+spawns of the real hook, seeded store, cold each time:
+
+```
+p95 367ms, best 343ms   this test file alone
+p95 499ms, best 406ms   with the whole suite running concurrently (9 procs, ONNX loads)
+```
+
+So the 400ms budget holds on an idle machine and does not under load. The test asserts a
+tripwire (best < 700ms, p95 < 1200ms) rather than the budget, because it runs inside the
+suite that causes the load; `mem tune` in 3.3 is where p95 gets measured for real.
+
+Two refusals keep the bad cases from being worse than slow. `modelCached()` is checked before
+anything imports transformers, so a machine that has never run `mem warm` skips recall instead
+of pulling 34MB in front of a prompt — the same shape as the `depsReady()` check that stops
+`npm install` from happening at a keystroke. And a prompt whose every token is a stopword
+("yes, please do that") short-circuits before the model loads at all: `queryTerms()` returns
+nothing, the lexical leg has no terms, and the vector of a sentence with no content word points
+nowhere in particular. That is a good share of real turns costing ~35ms instead of ~350ms.
+
+**The prompt is not where PLAN says it is.** Three field names for the user's text are in
+circulation and this build cannot tell which the installed harness sends: the hook reference
+documents `prompt`, the official `plugin-dev` skill's own fixture emits `user_prompt`, and the
+line below (plus this slice's verify command) says `user_message`. Betting on one and losing is
+a hook that silently never recalls anything — the failure nobody notices — so `promptText()`
+reads all of them in order and takes the first that carries text. **Slice 4.1's capture gate
+must use `promptText()` rather than re-reading `user_message` directly.**
+
+**Injection accounting.** `markInjected()` bumps `injected_count` and `last_injected_at` for
+exactly the rows the block contains, after the gate and the cap — PLAN's "actually injected
+into context (not merely scanned)". It touches nothing else, and `last_injected_at` is
+deliberately absent from `retention()`'s `last_used_at → updated_at → created_at` chain: if
+injecting a memory reset its own decay clock, every memory the hook ever surfaced would stay
+strong on the strength of having been surfaced, and the ranking would be a feedback loop
+measuring itself. Being injected is not evidence of being useful; `useful_count` is, and 5a.2
+earns it.
+
+Writing counters means this hook cannot be read-only like 3.1's. It opens **read-write with
+`runMigrations: false`, only after `existsSync(dbPath)`** — so a hook still never creates or
+upgrades a store — and falls back to a read-only open if that fails, with the `UPDATE` itself
+wrapped so a failure is logged and dropped. The accounting exists for the injection; losing the
+injection to protect the accounting would be backwards, and there is a test that removes write
+permission from the database and still expects the memory.
+
+**The handoff to 5a.2.** One JSON record per session under `${dataDir}/turns/<session_id>.json`,
+overwritten every prompt: `{session_id, at, cwd, project_key, prompt, injected:[{id, uid, text,
+similarity, coverage}]}`. `recordTurn()`/`readTurn()` are both in `recall.mjs` so the format is
+defined once. Three things about it are deliberate: it is written **even when nothing was
+injected**, because "this turn injected nothing" is the answer the echo heuristic needs most
+often and it is not the same answer as "no record"; it carries `at` and `readTurn` refuses a
+record older than `maxAge`, because a hook that exits early writes nothing at all and the
+previous turn's record would otherwise read as this turn's; and the session id is reduced to
+`[A-Za-z0-9_-]` before it becomes a filename, dots included, since `..` survives a naive
+filter. Abandoned records are swept after `TURN_TTL_MS` on the next write.
+
+The block is *not* asking the model to call `mem touch <id>` yet — PLAN's second usefulness
+signal — because that command does not exist until 5a.2. It adds the command and the line
+together. What the block does add over the profile's framing is an admission that the items were
+chosen by similarity and one may be beside the point: at the shipped threshold roughly a quarter
+of real matches are missed and the occasional near-miss gets through, and a model told "here is
+what is relevant" will work to make an irrelevant memory relevant. The `<mem-recollection>` tag
+and the `#id` item shape are shared with 3.1 through `renderItems()` rather than reimplemented,
+because `#id` is the handle a correction uses and two spellings of it in one context window
+would make "forget #4" mean nothing.
+
+**Still unverified:** whether a skills-dir-discovered plugin honours `hooks/hooks.json` at all.
+`mem@skills-dir` is a registered plugin with usage recorded, and `UserPromptSubmit` is now wired
+in `hooks/hooks.json`, but the only hook *proven* to run on this machine is
+`build/session-relay.mjs`, wired by hand in `~/.claude/settings.json`. It cannot be settled from
+outside a live session while the real store is empty — both hooks correctly inject nothing.
+Store one memory and the next session start reveals the answer; if the answer is no, the fix is
+a `settings.json` entry for the user, not a code change.
+
+### Measured in slice 3.3 — 0.82 leaked, the threshold is 0.85, and it costs 40% of recall
+
+`build/harness.json` is **52 prompts against the seeded store**: 31 with a known right answer
+(12 literal, 19 paraphrase) and **21 that must retrieve nothing**. `mem tune` sweeps the vector
+threshold from 0.74 to 0.93 in steps of 0.005 and reports precision, recall, per-tier hit rate,
+admitted negatives and p95 latency per candidate. `build/harness.mjs` is where the cases are
+authored, against memory *text*; it resolves each to the uid the seed produced, because those
+uids are hex from a seeded rng and nobody writes them by hand.
+
+**The headline: 0.82 does not hold up.** Slice 1.6 chose it by measuring the *model* — raw
+cosine over an unscoped corpus, nine world-knowledge negatives. Measured on the *shipped path*,
+0.82 admits **7 of 21** negatives, which fails this phase's own exit criterion outright.
+
+```
+threshold   served    admits   precision   mean items/prompt
+0.790        28/31    12/21      0.17           3.31
+0.820        22/31     7/21      0.46           1.00   ← what 1.6 predicted
+0.840        18/31     2/21      0.75           0.52
+0.845        18/31     0/21      0.90           0.44   ← efficient point
+0.850        17/31     0/21      0.89           0.40   ← shipped
+0.860        13/31     0/21      1.00           0.29
+```
+
+Two negative classes did the damage, and both are the common case in use rather than the exotic
+one. **Adjacent** prompts share vocabulary with a real memory and are still unanswerable —
+"which branch of the river is deeper?" reaches 0.8416 against *branches are named
+type/short-description*, "my alarm clock keeps firing in the middle of the night" reaches 0.8443
+against *the nightly job fires at 03:00 UTC*. **Filtered** prompts are ones the store genuinely
+answers, with the answer archived, staged, expired or in another project; retrieval then offers
+the nearest *available* thing, which is what a similarity ranking is built to do — "how are
+secrets supplied at runtime?" pulled *show one runnable example before explaining the options*
+at 0.8204. Every one of the seven admissions cleared on cosine, not coverage: `lexical_admits`
+is 0 at every threshold, so the IDF coverage gate at 0.6 is not the leak.
+
+0.850 rather than the efficient 0.845 for the reason 1.6 stepped back from 0.814: 0.845 sits
+**0.0007** above the maximum of a finite negative sample, and fitting a production constant to a
+sample maximum is how a gate that measured clean starts leaking. The margin costs one prompt of
+31.
+
+**What it costs, split by tier, because the aggregate describes neither half:**
+
+```
+literal      11/12 served   0.92
+paraphrase    6/19 served   0.32
+offtopic      0/6  admitted
+adjacent      0/7  admitted
+filtered      0/8  admitted
+```
+
+A prompt that reuses the memory's own words is nearly free; a paraphrase is what the threshold
+is actually adjudicating, and two thirds of them are now missed. `separation` on the scoped path
+is **-0.066** — the worst right answer (0.7782, "how do I make this request safe to retry?"
+against *idempotency keys belong in a header*) scores *below* the best wrong one (0.8443). No
+value of this constant fixes that, which is the honest statement of what phase 3 delivers:
+**recall is a retrieval problem, not a threshold problem.** Buying it back needs a better query
+representation — HyDE-style expansion, a cross-encoder rerank over a loose candidate set, or
+storing a question form alongside each memory — and all three are phase-6 work. What the gate
+does guarantee is the property PLAN says matters most: 0.40 memories per prompt on average, and
+nothing at all on a prompt the store cannot answer.
+
+**Latency, measured properly at last** — 12 cold spawns of the real `prompt-recall` hook, one
+per sampled harness prompt, on an idle machine and not competing with the test suite:
+
+```
+hook    p50 344 ms   p95 379 ms      inside the 400ms budget
+embed   p50 2.7 ms   p95 3.5 ms      warm, in-process
+query   p50 2.1 ms   p95 2.4 ms      searchScoped over 169 retrievable rows
+```
+
+So the budget holds, and the 379ms is ~97% fixed cost — node boot, the transformers import, the
+ONNX load. The `query` column is the only part that grows with the store, and at 2.1ms it has
+three orders of magnitude of headroom. 3.2's in-suite tripwire (best < 700, p95 < 1200) stays as
+it is; it measures a machine running nine ONNX loads at once, which is a different question.
+
+Two implementation notes worth not rediscovering. The sweep costs **one search per case, not one
+per (case × threshold)**: the gate is a pure filter on `(similarity, coverage)` applied before
+the cap, and `score` is threshold-independent, so a single `searchScoped(…, {gate: false})` per
+case makes all 40 grid points a filter-and-slice in memory. `replay()` is that filter, and a
+test runs it against the real gated `searchScoped` at four thresholds, because "the sweep is
+free" is only true while the replay stays faithful. Separately, a right answer's similarity is
+queried **directly** rather than read off the candidate list: the vector leg stops at 20 rows, so
+a right answer ranked 21st is absent with no score, and reporting that as 0 made the first
+separation figure -0.84 instead of -0.066. It also distinguishes the one miss no threshold can
+fix (cleared the gate, lost to `VECTOR_LIMIT`) from the fourteen the gate caused.
+
+`mem tune` reads the fixture store from `build/seed.mjs` and never the user's own — a run against
+a store with four memories in it would report a precision of 1.00 and mean nothing. It refuses
+rather than re-seeding, and `crossCheck()` fails loudly with the two commands to re-run if any
+harness uid has gone, been reworded, or become reachable when the case depends on it not being.
+
 ## Capture gate
 
-Fire on **`UserPromptSubmit`**, not `Stop` — the user's exact words are in the hook input
-(`user_message`), no transcript parsing, and it runs before the model call.
+Fire on **`UserPromptSubmit`**, not `Stop` — the user's exact words are in the hook input, no
+transcript parsing, and it runs before the model call. Read them with `recall.promptText()`:
+the field name is not reliably `user_message`, see slice 3.2 above.
 
 Pure-JS regex, target <20ms, no LLM: `always|never|from now on|prefer|instead|actually|
 don't |stop |I use |we use |let's go with|remember `, plus correction shapes ("no, …").
@@ -297,6 +521,80 @@ When it fires, inject `additionalContext`: *"this prompt may contain a durable p
 if so, record it with `mem remember`"*. The model already in the loop does the extraction,
 so there is **no extra API call**. Writes land as `status='staged'`. Upgrade path if
 precision disappoints: switch to a `prompt`- or `agent`-type hook doing dedicated extraction.
+
+### Measured in slice 4.1
+
+The gate lives in `src/capture.mjs` and costs **~1µs per prompt** — worst single call 0.07ms
+idle, 2.6ms with the whole test suite competing for the CPU — against the 20ms budget. Three
+orders of magnitude of headroom, so the hook's cost is still entirely the model load recall pays.
+
+Fire rates on three corpora. 17 of 17 stated preferences fire, one per shape in the vocabulary
+above. 1 of 21 ordinary working prompts fires ("what do you prefer?", asking the *model's*
+opinion). 0 of the 52 recall questions in `build/harness.json` fire — a free negative set,
+written for slice 3.3 by someone not thinking about this gate.
+
+Applied literally the vocabulary fires 4 times on that harness, and **all four are `I use` /
+`we use` inside a question**: "what do we use for unit tests?", "which package manager should I
+use here?". Asking which tool to use is the opposite of stating which one you use, and the
+difference is one word in front of it — an auxiliary or a modal. So `I use`/`we use` and
+`remember` are suppressed after one ("do you remember…" wants recall, not capture), and `stop`
+requires an activity after it (`stop using X`, not "how do I stop the server?"). The `no, …`
+shape is taken literally — sentence-initial *and* commatted, so "no idea why this fails" and
+"no need to do that" stay quiet at the cost of missing an uncommatted "no it still fails".
+`prefer` is deliberately left wide: "you should prefer ripgrep" is a real instruction, and
+suppressing it to win that one false fire trades a miss for a nudge nobody pays for.
+
+**The gate never touches the store.** It is computed before the hook's filesystem checks and
+emitted from every exit path, including the watchdog and the no-database refusal — so it fires
+on a machine with no database, no dependencies and no cached model, which is precisely the
+machine with nothing stored yet. When both halves fire, the recollection is emitted first and
+the cue last.
+
+The block is written to be ignorable, because the gate is wrong often and that is the deal that
+makes it free: it says it is a regex, quotes the phrase that fired, and gives an explicit
+"otherwise ignore this block". It routes through the `mem:remember` skill rather than `bin/mem
+add` so the durability rules apply, and names the queue as `/mem:review`.
+
+### The review queue, built in slice 4.2
+
+`src/review.mjs` + `mem review [promote|edit|discard]` + `skills/review/SKILL.md`. Four
+decisions in it are worth not re-litigating.
+
+**It is a list of sources, not a SELECT.** `SOURCES` holds one entry today — staged memories —
+and each entry knows how to list its items, resolve a ref to one, and carry out the verbs it
+supports. Items are plain data with `{type, ref, actions, when, summary}` and the handler is
+looked up from `type`, so `--json` prints the whole item and slice 5b.2 adds consolidation
+proposals by appending to `SOURCES`, touching neither `bin/mem` nor the skill. This is what
+"proposals land in the same review queue" costs if it is designed in rather than retrofitted.
+
+**Promoting merges.** `mem add --staged` dedups against staged rows *only*, on purpose, so a
+guess never bumps the confidence of something a human approved. That leaves promotion as the
+moment the row enters retrieval and therefore the moment countermeasure #3 has to apply: a
+staged capture within 0.93 of an active memory in the same scope folds into it (longest
+wording wins, confidence bumps, the capture becomes `superseded_by` the survivor) instead of
+becoming a second copy. The distance is computed between two *stored* blobs, so triage —
+listing, duplicate flagging, promoting, discarding — never loads the model. Only editing the
+text does, because the embedding travels with the text.
+
+**Flagging and merging are two thresholds, 0.85 and 0.93.** Measured on gte-small: real
+restatements land at 0.94–0.97 ("use pnpm, not npm, to install dependencies" vs "always use
+pnpm to install dependencies" = 0.965) and unrelated facts at 0.77, but "in this repo use pnpm
+and never npm, it is the only installer we support" against that same memory measures **0.922**
+— the same fact, one point below the merge line. Merging on 0.85 is what the dedup threshold
+was measured to prevent. Staying silent about a 0.92 neighbour in the one surface whose job is
+"should this join the store?" leaves the only party who can tell without the evidence. So the
+queue shows a neighbour from 0.85, tagged `merge` or `near`, and acts only from 0.93.
+
+**Discard writes an `archived` event, not a `discarded` one.** That is the event
+`mem forget --restore` reads to decide what to restore *to*, and it carries
+`previous.status = 'staged'`, so undoing a rejection puts the item back in the queue rather
+than promoting something nobody reviewed. `via: 'review'` on the detail is the marker phase 5a
+looks for — a review rejection is the strongest negative signal in the "measuring useful"
+section, and this is where it is recorded.
+
+**The queue lists every project and is oldest-first.** Both are the opposite of `mem list`'s
+defaults and for one reason: a queue you drain has to show you the item that has been waiting
+longest, and one that hides other projects' items never reaches zero.
 
 ## Consolidation and pruning
 
@@ -366,6 +664,43 @@ retention to 1.0 — never decays, never pruned, exempt from all automatic actio
 `strength` replaces raw salience in the retrieval boost, so **stale memories sink in ranking
 long before pruning touches them.** Decay degrades gracefully; pruning is the backstop.
 
+### Built in slice 5a.1 — the model is written twice, and there is no migration
+
+`src/decay.mjs` owns the three formulas above. The JS half was already here (slice 1.3 needed
+it for the boost, which has used `strength` in place of salience from the start); what 5a.1
+adds is **the SQL half**, and the discipline that keeps the two honest.
+
+Both are needed and neither can be dropped. JS scores rows already fetched — the search boost,
+`mem show`, the session-start profile — where re-querying to compute a number over columns in
+hand would be absurd. SQL scores rows that have *not* been fetched: `mem list --sort strength`
+must order and `LIMIT` in the database rather than pull the whole store into memory to sort it
+(which is what it did before), and 5a.3's archiving rule is a `WHERE` clause over every row
+there is. `exp`, `ln` and `pow` are all present in this Turso build, probed rather than assumed.
+
+Two copies of a formula in two languages drift, so `decay.test.mjs` runs them against each
+other over eighteen row shapes — pinned, never-used, used a hundred times, every null the
+fallback chain has to survive, a clock that ran backwards — and requires agreement to **1e-12**.
+The expressions are written to associate their arithmetic identically (`(salience × retention)
+× confidence`, `(−ln2 × days) / halflife`) because agreeing to the last bit is free, and an
+epsilon that has to be widened later is a bug nobody goes back and investigates.
+
+**`strength` is not a stored column, and PLAN's tier-1 "recompute strength from decay" does not
+need it to be.** It is a pure function of columns the row already has plus the current time, so
+computing it in the query is both cheaper than a maintenance pass and never stale between two
+of them — which is what rung 1 ("Demote — strength decays; sinks in ranking. Automatic,
+continuous.") actually asks for. A stored column would decay in steps at whatever hour the run
+fired.
+
+**No migration.** The slice was scoped to split `injected_count` from `useful_count` in a schema
+v2, but Schema v1 above already declares both and slice 0.3 shipped them; the split has been on
+disk since the first database. So v2 stays free for the `emb NOT NULL` rebuild this document
+already owes to 5a.3.
+
+`mem list` gains `--min-strength` / `--max-strength`, bounds rejected outside [0, 1] so that
+`--min-strength 15` is an error rather than an empty list. `--max-strength 0.15 --sort strength`
+is the archiving rule's own query shape, typed by hand against a real store before anything
+automatic starts acting on it.
+
 ### Measuring "useful" without lying to yourself
 
 `use_count` is the trap: a memory injected 200 times and acted on never looks heavily used.
@@ -385,6 +720,65 @@ Signals for `useful_count`, cheapest first:
 
 `injected_count` high with `useful_count` ≈ 0 is precisely the over-general-slop signature,
 and nothing else catches it.
+
+### Built in slice 5a.2 — the prompt is not evidence
+
+`src/echo.mjs` + `hooks/stop-echo.mjs` build signals 1 and 2. Signal 3 is **not built** and no
+later slice claims it.
+
+**Why the heuristic is fussier than "does the reply contain the memory's words".** `useful_count`
+is not a statistic; it is an input to the decay model. Every count lengthens the halflife and
+`last_used_at` restarts the curve, so a wrong bump keeps a memory strong that nobody used — and
+5a.3's archiving rule (`useful_count = 0`) will then never reach it. The failure is asymmetric,
+so the rule is: a memory's **evidence tokens** are its distinctive words *minus every word the
+user just typed*. If the prompt was "how do I install dependencies?", the reply contains
+"install" and "dependencies" whether or not anything was injected; what is left after the
+subtraction ("pnpm") is the part the model could only have got from the memory. That is what
+`recordTurn()` kept the prompt for.
+
+An echo is **one evidence token**, and the first draft of this rule wanted two (half the
+evidence, denominator capped at four). It was wrong, and only a smoke run against a real store
+said so: this plugin's canonical memory — *"always use pnpm to install dependencies, never
+npm"*, asked *"how do I install the dependencies here?"*, answered *"run `pnpm install`, this
+project is on pnpm"* — scored 1 of 4 and went uncounted. The evidence was `always pnpm never
+npm`; the reply carried the only one of those a reply would ever carry. A rule needing two is
+satisfied by nothing short of quotation, and a signal that never fires is not conservative, it
+is absent.
+
+What keeps a one-token bar honest is the second subtraction: **ECHO_FRAMING**, the modality and
+frequency words every stated preference is phrased in (`always`, `never`, `prefer`, `instead`,
+`actually`…). Replies are full of them for reasons that have nothing to do with memory. It is
+one category and contains nothing domain-shaped, because a word wrongly on that list can only
+cause a miss and never a false count — while `lockfile`, `deploy` and `rebase` are what a real
+echo is made of. What remains is noisy, exactly as PLAN says it is; the population being scored
+is memories that already cleared the 0.85 gate against this prompt, which is most of why the
+coincidence is rarer than it looks. Tokenisation is `search.mjs`'s, so "distinctive token" means
+one thing in this system rather than two.
+
+**Counted once per turn.** `Stop` can fire more than once against one prompt, so
+`consumeTurn()` (in `recall.mjs`, with the rest of the format) stamps `scored_at` into the turn
+record and refuses it thereafter. The stamp goes in the record because the record is what
+identifies a turn — a row has no idea which turn it was injected on.
+
+**The hook never speaks.** `Stop` is the one event where stdout is interpreted rather than
+injected: a JSON body carrying `decision: "block"` forces the model to keep going. So there is
+no `emit()` in that file at all — every path exits 0 with empty stdout, and the only output that
+exists is `MEM_HOOK_DEBUG` on stderr, which prints the token working (`#1 echo 0.50 [pnpm] of
+[always pnpm]`) because that is the only way to tell a heuristic that is too tight from a turn
+that ignored its memories. It reads `last_assistant_message` under four spellings and falls back
+to the last 512 KB of `transcript_path`, skipping sidechain entries — a subagent never saw the
+block, so its words cannot echo it. Nothing on this path embeds, so it costs ~50 ms and works on
+a machine with no model cached.
+
+`mem touch <id|uid> […]` is signal 2, one transaction for the batch, and it reports the halflife
+rather than the count: "useful 3×" means nothing, "30d → 62d" is the effect. `last_used_at` is
+written as `max(coalesce(last_used_at, 0), now)` — a late hook or a skewed clock must not drag a
+memory's decay clock backwards. The `<mem-recollection>` block gained the matching line, phrased
+as an option, because the block's own framing is "do not act on this" and demanding a tool call
+per turn would both contradict that and cost more than the signal is worth. Neither path writes
+a `memory_events` row: the counter and `last_used_at` *are* the record, one per row rather than
+one per turn, and an audit log filling with "echoed" would bury the decisions it exists to
+explain.
 
 ### Contradiction handling
 
@@ -409,6 +803,66 @@ pinned, or has confidence more than 0.3 higher, the pair goes to human review in
 auto-resolving. The watermark plus the `unrelated` cache keeps a weekly run at 1–3 LLM
 calls, not hundreds.
 
+### Built in slice 5b.1 — detection, and why tier 1 must not stamp what it counts
+
+`src/pairs.mjs` is the mechanical half: the join that finds pairs, the `consolidated_at`
+watermark, the verdict cache, and `mem pairs` to look at all three. Nothing in it judges
+anything — the 0.85 threshold moved here from stats.mjs and `mem stats` now imports it, so
+the number PLAN calls model geometry lives in one place with the mechanism it belongs to.
+
+**Both suppressions are load-bearing and neither subsumes the other.** The watermark is
+per row: a pass over a store nobody has touched finds nothing and costs no LLM call. The
+cache is per pair, and it is what makes a *partial* pass resumable — a run that judged 60
+of 1096 candidates cannot stamp any row (stamping hides every pair that row is in, judged
+or not), so without a pair-level receipt the next run would re-judge the same 60 first.
+The cache is also the only record that a `refinement`, `complementary` or `unrelated`
+verdict ever happened: those three leave both rows exactly as they were.
+
+**So tier 1 detects and reports, and never stamps.** PLAN's tier-1 list says "detect and
+record candidate pairs for tier 2", and the honest reading turned out to be narrower than
+it sounds: a maintenance pass that advanced the watermark over rows it had merely *counted*
+would empty tier 2's queue without an LLM ever seeing it — silently, and until each row
+happened to change again. `maintain`'s `pairs` step is therefore read-only, bounded lower
+than the hand-typed command, wrapped so a detector failure cannot take the ladder's run
+down with it, and its `note` says so in the report.
+
+**The verdict cache lives in `meta` under `pair:<lo>:<hi>`, not in `memory_links`.** A link
+row carries no date, and a verdict is about two *texts*: the entry stores when it was given
+and detection skips the pair only while both members' `updated_at` sit at or before that —
+restate either one and the pair comes back. Every unreadable case (a value that is not
+JSON, a missing date, a row stamped in the future by a clock that went backwards) resolves
+towards re-judging, where the cost is one extra call. The `CASE WHEN json_valid` from
+5a.4 is mandatory here too: `json_extract` over a non-JSON value throws in this build and
+would take the whole detector down.
+
+**`mem forget --hard` now drops that memory's verdicts** — not tidiness. SQLite hands the
+next insert `max(rowid) + 1`, so purging the newest row means a future memory inherits its
+id, and a leftover `pair:<id>:<other>` entry would suppress a judgement between two rows
+that never met.
+
+Measured, and the reason for the budgets — two scans of (changed × eligible), ~2 µs a
+distance, no ANN index in this build:
+
+```
+200-row fixture   169 eligible   every changed row            54 ms       10 pairs
+5k aged fixture  3345 eligible    60 changed (tier 1)        945 ms      340 candidates
+                                 200 changed (mem pairs)      2.6 s     1096 candidates
+                                3345 changed (unbounded)     45.1 s    11010 candidates
+```
+
+The last line is the argument: an unbounded first pass over a never-consolidated store is
+three-quarters of a minute and eleven thousand pairs, which is not a backlog anybody drains.
+Bounded and ordered watermark-first (SQLite sorts NULLs first, so never-looked-at rows
+lead), it drains across runs instead, and `truncated` says what was left. The count is
+reported separately from the list on purpose — a pass that only reported the sixty pairs it
+can show would say "sixty" whether sixty or eleven thousand were waiting.
+
+Detection deliberately keeps two things it could cheaply drop: `pinned` rows (PLAN's guard
+is *about* the pinned row — it has to be found for the guard to fire) and both rows in full
+(the guard needs `pinned`, `confidence` and `created_at`, and a judge needs the text).
+It drops staged, archived and superseded rows, expired ones, tombstones (`emb IS NULL`
+throws in `vector_distance_cos`, 5a.3), and anything whose `emb_model`/`emb_dim` differ.
+
 ### The pruning ladder — nothing is deleted
 
 Each rung is reversible and the row survives:
@@ -425,6 +879,62 @@ Each rung is reversible and the row survives:
 Rationale: a false-positive prune is an *invisible* failure. You never notice the memory
 that should have been there. Recovering disk is worth far less than that.
 
+### Built in slice 5a.3 — the rules that spare, and the audit of every vector query
+
+`src/prune.mjs` is rungs 2 and 3 by rule; `src/stats.mjs` is the section below; migration v2
+(above) is what had to happen before either could exist. Rung 1 is decay and needs no command,
+rung 4 is `forget --hard` and only a human ever types it.
+
+**Every rule is written to under-fire, and the tests are mostly about what is spared.** The
+stale rule is a conjunction of three independent conditions and each one alone spares a row: a
+decayed memory that echoed once is out of reach *permanently*, a never-useful memory written
+last week is too young, a strong memory is safe however old. `pinned` is exempt from all four
+rungs. `prune.test.mjs` gives each of those its own test rather than one happy-path case,
+because a conjunction that quietly loses a term still passes the test that only checks what it
+archives.
+
+That `useful_count = 0` term is where slice 5a.2's noisy echo heuristic gets cashed in. A memory
+that echoed once is never reached by the stale rule again — so the noise in that signal spares
+memories rather than archiving them, which is why a one-token bar was the right call there and
+would not have been if this rule read the counter the other way round.
+
+**The dead-scope rung has an unmounted-volume guard, and it is the most dangerous thing here.**
+Only a path-shaped `project_key` is checkable at all (a git remote would need the network, which
+a maintenance pass must never touch, so those are `unknown` and never flagged). But if `$HOME`
+is not mounted — external disk, a container with a different layout, a machine mid-restore —
+*every* path key looks deleted at once, and ninety days later the store archives itself. So a
+missing directory is only `dead` when its **parent still exists**: a repo deleted out of
+`~/code` leaves `~/code` behind, an unmounted volume takes the parent with it. Parent gone too →
+`unknown`, because "deleted" and "not currently visible" are genuinely indistinguishable from
+there and one of them must not be guessed at. The flag itself lives in `meta` under
+`dead_scope:<key>` (a fact about a scope, not a row, and the grace period has to be answerable
+in one lookup rather than by scanning an append-only log) with `scope-flagged` /
+`scope-revived` events beside it. Reviving deletes the flag, so the grace clock **restarts** if
+the path dies again rather than resuming where it left off.
+
+**Rung 3 reads its clock from the audit log, not from the row.** `setStatus` deliberately leaves
+`updated_at` alone when archiving (or archive-then-restore would reset a memory's decay clock),
+so nothing on the row records *when* it was archived — the newest `archived` event does, falling
+back to `updated_at` for a row that arrived archived through `mem import` and has no event.
+
+**Reversibility, and the gap that was in it.** Every rung writes a `memory_events` row carrying
+the prior state needed to invert it, with the same event name and `previous.status` shape a hand
+`mem forget` writes — deliberately, so `--restore` is one code path and not two that can
+disagree. But rung 3 drops a vector, and `mem forget --restore` cannot make one: manage.mjs is
+model-free on purpose so curation keeps working with no model cached. A restored tombstone
+therefore landed active with no embedding, findable lexically and invisible to the vector leg.
+`mem reembed --tombstoned` closes it, scoped to `status <> 'archived'` so it repairs what was
+restored and never resurrects a tombstone somebody meant to keep. `run_id` is threaded into
+every event detail and generated nowhere — slice 5a.4 owns the run and its undo.
+
+`mem prune` **dry-runs by default at the module level**, not just in the CLI: every rung has a
+`due()` half that only reads and an `apply()` that takes what it returned, which is the same
+split that let the stale rule be typed by hand against a real store
+(`mem list --max-strength 0.15 --sort strength`, slice 5a.1) before anything automatic acted on
+it. Rows are claimed by the first rung that reaches them — TTL and dead scope before the
+statistical rule, because those are *reasons a human gave* — and a rung that fills its row
+budget says so instead of returning a truncated list that reads like a complete one.
+
 ### Reversibility is non-negotiable
 
 An LLM judge will get some calls wrong, and discovering it three weeks later with no undo is
@@ -436,6 +946,105 @@ the failure mode that makes people abandon the system.
 - `mem consolidate` **dry-runs by default**; `--apply` applies only auto-safe classes
   (duplicates); contradictions always route through `/mem:review`.
 - Automatic pre-run JSONL export to the data dir, last 10 kept.
+
+### Built in slice 5a.4 — the run, and the two directions an undo can be wrong
+
+`src/maintain.mjs` is tier 1 as one unit: `mem maintain` runs the five steps this document
+lists, under one `run_id` that every `memory_events` row it writes carries, and `mem undo
+<run_id>` reverses the lot. `hooks/session-maintain.mjs` fires it **detached** at
+`SessionStart` — a second entry beside the recollection hook rather than a few lines inside
+it, because that one has a hard 400 ms budget and a pass over five thousand rows is seconds.
+
+**`mem maintain` applies by default and `mem prune` does not.** The asymmetry is deliberate
+and it is the one decision in this slice worth arguing with. `prune`'s rules were being read
+by hand when it shipped, and a rule nobody has checked should not act. But tier 1 is specified
+to "fire detached at SessionStart (never blocking) or daily", and a pass that dry-runs by
+default fires detached, prints to a pipe nobody reads and changes nothing — the wiring would
+be theatre. Three things make applying acceptable, none of them optimism: every action is
+invertible from its own event under one run id; the whole store is exported to JSONL before
+anything is applied (last 10 kept, PLAN's own line above), which is the floor under the one
+inversion that cannot be exact; and nothing on this path deletes anything, rung 4 still being
+a human typing `forget --hard`.
+
+**A background pass takes a copy before it migrates.** Opening the store writably is what
+migrates it — that is how every write path here works, and it is why a v1 store keeps serving
+recall and migrates on its next write rather than needing a flag day. But this write path is a
+process nobody asked to run, and migration v2 *rebuilds the memories table*. So `maintain`
+probes the schema version through a read-only handle first and, if anything is pending, exports
+the whole store to `backups/<run_id>-pre-v<n>.jsonl` before opening writably. Skipping the
+migration instead would be worse than doing it: a v1 store cannot tombstone at all (`emb BLOB
+NOT NULL`), so an unmigrated store that is nonetheless maintained would fail rung 3 rather than
+decline it.
+
+**The throttle is part of the contract.** `SessionStart` fires on startup, resume, clear and
+compact, so a working day is a dozen firings and a pass per firing would be a dozen audit-log
+bursts and a dozen exports of a store nobody changed. One pass per store per 20 hours (not 24,
+so a daily cadence survives sessions that start earlier each morning), recorded in `meta`
+because the store is the unit of maintenance rather than the machine. The hook reads a *stamp
+file* beside the database instead — one `stat()` against a turso import plus a migration check
+— and `maintain()` re-reads `meta` itself, so the worst a stale or hand-deleted stamp can do is
+spawn a process that declines. An unreadable record reads as *due*, never as recently done: the
+other direction stops maintenance forever, silently.
+
+**Two of the five steps do nothing and one is not built, and all three say so every run.**
+Decay needs no recomputation (5a.1: strength is a query-time expression, never stale between
+passes) and usage feedback is folded live by the `Stop` hook (5a.2: the injected set and the
+reply only exist together in that turn), so those two report the numbers that prove the
+mechanism is alive — how many active rows have decayed under the archive threshold, and how
+many counters moved since the last run. Pair detection belongs to 5b.1 and is reported as
+skipped, by name. A run that listed only the steps it performed would make all three invisible
+exactly where somebody would look for them.
+
+**The undo checks its preconditions and skips rather than winning.** An undo runs against a
+store that kept living: a row may have been restored by hand, purged, pinned, or archived again
+by a later pass. So each inversion asserts the state it is about to reverse and reports what it
+could not do — an undo that overwrites a decision taken afterwards is worse than one that says
+it declined. What was not inverted is *not* recorded as undone, so re-running the same undo
+picks up exactly the rest, which is what makes "run `mem warm`, then undo again" a real
+instruction rather than advice.
+
+**Rung 3 is the inversion that cannot be exact, and the log says so.** The tombstone event
+records which model made the vector it dropped, not the vector — 1.5 KB a row in an append-only
+table is the cost that rung exists to avoid — so undoing it *recomputes* the vector from the
+text. On a machine with no model cached those rows come back blocked (statuses still restored)
+rather than half-restored; when the pinned model has changed since, the row rejoins the store in
+the current space and the `untombstoned` event carries `recomputed: true` and `model_changed`.
+
+**Undo does not touch the throttle.** The rows it restores still match the rules that archived
+them, so the next pass will archive them again; resetting the stamp would make that happen at
+the next session start instead of in twenty hours. `mem pin` or `mem touch` is what changes the
+answer, and the command says so in its output rather than leaving it to be discovered.
+
+**`json_extract` throws on a `detail` that is not JSON in this build** — "Parse error: malformed
+JSON", the whole statement down, the same failure shape 5a.3 found in `vector_distance_cos(NULL,
+…)`. Every run_id lookup is therefore `CASE WHEN json_valid(detail) THEN json_extract(…) END`,
+not a bare `AND json_valid(detail)` conjunct, because the planner may evaluate conjuncts in
+either order. One legacy or hand-edited event row would otherwise make every run unlistable and
+every undo impossible, which is precisely when one is needed. `stats.mjs`'s run counter had the
+unguarded form since 5a.3 and now has the guard.
+
+**Measured on `build/seed.mjs --count 5000 --aged`** (the flag is new: the same corpus aged the
+way a store running for two years would be — ages to 900 days, three quarters of rows never
+useful, a quarter already archived *with dated `archived` events*, which is what exercises rung
+3's audit-log clock rather than its `updated_at` fallback):
+
+```
+                     active   scoped scan            every-row scan        speedup
+before                 3411   3.18 ms over 860       7.84 ms over 5000       2.46×
+after one pass         1385   1.49 ms over 370       7.14 ms over 4477       4.80×
+after mem undo         3411   3.54 ms over 860       7.88 ms over 5000       2.23×
+```
+
+Row counts are exact and reproducible from the seed; the millisecond figures move ~15% between
+runs of the identical store, so the effect to read is the 2.1× on the scoped scan and not the
+third decimal.
+
+2026 archived and 523 tombstoned in 1.8 s; the every-row scan still covers every embedded row,
+because nothing was deleted — the 4477 is the 523 tombstones, which have no vector to scan.
+`undo` restored all 2549 actions with none blocked and the status counts came back identical row
+for row. The first pass hit the 2000-row `APPLY_LIMIT` on the stale rung and said so
+(`truncated: ['stale']`); the next pass took the remaining 556. That is the intended shape — a
+first run against a store that has never been maintained is bounded, and it reports what it left.
 
 ### Knowing whether it's working
 
@@ -453,6 +1062,46 @@ consolidation runs: proposed / accepted / undone
 
 If outstanding duplicate pairs trend up, consolidation isn't keeping pace. If the
 injected:useful ratio worsens, the retrieval threshold is too loose.
+
+#### Built in slice 5a.3 — what each number is guarding against
+
+`src/stats.mjs`, read-only by construction: `openDb({ readonly: true })` also means
+`fileMustExist`, so a command someone typed to look at numbers can neither create a store nor
+migrate one. A pending migration is *reported* instead. Nothing on this path embeds either — the
+probe vector is an existing row's stored blob — so every number is measurable on a machine with
+no model cached.
+
+**Scan time is reported as a pair, and that is the whole point.** The benchmark this section
+opens with is 20k rows at 24.7 ms against the 2k active ones at 3.0 ms, so on its own the active
+figure only says "retrieval is fast". Beside the same scan with the status and scope filters off
+it says whether that is *because of* the archiving. Measured on a 5k-row seed:
+`active 3.33 ms over 1086 rows · every-row 7.24 ms over 5000 · 2.17×`, and after a
+`prune --apply` on the 200-row seed the active count went 174 → 124 with the every-row scan
+still covering all 192 embedded rows. Nothing is deleted; the scan just stops paying for it.
+
+**Both pairwise metrics are capped, and both say so.** The duplicate-pair self-join is
+quadratic — measured at ~0.6 µs a pair, which is 10 ms at 174 active rows and would be eight
+seconds at five thousand — so it runs over the oldest 1200 active rows and reports
+`exact: false` with the sample size when that bites. The slop scan is rows × 32 and capped at
+2000 rows. Together they bound `mem stats` at about 2 s *however large the store gets*
+(measured 2.29 s at 5k rows: pairs 1.2 s, slop 0.73 s, everything else under 250 ms). Both
+samples are taken by id rather than at random, because PLAN asks for these to be **trended**
+("if outstanding duplicate pairs trend up") and a moving sample cannot be.
+
+**Two slop detectors, because neither is sufficient.** The injected:useful ratio needs the
+memory to have been injected, so it says nothing about a store nobody has queried yet; the
+mean-cosine-to-sample figure is a property of the vector alone and works on a virgin store, but
+cannot tell "matches everything" from "this store is about one subject". Hence the *distribution*
+rather than a number: a row well above its own store's p90 is the finding, a whole store at 0.77
+is a corpus. Two ratios are reported for the same reason — `injections/usefuls` store-wide
+answers "how often does an injection land", the median row answers "how does a typical memory
+do", and a few heavily-injected rows pull them apart.
+
+The consolidation block is structurally zero today and says so rather than being omitted. It is
+derived from `memory_events` and from `run_id` in the event detail — the shape 5a.4 and 5b are
+both specified to write — so it starts reporting the moment they land instead of needing to be
+remembered. The `ladder` block is the join between the two halves of this slice: the detectors
+above say the store is rotting, that one says whether anything is going to reach it.
 
 ---
 

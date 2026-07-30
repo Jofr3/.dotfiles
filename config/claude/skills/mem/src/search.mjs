@@ -33,8 +33,22 @@
 // Timestamps are epoch milliseconds throughout, matching write.mjs.
 
 import { withDb } from './db.mjs';
+import {
+  DAY_MS,
+  HALFLIFE_ALPHA,
+  HALFLIFE_H0,
+  halflifeDays,
+  retention,
+  strength,
+} from './decay.mjs';
 import { EMB_DIM, EMB_MODEL, embedQuery, vectorBlob } from './embed.mjs';
 import { resolveScope } from './scope.mjs';
+
+// The decay model moved to decay.mjs in slice 5a.1, where it grew a SQL twin for
+// the queries that must order and filter on strength without fetching every row.
+// Re-exported here because it was part of this module's surface first and half
+// the store imports it from here; there is one implementation, not two.
+export { DAY_MS, HALFLIFE_ALPHA, HALFLIFE_H0, halflifeDays, retention, strength };
 
 /** PLAN retrieval steps 2 and 3: twenty candidates from each leg. */
 export const VECTOR_LIMIT = 20;
@@ -58,24 +72,43 @@ export const MAX_RESULTS = 5;
  * all — everything passes. Swapping the model in embed.mjs without moving this
  * turns the gate off silently, which is why they are documented as a pair.
  *
- * Measured by build/embed-bench.mjs: 200 seeded memories, 32 questions with a
- * known answer, 9 answerable-by-nothing. "keeps" is right answers still
- * retrieved, "admits" is junk prompts that would inject something:
+ * SET BY SLICE 3.3, against build/harness.json — 52 prompts over the seeded
+ * store, 31 with a known right answer and 21 that must retrieve nothing. Re-run
+ * it with `mem tune`; the numbers below are its output. "serves" is prompts whose
+ * right answer came back, "admits" is prompts unrelated to anything retrievable
+ * that would nonetheless have injected something:
  *
- *   gte-small@q8         t=0.79  keeps 81%  admits 1/9
- *                        t=0.81  keeps 78%  admits 1/9
- *                        t=0.814 keeps 78%  admits 0/9   <- efficient point
- *                        t=0.82  keeps 72%  admits 0/9   <- shipped
- *                        t=0.83  keeps 63%  admits 0/9
- *   all-MiniLM@q8 (old)  t=0.35  keeps 53%  admits 0/9
+ *   t=0.790  serves 28/31  admits 12/21
+ *   t=0.820  serves 22/31  admits  7/21   <- what 1.6 predicted, and it leaks
+ *   t=0.840  serves 18/31  admits  2/21
+ *   t=0.845  serves 18/31  admits  0/21   <- efficient point
+ *   t=0.850  serves 17/31  admits  0/21   <- shipped
+ *   t=0.860  serves 13/31  admits  0/21
  *
- * 0.82 rather than the efficient 0.814 because 0.814 is a hair above the
- * *maximum* of a nine-sample negative distribution, and fitting a production
- * threshold to a sample maximum is how a gate that measured clean starts leaking.
- * The 6 points of recall buy margin, and 72%-at-zero-junk still beats the old
- * model's 53% by a wide margin. Phase 3.3 re-tunes this against the real harness.
+ * Slice 1.6 measured the *model* and got 0.82 at zero admits over nine
+ * world-knowledge negatives. This measures the *shipped path* — project scoping,
+ * the status and expiry guards, fusion, the boost, the cap — over negatives that
+ * share vocabulary with real memories ("which branch of the river is deeper?"
+ * reaches 0.8416 against "branches are named type/short-description") and over
+ * prompts whose answer is in the store but archived, staged, expired or in
+ * another project. Those two classes are where 0.82 leaks, and they are the
+ * common case in use, not the exotic one.
+ *
+ * 0.850 rather than the efficient 0.845 for the same reason 1.6 stepped back from
+ * 0.814: 0.845 sits 0.0007 above the *maximum* of a finite negative sample, and
+ * fitting a production constant to a sample maximum is how a gate that measured
+ * clean starts leaking. One grid step of margin costs one prompt out of 31.
+ *
+ * The cost is real and is not a rounding error: 55% of right answers retrieved,
+ * against the 72% 1.6 projected. PLAN's phase-3 exit criterion decides the trade
+ * — "**injects nothing** on prompts unrelated to any stored memory (this is the
+ * test that matters most)" — and it is not close. A missed memory costs one prompt
+ * one fact; an admitted one puts a false statement in front of the model as
+ * something the user believes. Buying recall back is a retrieval problem
+ * (separation is -0.066: the worst right answer scores *below* the best wrong
+ * one), not a threshold problem, and no value of this constant solves it.
  */
-export const VECTOR_THRESHOLD = 0.82;
+export const VECTOR_THRESHOLD = 0.85;
 
 /**
  * The other half of the gate — PLAN's "or an exact lexical hit". With OR
@@ -88,15 +121,17 @@ export const VECTOR_THRESHOLD = 0.82;
  */
 export const LEXICAL_GATE_COVERAGE = 0.6;
 
-/** PLAN step 5: `× (1 + 0.3·salience + 0.2·pinned)`, with strength for salience. */
+/**
+ * PLAN step 5: `× (1 + 0.3·salience + 0.2·pinned)`, with **strength in place of
+ * salience** — PLAN's decay section says outright that "strength replaces raw
+ * salience in the retrieval boost, so stale memories sink in ranking long before
+ * pruning touches them". Salience alone is what the writer thought at write time
+ * and never moves again; strength folds in decay and confidence, so a memory the
+ * store has quietly stopped believing loses its boost without anything having to
+ * archive it.
+ */
 export const STRENGTH_WEIGHT = 0.3;
 export const PINNED_WEIGHT = 0.2;
-
-/** PLAN decay: `halflife_days = H0 × (1 + useful_count)^α`, H0 = 30, α = 0.6. */
-export const HALFLIFE_H0 = 30;
-export const HALFLIFE_ALPHA = 0.6;
-
-export const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Single characters match nothing useful and every prompt is full of them. */
 export const MIN_TERM_LENGTH = 2;
@@ -157,41 +192,6 @@ export function queryTerms(query) {
     if (seen.size >= MAX_TERMS) break;
   }
   return [...seen];
-}
-
-const clamp01 = (n) => (Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0);
-
-/**
- * PLAN: `halflife_days = H0 × (1 + useful_count)^α`. Spaced repetition, not a
- * linear timer — a memory that keeps proving useful becomes durable. Used five
- * times, its halflife is ~88 days instead of 30.
- */
-export function halflifeDays(usefulCount = 0, { h0 = HALFLIFE_H0, alpha = HALFLIFE_ALPHA } = {}) {
-  return h0 * (1 + Math.max(0, usefulCount ?? 0)) ** alpha;
-}
-
-/**
- * PLAN: `retention = exp(−ln2 × days_since_last_use / halflife_days)`, and
- * `pinned = 1` forces 1.0 — pinned memories never decay.
- *
- * A memory that has never been used decays from when it was last *written*,
- * because "never used" and "used a moment ago" must not score the same. Hence
- * the fall back through last_used_at → updated_at → created_at.
- */
-export function retention(row, now = Date.now()) {
-  if (row.pinned) return 1;
-  const since = row.last_used_at ?? row.updated_at ?? row.created_at ?? now;
-  const days = Math.max(0, (now - since) / DAY_MS);
-  return Math.exp((-Math.LN2 * days) / halflifeDays(row.useful_count));
-}
-
-/**
- * PLAN: `strength = salience × retention × confidence`, and it "replaces raw
- * salience in the retrieval boost, so stale memories sink in ranking long before
- * pruning touches them".
- */
-export function strength(row, now = Date.now()) {
-  return clamp01(row.salience) * retention(row, now) * clamp01(row.confidence);
 }
 
 /**

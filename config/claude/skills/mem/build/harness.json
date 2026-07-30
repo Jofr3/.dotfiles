@@ -1,0 +1,774 @@
+{
+  "generated_by": "node build/harness.mjs --write",
+  "fixture": {
+    "db": "/home/jofre/.local/share/claude-mem/seed/mem.db",
+    "memories": 200
+  },
+  "shape": {
+    "cases": 52,
+    "positives": 31,
+    "negatives": 21,
+    "expected_memories": 31,
+    "by_tier": {
+      "literal": 12,
+      "paraphrase": 19,
+      "offtopic": 6,
+      "adjacent": 7,
+      "filtered": 8
+    }
+  },
+  "cases": [
+    {
+      "prompt": "how do I install dependencies?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "literal",
+      "should_retrieve": [
+        "7a832bc4-cfc1-4e6d-80ac-1dfd2e86ce5f"
+      ],
+      "allow": [
+        "f24e807f-fccb-4199-842d-af81f51a0ef8",
+        "93c05e95-2364-4725-8c26-8fbc5bbbefbc"
+      ],
+      "expect_text": [
+        "always use pnpm to install dependencies"
+      ],
+      "allow_text": [
+        "corepack installs the pinned package manager, a global install does not",
+        "a new runtime dependency needs a sentence in the pull request saying why"
+      ]
+    },
+    {
+      "prompt": "what do we use for unit tests?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "literal",
+      "should_retrieve": [
+        "5dfd33f8-6a04-449e-8930-00086ba65ad7"
+      ],
+      "allow": [],
+      "expect_text": [
+        "prefer Vitest over Jest for unit tests"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "when is the staging database reset?",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "literal",
+      "should_retrieve": [
+        "935bb2a9-13a0-42f7-8b2d-1a585971bd0f"
+      ],
+      "allow": [],
+      "expect_text": [
+        "the staging database is reset every Monday morning"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "how long does the session token last?",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "literal",
+      "should_retrieve": [
+        "99fa4e5f-c788-4051-8689-3db515c1f716"
+      ],
+      "allow": [],
+      "expect_text": [
+        "the session token expires after fifteen minutes, not fifteen hours"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "what is the rate limit?",
+      "project_key": null,
+      "project": "global",
+      "tier": "literal",
+      "should_retrieve": [
+        "e87f61a6-1bba-49fc-80ee-bd1a6378686b"
+      ],
+      "allow": [],
+      "expect_text": [
+        "rate limiting allows sixty requests a minute per token"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "which branch is the default one?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "literal",
+      "should_retrieve": [
+        "97c6889f-811b-4eaa-892d-ac4007f0af76"
+      ],
+      "allow": [
+        "c4246597-a6e0-4a30-8f9d-8efd27b05843"
+      ],
+      "expect_text": [
+        "the default branch is main and has been since the migration"
+      ],
+      "allow_text": [
+        "branches are named type/short-description"
+      ]
+    },
+    {
+      "prompt": "where do the runbooks live?",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "literal",
+      "should_retrieve": [
+        "7cda0cfd-0e39-4a35-8fe9-b68991eef627"
+      ],
+      "allow": [],
+      "expect_text": [
+        "runbooks are kept in ops/runbooks and indexed from the wiki"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "what are the commit message conventions here?",
+      "project_key": "github.com/acme/booking-api",
+      "project": "api",
+      "tier": "literal",
+      "should_retrieve": [
+        "b504aad5-208a-4778-8246-de356967c6b7"
+      ],
+      "allow": [
+        "24e0464d-7963-4296-8cdc-fd589dd0dbfa",
+        "208851a6-183f-40a5-8f19-d375323b87ed"
+      ],
+      "expect_text": [
+        "commit conventions are documented in CONTRIBUTING.md"
+      ],
+      "allow_text": [
+        "we squash on merge and delete the branch after",
+        "the changelog is generated from commit trailers"
+      ]
+    },
+    {
+      "prompt": "what is the rollback command again?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "literal",
+      "should_retrieve": [
+        "c96e0223-ef87-4c9d-8dd3-48bf98bca1db"
+      ],
+      "allow": [],
+      "expect_text": [
+        "the rollback command is deploy --to-tag, there is no --rollback flag"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "can I deploy this on Friday?",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "literal",
+      "should_retrieve": [
+        "e4b35e4a-d8fe-4788-8a29-88dbf2e4506c"
+      ],
+      "allow": [],
+      "expect_text": [
+        "nothing goes out on a Friday afternoon"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "how are database connections pooled?",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "literal",
+      "should_retrieve": [
+        "ba790087-7ecf-45f0-8dc1-439340abbcea"
+      ],
+      "allow": [],
+      "expect_text": [
+        "pgbouncer pools connections in transaction mode"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "how long is the cold start on the serverless path?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "literal",
+      "should_retrieve": [
+        "986a5066-0e97-4d45-89d9-2da980906aaf"
+      ],
+      "allow": [],
+      "expect_text": [
+        "cold start on the serverless path is around 300 milliseconds"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "which package manager should I use here?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "7a832bc4-cfc1-4e6d-80ac-1dfd2e86ce5f"
+      ],
+      "allow": [
+        "f24e807f-fccb-4199-842d-af81f51a0ef8"
+      ],
+      "expect_text": [
+        "always use pnpm to install dependencies"
+      ],
+      "allow_text": [
+        "corepack installs the pinned package manager, a global install does not"
+      ]
+    },
+    {
+      "prompt": "what framework do we write specs with?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "5dfd33f8-6a04-449e-8930-00086ba65ad7"
+      ],
+      "allow": [],
+      "expect_text": [
+        "prefer Vitest over Jest for unit tests"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "are containers how we ship this?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "d53f6665-d30c-4271-80b6-77a181bda1bc"
+      ],
+      "allow": [],
+      "expect_text": [
+        "deploy with nix flakes rather than docker images"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "should I build up to the answer or lead with it?",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "2dca151f-9b2e-4604-8948-8856a944306a"
+      ],
+      "allow": [
+        "e55abe1f-b5a6-4e9d-8072-3869f7bfe420"
+      ],
+      "expect_text": [
+        "give me the conclusion first and the reasoning after"
+      ],
+      "allow_text": [
+        "keep an explanation under a screen unless I ask for depth"
+      ]
+    },
+    {
+      "prompt": "should I say sorry when I get something wrong?",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "557b792f-5f83-4e46-8651-b101848c0028"
+      ],
+      "allow": [],
+      "expect_text": [
+        "do not apologise, just correct the mistake and carry on"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "what operating system does the user run?",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "e69d4f0a-35b6-409c-8f50-dc121e8d3619"
+      ],
+      "allow": [],
+      "expect_text": [
+        "I work on NixOS with home-manager managing the dotfiles"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "is it safe to signal status with red and green?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "f326d095-fc04-4e85-852c-ed249aa630a1"
+      ],
+      "allow": [],
+      "expect_text": [
+        "I cannot distinguish red from green, so never encode meaning in colour alone"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "which latency statistic should I look at?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "4933ab0e-41e0-425d-8512-0bb5d69406e8"
+      ],
+      "allow": [
+        "feb990f5-f2fb-46ca-8194-cd8cc52019b1"
+      ],
+      "expect_text": [
+        "watch p95 and p99, never the mean"
+      ],
+      "allow_text": [
+        "traces are sampled at one percent in production"
+      ]
+    },
+    {
+      "prompt": "where does asynchronous work get queued?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "9dace120-cf27-4391-8e9e-a83257e65648"
+      ],
+      "allow": [],
+      "expect_text": [
+        "background jobs run on a Postgres-backed queue instead of Redis"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "how is the interface styled?",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "099d87b5-d03d-468f-809e-f36a18b8195e"
+      ],
+      "allow": [],
+      "expect_text": [
+        "styling is Tailwind on top of a small set of design tokens"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "may I leave a value untyped in TypeScript?",
+      "project_key": "github.com/acme/booking-api",
+      "project": "api",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "b94333b7-f6b8-46f1-8884-330d0dfdf2d8"
+      ],
+      "allow": [],
+      "expect_text": [
+        "no any in committed code — take unknown and narrow it"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "where do application logs end up?",
+      "project_key": "github.com/acme/booking-api",
+      "project": "api",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "298c172d-35b8-41ae-88da-e149d6763898"
+      ],
+      "allow": [],
+      "expect_text": [
+        "logs are structured JSON shipped to Loki"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "how many people work here?",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "309889ea-7951-418c-8803-cd09cde96dbf"
+      ],
+      "allow": [],
+      "expect_text": [
+        "the team is four engineers, one designer and a part-time product manager"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "what does the company sell?",
+      "project_key": null,
+      "project": "global",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "64e896a5-9245-4b4c-8abc-2c4b3946ad20"
+      ],
+      "allow": [],
+      "expect_text": [
+        "the product is a booking tool for independent clinics"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "when is the user away for the day?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "19f285cb-a84f-425e-8a40-8dffd5cc49c1"
+      ],
+      "allow": [],
+      "expect_text": [
+        "my working hours are roughly 09:00 to 18:00 Central European Time"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "who runs our builds?",
+      "project_key": null,
+      "project": "global",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "57344ac8-0f83-4047-83f7-8f3d13efdebf"
+      ],
+      "allow": [],
+      "expect_text": [
+        "CI runs on GitHub Actions with a self-hosted ARM runner"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "is it fine to leave commented-out code behind?",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "e8cc4174-7909-44cf-8480-460675c0114f"
+      ],
+      "allow": [],
+      "expect_text": [
+        "delete dead code instead of commenting it out"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "how do I make this request safe to retry?",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "8148571c-4a1d-436b-855f-aaf50c6ffe03"
+      ],
+      "allow": [],
+      "expect_text": [
+        "idempotency keys belong in a header, not in the body"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "what should I use to look for a string across the tree?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "paraphrase",
+      "should_retrieve": [
+        "f1aecc9e-95fb-4176-893e-16cdca73d7af"
+      ],
+      "allow": [],
+      "expect_text": [
+        "I reach for ripgrep and fd rather than grep and find"
+      ],
+      "allow_text": []
+    },
+    {
+      "prompt": "what is the capital of France?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "offtopic",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "write me a haiku about otters",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "offtopic",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "how do I make a sourdough starter?",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "offtopic",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "who won the 1998 football world cup?",
+      "project_key": "github.com/acme/booking-api",
+      "project": "api",
+      "tier": "offtopic",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "what is the boiling point of mercury?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "offtopic",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "summarise the plot of Moby-Dick",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "offtopic",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "recommend a hotel to book in Lisbon",
+      "project_key": "github.com/acme/booking-api",
+      "project": "api",
+      "tier": "adjacent",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "what colour was Napoleon’s horse?",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "adjacent",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "review my landlord’s tenancy agreement",
+      "project_key": "github.com/acme/booking-api",
+      "project": "api",
+      "tier": "adjacent",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "what is the migration route of the arctic tern?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "adjacent",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "which branch of the river is deeper?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "adjacent",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "I want to pin a photograph to the kitchen wall",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "adjacent",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "my alarm clock keeps firing in the middle of the night",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "adjacent",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": []
+    },
+    {
+      "prompt": "am I allowed to overwrite a colleague’s remote history?",
+      "project_key": "github.com/acme/booking-api",
+      "project": "api",
+      "tier": "filtered",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": [],
+      "blocked": [
+        {
+          "uid": "ceb09cfd-248e-48f4-83b5-34ddd19b72be",
+          "id": 107,
+          "text": "never force push a branch somebody else is working on",
+          "scope": "project",
+          "project_key": "github.com/acme/booking-api",
+          "status": "archived"
+        }
+      ]
+    },
+    {
+      "prompt": "which package manager should I use here?",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "filtered",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": [],
+      "blocked": [
+        {
+          "uid": "7a832bc4-cfc1-4e6d-80ac-1dfd2e86ce5f",
+          "id": 2,
+          "text": "always use pnpm to install dependencies",
+          "scope": "project",
+          "project_key": "github.com/acme/infra",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "prompt": "how heavy may the first page load be?",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "filtered",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": [],
+      "blocked": [
+        {
+          "uid": "82935f1f-083a-476f-8446-fdb41ab98025",
+          "id": 77,
+          "text": "the initial route has a budget of 250 kilobytes gzipped",
+          "scope": "project",
+          "project_key": "github.com/acme/booking-web",
+          "status": "archived"
+        }
+      ]
+    },
+    {
+      "prompt": "how does the user want dates written?",
+      "project_key": "github.com/acme/design-system",
+      "project": "ds",
+      "tier": "filtered",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": [],
+      "blocked": [
+        {
+          "uid": "f34a3ea1-03e6-4abf-8bd9-9efb613c997a",
+          "id": 176,
+          "text": "I prefer metric units and ISO dates",
+          "scope": "project",
+          "project_key": "github.com/acme/design-system",
+          "status": "archived"
+        }
+      ]
+    },
+    {
+      "prompt": "how are secrets supplied at runtime?",
+      "project_key": "github.com/acme/booking-api",
+      "project": "api",
+      "tier": "filtered",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": [],
+      "blocked": [
+        {
+          "uid": "d7df4395-9277-477b-8fa0-0566eb6b1106",
+          "id": 127,
+          "text": "credentials never enter the repository, sops-nix supplies them at runtime",
+          "scope": "global",
+          "project_key": null,
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "prompt": "which text editor does the user work in?",
+      "project_key": "github.com/acme/infra",
+      "project": "infra",
+      "tier": "filtered",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": [],
+      "blocked": [
+        {
+          "uid": "25bcf43c-f27b-41c6-8430-07e025e42d16",
+          "id": 147,
+          "text": "I use neovim with lazy.nvim and treesitter",
+          "scope": "project",
+          "project_key": "github.com/acme/infra",
+          "status": "staged"
+        }
+      ]
+    },
+    {
+      "prompt": "what status code answers a malformed payload?",
+      "project_key": "github.com/acme/booking-web",
+      "project": "web",
+      "tier": "filtered",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": [],
+      "blocked": [
+        {
+          "uid": "85eba599-5b51-4561-8e9d-445361d422d5",
+          "id": 65,
+          "text": "answer validation failures with 422 rather than 400",
+          "scope": "project",
+          "project_key": "github.com/acme/booking-web",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "prompt": "how long is one of our iterations?",
+      "project_key": "github.com/acme/booking-api",
+      "project": "api",
+      "tier": "filtered",
+      "should_retrieve": [],
+      "allow": [],
+      "expect_text": [],
+      "allow_text": [],
+      "blocked": [
+        {
+          "uid": "0ff9338b-b1b6-44fa-81f9-bee36377f43f",
+          "id": 189,
+          "text": "we work in two-week iterations without story points",
+          "scope": "global",
+          "project_key": null,
+          "status": "active"
+        }
+      ]
+    }
+  ]
+}

@@ -15,7 +15,7 @@ require("dbee").setup({
   --   disable_candies = true,
   -- },
   sources = {
-    require("dbee.sources").EnvSource:new("DBEE_CONNECTIONS"),
+    require("dbee.sources").EnvSource:new("DATABASES"),
   },
 })
 

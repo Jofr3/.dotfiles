@@ -6,3 +6,14 @@ cache/
 projects/
 sessions/
 shell-snapshots/
+
+# Runtime caches that capture arbitrary file content, including from other
+# repos. file-history snapshots every file Claude Code reads or edits, so a
+# real .env opened anywhere would land here and be committed — GitHub push
+# protection caught exactly this on 2026-07-31 (fabricated fixtures, but the
+# path was real). Keep these out of the repo.
+file-history/
+paste-cache/
+image-cache/
+session-env/
+tasks/

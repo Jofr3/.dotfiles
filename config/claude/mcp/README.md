@@ -8,33 +8,57 @@ escaping, and per-tool permission entries instead of one coarse `Bash(node …)`
 ```
 lib/mcp-stdio.mjs      shared JSON-RPC 2.0 / MCP transport, no dependencies
 drizzle-db/server.mjs  6 tools
+mem/server.mjs         7 tools
 ```
 
 ## Registration
 
 ```bash
 claude mcp add -s user drizzle-db -- node "$HOME/.claude/mcp/drizzle-db/server.mjs"
+claude mcp add -s user mem        -- node "$HOME/.claude/mcp/mem/server.mjs"
 claude mcp list   # health-check
 ```
 
 That registration lives in `~/.claude.json`, which is **not** part of this repo — on a new
 machine the command above has to be run again. Everything else here is tracked.
 
-## Why only drizzle-db
+## What earns a server
 
-`drizzle-db` imports the skill's `lib/` directly. The write-gating rule lives in
-`classifyStatement`, and importing it means there is one copy of that rule rather than two.
-That is the case where a server earns its place: typed arguments over a genuinely risky
-operation, sharing code with the CLI so the two cannot drift.
+Both servers import their skill's own modules rather than shelling out, so the safety rules
+have one copy: `drizzle-db` shares `classifyStatement` with its CLI, `mem` shares
+`src/format.mjs` with `bin/mem`. Neither pair can drift on what needs `--force`, or on how a
+memory reads back.
 
-**`mem` deliberately has no server.** It was wrapped once and reverted. Its CLI already worked,
-its hooks call it directly, and `bin/mem` says plainly why: it costs zero context until
-invoked. A 22-tool facade put all of that in context permanently to wrap something that was
-never broken. mem stays background — hooks, skills, CLI.
+### mem was reverted once — what changed
 
-The general rule this leaves behind: wrap a skill only when the tool boundary buys something
-the CLI cannot (argument typing on a dangerous call, shared safety code). Wrapping for
-uniformity costs context and buys nothing.
+An earlier attempt wrapped the whole CLI as **22 tools** and was reverted: it put every
+maintenance command in context permanently to wrap something that was never broken. The
+rewrite is narrower and two things moved:
+
+1. **Only the driven commands.** search, remember, list, show, forget, pin, review — the
+   surface the four skills already describe. The maintenance tier (prune, maintain,
+   consolidate, pairs, undo, stats, export/import, reembed, tune, doctor) is not exposed. It
+   runs from hooks and by hand, and every one of those loses memories in bulk. `bin/mem` is
+   still the full surface.
+
+2. **Tool schemas are deferred now.** The host lists deferred tools by name and loads a schema
+   only when `ToolSearch` asks for it, so the permanent-context cost the revert was about is
+   largely gone.
+
+What it buys that the CLI cannot: the embedding extractor loads once and stays warm. Measured
+on this machine, same store, same queries —
+
+| | 1st search | 2nd | 3rd |
+| --- | --- | --- | --- |
+| `bin/mem search` (fresh process each time) | 403ms | 383ms | 391ms |
+| MCP server (one process) | 314ms | **19ms** | **19ms** |
+
+The CLI pays the model load on every invocation by design; that is the cost of costing nothing
+when idle. A long-lived server pays it once.
+
+The general rule: wrap a skill only when the tool boundary buys something the CLI cannot —
+argument typing on a dangerous call, shared safety code, or a warm process. Wrapping for
+uniformity buys nothing. Expose the commands, not the internals.
 
 ## Tools only — why prompts and resources were removed
 

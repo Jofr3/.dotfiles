@@ -1,17 +1,15 @@
 ---
 name: remember
 description: Store a durable fact about the user or this project in the mem store — a preference, decision, constraint, correction or reference that should still be true in a future session. Use when the user says "remember that…", "don't forget…", "from now on…", "keep in mind…", "note that…", "for future reference", or asks you to save/store/persist something about how they work; and proactively when they state or correct a lasting preference in passing ("actually I prefer X", "no, always Y here", "we use Z, not W", "stop doing X"). Do NOT use for anything that stops being true when this task ends — a one-off instruction for the current change, file paths you just read, transient state — or for facts the repo already records in CLAUDE.md, README or git history.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # remember
 
 Write one durable fact to the memory store so it survives `/clear`, a new session, and a
-reboot. Storage is a local Turso database; nothing leaves the machine.
-
-```bash
-~/.claude/skills/mem/bin/mem add "<one fact>" --why "<where it came from>"
-```
+reboot. The `mem` MCP server's **`remember`** tool does this; its arguments are in the schema,
+and this file covers only what a schema cannot say. Storage is a local Turso database; nothing
+leaves the machine.
 
 ## Only durable, only one fact
 
@@ -48,45 +46,32 @@ that make it findable have to be in it.
 | "use it for tests" | "run the test suite with `bun test`, not vitest" |
 | "pnpm; vitest; 2-space indent" | three separate memories |
 
-Put the rationale in `--why` — it is shown on recall and is what lets a future session judge
+Put the rationale in `why` — it is shown on recall and is what lets a future session judge
 whether the fact still applies.
 
 ## Scope
 
 Default is **project**, keyed on the normalised git remote (falling back to the absolute
-path). A preference that follows the user everywhere needs `--global`.
+path). A preference that follows the user everywhere needs `scope: "global"`.
 
-```bash
-mem add "prefer pnpm over npm" --global --kind preference
-mem add "this repo deploys from main via Vercel" --kind decision   # project-scoped
-```
-
-Recall unions global + current project, so `--global` costs precision everywhere. Use it for
+Recall unions global + current project, so `"global"` costs precision everywhere. Use it for
 "how I work", not "how this codebase works".
 
-## Options worth knowing
+Project scoping resolves from `cwd`, which defaults to the server's working directory — not
+necessarily the project you are in, and it does not follow a `cd`. Pass it explicitly when the
+two could differ, or the memory lands under the wrong project and simply never comes back.
 
-```
---why <text>          rationale / provenance (do include it)
---kind <k>            preference|decision|constraint|fact|correction|reference
---global | --project  scope (default: project)
---pin                 never decays, never pruned, exempt from automatic actions
---staged              store without activating (not retrievable until promoted)
---salience <0-1>      how important (default 0.5); raises it in ranking
---confidence <0-1>    how sure you are (default 0.5)
---expires-in <days>   TTL, for facts with a known shelf life
---json                machine-readable result
-```
+## Two arguments worth thinking about
 
-`--pin` is for things that must never quietly disappear — a safety constraint, an identity
-fact.
+`pin: true` is for things that must never quietly disappear — a safety constraint, an identity
+fact. It exempts the memory from decay, pruning and every automatic action.
 
-`--staged` exists for auto-capture: use it **when and only when** a `<mem-capture-cue>` block
-asked you to. That block comes from a regex on the user's prompt, so it is a guess, and
-`--staged` is what makes acting on a guess safe — a staged memory is invisible to recall until
-the user promotes it out of the queue (`/mem:review`). Everywhere else it is a hedge, and a hedge
-lands in a queue nobody asked for: if you are unsure whether a fact is durable, ask the user in
-one line instead.
+`staged: true` exists for auto-capture: use it **when and only when** a `<mem-capture-cue>`
+block asked you to. That block comes from a regex on the user's prompt, so it is a guess, and
+staging is what makes acting on a guess safe — a staged memory is invisible to recall until
+the user promotes it out of the queue (`/mem:review`). Everywhere else it is a hedge, and a
+hedge lands in a queue nobody asked for: if you are unsure whether a fact is durable, ask the
+user in one line instead.
 
 ## What the output tells you
 
@@ -106,7 +91,7 @@ Merged into #7 · 0.990 similar · project github.com/Jofr3/.dotfiles (git-remot
 **A merge is not a failure and not a duplicate** — at cosine ≥ 0.93 within the same scope the
 write updates that row instead of inserting, bumping confidence. Note that **the longer text
 wins**, so a merge can rewrite the stored wording. If the merge target is not actually the
-same fact, re-run with `--no-dedup`.
+same fact, re-run with `dedup: false`.
 
 `nearest existing: #7 at 0.915 (kept separate)` means it was close but distinct — worth a
 glance to confirm the store is not accumulating near-copies.
@@ -114,17 +99,19 @@ glance to confirm the store is not accumulating near-copies.
 ## Secrets are refused, not stored
 
 ```
-mem add: Refusing to store: this looks like it contains a credential …
+Refusing to store: this looks like it contains a credential …
 ```
 
-Exit code **2** means "you handed me a secret", distinct from 1 for a real error. Do not
-retry with the secret. Rewrite the fact to say *where* the credential lives, never what it
-is: "the Turso token is in 1Password under 'mem prod'". `MEM_ALLOW_SECRETS=1` exists for
-false positives; only the user should decide to set it.
+The call fails rather than storing. Do not retry with the secret. Rewrite the fact to say
+*where* the credential lives, never what it is: "the Turso token is in 1Password under 'mem
+prod'". `MEM_ALLOW_SECRETS=1` exists for false positives; only the user should decide to set
+it.
 
 ## After writing
 
 Say what you stored in one short line — id, and the text if you rephrased it. The user needs
 to know a memory now exists, because it will silently shape later sessions.
 
-Related: `recall` to search the store, `forget` to remove or correct a memory.
+Related: `recall` to search the store, `forget` to remove or correct a memory. The
+`~/.claude/skills/mem/bin/mem` CLI takes the same command as `mem add "<fact>" --why "…"`,
+which is the fallback if the server is not registered on this machine.

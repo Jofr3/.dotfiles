@@ -414,7 +414,7 @@ describe('the UserPromptSubmit hook', needsModel, () => {
     assert.equal(out.stderr, '');
   });
 
-  // Slice 4.1. `--staged` is where the capture gate's writes land, and "a staged
+  // Slice 4.1. Staging is where the capture gate's writes land, and "a staged
   // memory is never recalled until it is promoted" is the whole safety argument for
   // capturing without asking — so the exclusion is asserted on the hook, not only
   // on searchScoped. The prompt is the memory's own text, so the test cannot pass
@@ -445,7 +445,9 @@ describe('the UserPromptSubmit hook', needsModel, () => {
       block.indexOf('<mem-recollection>') < block.indexOf('<mem-capture-cue>'),
       'the capture cue should come last',
     );
-    assert.match(block, /--staged/);
+    // Not `--staged`: the cue names staging without naming a surface's flag, so
+    // it reads correctly whether the write goes through the CLI or the tool.
+    assert.match(block, /staged/);
   });
 
   // Conversational filler is a good share of real turns, and a sentence with no

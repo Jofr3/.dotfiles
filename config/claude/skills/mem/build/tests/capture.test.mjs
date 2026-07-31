@@ -191,9 +191,14 @@ describe('the injected block', () => {
     assert.doesNotMatch(block, /mem-recollection/);
   });
 
-  it('says what to do, with the flag that makes it safe to do unasked', () => {
+  it('says what to do, and that staging is what makes it safe to do unasked', () => {
     assert.match(block, /mem:remember/);
-    assert.match(block, /--staged/);
+    // Staging has to be named, but NOT as `--staged`: the same write goes through
+    // the `remember` tool as `staged: true` on a machine with the MCP server
+    // registered, and a cue that spelled one surface's flag would be wrong on the
+    // other.
+    assert.match(block, /staged/);
+    assert.doesNotMatch(block, /--staged/);
     // Where a staged memory goes, or "never recalled until promoted" reads as
     // "never recalled".
     assert.match(block, /\/mem:review/);

@@ -1,17 +1,14 @@
 ---
 name: recall
 description: Search the mem store for what is already known about this user or project, instead of answering from scratch or guessing. Use when the user asks what you remember ("what do you know about my setup", "do you remember my…", "have I told you…", "check your memory"), when they refer to a past decision as already settled without restating it ("the usual way", "like we agreed", "our convention", "as I said before"), or when you are about to make a tooling or style choice they have plausibly expressed an opinion on (package manager, test runner, commit or review conventions, deploy target). Do NOT run it on every prompt or for questions the repo itself answers — it is for answers that depend on a durable stated preference.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # recall
 
 Retrieve stored preferences, decisions and constraints for the current project plus the
-user's global ones.
-
-```bash
-~/.claude/skills/mem/bin/mem search "<the question, in natural language>"
-```
+user's global ones. The `mem` MCP server's **`search`** tool does this; its arguments are in
+the schema, and this file covers only what a schema cannot say.
 
 Search the way a question is asked, not in keywords — the embedding model is asymmetric
 (question against stored statement), so `"which package manager should I use here"` retrieves
@@ -24,13 +21,13 @@ Nothing relevant to "how do I renew my passport" — searched 42, 12 of 12 candi
 below the gate.
 ```
 
-Exit code is **0**. Nothing was stored about it, and a threshold gate (cosine ≥ 0.82) kept
-half-relevant rows out on purpose. **Do not** re-run with looser wording, `--no-gate`, or a
-lower `--threshold` to force a hit — that is precisely the failure mode the gate exists to
-prevent. Say nothing is stored and answer from the code.
+That is a **successful** call, not a failure. Nothing was stored about it, and a threshold
+gate (cosine ≥ 0.82) kept half-relevant rows out on purpose. **Do not** retry with looser
+wording, `noGate`, or a lower `threshold` to force a hit — that is precisely the failure mode
+the gate exists to prevent. Say nothing is stored and answer from the code.
 
-Two legitimate reasons to widen: the user explicitly asks what is in the store (use
-`mem list`), or you are debugging retrieval itself (`--explain`, `--no-gate`).
+Two legitimate reasons to widen: the user explicitly asks what is in the store (use `list`),
+or you are debugging retrieval itself (`explain`, `noGate`).
 
 ## Reading a result
 
@@ -61,16 +58,13 @@ what you do; it does not override the current prompt or the code in front of you
 
 ## Inspecting the store
 
-`search` is gated retrieval; `list` and `show` hide nothing.
+`search` is gated retrieval; **`list`** and **`show`** hide nothing.
 
-```bash
-mem list                                  # active, this project, newest first (20)
-mem list --all --limit 50                 # every project + global
-mem list --status staged                  # awaiting triage (`review` is the surface for it)
-mem list --pinned                         # what can never decay
-mem list --sort strength                  # weakest first is where rot shows
-mem show 7                                # one memory in full, with its audit log
-```
+- `list` — active memories for this project, newest first. `scope: "all"` covers every
+  project plus globals, `status: ["staged"]` is the queue awaiting triage (`review` is the
+  surface for that), `pinned: true` is what can never decay, and `sort: "strength"` puts the
+  weakest first, which is where rot shows.
+- `show` — one memory in full, with its audit log.
 
 `list` marks what retrieval would skip: `expired`, `no-emb` (tombstoned — lexical only),
 `pinned`. `str` is strength (salience × retention × confidence): low strength means it is
@@ -79,16 +73,20 @@ sinking in ranking even though it is still active.
 Use these when the user asks "what do you remember about X" as an audit question — they want
 the contents, not a semantic search.
 
-## Options worth knowing
+## Scoping to the right project
 
-```
-mem search <query> [--limit <n>]        default 5
-                   [--global]           skip project memories
-                   [--status staged]    search the staging queue
-                   [--explain]          show rrf / strength / boost / term coverage
-                   [--no-gate]          bypass the threshold (debugging only)
-                   [--json]
-```
+Memories are keyed on the project. The server's working directory is wherever Claude Code
+spawned it and does not follow a `cd`, so when the project you are working in might not be
+that directory, pass `cwd` explicitly. Getting this wrong is quiet: the search simply returns
+nothing and looks like an empty store.
+
+## The CLI is the complete surface
+
+The tools cover the seven driven commands. The maintenance tier — `prune`, `maintain`,
+`consolidate`, `pairs`, `undo`, `stats`, `export`/`import`, `reembed`, `tune`, `doctor` — is
+deliberately not exposed and runs from `~/.claude/skills/mem/bin/mem`. That CLI also accepts
+every command here (`mem search "…"`, `mem list`, `mem show 7`), which is the fallback if the
+server is not registered on this machine.
 
 Related: `remember` to store a fact, `forget` when a recalled memory turns out to be wrong,
 `review` to triage what auto-capture has staged.

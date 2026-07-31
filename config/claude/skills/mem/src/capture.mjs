@@ -139,12 +139,14 @@ export function captureMatch(prompt, cue) {
  * "otherwise ignore this" exit. A block that asserted "the user just stated a
  * preference" would get one invented on the prompts where they did not.
  *
- * It routes through the `mem:remember` skill rather than `bin/mem add` directly,
+ * It routes through the `mem:remember` skill rather than naming a command,
  * because the skill is where the rules live that stop this staging noise: one
- * fact, durable only, no secrets, no restating the repo. PLAN's `status='staged'`
- * is `--staged`, and the block says why it is not optional — a staged row is
- * invisible to recall until someone promotes it, which is the entire safety
- * argument for capturing without asking.
+ * fact, durable only, no secrets, no restating the repo. It also keeps the cue
+ * neutral about *how* the write happens — the `remember` tool takes `staged:
+ * true`, the CLI takes `--staged` — so the block does not go stale when a
+ * machine has the MCP server registered or does not. The block says why staging
+ * is not optional: a staged row is invisible to recall until someone promotes
+ * it, which is the entire safety argument for capturing without asking.
  *
  * The queue is named as `/mem:review`, the triage surface built in slice 4.2 —
  * the block has to say where a staged memory goes, or "it is never recalled until
@@ -163,7 +165,7 @@ export function renderCapture({ match = null } = {}) {
     '',
     'If the user did just state something that will still be true next month — a preference, a',
     'standing constraint, a decision, or a correction of something you have had wrong — store it',
-    'with the mem:remember skill, adding `--staged`. Otherwise ignore this block completely.',
+    'with the mem:remember skill, staged rather than active. Otherwise ignore this block completely.',
     '',
     'At most one memory, and only if it is durable. No need to ask first: a staged memory is never',
     'recalled until the user promotes it out of the queue (they run `/mem:review`). Then answer',

@@ -1,6 +1,11 @@
 #!/usr/bin/env node
-// mem — CLI entrypoint. Costs zero context until invoked, which is why this
-// plugin has a CLI and no MCP server.
+// mem — CLI entrypoint, and the only complete one: the maintenance tier lives
+// here and nowhere else. Costs zero context until invoked, and pays the
+// embedding model load on every invocation to keep it that way.
+//
+// mcp/mem/server.mjs exposes the seven driven commands as tools over the same
+// src/ modules, where a long-lived process amortises that load instead. Both
+// render through src/format.mjs so a memory reads back identically either way.
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -34,6 +39,24 @@ import { consolidate } from '../src/consolidate.mjs';
 import { JUDGE_BATCH, JUDGE_MODEL } from '../src/judge.mjs';
 import { stats } from '../src/stats.mjs';
 import { tune } from '../src/tune.mjs';
+import { DAY_MS } from '../src/decay.mjs';
+import {
+  age,
+  clip,
+  day,
+  describeChanges,
+  describeReviewResult,
+  renderAdd,
+  renderForget,
+  renderList,
+  renderPin,
+  renderQueue,
+  renderReviewResults,
+  renderSearch,
+  renderShow,
+  renderTouch,
+  table,
+} from '../src/format.mjs';
 
 const commands = {
   add: { summary: 'Store a memory (merges into a near-duplicate in the same scope)', run: add },
@@ -219,8 +242,6 @@ const ADD_VALUES = [
   'salience', 'confidence', 'expires-in', 'threshold', 'cwd',
 ];
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 function numberFlag(flags, name) {
   if (flags[name] === undefined) return undefined;
   const n = Number(flags[name]);
@@ -252,19 +273,6 @@ function addInput(flags, text) {
   };
 }
 
-const fmtNum = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
-
-function describeChanges(changes) {
-  if (changes.length === 0) return 'nothing changed';
-  return changes
-    .map((c) => (typeof c.to === 'number' ? `${c.field} ${fmtNum(c.from)} → ${fmtNum(c.to)}` : c.field))
-    .join(', ');
-}
-
-function describeScope(row, scopeSource) {
-  return row.scope === 'global' ? 'global' : `project ${row.project_key} (${scopeSource})`;
-}
-
 /**
  * Store one memory. Exit 2 rather than 1 when the text was rejected as a
  * credential, so a hook or script can tell "you gave me a secret" apart from
@@ -294,7 +302,7 @@ async function add(argv) {
     return err.code === 'MEM_SECRET_DETECTED' ? 2 : 1;
   }
 
-  const { row, action, changes, similarity, nearest, scopeSource, eventId } = result;
+  const { row, nearest, similarity, changes, action, eventId } = result;
 
   if (json) {
     // The embedding is 1.5 KB of float noise; the row is otherwise the memory.
@@ -304,52 +312,12 @@ async function add(argv) {
     return 0;
   }
 
-  const lines =
-    action === 'merged'
-      ? [
-          `Merged into #${row.id} · ${similarity.toFixed(3)} similar · ${describeScope(row, scopeSource)}`,
-          `  ${row.text}`,
-          `  ${describeChanges(changes)}`,
-        ]
-      : [
-          `Added #${row.id} · ${row.kind} · ${row.status} · ${describeScope(row, scopeSource)}`,
-          `  ${row.text}`,
-          ...(nearest ? [`  nearest existing: #${nearest.id} at ${similarity.toFixed(3)} (kept separate)`] : []),
-        ];
-  console.log(lines.join('\n'));
+  console.log(renderAdd(result));
   return 0;
 }
 
 const SEARCH_BOOLEANS = ['global', 'project', 'json', 'explain', 'no-gate'];
 const SEARCH_VALUES = ['limit', 'threshold', 'coverage', 'status', 'cwd', 'scope'];
-
-/** "3d", "2mo" — enough to judge staleness without printing a timestamp. */
-function age(ms, now) {
-  if (!ms) return '?';
-  const days = Math.max(0, (now - ms) / DAY_MS);
-  if (days < 1) return 'today';
-  if (days < 60) return `${Math.round(days)}d`;
-  return `${Math.round(days / 30)}mo`;
-}
-
-function describeResult(r, now, explain) {
-  const where = r.scope === 'global' ? 'global' : `project ${r.project_key}`;
-  const sim = r.similarity === null ? ' lex ' : r.similarity.toFixed(2);
-  const lines = [
-    `  #${r.id}  ${sim}  ${r.kind}  ${where}  ${age(r.updated_at, now)}${r.pinned ? '  pinned' : ''}`,
-    `      ${r.text}`,
-  ];
-  if (r.why) lines.push(`      why: ${r.why}`);
-  if (explain) {
-    const ranks = Object.entries(r.ranks).map(([leg, n]) => `${leg} #${n}`).join(', ') || 'none';
-    lines.push(
-      `      rrf ${r.rrf.toFixed(4)} (${ranks}) · strength ${r.strength.toFixed(2)}` +
-        ` · boost ${r.boost.toFixed(2)} · score ${r.score.toFixed(4)}` +
-        (r.terms.length ? ` · terms ${r.terms.join('/')} (${r.coverage.toFixed(2)})` : ''),
-    );
-  }
-  return lines.join('\n');
-}
 
 /**
  * Retrieve. Exits 0 with no results when nothing clears the gate — that is the
@@ -405,22 +373,7 @@ async function search(argv) {
     return 0;
   }
 
-  if (results.length === 0) {
-    console.log(
-      `Nothing relevant to "${query}" — searched ${stats.candidates}, ` +
-        `${stats.gated} of ${stats.fused} candidates fell below the gate.`,
-    );
-    return 0;
-  }
-
-  console.log(
-    [
-      `${results.length} ${results.length === 1 ? 'memory' : 'memories'} for "${query}"` +
-        `  ·  searched ${stats.candidates}`,
-      '',
-      ...results.map((r) => describeResult(r, now, explain)),
-    ].join('\n'),
-  );
+  console.log(renderSearch(found, { now, explain }));
   return 0;
 }
 
@@ -471,34 +424,6 @@ function positiveInt(flags, name, { min = 1 } = {}) {
     throw new Error(`--${name} must be a whole number of at least ${min}.`);
   }
   return n;
-}
-
-const day = (ms) => (ms ? new Date(ms).toISOString().slice(0, 10) : 'never');
-const clip = (text, max = 84) => (text.length <= max ? text : `${text.slice(0, max - 1)}…`);
-
-/** Pad every column to its widest cell; the last column runs free. */
-function table(rows) {
-  const widths = [];
-  for (const row of rows) {
-    row.forEach((cell, i) => {
-      widths[i] = Math.max(widths[i] ?? 0, String(cell).length);
-    });
-  }
-  return rows.map((row) =>
-    row
-      .map((cell, i) => (i === row.length - 1 ? String(cell) : String(cell).padEnd(widths[i])))
-      .join('  ')
-      .trimEnd(),
-  );
-}
-
-/** What retrieval would have done with this row but the store still holds. */
-function rowFlags(row) {
-  const marks = [];
-  if (row.pinned) marks.push('pinned');
-  if (row.expired) marks.push('expired');
-  if (!row.embedded) marks.push('no-emb');
-  return marks.join(',');
 }
 
 const LIST_BOOLEANS = ['global', 'project', 'all', 'pinned', 'unpinned', 'json'];
@@ -554,79 +479,8 @@ async function list(argv) {
     return 0;
   }
 
-  if (rows.length === 0) {
-    console.log(total === 0 ? 'Nothing stored here yet.' : 'No memories match those filters.');
-    return 0;
-  }
-
-  const showKey = scope === 'all';
-  console.log(
-    [
-      ...table([
-        ['id', 'status', 'kind', showKey ? 'project' : 'scope', 'str', 'age', 'flags', 'text'],
-        ...rows.map((r) => [
-          `#${r.id}`,
-          r.status,
-          r.kind,
-          r.scope === 'global' ? 'global' : (showKey ? r.project_key : 'project'),
-          r.strength.toFixed(2),
-          age(r.updated_at, now),
-          rowFlags(r),
-          clip(r.text),
-        ]),
-      ]),
-      '',
-      rows.length < total
-        ? `${rows.length} of ${total} — use --limit, --offset or 'mem export' for the lot.`
-        : `${total} ${total === 1 ? 'memory' : 'memories'}.`,
-    ].join('\n'),
-  );
+  console.log(renderList({ rows, total, scope }, { now }));
   return 0;
-}
-
-function describeEvent(event) {
-  const detail = event.detail ?? {};
-  const parts = [];
-  if (detail.similarity !== undefined) parts.push(`similarity ${Number(detail.similarity).toFixed(3)}`);
-  if (Array.isArray(detail.changes) && detail.changes.length > 0) {
-    parts.push(detail.changes.map((c) => c.field).join(', '));
-  }
-  if (detail.previous?.status) parts.push(`was ${detail.previous.status}`);
-  if (detail.via) parts.push(detail.via);
-  if (detail.reason) parts.push(String(detail.reason));
-  return parts.join(' · ');
-}
-
-function renderMemory({ memory: m, events }, now) {
-  const lines = [
-    `#${m.id}  ${m.uid}`,
-    `  ${m.text}`,
-    ...(m.why ? [`  why: ${m.why}`] : []),
-    '',
-    ...table([
-      ['  status', `${m.status}${m.pinned ? ', pinned' : ''}${m.expired ? ', expired' : ''}`],
-      ['  kind', m.kind],
-      ['  scope', m.scope === 'global' ? 'global' : `project ${m.project_key}`],
-      ['  strength', `${m.strength.toFixed(3)}  (salience ${m.salience.toFixed(2)} × retention ${m.retention.toFixed(3)} × confidence ${m.confidence.toFixed(2)})`],
-      ['  created', `${day(m.created_at)}  (${age(m.created_at, now)})`],
-      ['  updated', `${day(m.updated_at)}  (${age(m.updated_at, now)})`],
-      ['  expires', m.expires_at ? day(m.expires_at) : 'never'],
-      ['  injected', `${m.injected_count}${m.last_injected_at ? `, last ${age(m.last_injected_at, now)} ago` : ''}`],
-      ['  useful', `${m.useful_count}${m.last_used_at ? `, last ${age(m.last_used_at, now)} ago` : ''}`],
-      ['  source', `${m.source_kind ?? '—'}${m.source_session ? ` / ${m.source_session}` : ''}`],
-      ['  embedding', m.embedded ? `${m.emb_model} ${m.emb_dim}d` : 'none (tombstoned — lexical recall only)'],
-      ...(m.superseded_by ? [['  superseded by', `#${m.superseded_by}`]] : []),
-    ]),
-  ];
-
-  if (events.length > 0) {
-    lines.push(
-      '',
-      '  history',
-      ...table(events.map((e) => [`    ${day(e.at)}`, e.event, describeEvent(e)])),
-    );
-  }
-  return lines.join('\n');
 }
 
 async function show(argv) {
@@ -651,7 +505,7 @@ async function show(argv) {
     console.log(JSON.stringify({ count: found.length, memories: found }, null, 2));
     return 0;
   }
-  console.log(found.map((entry) => renderMemory(entry, now)).join('\n\n'));
+  console.log(renderShow(found, { now }));
   return 0;
 }
 
@@ -694,19 +548,7 @@ async function forget(argv) {
     return 0;
   }
 
-  console.log(
-    results
-      .map((r) => {
-        if (r.action === 'purged') {
-          return `Purged #${r.id} (${r.uid}) and ${r.eventsDeleted} events. This cannot be undone.\n  ${clip(r.text)}`;
-        }
-        if (r.action === 'restored') {
-          return `Restored #${r.id} to ${r.to}.\n  ${clip(r.text)}`;
-        }
-        return `Archived #${r.id} — out of retrieval, restore with 'mem forget ${r.id} --restore'.\n  ${clip(r.text)}`;
-      })
-      .join('\n'),
-  );
+  console.log(renderForget(results));
   return 0;
 }
 
@@ -732,18 +574,7 @@ async function pin(argv) {
     return 0;
   }
 
-  console.log(
-    results
-      .map((r) => {
-        const what = r.changed
-          ? on
-            ? `Pinned #${r.id} — it will never decay or be pruned.`
-            : `Unpinned #${r.id} — it decays again.`
-          : `#${r.id} was already ${on ? 'pinned' : 'unpinned'}.`;
-        return `${what}\n  ${clip(r.text)}`;
-      })
-      .join('\n'),
-  );
+  console.log(renderPin(results, on));
   return 0;
 }
 
@@ -777,16 +608,7 @@ async function touchCmd(argv) {
     return 0;
   }
 
-  console.log(
-    results
-      .map(
-        (r) =>
-          `Counted #${r.id} as useful ${r.useful_count}×  ·  halflife ` +
-          `${r.was.halflife_days.toFixed(0)}d → ${r.halflife_days.toFixed(0)}d, decay clock reset.\n` +
-          `  ${clip(r.text)}`,
-      )
-      .join('\n'),
-  );
+  console.log(renderTouch(results));
   return 0;
 }
 
@@ -1718,23 +1540,6 @@ function unitFlag(flags, name) {
   return n;
 }
 
-/**
- * The active memory this capture sits next to — and whether promoting would fold
- * it in (`merge`) or leave two memories that sound alike (`near`). The second one
- * is the reviewer's call and nothing else in the plugin will make it for them.
- */
-function describeDuplicate(item) {
-  if (!item.duplicate) return '';
-  const { id, similarity, merges } = item.duplicate;
-  return `#${id} ${similarity.toFixed(2)} ${merges ? 'merge' : 'near'}`;
-}
-
-const REVIEW_HINTS = [
-  "  mem review promote <ref…>            accept — a duplicate merges into what it restates",
-  '  mem review edit <ref> --text "…"     fix the wording, add --promote to accept it too',
-  '  mem review discard <ref…>            reject — archived, restorable with mem forget --restore',
-];
-
 async function reviewList(argv) {
   const paths = resolvePaths();
   const now = Date.now();
@@ -1778,94 +1583,8 @@ async function reviewList(argv) {
     return 0;
   }
 
-  if (items.length === 0) {
-    console.log(
-      total === 0
-        ? 'Nothing to review. Auto-captured memories land here before they can be recalled.'
-        : 'No queue items match those filters.',
-    );
-    return 0;
-  }
-
-  const dupes = items.filter((i) => i.duplicate?.merges).length;
-  const nears = items.filter((i) => i.duplicate && !i.duplicate.merges).length;
-  console.log(
-    [
-      ...table([
-        ['ref', 'type', 'age', 'kind', 'scope', 'similar', 'text'],
-        ...items.map((i) => [
-          `#${i.ref}`,
-          i.type,
-          age(i.when, now),
-          i.memory.kind,
-          i.memory.scope === 'global' ? 'global' : i.memory.project_key,
-          describeDuplicate(i),
-          clip(i.summary, 60),
-        ]),
-      ]),
-      '',
-      items.length < total
-        ? `${items.length} of ${total} awaiting review — use --limit or --offset for the rest.`
-        : `${total} awaiting review.` +
-          (dupes
-            ? `  ${dupes} restate${dupes === 1 ? 's' : ''} a memory you already have and would merge into it.`
-            : '') +
-          (nears ? `  ${nears} sit${nears === 1 ? 's' : ''} close to one without merging — your call.` : ''),
-      '',
-      ...REVIEW_HINTS,
-    ].join('\n'),
-  );
+  console.log(renderQueue({ items, total }, { now }));
   return 0;
-}
-
-/**
- * A consolidation proposal, once it has been accepted or refused. Its own branch
- * because the subject is a *pair*: "promoted #12" would name one of two memories
- * and say nothing about what happened to the other.
- */
-function describeProposalResult(r) {
-  if (r.action === 'declined') {
-    return (
-      `Declined ${r.ref} — neither memory changed, and the pair will not be judged again` +
-      ' unless one of them is restated.'
-    );
-  }
-  if (r.action === 'merge') {
-    return `Merged #${r.loser} into #${r.survivor}.\n  ${clip(r.text)}\n  ${describeChanges(r.changes)}`;
-  }
-  if (r.action === 'supersede') {
-    return (
-      `Retired #${r.loser} — superseded by #${r.survivor}, restorable with ` +
-      `'mem forget ${r.loser} --restore'.\n  ${clip(r.text)}`
-    );
-  }
-  if (r.action === 'refine') {
-    return (
-      `Linked #${r.specific} as a refinement of #${r.general}` +
-      `${r.changes.length ? `, and demoted #${r.general}: ${describeChanges(r.changes)}` : ''}.`
-    );
-  }
-  return `Linked ${r.ref.replace(/^proposal:/, '#').replace(':', ' and #')} as related.`;
-}
-
-/** How a completed verb reads back. Shared so --json and the text agree. */
-function describeReviewResult(r) {
-  if (r.type === 'consolidation-pair') return describeProposalResult(r);
-  if (r.action === 'merged') {
-    return [
-      `Promoted #${r.id} into #${r.into.id} — ${r.similarity.toFixed(3)} similar, so it merged` +
-        ' rather than adding a second copy.',
-      `  ${clip(r.into.text)}`,
-      `  ${describeChanges(r.changes)}`,
-    ].join('\n');
-  }
-  if (r.action === 'promoted') {
-    return `Promoted #${r.id} — active, and recallable from now on.\n  ${clip(r.text)}`;
-  }
-  if (r.action === 'archived') {
-    return `Discarded #${r.id} — archived, restore with 'mem forget ${r.id} --restore'.\n  ${clip(r.text)}`;
-  }
-  return `Edited #${r.id} — ${describeChanges(r.changes)}.\n  ${clip(r.text)}`;
 }
 
 async function reviewVerb(verb, argv) {
@@ -1902,7 +1621,7 @@ async function reviewVerb(verb, argv) {
     console.log(JSON.stringify({ run_id: results.run_id, results }, null, 2));
     return 0;
   }
-  console.log(results.map(describeReviewResult).join('\n'));
+  console.log(renderReviewResults(results));
   // The point of the id: triage is reversible now, and nobody guesses a run id.
   if (results.length > 0) console.log(`\nReverse it with:  mem undo ${results.run_id}`);
   return 0;

@@ -1675,7 +1675,9 @@ async function reviewEdit(argv) {
     return 0;
   }
   console.log(
-    [result.edit, result.promote].filter(Boolean).map(describeReviewResult).join('\n'),
+    // Called through an arrow, not passed to map directly: describeReviewResult
+    // takes options second, and map would hand it the array index.
+    [result.edit, result.promote].filter(Boolean).map((r) => describeReviewResult(r)).join('\n'),
   );
   return 0;
 }

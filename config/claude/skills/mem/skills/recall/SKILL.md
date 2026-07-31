@@ -80,13 +80,13 @@ spawned it and does not follow a `cd`, so when the project you are working in mi
 that directory, pass `cwd` explicitly. Getting this wrong is quiet: the search simply returns
 nothing and looks like an empty store.
 
-## The CLI is the complete surface
+## What is not a tool
 
 The tools cover the seven driven commands. The maintenance tier — `prune`, `maintain`,
 `consolidate`, `pairs`, `undo`, `stats`, `export`/`import`, `reembed`, `tune`, `doctor` — is
-deliberately not exposed and runs from `~/.claude/skills/mem/bin/mem`. That CLI also accepts
-every command here (`mem search "…"`, `mem list`, `mem show 7`), which is the fallback if the
-server is not registered on this machine.
+deliberately not exposed. It runs on a schedule from the plugin's hooks, or by hand from
+`~/.claude/skills/mem/bin/mem`, and it is not something to reach for mid-conversation: every
+command in it can lose memories in bulk.
 
 Related: `remember` to store a fact, `forget` when a recalled memory turns out to be wrong,
 `review` to triage what auto-capture has staged.

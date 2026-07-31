@@ -13,14 +13,44 @@ mem/server.mjs         7 tools
 
 ## Registration
 
+The two servers register by different routes, and the difference is not a style choice — it
+is whether a plugin exists to do it.
+
+**`mem` registers itself.** It is an enabled plugin (`mem@skills-dir`, auto-discovered from
+`skills/`), and a plugin may declare MCP servers in a `.mcp.json` at its root. So
+`skills/mem/.mcp.json` names this server:
+
+```json
+{ "mem": { "command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/../../mcp/mem/server.mjs"] } }
+```
+
+`${CLAUDE_PLUGIN_ROOT}` is `~/.claude/skills/mem`, so the hop lands back here. That file is
+tracked, which means a clone of this repo gets the server with no setup at all.
+
+**`drizzle-db` cannot do that.** It is a plain skill directory with no
+`.claude-plugin/plugin.json`, so nothing loads it as a plugin and there is no manifest to
+carry a `.mcp.json`. It has to be registered by hand, per machine:
+
 ```bash
 claude mcp add -s user drizzle-db -- node "$HOME/.claude/mcp/drizzle-db/server.mjs"
-claude mcp add -s user mem        -- node "$HOME/.claude/mcp/mem/server.mjs"
 claude mcp list   # health-check
 ```
 
-That registration lives in `~/.claude.json`, which is **not** part of this repo — on a new
-machine the command above has to be run again. Everything else here is tracked.
+That registration lives in `~/.claude.json`, which sits *beside* the `~/.claude` symlink
+rather than inside it, and is **not** part of this repo. Everything else here is tracked.
+
+## Why the servers live here and not inside the plugin
+
+`skills/mem/` is a plugin: it owns the hooks (`hooks/hooks.json`, which only a plugin loader
+reads — `${CLAUDE_PLUGIN_ROOT}` expands nowhere else) and the four `/mem:*` skills. `mcp/` owns
+transports and servers. Keeping the split means both servers share
+`lib/mcp-stdio.mjs` instead of one of them vendoring a copy, and it keeps the plugin's manifest
+about loading rather than about protocol.
+
+MCP is not a loader. It carries tools to a running session; it has no concept of a hook, and
+this repo already measured that its prompts and resources never reach the model's context (see
+below). So a server can never replace the plugin — it is the typed surface the plugin points
+at.
 
 ## What earns a server
 
@@ -28,6 +58,11 @@ Both servers import their skill's own modules rather than shelling out, so the s
 have one copy: `drizzle-db` shares `classifyStatement` with its CLI, `mem` shares
 `src/format.mjs` with `bin/mem`. Neither pair can drift on what needs `--force`, or on how a
 memory reads back.
+
+The one thing `format.mjs` deliberately does *not* share verbatim is the sentence telling the
+reader how to undo something — `CLI_HINTS` vs `TOOL_HINTS`. A tool result that read "restore
+with `mem forget 7 --restore`" would send the model to Bash for an operation it was just handed
+a typed tool for, which defeats the point of having the tool.
 
 ### mem was reverted once — what changed
 

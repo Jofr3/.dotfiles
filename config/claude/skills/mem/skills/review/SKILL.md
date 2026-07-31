@@ -140,6 +140,4 @@ If the queue is mostly junk, say so — the gate is meant to run above a 50% pro
 a queue full of noise is a signal to tighten it rather than something to keep clearing.
 
 Related: `remember` to store a fact directly, `recall` to search what is already active,
-`forget` to remove a memory that is already in the store. The
-`~/.claude/skills/mem/bin/mem` CLI takes the same commands (`mem review`, `mem review promote
-12 14`), which is the fallback if the server is not registered on this machine.
+`forget` to remove a memory that is already in the store.

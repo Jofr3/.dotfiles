@@ -41,8 +41,14 @@ const {
 const { resolveProjectKey } = await import(path.join(SRC, 'scope.mjs'));
 const {
   renderAdd, renderSearch, renderList, renderShow, renderForget, renderPin,
-  renderQueue, renderReviewResults, describeReviewResult,
+  renderQueue, renderReviewResults, describeReviewResult, TOOL_HINTS,
 } = await import(path.join(SRC, 'format.mjs'));
+
+// Every rendering that tells the reader how to undo something is phrased for
+// the caller holding these tools, not for someone at the CLI. A tool result
+// that said "restore with 'mem forget 7 --restore'" would send the model to
+// Bash for an operation it was just handed a typed tool for.
+const hints = TOOL_HINTS;
 
 // Path resolution reads the environment and creates nothing, but it is still
 // deferred: a throw at module scope would kill the handshake rather than fail
@@ -380,7 +386,7 @@ const tools = [
         force: args.force === true,
         reason: args.reason ?? null,
       });
-      return present(renderForget(results), { results }, args.json);
+      return present(renderForget(results, { hints }), { results }, args.json);
     },
   },
 
@@ -477,7 +483,7 @@ const tools = [
           offset: args.offset ?? 0,
         });
         return present(
-          renderQueue(queue, { now }),
+          renderQueue(queue, { now, hints }),
           { total: queue.total, totals: queue.totals, count: queue.items.length, scope, items: queue.items },
           args.json,
         );
@@ -509,7 +515,7 @@ const tools = [
           merge: args.noMerge !== true,
         });
         return present(
-          [result.edit, result.promote].filter(Boolean).map(describeReviewResult).join('\n'),
+          [result.edit, result.promote].filter(Boolean).map((r) => describeReviewResult(r, { hints })).join('\n'),
           result,
           args.json,
         );
@@ -521,8 +527,8 @@ const tools = [
         : await discardItems(args.refs, opts);
 
       const rendered = results.length > 0
-        ? `${renderReviewResults(results)}\n\nReverse it with:  mem undo ${results.run_id}`
-        : renderReviewResults(results);
+        ? `${renderReviewResults(results, { hints })}\n\nReverse the whole run from the CLI:  mem undo ${results.run_id}`
+        : renderReviewResults(results, { hints });
       // run_id rides on the array as a non-index property; JSON.stringify
       // serialises arrays by index, so it has to be named to survive.
       return present(rendered, { run_id: results.run_id, results }, args.json);

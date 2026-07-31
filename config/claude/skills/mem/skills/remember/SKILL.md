@@ -112,6 +112,4 @@ it.
 Say what you stored in one short line — id, and the text if you rephrased it. The user needs
 to know a memory now exists, because it will silently shape later sessions.
 
-Related: `recall` to search the store, `forget` to remove or correct a memory. The
-`~/.claude/skills/mem/bin/mem` CLI takes the same command as `mem add "<fact>" --why "…"`,
-which is the fallback if the server is not registered on this machine.
+Related: `recall` to search the store, `forget` to remove or correct a memory.

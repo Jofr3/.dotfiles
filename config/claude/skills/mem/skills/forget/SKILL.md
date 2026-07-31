@@ -79,6 +79,4 @@ and `scope: "all"` before retrying.
 Tell the user what was removed and whether it can be undone. If a purge happened, say plainly
 that it is gone.
 
-Related: `recall` to find the memory first, `remember` to store the corrected fact. The
-`~/.claude/skills/mem/bin/mem` CLI takes the same commands (`mem forget 7`, `mem pin 7 --off`),
-which is the fallback if the server is not registered on this machine.
+Related: `recall` to find the memory first, `remember` to store the corrected fact.

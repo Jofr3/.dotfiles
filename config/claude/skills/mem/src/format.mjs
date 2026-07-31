@@ -47,6 +47,37 @@ export function table(rows) {
   );
 }
 
+// ------------------------------------------------------------------ hints --
+//
+// A few renderings have to tell the reader how to undo what just happened, and
+// that sentence is the one thing that genuinely cannot be shared: a human at the
+// CLI needs `mem forget 7 --restore`, and a model holding the tools needs the
+// tool call. Printing the CLI spelling into a tool result is worse than a
+// cosmetic mismatch — it invites the model to shell out to a script when it was
+// handed a typed tool for the same operation.
+//
+// So the *phrasing* varies and everything around it does not. Each surface
+// passes its own hints; the default is the CLI's, because bin/mem is the older
+// caller and the one a person reads.
+
+export const CLI_HINTS = {
+  restore: (id) => `restore with 'mem forget ${id} --restore'`,
+  review: [
+    "  mem review promote <ref…>            accept — a duplicate merges into what it restates",
+    '  mem review edit <ref> --text "…"     fix the wording, add --promote to accept it too',
+    '  mem review discard <ref…>            reject — archived, restorable with mem forget --restore',
+  ],
+};
+
+export const TOOL_HINTS = {
+  restore: (id) => `restore it with forget({ refs: ["${id}"], restore: true })`,
+  review: [
+    '  review({ action: "promote", refs: […] })   accept — a duplicate merges into what it restates',
+    '  review({ action: "edit", refs: ["…"], text: "…", promote: true })   fix the wording, then accept',
+    '  review({ action: "discard", refs: […] })   reject — archived, restorable via forget',
+  ],
+};
+
 const fmtNum = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
 
 export function describeChanges(changes) {
@@ -210,7 +241,7 @@ export function renderShow(entries, { now = Date.now() } = {}) {
 
 // ------------------------------------------------------------- forget/pin --
 
-export function renderForget(results) {
+export function renderForget(results, { hints = CLI_HINTS } = {}) {
   return results
     .map((r) => {
       if (r.action === 'purged') {
@@ -219,7 +250,7 @@ export function renderForget(results) {
       if (r.action === 'restored') {
         return `Restored #${r.id} to ${r.to}.\n  ${clip(r.text)}`;
       }
-      return `Archived #${r.id} — out of retrieval, restore with 'mem forget ${r.id} --restore'.\n  ${clip(r.text)}`;
+      return `Archived #${r.id} — out of retrieval, ${hints.restore(r.id)}.\n  ${clip(r.text)}`;
     })
     .join('\n');
 }
@@ -261,13 +292,7 @@ export function describeDuplicate(item) {
   return `#${id} ${similarity.toFixed(2)} ${merges ? 'merge' : 'near'}`;
 }
 
-export const REVIEW_HINTS = [
-  "  mem review promote <ref…>            accept — a duplicate merges into what it restates",
-  '  mem review edit <ref> --text "…"     fix the wording, add --promote to accept it too',
-  '  mem review discard <ref…>            reject — archived, restorable with mem forget --restore',
-];
-
-export function renderQueue({ items, total }, { now = Date.now(), hints = REVIEW_HINTS } = {}) {
+export function renderQueue({ items, total }, { now = Date.now(), hints = CLI_HINTS } = {}) {
   if (items.length === 0) {
     return total === 0
       ? 'Nothing to review. Auto-captured memories land here before they can be recalled.'
@@ -298,7 +323,7 @@ export function renderQueue({ items, total }, { now = Date.now(), hints = REVIEW
           : '') +
         (nears ? `  ${nears} sit${nears === 1 ? 's' : ''} close to one without merging — your call.` : ''),
     '',
-    ...hints,
+    ...hints.review,
   ].join('\n');
 }
 
@@ -307,7 +332,7 @@ export function renderQueue({ items, total }, { now = Date.now(), hints = REVIEW
  * because the subject is a *pair*: "promoted #12" would name one of two memories
  * and say nothing about what happened to the other.
  */
-export function describeProposalResult(r) {
+export function describeProposalResult(r, { hints = CLI_HINTS } = {}) {
   if (r.action === 'declined') {
     return (
       `Declined ${r.ref} — neither memory changed, and the pair will not be judged again` +
@@ -319,8 +344,8 @@ export function describeProposalResult(r) {
   }
   if (r.action === 'supersede') {
     return (
-      `Retired #${r.loser} — superseded by #${r.survivor}, restorable with ` +
-      `'mem forget ${r.loser} --restore'.\n  ${clip(r.text)}`
+      `Retired #${r.loser} — superseded by #${r.survivor}, ` +
+      `${hints.restore(r.loser)}.\n  ${clip(r.text)}`
     );
   }
   if (r.action === 'refine') {
@@ -333,8 +358,8 @@ export function describeProposalResult(r) {
 }
 
 /** How a completed verb reads back. Shared so --json and the text agree. */
-export function describeReviewResult(r) {
-  if (r.type === 'consolidation-pair') return describeProposalResult(r);
+export function describeReviewResult(r, { hints = CLI_HINTS } = {}) {
+  if (r.type === 'consolidation-pair') return describeProposalResult(r, { hints });
   if (r.action === 'merged') {
     return [
       `Promoted #${r.id} into #${r.into.id} — ${r.similarity.toFixed(3)} similar, so it merged` +
@@ -347,11 +372,11 @@ export function describeReviewResult(r) {
     return `Promoted #${r.id} — active, and recallable from now on.\n  ${clip(r.text)}`;
   }
   if (r.action === 'archived') {
-    return `Discarded #${r.id} — archived, restore with 'mem forget ${r.id} --restore'.\n  ${clip(r.text)}`;
+    return `Discarded #${r.id} — archived, ${hints.restore(r.id)}.\n  ${clip(r.text)}`;
   }
   return `Edited #${r.id} — ${describeChanges(r.changes)}.\n  ${clip(r.text)}`;
 }
 
-export function renderReviewResults(results) {
-  return results.map(describeReviewResult).join('\n');
+export function renderReviewResults(results, { hints = CLI_HINTS } = {}) {
+  return results.map((r) => describeReviewResult(r, { hints })).join('\n');
 }

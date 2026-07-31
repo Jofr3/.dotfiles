@@ -43,6 +43,7 @@ import {
   MAX_TEXT,
   MAX_WHY,
   mergePlan,
+  mintRunId,
   normaliseText,
   recordEvent,
   requireOneOf,
@@ -51,6 +52,17 @@ import {
 
 /** One screenful of queue, as with `list`. The queue should not need paging. */
 export const QUEUE_LIMIT = 20;
+
+/**
+ * Triage is a run too — `rev-20260731T104402-9c1e0f`.
+ *
+ * A batch is already all-or-nothing in one transaction, so the unit `mem undo`
+ * would want to reverse and the unit this file already commits are the same
+ * thing; what was missing was only the id that names it. Without one, promoting
+ * eight items and realising the ninth showed you were wrong about all of them
+ * meant nine `mem forget --restore`s against ids you had to go and find.
+ */
+export const REVIEW_RUN_PREFIX = 'rev';
 
 /**
  * The similarity at which a staged item is treated as a restatement of an
@@ -255,7 +267,7 @@ const stagedMemories = {
    * The merged staged row becomes `superseded` rather than being deleted: the
    * capture happened, and the audit log has to be able to say where it went.
    */
-  async promote(conn, item, { now = Date.now(), merge = true, threshold = MERGE_THRESHOLD } = {}) {
+  async promote(conn, item, { now = Date.now(), merge = true, threshold = MERGE_THRESHOLD, runId = null } = {}) {
     const row = item.memory;
     const target = merge ? await nearestActive(conn, row, { threshold }) : null;
 
@@ -284,6 +296,7 @@ const stagedMemories = {
         at: now,
         detail: {
           via: 'review',
+          run_id: runId,
           threshold,
           similarity: target.similarity,
           changes,
@@ -297,6 +310,7 @@ const stagedMemories = {
         at: now,
         detail: {
           via: 'review',
+          run_id: runId,
           merged_into: target.id,
           similarity: target.similarity,
           previous: { status: row.status },
@@ -337,6 +351,7 @@ const stagedMemories = {
       at: now,
       detail: {
         via: 'review',
+        run_id: runId,
         previous: { status: row.status },
         // Why this was not a merge: the runner-up, when there was one close
         // enough to be worth recording.
@@ -375,14 +390,14 @@ const stagedMemories = {
    * feedback pass needs to find these. Acting on that signal (the confidence
    * decrement) is 5a's, not this slice's.
    */
-  async discard(conn, item, { now = Date.now(), reason = null } = {}) {
+  async discard(conn, item, { now = Date.now(), reason = null, runId = null } = {}) {
     const row = item.memory;
     await conn.run('UPDATE memories SET status = ? WHERE id = ?', 'archived', row.id);
     const eventId = await recordEvent(conn, {
       memoryId: row.id,
       event: EVENT_ARCHIVED,
       at: now,
-      detail: { via: 'review', reason, previous: { status: row.status } },
+      detail: { via: 'review', run_id: runId, reason, previous: { status: row.status } },
     });
     return {
       action: EVENT_ARCHIVED,
@@ -408,7 +423,7 @@ const stagedMemories = {
     conn,
     item,
     changes,
-    { now = Date.now(), paths, env = process.env, cwd, vector = null } = {},
+    { now = Date.now(), paths, env = process.env, cwd, vector = null, runId = null } = {},
   ) {
     const row = item.memory;
     const applied = [];
@@ -476,7 +491,7 @@ const stagedMemories = {
       memoryId: row.id,
       event: EVENT_EDITED,
       at: now,
-      detail: { via: 'review', changes: applied, previous: { updated_at: row.updated_at } },
+      detail: { via: 'review', run_id: runId, changes: applied, previous: { updated_at: row.updated_at } },
     });
 
     return {
@@ -575,7 +590,11 @@ function onConn(fn, { conn, paths, env }) {
  * a concurrent `mem forget` slip between the two.
  */
 function batch(action, refs, opts = {}) {
-  const { conn, paths, env, ...rest } = opts;
+  const { conn, paths, env, runId = null, ...rest } = opts;
+  // One id for the batch, minted here rather than per item: the transaction
+  // commits all of them or none, so "reverse that triage" can only sensibly mean
+  // the whole batch. A caller may pass its own to fold this into a larger run.
+  const id = runId ?? mintRunId(rest.now ?? Date.now(), { prefix: REVIEW_RUN_PREFIX });
   const run = (c) =>
     c
       .transactionAsync(async (tx) => {
@@ -585,12 +604,17 @@ function batch(action, refs, opts = {}) {
           const item = requireAction(await resolveItem(tx, ref, rest), action);
           if (seen.has(`${item.type}:${item.ref}`)) continue;
           seen.add(`${item.type}:${item.ref}`);
-          results.push(await sourceFor(item)[action](tx, item, { ...rest, env }));
+          results.push(await sourceFor(item)[action](tx, item, { ...rest, env, runId: id }));
         }
         return results;
       })
       .immediate();
-  return onConn(run, { conn, paths, env });
+  // The run id rides on the array rather than replacing it with `{results, run_id}`.
+  // Every caller — the CLI, the skill, the tests — treats this as the list of what
+  // happened and indexes straight into it; a wrapper object would rename that list
+  // at every call site to carry one string. Non-index properties survive iteration
+  // and `map`, so the list is exactly what it was.
+  return onConn(run, { conn, paths, env }).then((results) => Object.assign(results, { run_id: id }));
 }
 
 export async function review(opts = {}) {
@@ -617,7 +641,10 @@ export function discard(refs, opts = {}) {
  * capture would merge into the memory it no longer restates.
  */
 export async function edit(ref, changes, opts = {}) {
-  const { conn, paths, env = process.env, promote: alsoPromote = false, ...rest } = opts;
+  const { conn, paths, env = process.env, promote: alsoPromote = false, runId = null, ...rest } = opts;
+  // `--promote` makes this two events, and they are one decision: one id over
+  // both, so undoing the edit-and-accept does not leave the text rewritten.
+  const id = runId ?? mintRunId(rest.now ?? Date.now(), { prefix: REVIEW_RUN_PREFIX });
 
   const run = async (c) => {
     // Resolve first, then validate, then embed, then open the transaction — the
@@ -638,13 +665,111 @@ export async function edit(ref, changes, opts = {}) {
     return c
       .transactionAsync(async (tx) => {
         const item = requireAction(await resolveItem(tx, ref, rest), 'edit');
-        const edited = await sourceFor(item).edit(tx, item, changes, { ...rest, paths, env, vector });
-        if (!alsoPromote) return { edit: edited, promote: null };
+        const edited = await sourceFor(item).edit(tx, item, changes, {
+          ...rest,
+          paths,
+          env,
+          vector,
+          runId: id,
+        });
+        if (!alsoPromote) return { edit: edited, promote: null, run_id: id };
         const fresh = requireAction(await resolveItem(tx, item.ref, rest), 'promote');
-        return { edit: edited, promote: await sourceFor(fresh).promote(tx, fresh, { ...rest, env }) };
+        return {
+          edit: edited,
+          promote: await sourceFor(fresh).promote(tx, fresh, { ...rest, env, runId: id }),
+          run_id: id,
+        };
       })
       .immediate();
   };
 
   return onConn(run, { conn, paths, env });
+}
+
+// ------------------------------------------------------------------- undo --
+
+/** The inverse of `promote`. `discard` writes an `archived` event, which tier 1 already reverses. */
+export const EVENT_UNPROMOTED = 'unpromoted';
+
+/**
+ * What `mem undo` can reverse from a triage run.
+ *
+ * Short, because two of the three verbs were already covered by events this file
+ * deliberately did not invent: `discard` writes tier 1's `archived` (so that
+ * `mem forget --restore` and an undo take the same path), and a promote that
+ * merged also writes `merged`, which resolve.mjs inverts. What was missing is the
+ * status move itself — the row that went from `staged` to `active`, or to
+ * `superseded` under the memory it merged into.
+ *
+ * `edited` is NOT here. Reversing it means putting back text whose vector was
+ * recomputed on the way in, and resolve.mjs's `undoMerge` already refuses a merge
+ * that rewrote text for that exact reason: this file cannot re-embed during an
+ * undo without loading the model, and an undo that silently leaves the old
+ * wording beside a new vector makes the row unfindable by either. `mem show`
+ * carries the previous text in the event detail, so the manual path is intact.
+ */
+export const REVIEW_INVERTIBLE = [EVENT_PROMOTED];
+
+/**
+ * Invert one triage event. Returns `{ ok: true, … } | { ok: false, why }` and
+ * never throws — maintain.mjs's `undoOne` contract.
+ *
+ * THE PRECONDITIONS ARE THE POINT, as everywhere else undo touches: a promoted
+ * memory may since have been edited, archived, pinned or merged into something
+ * else, and putting it back in the queue on top of any of those would overrule a
+ * decision taken after the one being reversed.
+ */
+export async function undoReview(conn, event, { now = Date.now(), runId = null } = {}) {
+  if (event.event !== EVENT_PROMOTED) return { ok: false, why: `no inverse for '${event.event}'` };
+
+  const detail = event.detail ?? {};
+  const previous = detail.previous?.status ?? 'staged';
+  const mergedInto = detail.merged_into ?? null;
+
+  const row = await conn.get(
+    'SELECT id, uid, text, status, superseded_by FROM memories WHERE id = ?',
+    event.memory_id,
+  );
+  if (!row) return { ok: false, why: 'memory has been purged' };
+
+  // A promote leaves the row in exactly one of two states, and which one says
+  // whether it merged. Anything else means the world moved.
+  const expected = mergedInto === null ? 'active' : 'superseded';
+  if (row.status !== expected) return { ok: false, why: `status is now '${row.status}', not ${expected}` };
+  if (mergedInto !== null && row.superseded_by !== mergedInto) {
+    return { ok: false, why: `it now supersedes into #${row.superseded_by}, not #${mergedInto}` };
+  }
+  if (previous === row.status) return { ok: false, why: `it was already '${previous}' before the promote` };
+
+  await conn.run(
+    'UPDATE memories SET status = ?, superseded_by = NULL WHERE id = ?',
+    previous,
+    row.id,
+  );
+  const eventId = await recordEvent(conn, {
+    memoryId: row.id,
+    event: EVENT_UNPROMOTED,
+    at: now,
+    detail: {
+      via: 'undo',
+      run_id: runId,
+      undoes_event: event.id,
+      merged_into: mergedInto,
+      // Naming the restored status rather than implying it: an undo that put a
+      // capture back in the review queue and one that only un-superseded it read
+      // very differently to somebody scanning `mem show`.
+      restored: { status: previous },
+    },
+  });
+
+  return {
+    ok: true,
+    action: EVENT_UNPROMOTED,
+    id: row.id,
+    uid: row.uid,
+    text: row.text,
+    to: previous,
+    merged_into: mergedInto,
+    eventId,
+  };
 }

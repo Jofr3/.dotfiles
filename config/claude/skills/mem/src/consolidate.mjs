@@ -43,12 +43,34 @@ import { openDb } from './db.mjs';
 import { judgePairs } from './judge.mjs';
 import {
   BACKUP_KEEP,
+  CONSOLIDATION_MIN_INTERVAL_MS,
   EVENT_CONSOLIDATION,
+  META_LAST_CONSOLIDATION,
+  NEW_MEMORY_THRESHOLD,
   backupDir,
   backupIfMigrationPending,
+  countNewSince,
+  dueForConsolidation,
   newRunId,
+  readLastRun,
   writeBackup,
+  writeLastRun,
 } from './maintain.mjs';
+
+/**
+ * The throttle lives in maintain.mjs, for the reason written on
+ * `EVENT_CONSOLIDATION` there: tier 1 has to be able to say whether tier 2 is due
+ * without importing the module that imports it. Re-exported here because this is
+ * the file the throttle is *about*, and `MIN_INTERVAL_MS` reads as a week from
+ * inside it.
+ */
+export {
+  META_LAST_CONSOLIDATION,
+  NEW_MEMORY_THRESHOLD,
+  countNewSince,
+  dueForConsolidation,
+  CONSOLIDATION_MIN_INTERVAL_MS as MIN_INTERVAL_MS,
+};
 import { resolvePaths } from './paths.mjs';
 import { AUTO_CLASSES, consolidatePairs } from './resolve.mjs';
 import { recordEvent } from './write.mjs';
@@ -99,6 +121,9 @@ export async function consolidate({
   judgeOpts = {},
   autoClasses = AUTO_CLASSES,
   duplicatesOnly = false,
+  force = false,
+  minIntervalMs = CONSOLIDATION_MIN_INTERVAL_MS,
+  newThreshold = NEW_MEMORY_THRESHOLD,
   ...opts
 } = {}) {
   const t0 = performance.now();
@@ -131,6 +156,46 @@ export async function consolidate({
     given ?? (await openDb({ paths, env, ...(apply ? {} : { readonly: true, runMigrations: false }) }));
 
   try {
+    // Before the detection scan, and therefore before the judge: a throttled
+    // scheduled run has to cost nothing, or the throttle is only saving writes.
+    const last = await readLastRun(conn, META_LAST_CONSOLIDATION);
+    const newSince = await countNewSince(conn, last?.at ?? null);
+    const due = dueForConsolidation({ lastAt: last?.at ?? null, now, newSince, minIntervalMs, newThreshold });
+
+    if (apply && !due.due && !force) {
+      return {
+        run_id: id,
+        store: paths.dbPath,
+        now,
+        // `throttled`, not tier 1's `skipped: 'throttled'`: `skipped` is already
+        // the list of pairs this pass could not resolve, and overloading it with
+        // a status string would hand every caller that reads `.length` a 9.
+        throttled: true,
+        why: due.why,
+        due,
+        last_run: last,
+        next_at: due.nextAt,
+        applied: [],
+        proposed: [],
+        skipped: [],
+        // The rest of a report's shape, empty. A throttled pass is still a
+        // consolidation report and every caller reads it as one — bin/mem's exit
+        // code is `report.errors.length`, and a missing key there is a crash on
+        // the one path whose whole promise is that it does nothing.
+        planned: [],
+        errors: [],
+        unjudged: [],
+        judged: 0,
+        calls: 0,
+        by_class: {},
+        counts: { applied: 0, proposed: 0, skipped: 0, judged: 0, calls: 0 },
+        backup: null,
+        migration_backup: migrationBackup,
+        backups_dir: backupDir(paths),
+        elapsed_ms: round(performance.now() - t0),
+      };
+    }
+
     let backupReport = null;
     const report = await consolidatePairs(conn, {
       now,
@@ -179,12 +244,24 @@ export async function consolidate({
           stamped: report.stamped?.stamped ?? 0,
         },
       });
+
+      // Every applying pass moves it, including the one that judged nothing —
+      // the throttle is about how often the *judge* is asked, and a pass that
+      // found no pairs has asked and been answered. Leaving it unmoved would
+      // re-scan on the next session forever on a store with nothing to do.
+      await writeLastRun(
+        conn,
+        { at: now, run_id: id, counts: summary },
+        META_LAST_CONSOLIDATION,
+      );
     }
 
     return {
       ...report,
       run_id: id,
       store: paths.dbPath,
+      due,
+      last_run: last,
       auto_classes: duplicatesOnly ? DUPLICATES_ONLY : autoClasses,
       counts: summary,
       backup: backupReport,

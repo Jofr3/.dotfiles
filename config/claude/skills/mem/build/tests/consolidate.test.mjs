@@ -44,10 +44,16 @@ import {
   seedAdversarial,
   vectorsFor,
 } from '../adversarial.mjs';
-import { consolidate } from '../../src/consolidate.mjs';
+import {
+  META_LAST_CONSOLIDATION,
+  MIN_INTERVAL_MS,
+  consolidate,
+  countNewSince,
+  dueForConsolidation,
+} from '../../src/consolidate.mjs';
 import { withDb } from '../../src/db.mjs';
-import { modelCached } from '../../src/embed.mjs';
-import { undo } from '../../src/maintain.mjs';
+import { EMB_DIM, EMB_MODEL, modelCached } from '../../src/embed.mjs';
+import { readLastRun, undo, writeLastRun } from '../../src/maintain.mjs';
 import { readVerdict } from '../../src/pairs.mjs';
 import { readProposals } from '../../src/resolve.mjs';
 import { review as reviewQueue, promote as promoteItems } from '../../src/review.mjs';
@@ -537,5 +543,201 @@ describe('the fixture itself', () => {
     ]);
     assert.equal(answer.verdicts.size, 0);
     assert.deepEqual(answer.unjudged, ['pair:1:2']);
+  });
+});
+
+// -------------------------------------------------------------- the throttle --
+//
+// PLAN: "Weekly via `/loop` or cron, or after 25 new memories."
+//
+// The gate is the only thing standing between a scheduled run and a judge bill,
+// so the assertion that matters most is not "it declined" but "it declined
+// without spending anything" — a throttle that still scans and judges before
+// deciding not to write would be the expensive half of the pass, kept.
+
+describe('the consolidation throttle', () => {
+  describe('dueForConsolidation', () => {
+    const WEEK = MIN_INTERVAL_MS;
+    const NOW_ = 1_750_000_000_000;
+
+    it('reads a store that has never been consolidated as due', () => {
+      assert.equal(dueForConsolidation({ lastAt: null, now: NOW_ }).due, true);
+      assert.equal(dueForConsolidation({ lastAt: null, now: NOW_ }).why, 'never consolidated');
+    });
+
+    it('reads a stamp from the future as due, not as a decade of quiet', () => {
+      // The clock-went-backwards case tier 1 writes down too: treating it as "not
+      // due until 2035" is the failure that never recovers on its own.
+      const r = dueForConsolidation({ lastAt: NOW_ + WEEK, now: NOW_ });
+      assert.equal(r.due, true);
+      assert.equal(r.why, 'last run is in the future');
+    });
+
+    it('is due on the interval, inclusive of the boundary', () => {
+      assert.equal(dueForConsolidation({ lastAt: NOW_ - WEEK, now: NOW_ }).due, true);
+      assert.equal(dueForConsolidation({ lastAt: NOW_ - WEEK + 1, now: NOW_ }).due, false);
+    });
+
+    it('is due on 25 new memories inside the interval, and not on 24', () => {
+      // The OR is the whole point: a fortnight of heavy capture must not wait for
+      // the calendar.
+      const day = NOW_ - 24 * 60 * 60 * 1000;
+      assert.equal(dueForConsolidation({ lastAt: day, now: NOW_, newSince: 25 }).due, true);
+      assert.equal(dueForConsolidation({ lastAt: day, now: NOW_, newSince: 24 }).due, false);
+      assert.match(dueForConsolidation({ lastAt: day, now: NOW_, newSince: 25 }).why, /25 new memories/);
+    });
+
+    it('names the calendar, not the count, when both are true', () => {
+      const r = dueForConsolidation({ lastAt: NOW_ - WEEK, now: NOW_, newSince: 99 });
+      assert.equal(r.why, 'interval elapsed');
+    });
+  });
+
+  describe('against a store that was just consolidated', () => {
+    let paths;
+
+    before(async () => {
+      paths = store('throttle');
+      await runAdversarial({ paths, env: ENV, now: NOW, vectorMode: MODE, judge: recordedJudge() });
+    });
+
+    it('records the watermark under its own key, not tier 1\'s', async () => {
+      await withDb(
+        async (conn) => {
+          const mine = await readLastRun(conn, META_LAST_CONSOLIDATION);
+          assert.equal(mine?.at, NOW);
+          assert.match(mine.run_id, /^cons-/);
+          // Tier 1's clock is untouched: the two run on different cadences and a
+          // shared record would make "maintained" and "judged" one question.
+          assert.equal(await readLastRun(conn), null);
+        },
+        { paths, env: ENV },
+      );
+    });
+
+    it('declines a second applying pass without paying the judge', async () => {
+      let called = 0;
+      const counting = async (...args) => {
+        called += 1;
+        return recordedJudge()(...args);
+      };
+      const report = await consolidate({
+        paths,
+        env: ENV,
+        now: NOW + 1000,
+        apply: true,
+        judge: counting,
+      });
+
+      assert.equal(report.throttled, true);
+      assert.equal(report.why, 'consolidated recently');
+      // The assertion the throttle exists for.
+      assert.equal(called, 0, 'a throttled pass must not reach the judge');
+      assert.equal(report.calls, 0);
+      assert.deepEqual(report.applied, []);
+      // `skipped` stays the list of unresolved pairs it always was.
+      assert.ok(Array.isArray(report.skipped));
+    });
+
+    it('reports the full shape, so the CLI can render it without special-casing', async () => {
+      // Caught the hard way: bin/mem's exit code is `report.errors.length`, and a
+      // throttled report without that key crashed the one path whose entire
+      // promise is that it does nothing.
+      const report = await consolidate({ paths, env: ENV, now: NOW + 1000, apply: true, judge: recordedJudge() });
+      assert.equal(report.throttled, true);
+      for (const key of ['applied', 'proposed', 'skipped', 'planned', 'errors', 'unjudged']) {
+        assert.ok(Array.isArray(report[key]), `${key} must be an array on a throttled report`);
+      }
+      for (const key of ['run_id', 'store', 'now', 'why', 'counts', 'by_class']) {
+        assert.notEqual(report[key], undefined, `${key} is missing from a throttled report`);
+      }
+    });
+
+    it('previews anyway, because a person asking a question should get an answer', async () => {
+      // A store whose pairs have never been judged, stamped as if a pass ran a
+      // minute ago. Reusing the store above would prove nothing: its pairs carry
+      // `consolidated_at`, so detection returns none and the judge goes unused
+      // whether the throttle exists or not.
+      const fresh = store('throttle-preview');
+      await runAdversarial({ paths: fresh, env: ENV, now: NOW, vectorMode: MODE, apply: false, judge: recordedJudge() });
+      await withDb(
+        (conn) => writeLastRun(conn, { at: NOW, run_id: 'cons-pretend' }, META_LAST_CONSOLIDATION),
+        { paths: fresh, env: ENV },
+      );
+
+      let called = 0;
+      const counting = async (...args) => {
+        called += 1;
+        return recordedJudge()(...args);
+      };
+      const preview = await consolidate({ paths: fresh, env: ENV, now: NOW + 1000, apply: false, judge: counting });
+      assert.notEqual(preview.throttled, true);
+      assert.ok(called > 0, 'a dry run is not throttled');
+
+      // Same store, same moment, applying: now the gate closes.
+      const applying = await consolidate({ paths: fresh, env: ENV, now: NOW + 1000, apply: true, judge: counting });
+      assert.equal(applying.throttled, true);
+    });
+
+    it('applies inside the interval when forced', async () => {
+      const report = await consolidate({
+        paths,
+        env: ENV,
+        now: NOW + 2000,
+        apply: true,
+        force: true,
+        judge: recordedJudge(),
+      });
+      assert.notEqual(report.throttled, true);
+      assert.equal(report.run_id.startsWith('cons-'), true);
+    });
+
+    it('becomes due again once 25 memories have been added since', async () => {
+      const seen = await withDb(
+        async (conn) => {
+          const last = await readLastRun(conn, META_LAST_CONSOLIDATION);
+          // Rows created after the watermark, counted the way the gate counts them.
+          for (let i = 0; i < 25; i += 1) {
+            await conn.run(
+              `INSERT INTO memories (uid, text, kind, scope, status, created_at, updated_at, emb_model, emb_dim)
+               VALUES (?, ?, 'fact', 'global', 'active', ?, ?, ?, ?)`,
+              `late-${i}`,
+              `a later memory ${i}`,
+              last.at + 1,
+              last.at + 1,
+              EMB_MODEL,
+              EMB_DIM,
+            );
+          }
+          return countNewSince(conn, last.at);
+        },
+        { paths, env: ENV },
+      );
+      assert.equal(seen, 25);
+    });
+  });
+
+  describe('a pass that judged nothing', () => {
+    it('still moves the watermark', async () => {
+      // Otherwise a store with nothing to do re-scans on every scheduled run
+      // forever — the pass asked the question and got an answer, which is what
+      // the interval is measuring.
+      const paths = store('empty');
+      // `consolidate` refuses a store that is not there at all, which is a
+      // different thing from one with nothing in it.
+      await withDb(async () => {}, { paths, env: ENV });
+      const report = await consolidate({
+        paths,
+        env: ENV,
+        now: NOW,
+        apply: true,
+        judge: recordedJudge(),
+      });
+      assert.equal(report.judged, 0);
+      await withDb(
+        async (conn) => assert.equal((await readLastRun(conn, META_LAST_CONSOLIDATION))?.at, NOW),
+        { paths, env: ENV },
+      );
+    });
   });
 });

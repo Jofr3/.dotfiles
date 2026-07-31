@@ -148,7 +148,7 @@ function help() {
     `mem pairs ${KEEP_BOTH_VERDICTS.join('|')} <id|uid> <id|uid> [--why <text>]`,
     '          settle a pair by hand so it stops being offered',
     '',
-    'mem consolidate [--apply] [--duplicates-only] [--project [--cwd <dir>]]',
+    'mem consolidate [--apply] [--force] [--duplicates-only] [--project [--cwd <dir>]]',
     '                [--limit <n>] [--changed-limit <n>] [--threshold <0-1>]',
     `                [--batch <n>=${JUDGE_BATCH}] [--model <name>=${JUDGE_MODEL}] [--margin <0-1>]`,
     '                [--no-backup] [--run-id <id>] [--json]',
@@ -1198,6 +1198,12 @@ async function maintainCmd(argv) {
               : '';
     lines.push(`  ${step.step.padEnd(11)}${detail || step.skipped || ''}`);
     if (step.note) lines.push(`  ${''.padEnd(11)}${step.note}`);
+    // Whether tier 2 is due. Said here because this is the step that just counted
+    // the unjudged pairs, and "there are 7 waiting" reads very differently
+    // alongside "and nothing is going to look at them for another five days".
+    if (step.consolidation?.due) {
+      lines.push(`  ${''.padEnd(11)}consolidation is due (${step.consolidation.why}) — run \`mem consolidate\``);
+    }
     if (step.step === 'prune' && step.truncated?.length > 0) {
       lines.push(`  ${''.padEnd(11)}hit the row budget on: ${step.truncated.join(', ')} — the next run takes the rest`);
     }
@@ -1528,7 +1534,7 @@ async function pairsCmd(argv) {
 // judge — see src/consolidate.mjs for why — so it is not free, and the output
 // says what it would have done rather than what it did.
 
-const CONSOLIDATE_BOOLEANS = ['apply', 'json', 'project', 'duplicates-only', 'no-backup'];
+const CONSOLIDATE_BOOLEANS = ['apply', 'json', 'project', 'duplicates-only', 'no-backup', 'force'];
 const CONSOLIDATE_VALUES = ['limit', 'changed-limit', 'threshold', 'batch', 'model', 'margin', 'cwd', 'run-id'];
 
 /** One line per judged pair: what it is, where it went, and why it did not go further. */
@@ -1567,6 +1573,19 @@ function describePlan(p) {
 }
 
 function consolidateLines(report) {
+  if (report.throttled) {
+    const due = report.due ?? {};
+    return [
+      `Nothing done — ${report.why}.`,
+      ...table([
+        ['  last pass', report.last_run?.run_id ?? 'never', relTime(report.last_run?.at ?? null, report.now)],
+        ['  next due', relTime(report.next_at, report.now), `or at ${due.newThreshold} new memories (${due.newSince} so far)`],
+      ]),
+      '',
+      'Nothing was judged, so this cost nothing. --force runs it anyway.',
+    ];
+  }
+
   const d = report.detected;
   const c = report.counts;
   const lines = [
@@ -1655,6 +1674,7 @@ async function consolidateCmd(argv) {
     report = await consolidate({
       paths,
       apply: flags.apply === true,
+      force: flags.force === true,
       backup: flags['no-backup'] !== true,
       duplicatesOnly: flags['duplicates-only'] === true,
       ...(flags['run-id'] === undefined ? {} : { runId: flags['run-id'] }),
@@ -1877,10 +1897,14 @@ async function reviewVerb(verb, argv) {
   }
 
   if (json) {
-    console.log(JSON.stringify({ results }, null, 2));
+    // Named explicitly: `run_id` rides on the array as a non-index property and
+    // JSON.stringify serialises arrays by index, so it would vanish here.
+    console.log(JSON.stringify({ run_id: results.run_id, results }, null, 2));
     return 0;
   }
   console.log(results.map(describeReviewResult).join('\n'));
+  // The point of the id: triage is reversible now, and nobody guesses a run id.
+  if (results.length > 0) console.log(`\nReverse it with:  mem undo ${results.run_id}`);
   return 0;
 }
 

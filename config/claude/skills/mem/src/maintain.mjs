@@ -31,7 +31,6 @@
 //
 // Timestamps are epoch milliseconds throughout, matching write.mjs.
 
-import { randomBytes } from 'node:crypto';
 import {
   existsSync,
   mkdirSync,
@@ -50,6 +49,7 @@ import { EVENT_ARCHIVED, EVENT_RESTORED } from './manage.mjs';
 import { detectPairs } from './pairs.mjs';
 import { resolvePaths } from './paths.mjs';
 import { CONSOLIDATION_INVERTIBLE, undoConsolidation } from './resolve.mjs';
+import { REVIEW_INVERTIBLE, undoReview } from './review.mjs';
 import {
   ARCHIVE_STRENGTH,
   DEAD_SCOPE_PREFIX,
@@ -60,7 +60,7 @@ import {
   plan as prunePlan,
 } from './prune.mjs';
 import { exportJsonl } from './transfer.mjs';
-import { STATUSES, recordEvent } from './write.mjs';
+import { STATUSES, mintRunId, recordEvent } from './write.mjs';
 
 /** Tags a run id with the tier that made it. Phase 5b's runs will not say `maint`. */
 export const RUN_PREFIX = 'maint';
@@ -131,24 +131,109 @@ export class MaintainError extends Error {
   }
 }
 
-// ------------------------------------------------------------------ run ids --
+// ------------------------------------------------------------- the throttle --
+//
+// PLAN: "Weekly via `/loop` or cron, or after 25 new memories."
+//
+// It sits in this file rather than consolidate.mjs for the reason written on
+// EVENT_CONSOLIDATION above: tier 1's pair step reports whether tier 2 is due,
+// and it cannot import the module that imports it.
+//
+// TWO TRIGGERS JOINED BY *OR*, WHICH MAKES THIS A FLOOR AND NOT A CEILING. The
+// week is the idle cadence; the count is what stops a fortnight of heavy capture
+// sitting unjudged because the calendar has not caught up. Reading it as "a week
+// AND 25" would be the same throttle with the useful half removed.
+//
+// IT GATES APPLYING, NOT PREVIEWING — tier 1's rule, for tier 1's reason: a
+// person who types `mem consolidate` is asking a question and should get an
+// answer. The difference is what the two previews cost. Tier 1's is free, so it
+// runs whenever asked; this one pays the judge, so the gate sits *before* the
+// detection scan on the applying path and a throttled scheduled run spends
+// nothing at all. `--force` is the override, and it is the only thing that
+// applies inside the interval.
+//
+// The watermark is its own meta key rather than a field on tier 1's. They move
+// on different clocks and a shared record would make "when did maintenance last
+// run" and "when were my memories last judged" the same question, which they are
+// not — one is free and nightly, the other costs money and is weekly.
 
-const pad = (n, width = 2) => String(n).padStart(width, '0');
+export const META_LAST_CONSOLIDATION = 'consolidation:last';
+
+/** A week. Tier 1's 20h shortfall trick does not apply: nothing here is per-session. */
+export const CONSOLIDATION_MIN_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** PLAN's "or after 25 new memories". Counted since the last applying pass. */
+export const NEW_MEMORY_THRESHOLD = 25;
 
 /**
- * A run id somebody can read, sort and retype: `maint-20260730T120455-3f9a2c`.
- *
- * UTC, not local time — a run at 02:30 on the night the clocks go back would
- * otherwise produce two ids that sort the wrong way round. The random tail is
- * what makes two runs in the same second distinct; the timestamp is what makes a
- * list of them useful without a join.
+ * Rows added since the watermark. `created_at`, not `updated_at`: a memory that
+ * was merely touched is not new evidence that the store needs re-judging, and
+ * counting it would let a busy week of reads trip the threshold on its own.
  */
-export function newRunId(now = Date.now(), { prefix = RUN_PREFIX, suffix = null } = {}) {
-  const d = new Date(now);
-  const stamp =
-    `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}` +
-    `T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}`;
-  return `${prefix}-${stamp}-${suffix ?? randomBytes(3).toString('hex')}`;
+export async function countNewSince(conn, since) {
+  if (since === null || since === undefined || !Number.isFinite(since)) {
+    const all = await conn.get('SELECT count(*) AS n FROM memories');
+    return all?.n ?? 0;
+  }
+  const row = await conn.get('SELECT count(*) AS n FROM memories WHERE created_at > ?', since);
+  return row?.n ?? 0;
+}
+
+/**
+ * Whether a consolidation pass is due. Pure, and shaped like `dueForRun` so the
+ * two tiers answer the same question the same way — including the two cases that
+ * have to read as *due* rather than as recently done: no record at all, and a
+ * stamp from the future left by a clock that went backwards.
+ */
+export function dueForConsolidation({
+  lastAt = null,
+  now = Date.now(),
+  newSince = 0,
+  minIntervalMs = CONSOLIDATION_MIN_INTERVAL_MS,
+  newThreshold = NEW_MEMORY_THRESHOLD,
+} = {}) {
+  const base = { newSince, newThreshold };
+  if (lastAt === null || lastAt === undefined || !Number.isFinite(lastAt)) {
+    return { ...base, due: true, why: 'never consolidated', sinceMs: null, nextAt: null };
+  }
+  if (lastAt > now) {
+    return { ...base, due: true, why: 'last run is in the future', sinceMs: now - lastAt, nextAt: null };
+  }
+
+  const sinceMs = now - lastAt;
+  const nextAt = lastAt + minIntervalMs;
+  if (sinceMs >= minIntervalMs) return { ...base, due: true, why: 'interval elapsed', sinceMs, nextAt };
+  // The count is checked second so `why` names the calendar when both are true —
+  // "it has been a week" is the answer somebody expects to that question.
+  if (newSince >= newThreshold) {
+    return { ...base, due: true, why: `${newSince} new memories since the last pass`, sinceMs, nextAt };
+  }
+  return { ...base, due: false, why: 'consolidated recently', sinceMs, nextAt };
+}
+
+/**
+ * Is tier 2 due? The whole answer, read from the store, spawning nothing.
+ *
+ * Tier 1 reports this and does not act on it. A judge costs money and writes on
+ * a language model's word, so `mem consolidate` stays something a person types —
+ * but a tier nobody is ever reminded to run is one that silently never runs, and
+ * the pair step is exactly where somebody is already looking at unjudged pairs.
+ */
+export async function consolidationDue(conn, { now = Date.now() } = {}) {
+  const last = await readLastRun(conn, META_LAST_CONSOLIDATION);
+  const newSince = await countNewSince(conn, last?.at ?? null);
+  return { ...dueForConsolidation({ lastAt: last?.at ?? null, now, newSince }), last_run: last };
+}
+
+// ------------------------------------------------------------------ run ids --
+
+/**
+ * Tier 1's run ids. The minting itself lives in write.mjs — three tiers now stamp
+ * runs and the third (review triage) cannot import this file, because this file
+ * imports *it* for the inverses. What is here is only the default prefix.
+ */
+export function newRunId(now = Date.now(), { prefix = RUN_PREFIX, ...rest } = {}) {
+  return mintRunId(now, { prefix, ...rest });
 }
 
 // ----------------------------------------------------------- the throttle --
@@ -163,9 +248,13 @@ export const backupDir = (paths) => join(storeDir(paths), BACKUP_DIR);
 /**
  * The last run, from `meta`. This is the authority: it travels with the store
  * through export/import and cannot disagree with the rows it is about.
+ *
+ * `key` is a parameter because tier 2 keeps its own watermark under its own key
+ * and needs the same tolerant read. The rule below is the whole reason not to
+ * let it write a second copy of this function.
  */
-export async function readLastRun(conn) {
-  const row = await conn.get('SELECT v FROM meta WHERE k = ?', META_LAST_RUN);
+export async function readLastRun(conn, key = META_LAST_RUN) {
+  const row = await conn.get('SELECT v FROM meta WHERE k = ?', key);
   if (!row) return null;
   try {
     const parsed = JSON.parse(row.v);
@@ -178,10 +267,10 @@ export async function readLastRun(conn) {
   }
 }
 
-export async function writeLastRun(conn, record) {
+export async function writeLastRun(conn, record, key = META_LAST_RUN) {
   await conn.run(
     'INSERT INTO meta(k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v',
-    META_LAST_RUN,
+    key,
     JSON.stringify(record),
   );
   return record;
@@ -469,6 +558,13 @@ export async function pairsStep(conn, { now = Date.now(), changedLimit = MAINTAI
       worst: found.pairs.slice(0, 3).map((p) => ({ a: p.a, b: p.b, similarity: p.similarity })),
       ms: found.ms,
       note: 'candidates only — nothing is judged or stamped without `mem consolidate`',
+      // Whether tier 2 is *due*, answered on the free path. This step already
+      // knows there are pairs waiting; what it could not say is whether anything
+      // is going to look at them. Nothing here spawns a judge — that is still
+      // only ever a person typing the command — but a tier nobody is reminded to
+      // run is one that silently never runs, which is the failure PLAN's "weekly"
+      // was there to prevent.
+      consolidation: await consolidationDue(conn, { now }),
     };
   } catch (err) {
     // A detector that fails must not take the archiving ladder's run down with
@@ -826,7 +922,7 @@ export const TIER1_INVERTIBLE = [EVENT_ARCHIVED, EVENT_TOMBSTONED, EVENT_SCOPE_F
  * came back. The inversions themselves stay in the file that wrote the events
  * (`undoConsolidation`, resolve.mjs); what lives here is the dispatch.
  */
-export const INVERTIBLE = [...TIER1_INVERTIBLE, ...CONSOLIDATION_INVERTIBLE];
+export const INVERTIBLE = [...TIER1_INVERTIBLE, ...CONSOLIDATION_INVERTIBLE, ...REVIEW_INVERTIBLE];
 
 /**
  * Invert one event. Returns `{ ok: true, … }` or `{ ok: false, why }`; nothing
@@ -970,6 +1066,12 @@ async function undoOne(conn, event, { now, runId, vectors }) {
   // this file would be the copy that goes stale.
   if (CONSOLIDATION_INVERTIBLE.includes(event.event)) {
     return undoConsolidation(conn, event, { now, runId });
+  }
+
+  // Triage's, on the same terms. A review run is a third kind of run and needs no
+  // third undo command: one id went in, the store comes back.
+  if (REVIEW_INVERTIBLE.includes(event.event)) {
+    return undoReview(conn, event, { now, runId });
   }
 
   return { ok: false, why: `no inverse is implemented for '${event.event}'`, unsupported: true };

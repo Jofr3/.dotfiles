@@ -52,6 +52,7 @@ import {
   MIN_INTERVAL_MS,
   acquireLock,
   backupDir,
+  META_LAST_CONSOLIDATION,
   dueForRun,
   listRuns,
   lockPath,
@@ -68,6 +69,7 @@ import {
   stampPath,
   undo,
   undoneEventIds,
+  writeLastRun,
 } from '../../src/maintain.mjs';
 import { EVENT_ARCHIVED, EVENT_RESTORED } from '../../src/manage.mjs';
 import { resolvePaths } from '../../src/paths.mjs';
@@ -380,6 +382,28 @@ describe('one run, one run_id', () => {
     assert.equal(byName.usage.changed, 0);
     assert.ok(byName.decay.weak_active >= 2, 'the decay step counts what has decayed under the threshold');
     assert.ok(byName.checkpoint.ms >= 0);
+
+    // Tier 1 reports whether tier 2 is due and does not act on it. A store that
+    // has never been consolidated is due by definition, which is the case here.
+    assert.equal(byName.pairs.consolidation.due, true);
+    assert.equal(byName.pairs.consolidation.why, 'never consolidated');
+    assert.equal(byName.pairs.consolidation.last_run, null);
+  });
+
+  it('reports consolidation as not due once tier 2 has just run, and spawns nothing either way', async () => {
+    const dbPaths = store();
+    await seed(dbPaths, LADDER_ROWS);
+    await run(dbPaths, (conn) =>
+      writeLastRun(conn, { at: NOW - 1000, run_id: 'cons-pretend' }, META_LAST_CONSOLIDATION));
+
+    const report = await maintain({ paths: dbPaths, env: ENV, now: NOW });
+    const pairs = report.steps.find((s) => s.step === 'pairs');
+    assert.equal(pairs.consolidation.due, false);
+    assert.equal(pairs.consolidation.why, 'consolidated recently');
+    assert.equal(pairs.consolidation.last_run.run_id, 'cons-pretend');
+    // The whole point of reporting rather than running: tier 1 stays free, and
+    // `mem consolidate` stays something a person types.
+    assert.match(pairs.note, /nothing is judged or stamped/);
   });
 
   it('skips the checkpoint on a dry run and changes nothing at all', async () => {

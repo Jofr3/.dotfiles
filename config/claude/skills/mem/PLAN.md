@@ -1033,6 +1033,44 @@ could not get approval to spawn it). It carries `structured_output` as the objec
 The flags are right too: `--json-schema`, `--output-format json` and `--tools ""` all exist
 on the installed CLI. One batch of eight pairs is ~12 s and ~$0.011 on `sonnet`.
 
+### Built after 5b.3 — the throttle, and triage as a run
+
+Two things this plan specified and the twenty-four slices left unbuilt. Both were named in
+5b.3's handoff as deliberate gaps rather than oversights, which is the only reason they were
+easy to close.
+
+**"Weekly via `/loop` or cron, or after 25 new memories"** is `dueForConsolidation` in
+maintain.mjs, with its watermark under `consolidation:last`. The two triggers are joined by
+*or*: the week is the idle cadence, the count is what stops a fortnight of heavy capture
+sitting unjudged because the calendar has not caught up.
+
+It gates *applying*, not previewing — tier 1's rule — but the gate sits **before the detection
+scan**, which tier 1's does not need to. Tier 1's preview is free; this one pays the judge, so
+a throttled scheduled run has to spend nothing rather than merely write nothing. `--force` is
+the override. A pass that judged nothing still moves the watermark: it asked the question and
+got an answer, and leaving it unmoved would re-scan forever on a store with nothing to do.
+
+**The throttle lives in maintain.mjs, not consolidate.mjs**, for the reason already written on
+`EVENT_CONSOLIDATION`: tier 1's pair step now reports whether tier 2 is due, and it cannot
+import the module that imports it. That report is the closest thing to a schedule that is
+honest here — it *tells* you, and does not act. Claude Code's own cron is session-scoped and
+expires after seven days, so a weekly job on it would be theatre; a real timer belongs in
+home-manager, outside this repo. Tier 1 already fires detached at every SessionStart, so
+"consolidation is due" reaches you on the path that already runs.
+
+**Triage is a run.** `mem review promote|discard|edit` mints a `rev-` id and stamps it into
+every event in the batch — the batch was already all-or-nothing in one transaction, so the
+unit to reverse existed and only the name was missing. `discard` needed nothing new: it writes
+tier 1's `archived`, which `undo` already inverted. `promote` needed an inverse, and it is in
+review.mjs for the same reason resolve.mjs owns its own.
+
+**What `undo` still cannot do, asserted rather than left to be found:** a promote that *merged*
+and rewrote the survivor's text is reversible only in half. The vector was recomputed from the
+new wording and undo does not load the model, so `undoMerge` refuses — the same refusal it
+already gave consolidation runs. The capture returns to the queue, the rewritten wording
+stands, and the run reports `complete: false`. An undo that silently left old text beside a new
+vector would make the row unfindable by either.
+
 ### The pruning ladder — nothing is deleted
 
 Each rung is reversible and the row survives:
@@ -1333,6 +1371,9 @@ duplicated alongside; the pinned guard holds; `mem undo` restores the pre-run st
 `vector8` quantisation (4× smaller) if the store passes ~50k rows · re-embed migration when
 changing model · import existing `~/.claude/projects/*/memory/*.md` files · Turso Cloud sync
 (revisit only with a deliberate decision about memories leaving the device).
+
+Still unbuilt and still deliberate: the echo heuristic's **signal 3** (5a.2), which no slice
+ever claimed.
 
 ---
 

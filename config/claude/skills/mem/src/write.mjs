@@ -21,7 +21,7 @@
 // MILLISECONDS, i.e. plain Date.now(). Nothing in the schema says which, so it
 // is fixed here and everything downstream must agree.
 
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 
 import { withDb } from './db.mjs';
 import { EMB_DIM, EMB_MODEL, embed, vectorBlob } from './embed.mjs';
@@ -216,6 +216,29 @@ export async function nearestInScope(
   );
 
   return row ? { ...row, similarity: 1 - row.dist } : null;
+}
+
+const pad = (n, width = 2) => String(n).padStart(width, '0');
+
+/**
+ * A run id somebody can read, sort and retype: `maint-20260730T120455-3f9a2c`.
+ *
+ * UTC, not local time — a run at 02:30 on the night the clocks go back would
+ * otherwise produce two ids that sort the wrong way round. The random tail is
+ * what makes two runs in the same second distinct; the timestamp is what makes a
+ * list of them useful without a join.
+ *
+ * It lives beside `recordEvent` because a run id is an audit-log concept: it is
+ * only ever meaningful as `detail.run_id`, and every tier that mints one is a
+ * tier that is about to write events. The prefix says which tier, and each
+ * caller supplies its own.
+ */
+export function mintRunId(now = Date.now(), { prefix = 'run', suffix = null } = {}) {
+  const d = new Date(now);
+  const stamp =
+    `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}` +
+    `T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}`;
+  return `${prefix}-${stamp}-${suffix ?? randomBytes(3).toString('hex')}`;
 }
 
 /** Append to the audit log. Returns the new event id. */

@@ -18,6 +18,7 @@ import { after, before, describe, it } from 'node:test';
 import { withDb } from '../../src/db.mjs';
 import { EMB_DIM, EMB_MODEL, embed, modelCached } from '../../src/embed.mjs';
 import { forgetMemory, listMemories, memoryEvents, SORTS } from '../../src/manage.mjs';
+import { undo } from '../../src/maintain.mjs';
 import { resolvePaths } from '../../src/paths.mjs';
 import {
   FLAG_THRESHOLD,
@@ -683,5 +684,193 @@ describe('mem review', () => {
     assert.match(cli('review', 'promote').stderr, /which item/);
     assert.match(cli('review', 'promote', String(ids[0])).stderr, /not staged/);
     assert.match(cli('review', 'edit', String(ids[0]), '--text', 'x').stderr, /not staged/);
+  });
+});
+
+// ------------------------------------------------------- triage as a run --
+//
+// Triage was the last writing path with no run id on it: every event it wrote
+// carried `via: 'review'` and a null `run_id`, so `mem undo` could see the
+// events and had no name to reach them by. A batch already commits all-or-nothing
+// in one transaction, so the unit to reverse was there — only the id was missing.
+
+describe('a review batch as a reversible run', () => {
+  it('stamps one run id across every event in the batch', async () => {
+    const dbPaths = scratchPaths();
+    const ids = await seed(dbPaths, [
+      { uid: 'r-1', text: 'the staging deploy needs a manual approval', status: 'staged', emb: fakeVector(11) },
+      { uid: 'r-2', text: 'log retention is thirty days on prod', status: 'staged', emb: fakeVector(12) },
+    ]);
+
+    const results = await promote(ids, { paths: dbPaths, env: ENV, now: NOW });
+    assert.match(results.run_id, /^rev-/);
+    assert.equal(results.length, 2);
+
+    await open(dbPaths, async (conn) => {
+      for (const id of ids) {
+        const [event] = await memoryEvents(conn, id);
+        assert.equal(event.detail.run_id, results.run_id, 'every event in one batch shares its id');
+      }
+    });
+  });
+
+  it('gives a discard batch its own id, and the id reaches `undo`', async () => {
+    const dbPaths = scratchPaths();
+    const ids = await seed(dbPaths, [
+      { uid: 'd-1', text: 'the intern prefers tabs', status: 'staged', emb: fakeVector(13) },
+    ]);
+    const results = await discard(ids, { paths: dbPaths, env: ENV, now: NOW });
+    assert.match(results.run_id, /^rev-/);
+
+    await open(dbPaths, async (conn) => {
+      const [event] = await memoryEvents(conn, ids[0]);
+      // `archived`, not a `discarded` of its own — so `mem forget --restore` and
+      // an undo take the same path. What is new is only the id on it.
+      assert.equal(event.event, 'archived');
+      assert.equal(event.detail.run_id, results.run_id);
+    });
+
+    const reversed = await undo(results.run_id, { paths: dbPaths, env: ENV, now: NOW + 1000 });
+    assert.equal(reversed.undone.length, 1);
+    await open(dbPaths, async (conn) => {
+      const row = await conn.get('SELECT status FROM memories WHERE id = ?', ids[0]);
+      // Back in the queue, not promoted to active without review.
+      assert.equal(row.status, 'staged');
+    });
+  });
+
+  it('reverses a plain promote, putting the capture back in the queue', async () => {
+    const dbPaths = scratchPaths();
+    const ids = await seed(dbPaths, [
+      { uid: 'u-1', text: 'CI runs the e2e suite only on release branches', status: 'staged', emb: fakeVector(14) },
+    ]);
+    const results = await promote(ids, { paths: dbPaths, env: ENV, now: NOW });
+
+    const reversed = await undo(results.run_id, { paths: dbPaths, env: ENV, now: NOW + 1000 });
+    assert.equal(reversed.undone.length, 1);
+
+    await open(dbPaths, async (conn) => {
+      const row = await conn.get('SELECT status, updated_at FROM memories WHERE id = ?', ids[0]);
+      assert.equal(row.status, 'staged');
+      // The decay clock is not the undo's business, exactly as it was not the
+      // promote's.
+      assert.equal(row.updated_at, NOW - DAY);
+      const [event] = await memoryEvents(conn, ids[0]);
+      assert.equal(event.event, 'unpromoted');
+      assert.equal(event.detail.restored.status, 'staged');
+    });
+  });
+
+  it('reverses a promote that merged: the survivor\'s fields and the staged row both come back', async () => {
+    // The target already carries the longer wording, so the merge moves the
+    // numbers and leaves the text alone — see the next test for why that matters.
+    const dbPaths = scratchPaths();
+    const ids = await seed(dbPaths, [
+      {
+        uid: 'mg-1',
+        text: 'always use pnpm to install dependencies, never npm, it is the only supported installer',
+        emb: fakeVector(21),
+      },
+      {
+        uid: 'mg-2',
+        text: 'use pnpm, not npm',
+        status: 'staged',
+        emb: near(21, 27, 0.2),
+        created_at: NOW - 3 * DAY,
+        updated_at: NOW - 3 * DAY,
+      },
+    ]);
+    const before = await open(dbPaths, (conn) =>
+      conn.get('SELECT text, confidence, salience FROM memories WHERE id = ?', ids[0]),
+    );
+
+    const results = await promote([ids[1]], { paths: dbPaths, env: ENV, now: NOW });
+    assert.equal(results[0].action, 'merged');
+
+    const reversed = await undo(results.run_id, { paths: dbPaths, env: ENV, now: NOW + 1000 });
+    // Two inversions, in two files: `merged` on the survivor is resolve.mjs's,
+    // `promoted` on the capture is review.mjs's, and the run needs both.
+    assert.equal(reversed.undone.length, 2);
+    assert.equal(reversed.complete, true);
+
+    await open(dbPaths, async (conn) => {
+      const staged = await conn.get('SELECT status, superseded_by FROM memories WHERE id = ?', ids[1]);
+      assert.equal(staged.status, 'staged');
+      assert.equal(staged.superseded_by, null);
+
+      const target = await conn.get('SELECT text, confidence, salience FROM memories WHERE id = ?', ids[0]);
+      assert.equal(target.confidence, before.confidence, 'the merge bumped it; the undo put it back');
+      assert.equal(target.salience, before.salience);
+      assert.equal(target.text, before.text);
+    });
+  });
+
+  // The limitation, asserted rather than left to be discovered: a merge that
+  // rewrote the survivor's text cannot be reversed from the event alone, because
+  // the row's vector was computed from the new wording and undo does not load the
+  // model. resolve.mjs's `undoMerge` already refused this for consolidation runs;
+  // triage reaches the same code and gets the same refusal. The capture still
+  // comes back to the queue, so the half that can be reversed is.
+  it('blocks the half of a text-rewriting merge it cannot honestly reverse', async () => {
+    const dbPaths = scratchPaths();
+    const ids = await seed(dbPaths, FIXTURES);
+    const results = await promote([ids[1]], { paths: dbPaths, env: ENV, now: NOW });
+    assert.equal(results[0].action, 'merged');
+
+    const reversed = await undo(results.run_id, { paths: dbPaths, env: ENV, now: NOW + 1000 });
+    assert.equal(reversed.undone.length, 1, 'the promote is reversible; the rewrite is not');
+    assert.equal(reversed.blocked.length, 1);
+    assert.match(reversed.blocked[0].why, /rewrote the text/);
+    assert.equal(reversed.complete, false, 'a partial undo must not report itself as done');
+
+    await open(dbPaths, async (conn) => {
+      // Back in the queue either way — that is the part a human needs.
+      const staged = await conn.get('SELECT status FROM memories WHERE id = ?', ids[1]);
+      assert.equal(staged.status, 'staged');
+      const target = await conn.get('SELECT text FROM memories WHERE id = ?', ids[0]);
+      assert.equal(target.text, FIXTURES[1].text, 'the rewritten wording stands, and undo said so');
+    });
+  });
+
+  it('declines rather than fights a decision taken after the promote', async () => {
+    const dbPaths = scratchPaths();
+    const ids = await seed(dbPaths, [
+      { uid: 'm-1', text: 'the release notes live in the wiki', status: 'staged', emb: fakeVector(15) },
+    ]);
+    const results = await promote(ids, { paths: dbPaths, env: ENV, now: NOW });
+
+    // Somebody archives it by hand afterwards. Putting it back in the review
+    // queue would overrule that, so the undo has to skip and say why.
+    await open(dbPaths, (conn) => forgetMemory(conn, ids[0], { now: NOW + 500 }));
+
+    const reversed = await undo(results.run_id, { paths: dbPaths, env: ENV, now: NOW + 1000 });
+    assert.equal(reversed.undone.length, 0);
+    assert.equal(reversed.blocked.length, 1);
+    assert.match(reversed.blocked[0].why, /status is now 'archived'/);
+
+    await open(dbPaths, async (conn) => {
+      const row = await conn.get('SELECT status FROM memories WHERE id = ?', ids[0]);
+      assert.equal(row.status, 'archived', 'the later decision stands');
+    });
+  });
+
+  it('keeps an edit-and-promote under one id', async () => {
+    const dbPaths = scratchPaths();
+    const ids = await seed(dbPaths, [
+      { uid: 'e-1', text: 'we deploy on fridays', status: 'staged', emb: fakeVector(16) },
+    ]);
+    const result = await edit(String(ids[0]), { why: 'the release train is weekly' }, {
+      paths: dbPaths,
+      env: ENV,
+      now: NOW,
+      promote: true,
+    });
+    assert.match(result.run_id, /^rev-/);
+
+    await open(dbPaths, async (conn) => {
+      const events = await memoryEvents(conn, ids[0]);
+      const ids_ = new Set(events.map((e) => e.detail.run_id));
+      assert.deepEqual([...ids_], [result.run_id], 'the edit and the promote are one decision');
+    });
   });
 });

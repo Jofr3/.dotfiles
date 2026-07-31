@@ -40,10 +40,13 @@ function installPackages(pkgs) {
   }
 
   process.stderr.write(`[drizzle-db] installing ${pkgs.join(' ')} into ${CACHE_DIR}\n`);
+  // npm's progress summary is a diagnostic, not output — send its stdout to our
+  // stderr (fd 2). Letting it inherit fd 1 corrupts `--json` for any caller
+  // parsing stdout, and breaks the MCP server's JSON-RPC framing outright.
   const result = spawnSync(
     'npm',
     ['install', '--prefix', CACHE_DIR, '--no-audit', '--no-fund', '--loglevel', 'error', ...pkgs],
-    { stdio: ['ignore', 'inherit', 'inherit'] },
+    { stdio: ['ignore', 2, 'inherit'] },
   );
   if (result.error) throw new Error(`Could not run npm: ${result.error.message}`);
   if (result.status !== 0) throw new Error(`npm install failed for: ${pkgs.join(' ')}`);

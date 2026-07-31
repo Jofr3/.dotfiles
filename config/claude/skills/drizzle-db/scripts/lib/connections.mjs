@@ -305,8 +305,11 @@ export function selectConnection(connections, requested) {
   if (flagged.length === 1) return flagged[0];
   if (connections.length === 1) return connections[0];
 
+  // Phrased without naming a flag: both the CLI (--conn) and the MCP server
+  // (connection:) surface this, and neither should be told the other's syntax.
   throw new Error(
-    `Multiple connections configured — pass --conn <name>. Available: ${connections.map((c) => c.name).join(', ')}`,
+    'Multiple connections configured — name the one to use. '
+    + `Available: ${connections.map((c) => c.name).join(', ')}`,
   );
 }
 

@@ -236,7 +236,11 @@ describe('the queue', () => {
     await open(readOnly, async (conn) => {
       const { items, total, totals } = await reviewQueue(conn, { now: NOW });
       assert.equal(total, 4);
-      assert.deepEqual(totals, { 'staged-memory': 4 });
+      // Two sources since 5b.2, and the second one has nothing to say about a
+      // store with no consolidation run behind it — a per-type total of zero, not
+      // a missing key: "no proposals" and "proposals are not a thing here" read
+      // differently to whoever is deciding whether the queue is drained.
+      assert.deepEqual(totals, { 'staged-memory': 4, 'consolidation-pair': 0 });
       assert.deepEqual(
         items.map((i) => i.memory.uid).sort(),
         [FIXTURES[1].uid, FIXTURES[2].uid, FIXTURES[3].uid, FIXTURES[5].uid],
@@ -276,8 +280,8 @@ describe('the queue', () => {
   });
 
   // Every item is plain data: --json prints the whole of it, and the handler is
-  // looked up from `type`. This is what lets slice 5b add proposals as a second
-  // source without touching the CLI or the skill.
+  // looked up from `type`. This is what let slice 5b.2 add the consolidation
+  // proposals as a second source without touching the CLI or the skill.
   it('is a list of sources, and items carry no live objects', async () => {
     await open(readOnly, async (conn) => {
       const { items } = await reviewQueue(conn, { now: NOW });
@@ -286,7 +290,15 @@ describe('the queue', () => {
         assert.equal(sourceFor(item), SOURCES[0]);
         assert.deepEqual(item.actions, ['promote', 'edit', 'discard']);
       }
-      assert.equal(SOURCES.length, 1, 'phase 5b adds the second one');
+      assert.equal(SOURCES.length, 2, 'staged captures, and 5b.2\'s consolidation proposals');
+      // Each source answers for exactly one type, or `sourceFor` picks the first
+      // of two and a verb lands on the wrong producer.
+      assert.equal(new Set(SOURCES.map((s) => s.type)).size, SOURCES.length);
+      for (const source of SOURCES) {
+        for (const verb of ['list', 'resolve', 'promote', 'discard']) {
+          assert.equal(typeof source[verb], 'function', `${source.type} cannot ${verb}`);
+        }
+      }
     });
   });
 });
@@ -631,7 +643,7 @@ describe('mem review', () => {
     const out = cli('review', '--json');
     const parsed = JSON.parse(out.stdout);
     assert.equal(parsed.total, 4);
-    assert.deepEqual(parsed.totals, { 'staged-memory': 4 });
+    assert.deepEqual(parsed.totals, { 'staged-memory': 4, 'consolidation-pair': 0 });
     assert.equal(parsed.items[0].type, 'staged-memory');
     assert.ok(parsed.items.every((i) => i.memory.emb === undefined), 'no vector blobs');
   });

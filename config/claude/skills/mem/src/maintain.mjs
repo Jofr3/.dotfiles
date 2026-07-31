@@ -49,6 +49,7 @@ import { EMB_DIM, EMB_MODEL, embedMany, vectorBlob } from './embed.mjs';
 import { EVENT_ARCHIVED, EVENT_RESTORED } from './manage.mjs';
 import { detectPairs } from './pairs.mjs';
 import { resolvePaths } from './paths.mjs';
+import { CONSOLIDATION_INVERTIBLE, undoConsolidation } from './resolve.mjs';
 import {
   ARCHIVE_STRENGTH,
   DEAD_SCOPE_PREFIX,
@@ -98,6 +99,20 @@ export const LOCK_SUFFIX = '.maintain.lock';
 export const EVENT_MAINTAINED = 'maintained';
 export const EVENT_UNDONE = 'undone';
 export const EVENT_UNTOMBSTONED = 'untombstoned';
+
+/**
+ * Tier 2's run record, named here rather than in consolidate.mjs so that `undo`
+ * can skip it without importing the module that imports this one.
+ *
+ * A run record is a statement THAT a run happened, not an action BY it — it is
+ * what `mem undo --list` reads, and what makes a pass that judged twelve pairs
+ * and changed nothing still visible a week later. Inverting one would mean
+ * un-happening a run, which is not a thing.
+ */
+export const EVENT_CONSOLIDATION = 'consolidation';
+
+/** The per-run summaries. Skipped by `undo`, listed by `listRuns`. */
+export const RUN_RECORDS = [EVENT_MAINTAINED, EVENT_CONSOLIDATION];
 
 /**
  * PLAN's tier-1 list, in order, and every entry is reported every run even when
@@ -799,8 +814,19 @@ export async function undoneEventIds(conn, runId) {
   return seen;
 }
 
-/** Events this module knows how to reverse. 5b appends to this, it does not fork it. */
-export const INVERTIBLE = [EVENT_ARCHIVED, EVENT_TOMBSTONED, EVENT_SCOPE_FLAGGED, EVENT_SCOPE_REVIVED];
+/** The ladder's own events — everything `applyPlan` in prune.mjs can write. */
+export const TIER1_INVERTIBLE = [EVENT_ARCHIVED, EVENT_TOMBSTONED, EVENT_SCOPE_FLAGGED, EVENT_SCOPE_REVIVED];
+
+/**
+ * Every event `mem undo` knows how to reverse.
+ *
+ * Slice 5a.4 asked 5b to append to this rather than fork it, and this is that
+ * append: one command reverses a maintenance run and a consolidation run, because
+ * from the outside they are the same promise — a run id went in and the store
+ * came back. The inversions themselves stay in the file that wrote the events
+ * (`undoConsolidation`, resolve.mjs); what lives here is the dispatch.
+ */
+export const INVERTIBLE = [...TIER1_INVERTIBLE, ...CONSOLIDATION_INVERTIBLE];
 
 /**
  * Invert one event. Returns `{ ok: true, … }` or `{ ok: false, why }`; nothing
@@ -938,6 +964,14 @@ async function undoOne(conn, event, { now, runId, vectors }) {
     return { ok: true, action: 'reflagged', project_key: key, flagged_at: flaggedAt, eventId };
   }
 
+  // Tier 2's events, inverted by the file that wrote them. Delegated rather than
+  // reimplemented here: a `demoted` row is resolve.mjs's decision about what a
+  // refinement costs the general memory, and a second copy of that knowledge in
+  // this file would be the copy that goes stale.
+  if (CONSOLIDATION_INVERTIBLE.includes(event.event)) {
+    return undoConsolidation(conn, event, { now, runId });
+  }
+
   return { ok: false, why: `no inverse is implemented for '${event.event}'`, unsupported: true };
 }
 
@@ -970,7 +1004,7 @@ export async function undo(
 
     // The run's own summary event is a record *of* the run, not an action by it.
     const candidates = events.filter(
-      (e) => e.event !== EVENT_MAINTAINED && e.event !== EVENT_UNDONE && !already.has(e.id),
+      (e) => !RUN_RECORDS.includes(e.event) && e.event !== EVENT_UNDONE && !already.has(e.id),
     );
     const unsupported = candidates.filter((e) => !INVERTIBLE.includes(e.event));
 

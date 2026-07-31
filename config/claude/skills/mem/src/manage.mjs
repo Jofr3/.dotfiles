@@ -18,7 +18,7 @@
 
 import { withDb } from './db.mjs';
 import { retention, strength, strengthSql } from './decay.mjs';
-import { dropVerdictsFor } from './pairs.mjs';
+import { PROPOSAL_PREFIX, dropMetaFor, dropVerdictsFor } from './pairs.mjs';
 import { KINDS, STATUSES, recordEvent } from './write.mjs';
 
 /** One screenful. `list` is a scanning surface, not a dump — `export` is that. */
@@ -390,6 +390,11 @@ export async function forgetMemory(
     // some later memory gets this id — and a leftover `pair:<id>:<other>` entry
     // would suppress a judgement between two rows that never met.
     const verdicts = await dropVerdictsFor(conn, row.id);
+    // And any proposal parked about it (5b.2), for the same id-reuse reason: a
+    // pending review item naming a memory that no longer exists would either
+    // vanish silently or, once the id came round again, describe two rows that
+    // were never judged together.
+    const proposals = await dropMetaFor(conn, row.id, PROPOSAL_PREFIX);
     // Any row that superseded this one now points at nothing; leave the pointer
     // dangling and the FK would fail on the next write.
     await conn.run('UPDATE memories SET superseded_by = NULL WHERE superseded_by = ?', row.id);
@@ -407,6 +412,7 @@ export async function forgetMemory(
         status: row.status,
         events_deleted: events?.n ?? 0,
         pair_verdicts_deleted: verdicts,
+        proposals_deleted: proposals,
         reason,
       },
     });
@@ -419,6 +425,7 @@ export async function forgetMemory(
       to: null,
       eventsDeleted: events?.n ?? 0,
       verdictsDeleted: verdicts,
+      proposalsDeleted: proposals,
       eventId,
     };
   }

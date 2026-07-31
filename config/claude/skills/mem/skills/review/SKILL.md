@@ -1,6 +1,6 @@
 ---
 name: review
-description: Triage the mem staging queue — the memories auto-capture guessed at but nobody has approved yet. Use when the user says "review my memories", "what's staged", "what did you capture", "triage the queue", "clean up my memory store", or asks what mem has been picking up; and when they follow up on a capture ("did you save that?", "keep that one", "no, drop it"). Each item is promoted (becomes recallable), edited then promoted, or discarded. Do NOT use to store a new fact — that is `remember` — or to remove a memory already active, which is `forget`.
+description: Triage the mem review queue — the memories auto-capture guessed at but nobody has approved yet, plus the pairs consolidation will not resolve without a human. Use when the user says "review my memories", "what's staged", "what did you capture", "triage the queue", "clean up my memory store", or asks what mem has been picking up; and when they follow up on a capture ("did you save that?", "keep that one", "no, drop it"). Each item is promoted (becomes recallable), edited then promoted, or discarded. Do NOT use to store a new fact — that is `remember` — or to remove a memory already active, which is `forget`.
 version: 0.1.0
 ---
 
@@ -87,6 +87,41 @@ that happen to sound alike, `mem review promote 12 --no-merge` keeps them apart.
 An item marked `near` is the opposite case: close enough to be worth your eye, not close enough
 to merge on its own. If it really is the same fact in different words, the fix is usually to
 discard the capture (the store already knows it) or to edit the *active* memory instead.
+
+## The other item type: consolidation proposals
+
+The queue has a second producer. When two stored memories are near-identical, an LLM judge
+classifies the pair, and anything it will not resolve on its own lands here as a
+`consolidation-pair` item:
+
+```
+ref              type                age  kind        scope              similar       text
+proposal:7:31    consolidation-pair  1d   preference  github.com/me/api  #31 0.91 near  we use vitest
+```
+
+These appear after `mem consolidate --apply` has run (weekly, or whenever somebody types it).
+`mem consolidate` on its own is a dry run and puts nothing in the queue.
+
+Every **contradiction** comes here, always — one of the two memories is about to stop being
+recallable, and that is not a decision to make automatically. So do the others when the guard
+fires: the older memory is pinned, or it is more than 0.3 more confident than the newer one,
+or the change would touch a pinned row. Duplicates, refinements and links resolve on their own
+and never appear.
+
+`mem review --json` gives you the whole proposal: `proposal.wants` says what promoting would
+do in one line ("retire #7, superseded by #31"), `proposal.guard.reason` says why it is being
+asked rather than done, and `proposal.why` is the judge's own sentence.
+
+- **Promote** applies it: the retired memory becomes `superseded`, pointing at the one that
+  replaced it. Restorable with `mem forget <id> --restore`.
+- **Discard** leaves both memories exactly as they are, and the pair is not judged again
+  unless one of them is restated.
+
+Read both texts before answering — `mem show 7` and `mem show 31`. The judge is looking at two
+sentences with no context, and "use pnpm" versus "use pnpm, never npm" is agreement, not
+contradiction. If the two are both true, discard the proposal; if the older one is simply
+wrong now, promote it. `edit` does not apply to these items — to fix the wording of either
+memory, edit that memory.
 
 ## Discarding is reversible
 

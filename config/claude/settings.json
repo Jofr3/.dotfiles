@@ -11,6 +11,38 @@
             "type": "command",
             "command": "node \"$HOME/.claude/skills/mem/build/session-relay.mjs\"",
             "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/skills/mem/hooks/session-start.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/skills/mem/hooks/session-maintain.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/skills/mem/hooks/prompt-recall.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/skills/mem/hooks/stop-echo.mjs\"",
+            "timeout": 10
           }
         ]
       }

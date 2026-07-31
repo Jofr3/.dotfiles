@@ -113,6 +113,18 @@ export const KEEP_BOTH_VERDICTS = ['refinement', 'complementary', 'unrelated'];
  */
 export const PAIR_PREFIX = 'pair:';
 
+/**
+ * The resolution half's namespace, `proposal:<lo>:<hi>` — a pair the guard sent to
+ * a human instead of resolving (resolve.mjs, slice 5b.2).
+ *
+ * It is declared HERE, next to the verdict's prefix, for one reason: `mem forget
+ * --hard` has to clear both when it purges a memory, and it clears them through
+ * `dropMetaFor` below. Putting the constant in resolve.mjs would mean manage.mjs
+ * importing resolve.mjs, which imports manage.mjs — a cycle, to state a string.
+ * Both pair-keyed namespaces live in one place; only this file's is written here.
+ */
+export const PROPOSAL_PREFIX = 'proposal:';
+
 /** One pass advanced the watermark on these rows. Invertible from its own detail. */
 export const EVENT_CONSOLIDATED = 'consolidated';
 
@@ -647,13 +659,23 @@ export async function dropVerdict(conn, a, b) {
  * and `pair:%:5` cannot match `pair:1:52`.
  */
 export async function dropVerdictsFor(conn, id) {
+  return dropMetaFor(conn, id, PAIR_PREFIX);
+}
+
+/**
+ * The same deletion for any `<prefix><lo>:<hi>` namespace — the verdict cache and,
+ * since 5b.2, the proposals resolve.mjs parks for review. One function because the
+ * id-reuse argument above is about the *key shape*, not about verdicts, and two
+ * copies of it would eventually disagree about the wildcards.
+ */
+export async function dropMetaFor(conn, id, prefix = PAIR_PREFIX) {
   const n = asId(id, 'id');
   const rows = await conn.all(
     'SELECT k FROM meta WHERE substr(k, 1, ?) = ? AND (k LIKE ? OR k LIKE ?)',
-    PAIR_PREFIX.length,
-    PAIR_PREFIX,
-    `${PAIR_PREFIX}${n}:%`,
-    `${PAIR_PREFIX}%:${n}`,
+    prefix.length,
+    prefix,
+    `${prefix}${n}:%`,
+    `${prefix}%:${n}`,
   );
   for (const row of rows) await conn.run('DELETE FROM meta WHERE k = ?', row.k);
   return rows.map((r) => r.k);

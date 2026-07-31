@@ -755,13 +755,16 @@ describe('undo', () => {
     const ids = await seed(dbPaths, LADDER_ROWS);
     const report = await maintain({ paths: dbPaths, env: ENV, now: NOW });
 
-    // What phase 5b will write, before this file knows how to reverse it.
+    // An event under this run's id that nothing implements an inverse for. It
+    // used to be 'superseded' — phase 5b's, before this file could reverse it —
+    // and slice 5b.3 made every one of those invertible, so the stand-in now has
+    // to be a name no version of INVERTIBLE has ever carried.
     await run(dbPaths, (conn) =>
       conn.run('INSERT INTO memory_events (memory_id, event, detail, at) VALUES (?, ?, ?, ?)',
-        ids[0], 'superseded', JSON.stringify({ run_id: report.run_id }), NOW));
+        ids[0], 'teleported', JSON.stringify({ run_id: report.run_id }), NOW));
 
     const undone = await undo(report.run_id, { paths: dbPaths, env: ENV, now: NOW + 1000 });
-    assert.deepEqual(undone.unsupported.map((e) => e.event), ['superseded']);
+    assert.deepEqual(undone.unsupported.map((e) => e.event), ['teleported']);
     assert.equal(undone.complete, false);
     assert.ok(undone.undone.length > 0, 'the rest of the run is still reversed');
   });

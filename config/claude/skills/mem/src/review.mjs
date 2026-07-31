@@ -33,6 +33,7 @@ import {
   resolveRef,
 } from './manage.mjs';
 import { PAIR_THRESHOLD } from './pairs.mjs';
+import { consolidationProposals } from './resolve.mjs';
 import { resolveScope } from './scope.mjs';
 import { assertNoSecrets } from './scrub.mjs';
 import {
@@ -494,13 +495,18 @@ const stagedMemories = {
 /**
  * Every producer of review items, in listing order.
  *
- * One today. Slice 5b.2 appends the consolidation proposals — PLAN: "writes
- * proposals into the same review queue as staged captures, so `/mem:review` is
- * the one triage surface" — and the CLI, the skill and the three verbs below
- * need no changes to see them, as long as the new source returns items of the
- * same shape and declares which of `promote|edit|discard` it supports.
+ * Two, since slice 5b.2: staged captures, and the consolidation proposals the
+ * guard would not let resolve automatically — PLAN: "writes proposals into the
+ * same review queue as staged captures, so `/mem:review` is the one triage
+ * surface". The seam held: the second source declares `promote|discard`, returns
+ * items of the same shape (`type`, `ref`, `actions`, `when`, `summary`, plus a
+ * `memory` to render), and nothing in this file below this line knows it exists.
+ *
+ * It is second in listing order and the queue sorts by `when` anyway, so a
+ * proposal made this morning does not jump ahead of a capture that has been
+ * waiting a week.
  */
-export const SOURCES = [stagedMemories];
+export const SOURCES = [stagedMemories, consolidationProposals];
 
 /**
  * The source that owns an item. Looked up by `type` rather than carried on the

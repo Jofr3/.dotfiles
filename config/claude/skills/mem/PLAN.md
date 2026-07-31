@@ -863,6 +863,176 @@ is *about* the pinned row — it has to be found for the guard to fire) and both
 It drops staged, archived and superseded rows, expired ones, tombstones (`emb IS NULL`
 throws in `vector_distance_cos`, 5a.3), and anything whose `emb_model`/`emb_dim` differ.
 
+### Built in slice 5b.2 — the judge, the table, and the guard's second reason
+
+Two files, split along the line that matters: `src/judge.mjs` is the only thing in the
+plugin that spawns a process whose output it does not control, and `src/resolve.mjs` is
+the only thing that can change a memory because of what that process said. Everything
+between them is plain data, which is why **no test in this build spawns `claude`** — the
+prompt builder and the reply parser are pure, and the two subprocess tests use `node -e` as
+a stand-in binary to prove the plumbing rather than the model.
+
+**The judge refuses three things, each because the failure would be silent.** It never
+invents a verdict: a pair the model skipped comes back as `missing`, not as `unrelated` —
+and `unrelated` is cached forever, so one truncated reply would bury a real contradiction
+permanently. It never accepts a verdict for a pair it did not ask about; the batch's own
+keys are the index, so an echoed-wrong id lands in `unknown` and is dropped. And the call
+carries `--tools ""`: the text in that prompt was captured off a terminal by a hook, so a
+judge with Bash is a prompt-injection surface reading the user's own memories.
+
+The reply parser is deliberately tolerant where the rest of this plugin is strict. The
+`claude -p --output-format json` envelope is another program's output format; it has carried
+the structured value as a JSON string in `result` and as an object beside it under more than
+one name, so every plausible shape is tried and the *content* checks stay strict. **The live
+envelope shape is the one thing here that has not been verified against a real call** — this
+session could not get approval to spawn `claude` — which is exactly why the parser tries all
+of them and why `judgeBatch` surfaces the CLI's own error text ("usage limit reached")
+instead of an exit code.
+
+**PLAN's guard has three reasons, and only two are in the sentence above.** Older pinned,
+older more than 0.3 more confident — strictly more, so a pair exactly 0.3 apart still
+resolves — and a third: any resolution that would supersede, demote or rewrite a pinned row
+whichever side it is on. That follows from a rule stated twice elsewhere in this document
+(`pinned = 1` is "exempt from all automatic actions") and its absence would let a newly
+pinned memory be merged away by an older one it happened to restate. The confidence test is
+one-directional on purpose: a newer memory that is much *more* confident is the ordinary
+case this subsystem exists to act on.
+
+`contradiction` routes to review by policy even when no guard reason fires. The other four
+classes are auto-safe: a merge, a link row, a salience notch, a cache entry. That is one
+step wider than "applies only auto-safe classes (duplicates)" above, and the argument is
+that `refinement` and `complementary` take nothing out of retrieval and invert from a single
+event; `autoClasses: ['duplicate']` narrows it back to this document's letter and costs only
+extra review items.
+
+**Two records per judged pair, and they are not the same record.** The verdict cache
+(`pair:<lo>:<hi>`, 5b.1) is the receipt — judged, at this time, stop offering it while
+neither text has moved. The proposal (`proposal:<lo>:<hi>`) is the pending *action*. Caching
+without proposing makes a routed pair vanish: judged, never resolved, never seen again.
+Proposing without caching re-judges it, and pays for it, every run until somebody gets to
+it. `mem forget --hard` clears both, for the id-reuse reason 5b.1 gives.
+
+Resolutions, and the numbers that are choices rather than measurements: a duplicate merges
+into the longer wording (write.mjs's proxy for specificity), sums `injected_count` and
+`useful_count`, keeps the earliest `created_at`, and takes the max of salience and
+confidence — never a bump, because both rows may descend from the same original statement.
+A refinement demotes the general row by ×0.8 with a floor of 0.05: one notch, not a burial,
+so the specific memory wins the five-item budget and the general one is still there when it
+is the only thing that matches. **Neither `updated_at` is touched anywhere in this file** —
+that column is the decay clock, and consolidation is the store tidying itself, not the user
+restating anything.
+
+Because the merge survivor is by definition the row whose text already wins, no text is ever
+rewritten, so **nothing in resolution loads the embedding model**. Triage keeps working on a
+machine whose model cache is gone, exactly as in review.mjs.
+
+The dry run — the default — writes *nothing*: no resolution, no proposal, no verdict, no
+watermark. It still pays for the LLM calls, because the judgement is the part it cannot
+predict. And the watermark is stamped only when the pass was complete: nothing truncated on
+either side of detection, no batch errored, no pair went unjudged, and no plan was skipped
+because a row moved. That is 5b.1's one rule, and it has four tests.
+
+The review queue grew its second producer, which is what that file was built for: the
+proposal item carries `memory` (the row that would change) and `duplicate` (its counterpart),
+so the existing renderer prints it without knowing what it is. `promote` bypasses the guard —
+the guard's whole purpose was to get a human here — but not staleness: a proposal made before
+either text was rewritten is hidden from the queue and refused by `promote`. `discard` leaves
+both rows alone and keeps the cached verdict, because paying a judge to re-ask a question a
+human has answered is how a review queue teaches people to ignore it.
+
+Not built here, and 5b.3's: `mem consolidate` itself. Until it exists, tier 2 is reachable
+from `consolidatePairs()` and from the queue, and nothing runs a judge unless something asks
+it to.
+
+### Built in slice 5b.3 — the command, the undo, and what a live judge changed
+
+`src/consolidate.mjs` is the run: a `run_id`, the pre-run export, and the four sentences of
+"Reversibility is non-negotiable" wired together. It is deliberately thin — everything with
+a decision in it stayed in the file that owns the decision — and it is the fourth column of
+a table whose other three (`pairs`, `judge`, `resolve`) do not know what a run is.
+
+**`mem consolidate` dry-runs and `mem maintain` applies, and the asymmetry is the same
+argument twice.** Tier 1 fires detached from a hook where a preview would print to a pipe
+nobody reads. Tier 2 is typed by a person or a weekly cron, acts on a language model's word,
+and its worst failure — a true memory retired because a judge misread a refinement — is
+invisible from outside. So it previews. The preview still spawns the judge, because the
+judgement is the part it cannot predict; what it skips is every write, *including* the
+verdict cache and the watermark, so running it twice gives the same answer twice and neither
+run silences a pair.
+
+**No lock, unlike tier 1.** A maintenance pass is a background process that can collide with
+another one mid-ladder; this is a foreground command whose every write re-reads its rows and
+refuses on anything that moved. Two consolidations racing produce one set of resolutions and
+one set of "could not be resolved" lines. A lock would instead make `mem consolidate` fail
+while a `SessionStart` hook the user cannot see holds it.
+
+**The pre-run export happens after the judgement and before the first write**, which is the
+only moment both halves of "pre-run" are true, and it needed a seam (`onFirstWrite`) rather
+than a call site. The watermark deliberately does not go through it: a pass whose only write
+is a stamp is the no-op case, and backing that up would rotate the ten most recent exports
+away in favour of the ten quietest weeks — 5a.4's decision, applied again.
+
+**`mem undo` reverses a consolidation run, and slice 5a.4 asked for exactly this shape:
+append to `INVERTIBLE`, do not fork it.** The eight tier-2 events (`merged`, `superseded`,
+`linked`, `demoted`, `proposed`, `declined`, `pair-judged`, `consolidated`) invert in
+`resolve.mjs` and `maintain.mjs` dispatches to them, because the file that knows what a
+`demoted` event cost the general memory is the file that wrote it. Every inversion asserts
+the state it is reversing and skips rather than overwriting a decision taken afterwards.
+`declined` gained the whole proposal in its detail so a mis-click on a queue of twenty is not
+the one irreversible action here, and `unmerged` refuses outright on a `text` change — the
+only merge that moves text is `write.mjs`'s dedup, and reverting text without its vector
+would leave the row findable as the wrong memory.
+
+**The adversarial set is `build/adversarial.mjs`, and it is data rather than a test** because
+it has two consumers: `build/tests/consolidate.test.mjs` drives it with recorded verdicts
+(hermetic, free, every commit) and `node build/adversarial.mjs --live` drives it with the
+real `claude -p`. Twenty memories in one scope; exactly eight of the 190 possible pairs clear
+0.85 under `gte-small@q8`, measured, with the closest miss at 0.8206:
+
+```
+0.9771  dup-old / dup-new             duplicate, applied
+0.9603  pin-rule / pin-challenger     contradiction vs a PINNED rule    → review
+0.9541  conf-old / conf-new           duplicate, older 0.45 more confident → review
+0.9505  ref-general / ref-specific    refinement, applied  ← must not read as a contradiction
+0.9459  pin2-specific / pin2-general  refinement that would demote a pinned row → review
+0.9089  con-old / con-new             contradiction, unguarded          → review by policy
+0.8950  comp-a / comp-b               complementary, linked
+0.8918  unrel-a / unrel-b             unrelated, cached, nothing changed
+```
+
+Live result: **eight of eight**, the pinned row untouched, contradictions in the queue, and
+`mem undo` returning the store to a byte-for-byte identical pre-run state (every column of
+every row, the links, the proposals, the verdicts and the watermark).
+
+**Getting there cost two real bugs, and neither was findable without spawning the judge.**
+
+The first: asked about `pair:1:2`, the model answered `"1:2"`. Every verdict correct, every
+one of them dropped as an answer about a pair nobody asked about — no error, exit code 0, an
+empty run. A colon-bearing id at the start of a line reads as a *label*, and tidying a label
+out of an id is the sensible thing to do. The id that goes over the wire is now `12-37` in
+brackets, the `pair:` cache key never leaves the process, and `normaliseLabel` accepts any
+formatting of two ids while staying strict about *which* two. The second bug is the same
+shape: told to copy "the bracketed id", one run in five answered `[1-2]` and lost its whole
+batch. Both are now tests.
+
+**Three of the eight texts were rewritten because the judge read them better than I did**,
+and that is the more interesting half. "Force pushing is fine *when nobody else has pulled
+it*" came back `refinement` — an exception to a rule is what a refinement *is*, so a case
+named "genuine contradiction" had to stop containing one. "The API is written in Go" against
+"the API test suite is written in Go" came back `refinement` too, reading the suite as an
+instance of the API. And two facts about the same staging deploy came back `complementary`
+when the set had called them `unrelated`; they were related, whatever I had labelled them.
+The general lesson for anyone retuning this: at 0.85 under this model, a pair that is
+genuinely *unrelated* is rare — most of what detection over-offers is complementary or
+refinement, which is why those two classes being auto-safe matters more than it looks.
+
+**The `claude -p --output-format json` envelope is now verified rather than guessed** (5b.2
+could not get approval to spawn it). It carries `structured_output` as the object *and*
+`result` as the same JSON in a string, plus `is_error` — the first two candidates
+`extractPayload` already tried, so the tolerant parser was right and is now also confirmed.
+The flags are right too: `--json-schema`, `--output-format json` and `--tools ""` all exist
+on the installed CLI. One batch of eight pairs is ~12 s and ~$0.011 on `sonnet`.
+
 ### The pruning ladder — nothing is deleted
 
 Each rung is reversible and the row survives:

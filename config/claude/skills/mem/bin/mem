@@ -10,7 +10,7 @@ import { dbStatus, initDb, openDb, SCHEMA_VERSION, vectorProbe, withDb } from '.
 import { embed, embedStatus, EMB_MODEL, loadExtractor, warmModel } from '../src/embed.mjs';
 import { addMemory, KINDS, STATUSES } from '../src/write.mjs';
 import { searchDetail, VECTOR_LIMIT } from '../src/search.mjs';
-import { forget as forgetMemories, list as listMemories, pin as pinMemories, resolveRefs, show as showMemories, SORTS } from '../src/manage.mjs';
+import { EVENT_ARCHIVED, forget as forgetMemories, list as listMemories, pin as pinMemories, resolveRefs, show as showMemories, SORTS } from '../src/manage.mjs';
 import {
   judgePair,
   KEEP_BOTH_VERDICTS,
@@ -30,6 +30,8 @@ import { resolveProjectKey } from '../src/scope.mjs';
 import { reembed } from '../src/reembed.mjs';
 import { prune, RULES } from '../src/prune.mjs';
 import { maintain, maintenanceStatus, undo } from '../src/maintain.mjs';
+import { consolidate } from '../src/consolidate.mjs';
+import { JUDGE_BATCH, JUDGE_MODEL } from '../src/judge.mjs';
 import { stats } from '../src/stats.mjs';
 import { tune } from '../src/tune.mjs';
 
@@ -46,6 +48,7 @@ const commands = {
   maintain: { summary: 'Run the whole maintenance tier as one reversible run', run: maintainCmd },
   undo: { summary: 'Reverse a maintenance or consolidation run by its run id', run: undoCmd },
   pairs: { summary: 'Near-identical memories a judge has not settled yet', run: pairsCmd },
+  consolidate: { summary: 'Judge those pairs and resolve them (dry run unless --apply)', run: consolidateCmd },
   stats: { summary: 'Is the store rotting? — counts, scan time and the rot detectors', run: statsCmd },
   export: { summary: 'Write the store to JSONL on stdout', run: exportCmd },
   import: { summary: 'Read JSONL back in, keyed on uid', run: importCmd },
@@ -80,13 +83,16 @@ function readVersion(pluginRoot) {
 
 function help() {
   const paths = resolvePaths();
+  const cmdWidth = Math.max(...Object.keys(commands).map((n) => n.length)) + 2;
   const lines = [
     `mem ${readVersion(paths.pluginRoot)} — memory for Claude Code`,
     '',
     'Usage: mem <command> [options]',
     '',
     'Commands:',
-    ...Object.entries(commands).map(([name, c]) => `  ${name.padEnd(10)}${c.summary}`),
+    // Width from the longest name, not a constant: `consolidate` is 11 and ran into its
+    // own summary under a hardcoded 10.
+    ...Object.entries(commands).map(([name, c]) => `  ${name.padEnd(cmdWidth)}${c.summary}`),
     '',
     'Options:',
     '  --json    machine-readable output, where supported',
@@ -141,6 +147,14 @@ function help() {
     'mem pairs --cached [--limit <n>]   the verdicts detection is skipping, and why',
     `mem pairs ${KEEP_BOTH_VERDICTS.join('|')} <id|uid> <id|uid> [--why <text>]`,
     '          settle a pair by hand so it stops being offered',
+    '',
+    'mem consolidate [--apply] [--duplicates-only] [--project [--cwd <dir>]]',
+    '                [--limit <n>] [--changed-limit <n>] [--threshold <0-1>]',
+    `                [--batch <n>=${JUDGE_BATCH}] [--model <name>=${JUDGE_MODEL}] [--margin <0-1>]`,
+    '                [--no-backup] [--run-id <id>] [--json]',
+    '                DRY RUN unless --apply, and the dry run still pays for the',
+    '                judge — the judgement is the part it cannot predict.',
+    '                Contradictions always go to `mem review`, never straight in.',
     '',
     'mem stats [--cwd <dir>] [--worst <n>] [--pair-limit <n>] [--no-ladder] [--json]',
     '',
@@ -1230,6 +1244,23 @@ async function maintainCmd(argv) {
 
 const UNDO_BOOLEANS = ['json', 'dry-run', 'last', 'list'];
 
+/**
+ * What one reversed action was about, in whatever terms it has.
+ *
+ * Tier 1's inversions are all about a memory or a project key; tier 2's are also
+ * about a pair (`withdrew-proposal`), a relation (`unlinked`) or a set of rows
+ * (`unstamped`, one event for four hundred of them). Reaching for `u.id` alone
+ * printed "undefined" for the watermark, which is how a summary line stops being
+ * read at all.
+ */
+function undoneSubject(u) {
+  if (u.action === 'unstamped') return `${u.rows} rows back in the detection queue`;
+  if (u.project_key) return u.project_key;
+  const who = u.id === undefined ? '' : `#${u.id}`;
+  const what = u.text ? clip(u.text, 56) : (u.pair ?? (u.rel ? `${u.rel} → #${u.dst}` : ''));
+  return [who, what].filter(Boolean).join('  ');
+}
+
 async function undoCmd(argv) {
   const paths = resolvePaths();
   let result;
@@ -1281,9 +1312,9 @@ async function undoCmd(argv) {
             (result.already_undone > 0 ? ` — ${result.already_undone} actions were already undone.` : '.')
         : `Reversed ${result.undone.length} of ${result.events} actions from ${result.run_id}:` +
             `  ${Object.entries(actions).map(([a, n]) => `${n} ${a}`).join(', ')}`,
-      ...result.undone.slice(0, 20).map(
-        (u) => `  ${u.action.padEnd(14)}${u.id === undefined ? u.project_key : `#${u.id}  ${clip(u.text ?? '', 56)}`}`,
-      ),
+      ...table(
+        result.undone.slice(0, 20).map((u) => [u.action, undoneSubject(u)]),
+      ).map((row) => `  ${row}`),
       // Said out loud: a list that stops at twenty without saying so reads like
       // the whole of what happened.
       ...(result.undone.length > 20 ? [`  … and ${result.undone.length - 20} more`] : []),
@@ -1314,7 +1345,10 @@ async function undoCmd(argv) {
       );
     }
     if (result.embed_error) lines.push('', `embedding failed: ${result.embed_error}`);
-    if (result.undone.some((u) => u.action === 'restored')) {
+    // Keyed on the event, not on the action: `restored` is also what undoing a
+    // supersession writes, and telling somebody the ladder is about to re-archive
+    // a memory it never touched is worse than saying nothing.
+    if (result.undone.some((u) => u.event === EVENT_ARCHIVED)) {
       lines.push(
         '',
         'These rows still match the rules that archived them, so the next maintenance run will',
@@ -1484,6 +1518,169 @@ async function pairsCmd(argv) {
   }
 }
 
+// ------------------------------------------------------------ consolidate --
+//
+// PLAN's tier 2: judge the pairs `mem pairs` found, apply what is safe, park the
+// rest for `mem review`, all under one run id `mem undo` can reverse.
+//
+// DRY RUN BY DEFAULT, which is the opposite of `mem maintain` and is PLAN's own
+// line ("`mem consolidate` dry-runs by default"). The preview still spawns the
+// judge — see src/consolidate.mjs for why — so it is not free, and the output
+// says what it would have done rather than what it did.
+
+const CONSOLIDATE_BOOLEANS = ['apply', 'json', 'project', 'duplicates-only', 'no-backup'];
+const CONSOLIDATE_VALUES = ['limit', 'changed-limit', 'threshold', 'batch', 'model', 'margin', 'cwd', 'run-id'];
+
+/** One line per judged pair: what it is, where it went, and why it did not go further. */
+function planLines(report) {
+  if (report.planned.length === 0) return [];
+  return table([
+    ['', 'pair', 'class', 'what', 'why not'],
+    ...report.planned.map((p) => [
+      p.route === 'apply' ? (report.dry_run ? 'would' : 'did') : 'review',
+      `#${p.a} / #${p.b}`,
+      p.class,
+      p.action === 'none' ? 'record it and change neither' : describePlan(p),
+      whyReviewed(p),
+    ]),
+  ]).map((row) => `  ${row}`);
+}
+
+/**
+ * Why a plan is waiting for a human. Three different answers, and conflating them
+ * is how somebody concludes the guard is broken: a guard fired on THIS pair, or
+ * contradictions always wait (policy, whatever the rows look like), or the class
+ * is simply not one this run was told it could apply.
+ */
+function whyReviewed(p) {
+  if (p.guard) return p.guard.reason;
+  if (p.route !== 'review') return '';
+  return p.class === 'contradiction' ? 'contradictions are always reviewed' : `${p.class} is not auto-applied here`;
+}
+
+function describePlan(p) {
+  if (p.action === 'merge') return `merge #${p.loser} into #${p.survivor}`;
+  if (p.action === 'supersede') return `retire #${p.loser}, superseded by #${p.survivor}`;
+  if (p.action === 'refine') return `#${p.specific} refines #${p.general}`;
+  if (p.action === 'relate') return `link #${p.a} and #${p.b} as related`;
+  return p.action;
+}
+
+function consolidateLines(report) {
+  const d = report.detected;
+  const c = report.counts;
+  const lines = [
+    `${report.dry_run ? 'Would consolidate' : 'Consolidated'} ${report.store}   run ${report.run_id}`,
+    `  detected   ${d.fresh} unjudged of ${d.candidates} candidate pairs ≥ ${report.threshold}` +
+      `   (${d.changed.examined} of ${d.changed.total} changed rows against ${d.eligible} in scope)`,
+    `  judged     ${report.judged} in ${report.calls} call${report.calls === 1 ? '' : 's'}` +
+      `   ${Object.entries(report.by_class).filter(([, n]) => n > 0).map(([k, n]) => `${k} ${n}`).join(' · ') || '—'}`,
+  ];
+
+  if (report.planned.length > 0) lines.push('', ...planLines(report));
+
+  if (d.truncated) {
+    lines.push(
+      '',
+      `showing ${d.offered} of ${d.fresh} unjudged pairs — --limit takes more, and the watermark was not advanced.`,
+    );
+  }
+  if (report.errors.length > 0) {
+    lines.push(
+      '',
+      `${report.errors.length} judge call${report.errors.length === 1 ? '' : 's'} failed:`,
+      ...report.errors.slice(0, 3).map((e) => `  ${e.code ?? 'error'}  ${clip(e.message, 100)}`),
+    );
+  }
+  if (report.unjudged.length > 0) {
+    lines.push(
+      `${report.unjudged.length} pair${report.unjudged.length === 1 ? '' : 's'} came back unjudged —` +
+        ' they are not cached, so the next run offers them again.',
+    );
+  }
+  if (report.skipped.length > 0) {
+    lines.push(
+      '',
+      `${report.skipped.length} could not be resolved (a row moved since it was detected):`,
+      ...report.skipped.slice(0, 5).map((s) => `  ${s.key}  ${s.why}`),
+    );
+  }
+
+  lines.push('');
+  if (report.dry_run) {
+    lines.push(
+      `${report.planned.filter((p) => p.route === 'apply').length} would be applied · ` +
+        `${report.planned.filter((p) => p.route === 'review').length} would go to mem review`,
+      'Nothing changed — not even the verdicts, so this run silenced no pair.',
+      'Pass --apply to act on it.',
+    );
+  } else {
+    lines.push(`${c.applied} applied · ${c.proposed} waiting in mem review   (${report.elapsed_ms} ms)`);
+    if (report.backup) lines.push(`backup of ${report.backup.memories} memories → ${report.backup.path}`);
+    if (report.stamped?.blocked?.length > 0) {
+      lines.push(
+        `watermark not advanced: ${report.stamped.blocked.join('; ')} — the next run picks the rest up.`,
+      );
+    } else if (report.stamped?.stamped) {
+      lines.push(`watermark advanced on ${report.stamped.stamped} rows.`);
+    }
+    if (c.applied + c.proposed === 0) lines.push('Nothing needed doing.');
+    else lines.push(`Reverse all of it with:  mem undo ${report.run_id}`);
+  }
+  return lines;
+}
+
+async function consolidateCmd(argv) {
+  const paths = resolvePaths();
+  let json = false;
+  let report;
+
+  try {
+    const { flags, positional } = parseFlags(argv, {
+      booleans: CONSOLIDATE_BOOLEANS,
+      values: CONSOLIDATE_VALUES,
+    });
+    if (positional.length > 0) throw new Error(`unexpected argument '${positional[0]}'.`);
+    json = flags.json === true;
+
+    if (!existsSync(paths.dbPath)) {
+      if (json) console.log(JSON.stringify({ store: paths.dbPath, exists: false }, null, 2));
+      else console.log(`No store at ${paths.dbPath} yet.`);
+      return 0;
+    }
+
+    const threshold = unitFlag(flags, 'threshold');
+    const margin = unitFlag(flags, 'margin');
+
+    report = await consolidate({
+      paths,
+      apply: flags.apply === true,
+      backup: flags['no-backup'] !== true,
+      duplicatesOnly: flags['duplicates-only'] === true,
+      ...(flags['run-id'] === undefined ? {} : { runId: flags['run-id'] }),
+      ...(flags.project ? { projectKey: resolveProjectKey({ cwd: flags.cwd }).projectKey } : {}),
+      ...(positiveInt(flags, 'limit') === undefined ? {} : { limit: positiveInt(flags, 'limit') }),
+      ...(positiveInt(flags, 'changed-limit') === undefined
+        ? {}
+        : { changedLimit: positiveInt(flags, 'changed-limit') }),
+      ...(threshold === undefined ? {} : { threshold }),
+      ...(margin === undefined ? {} : { margin }),
+      ...(positiveInt(flags, 'batch') === undefined ? {} : { batchSize: positiveInt(flags, 'batch') }),
+      ...(flags.model === undefined ? {} : { judgeOpts: { model: flags.model } }),
+    });
+  } catch (err) {
+    console.error(`mem consolidate: ${err.message}`);
+    return 1;
+  }
+
+  if (json) console.log(JSON.stringify(report, null, 2));
+  else console.log(consolidateLines(report).join('\n'));
+  // A pass that could not judge everything it found is not a failure of the
+  // command, but it is not a clean run either: the exit code is what a weekly
+  // cron reads, and "some batches errored" has to be visible there.
+  return report.errors.length > 0 ? 1 : 0;
+}
+
 // ------------------------------------------------------------------ review --
 //
 // The triage surface for everything the store *proposes* rather than knows:
@@ -1601,8 +1798,39 @@ async function reviewList(argv) {
   return 0;
 }
 
+/**
+ * A consolidation proposal, once it has been accepted or refused. Its own branch
+ * because the subject is a *pair*: "promoted #12" would name one of two memories
+ * and say nothing about what happened to the other.
+ */
+function describeProposalResult(r) {
+  if (r.action === 'declined') {
+    return (
+      `Declined ${r.ref} — neither memory changed, and the pair will not be judged again` +
+      ' unless one of them is restated.'
+    );
+  }
+  if (r.action === 'merge') {
+    return `Merged #${r.loser} into #${r.survivor}.\n  ${clip(r.text)}\n  ${describeChanges(r.changes)}`;
+  }
+  if (r.action === 'supersede') {
+    return (
+      `Retired #${r.loser} — superseded by #${r.survivor}, restorable with ` +
+      `'mem forget ${r.loser} --restore'.\n  ${clip(r.text)}`
+    );
+  }
+  if (r.action === 'refine') {
+    return (
+      `Linked #${r.specific} as a refinement of #${r.general}` +
+      `${r.changes.length ? `, and demoted #${r.general}: ${describeChanges(r.changes)}` : ''}.`
+    );
+  }
+  return `Linked ${r.ref.replace(/^proposal:/, '#').replace(':', ' and #')} as related.`;
+}
+
 /** How a completed verb reads back. Shared so --json and the text agree. */
 function describeReviewResult(r) {
+  if (r.type === 'consolidation-pair') return describeProposalResult(r);
   if (r.action === 'merged') {
     return [
       `Promoted #${r.id} into #${r.into.id} — ${r.similarity.toFixed(3)} similar, so it merged` +

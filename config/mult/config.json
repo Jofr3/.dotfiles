@@ -15,6 +15,7 @@
     { "name": "nvim config", "path": "~/.dotfiles/config/nvim" },
     { "name": "claude config", "path": "~/.dotfiles/config/claude" },
     { "name": "kitty config", "path": "~/.dotfiles/config/kitty" },
+    { "name": "yazi config", "path": "~/.dotfiles/config/yazi" },
     { "name": "senditum", "path": "~/lsw/senditum" },
     { "name": "senditum app", "path": "~/lsw/senditum_app" },
     { "name": "compartium", "path": "~/lsw/compartium" },

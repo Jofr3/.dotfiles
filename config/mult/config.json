@@ -4,6 +4,7 @@
   "projects": [
     { "name": "home", "path": "~/" },
     { "name": "dotfiles", "path": "~/.dotfiles" },
+    { "name": "fish", "path": "~/.dotfiles/config/fish" },
     { "name": "mult", "path": "~/projects/mult" },
     { "name": "luminous ui", "path": "~/projects/luminous_ui" },
     { "name": "ironfist", "path": "~/projects/ironfist" },
@@ -31,6 +32,7 @@
     { "name": "renovacions", "path": "~/lsw/renovacions" },
     { "name": "vicfires", "path": "~/lsw/vicfires" },
     { "name": "beques", "path": "~/lsw/beques" },
-    { "name": "local", "path": "~/lsw/local" }
+    { "name": "local", "path": "~/lsw/local" },
+    { "name": "lexio", "path": "~/projects/lexio" }
   ]
 }

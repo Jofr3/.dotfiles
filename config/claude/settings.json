@@ -18,10 +18,11 @@
   },
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true,
-    "php-lsp@claude-plugins-official": true
+    "php-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
   "spinnerTipsEnabled": false,
   "tui": "fullscreen",
-  "theme": "dark",
-  "skipWorkflowUsageWarning": true
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark"
 }

@@ -1,0 +1,67 @@
+{
+  "proto": 1,
+  "supervisorPid": 253800,
+  "updatedAt": 1785752392272,
+  "workers": {
+    "ae6512ad": {
+      "pid": 253834,
+      "procStart": "1441698",
+      "sessionId": "ae6512ad-fbeb-43c6-8323-5ece24f2798e",
+      "rendezvousSock": "/tmp/cc-daemon-1000/1ea4607d/rv/ae6512ad.sock",
+      "ptySock": "/tmp/cc-daemon-1000/1ea4607d/pty/ae6512ad.sock",
+      "cliVersion": "2.1.220",
+      "startedAt": 1785748791489,
+      "attempt": 1,
+      "cwd": "/home/jofre/projects/luminous_ui",
+      "dispatch": {
+        "proto": 1,
+        "short": "ae6512ad",
+        "nonce": "b831b027",
+        "sessionId": "ae6512ad-fbeb-43c6-8323-5ece24f2798e",
+        "createdAt": 1785748790709,
+        "source": "slash",
+        "cwd": "/home/jofre/projects/luminous_ui",
+        "launch": {
+          "mode": "resume",
+          "sessionId": "/home/jofre/.claude/projects/-home-jofre-projects-luminous-ui/f22fbe6d-43ff-4d8f-8b27-5a13cebb594f.jsonl",
+          "fork": true,
+          "flagArgs": [
+            "--reply-on-resume",
+            "--settings",
+            "/run/user/1000/mult/mult-claude-settings-3384-07b12190b87c7b67.json",
+            "--permission-mode",
+            "auto"
+          ]
+        },
+        "env": {
+          "CLAUDE_BG_ISOLATION": "none"
+        },
+        "isolation": "none",
+        "respawnFlags": [
+          "--reply-on-resume",
+          "--settings",
+          "/run/user/1000/mult/mult-claude-settings-3384-07b12190b87c7b67.json",
+          "--permission-mode",
+          "auto"
+        ],
+        "seed": {
+          "intent": "you can use more than one subagent",
+          "name": "Development loop with subagents for context management"
+        },
+        "cols": 206,
+        "rows": 72
+      },
+      "decModes": [
+        1000,
+        1002,
+        1003,
+        1006,
+        2004,
+        1004,
+        2031
+      ],
+      "rvAuth": "f96e2e04c9f88ec36e8e8fcfc853a11b",
+      "ptyAuth": "12b68f3d117d0885f42121609e2414f9"
+    }
+  }
+}

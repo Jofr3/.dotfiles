@@ -25,6 +25,7 @@
     sox
     agent-browser
     jujutsu
+    yazi
 
     # editors
     neovim
@@ -51,7 +52,7 @@
     zathura
     pinta
     _1password-gui
-    _1password-cli
+    swayimg
 
     # wayland utilities
     cliphist

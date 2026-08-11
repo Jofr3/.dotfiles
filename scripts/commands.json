@@ -31,6 +31,11 @@
       "terminal": false,
       "hold": false
     },
+    "dot": {
+      "command": "$HOME/.dotfiles/scripts/dot.sh",
+      "terminal": true,
+      "hold": false
+    },
     "text correction": {
       "command": "claude -p \"Correct the following text for grammar and spelling. The text may be in English, Catalan, or Spanish - detect the language and correct it in that same language. Output ONLY the corrected text, nothing else: $(wl-paste)\" | wtype -",
       "terminal": false,

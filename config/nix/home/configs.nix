@@ -13,6 +13,7 @@ in
     btop.source = "${dotfiles}/config/btop";
     helix.source = "${dotfiles}/config/helix";
     kitty.source = "${dotfiles}/config/kitty";
+    yazi.source = "${dotfiles}/config/yazi";
     niri.source = "${dotfiles}/config/niri";
     wezterm.source = "${dotfiles}/config/wezterm";
     opencode.source = "${dotfiles}/config/opencode";

@@ -1,0 +1,5 @@
+[services.myclientum]
+type = "sftp"
+host = "dev.myclientum.com"
+user = "dev_myclientum_com"
+port = 22

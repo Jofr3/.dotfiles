@@ -18,6 +18,16 @@ image-cache/
 session-env/
 tasks/
 
+# evolve's working memory: per-session transcript offsets and accumulated facts,
+# plus the ledger of what has already been proposed and decided. All of it is
+# local observation about local sessions, and the facts quote command output from
+# whatever repo was open at the time. Nothing here is meaningful on a second
+# machine.
+#
+# Anchored with a leading slash on purpose: a bare `evolve/` also matches
+# skills/evolve/, which would quietly exclude the skill's own source from the repo.
+/evolve/
+
 # Housekeeping timestamps. They change on their own every session and mean
 # nothing to a second machine.
 .last-cleanup

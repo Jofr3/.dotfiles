@@ -39,6 +39,20 @@ claude mcp list   # health-check
 That registration lives in `~/.claude.json`, which sits *beside* the `~/.claude` symlink
 rather than inside it, and is **not** part of this repo. Everything else here is tracked.
 
+**A third-party HTTP server can borrow the plugin route.** `claude mcp add -s user` is the
+obvious way to add a remote server, but it writes to that same untracked `~/.claude.json`, so
+the registration dies with the machine. A plugin directory holding nothing but a manifest and
+a `.mcp.json` gets the same server tracked instead — `skills/mobbin/` is two files and no code:
+
+```json
+{ "mobbin": { "type": "http", "url": "https://api.mobbin.com/mcp" } }
+```
+
+It loads as `plugin:mobbin:mobbin`. Note that discovery keys off the `.claude-plugin/plugin.json`,
+not off the directory containing a skill, so a plugin under `skills/` may legitimately ship no
+skill at all. OAuth is still per machine: the tracked file names the server, `/mcp` authenticates
+it, and the token lands in `.credentials.json`, which is gitignored.
+
 ## Why the servers live here and not inside the plugin
 
 `skills/mem/` is a plugin: it owns the hooks (`hooks/hooks.json`, which only a plugin loader

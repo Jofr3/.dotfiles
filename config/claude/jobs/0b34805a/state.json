@@ -1,0 +1,32 @@
+{
+  "state": "failed",
+  "detail": "**All six milestones are built.** `check=0 test=0 build=0 e2e=0` — 330 unit tests, 32 e2e, and `wrangler deploy --dry-ru",
+  "tempo": "idle",
+  "output": null,
+  "children": null,
+  "linkScanOffset": 0,
+  "template": "bg",
+  "respawnFlags": [
+    "--settings",
+    "/run/user/1000/mult/mult-claude-settings-v2.json",
+    "--permission-mode",
+    "auto",
+    "--model",
+    "claude-opus-5[1m]"
+  ],
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "interactiveLineage": true,
+  "intent": "continue /workflows",
+  "name": "Start first phase of development workflows",
+  "nameSource": "auto",
+  "sessionId": "0b34805a-c0df-4aeb-b0f7-f327c118fb44",
+  "resumeSessionId": "0b34805a-c0df-4aeb-b0f7-f327c118fb44",
+  "daemonShort": "0b34805a",
+  "cwd": "/home/jofre/projects/lexio",
+  "createdAt": "2026-08-12T11:55:04.760Z",
+  "updatedAt": "2026-08-13T10:43:40.089Z",
+  "firstTerminalAt": "2026-08-13T10:43:40.089Z",
+  "backend": "daemon",
+  "reapedMidWorkAt": "2026-08-12T11:55:05.832Z"
+}

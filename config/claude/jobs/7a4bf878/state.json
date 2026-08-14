@@ -1,0 +1,120 @@
+{
+  "state": "blocked",
+  "detail": "You've hit your session limit · resets 5:30pm (Europe/Madrid)",
+  "tempo": "blocked",
+  "inFlight": {
+    "tasks": 3,
+    "queued": 0,
+    "kinds": [
+      "local_bash"
+    ]
+  },
+  "fan": [
+    {
+      "id": "bb2ffnool",
+      "kind": "shell",
+      "label": "until [ -s \".cache/txt/Thinking with Type _ A Critical Guide for Designers.txt\" ] && grep -q \"ALL OCR COMPLETE\" .cache/ocr.log; do sleep 20; done; echo \"OCR finished\"; wc -c .cache/txt/*.txt | sort -n",
+      "startedAt": 1786527523538
+    },
+    {
+      "id": "bd28kusqu",
+      "kind": "shell",
+      "label": "until grep -q \"ALL OCR COMPLETE\" .cache/ocr.log; do sleep 15; done; tail -12 .cache/ocr.log",
+      "startedAt": 1786531774995
+    },
+    {
+      "id": "a3cc369ae21843b55",
+      "kind": "workflow",
+      "label": "read:The Elements of Typographi",
+      "startedAt": 1786531966373,
+      "doneAt": 1786533588331,
+      "failed": true,
+      "group": "Read"
+    },
+    {
+      "id": "a581d6902133c0f70",
+      "kind": "workflow",
+      "label": "read:Thinking with Type",
+      "startedAt": 1786531966562,
+      "doneAt": 1786535096440,
+      "failed": true,
+      "group": "Read"
+    },
+    {
+      "id": "aae9ad730852d6123",
+      "kind": "workflow",
+      "label": "read:The Visual Display of Quan",
+      "startedAt": 1786531966485,
+      "doneAt": 1786533987511,
+      "group": "Read"
+    },
+    {
+      "id": "a889c62612fb0eedb",
+      "kind": "workflow",
+      "label": "read:The Art of Colour",
+      "startedAt": 1786531966244,
+      "doneAt": 1786533573414,
+      "group": "Read"
+    },
+    {
+      "id": "a321f8d69be07d445",
+      "kind": "workflow",
+      "label": "write:04-typography",
+      "startedAt": 1786535098307,
+      "doneAt": 1786535098786,
+      "failed": true,
+      "group": "Write"
+    },
+    {
+      "id": "a6cbca5fafeea4ae4",
+      "kind": "workflow",
+      "label": "write:05-color",
+      "startedAt": 1786535098317,
+      "doneAt": 1786535098713,
+      "failed": true,
+      "group": "Write"
+    },
+    {
+      "id": "abd444393c8d15036",
+      "kind": "workflow",
+      "label": "write:12-data-visualization",
+      "startedAt": 1786535098922,
+      "doneAt": 1786535099421,
+      "failed": true,
+      "group": "Write"
+    },
+    {
+      "id": "bfp4k00uv",
+      "kind": "shell",
+      "label": "until [ -f guide/12-data-visualization.md ] && [ -f guide/04-typography.md ] && [ -f guide/05-color.md ]; do sleep 30; done; wc -l guide/04-typography.md guide/05-color.md guide/12-data-visualization…",
+      "startedAt": 1786532127769
+    }
+  ],
+  "tokens": 1357736,
+  "output": null,
+  "children": null,
+  "linkScanOffset": 725300,
+  "linkScanPath": "/home/jofre/.claude/projects/-home-jofre-projects-design/7a4bf878-24d9-40c9-b428-210003c75c37.jsonl",
+  "template": "bg",
+  "respawnFlags": [
+    "--permission-mode",
+    "auto",
+    "--model",
+    "claude-opus-5[1m]"
+  ],
+  "bgIsolation": "none",
+  "providerEnv": {},
+  "intent": "this project will be a sort of documentation or wiki on the principles of design and web design. In @resources/ folder we have a bunch of pdf's that are related to design, web design, accessiblitly, u",
+  "name": "Create unified design principles guide from PDFs",
+  "nameSource": "auto",
+  "sessionId": "7a4bf878-24d9-40c9-b428-210003c75c37",
+  "resumeSessionId": "7a4bf878-24d9-40c9-b428-210003c75c37",
+  "daemonShort": "7a4bf878",
+  "cliVersion": "2.1.222",
+  "cwd": "/home/jofre/projects/design",
+  "createdAt": "2026-08-12T09:38:27.744Z",
+  "updatedAt": "2026-08-12T11:45:00.854Z",
+  "firstTerminalAt": null,
+  "backend": "daemon",
+  "needs": "rate limited — wait and retry · You've hit your session limit · resets 5:30pm (Europe/Madrid)"
+}

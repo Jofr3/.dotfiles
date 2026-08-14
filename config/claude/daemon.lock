@@ -1,0 +1,16 @@
+{
+  "pid": 108361,
+  "version": "2.1.222",
+  "jsonPath": "/home/jofre/.claude/daemon.json",
+  "logPath": "/home/jofre/.claude/daemon.log",
+  "startedAt": 1786705185380,
+  "origin": "transient",
+  "spawnedBy": {
+    "label": "claude",
+    "cwd": "/home/jofre/projects/lexio",
+    "pid": 103179
+  },
+  "procStart": "1954484",
+  "launchTarget": "/nix/store/mgj83nd63grschcwgva1pr9flk5b5rrb-claude-code-2.1.222/bin/.claude-wrapped",
+  "processWrapper": ""
+}

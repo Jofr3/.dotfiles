@@ -1,52 +1,51 @@
 {
   "proto": 1,
-  "supervisorPid": 253800,
-  "updatedAt": 1785752392272,
+  "supervisorPid": 108361,
+  "updatedAt": 1786708785676,
   "workers": {
-    "ae6512ad": {
-      "pid": 253834,
-      "procStart": "1441698",
-      "sessionId": "ae6512ad-fbeb-43c6-8323-5ece24f2798e",
-      "rendezvousSock": "/tmp/cc-daemon-1000/1ea4607d/rv/ae6512ad.sock",
-      "ptySock": "/tmp/cc-daemon-1000/1ea4607d/pty/ae6512ad.sock",
-      "cliVersion": "2.1.220",
-      "startedAt": 1785748791489,
+    "19017cd8": {
+      "pid": 108392,
+      "procStart": "1954517",
+      "sessionId": "19017cd8-e48c-4242-91f9-88de157c39e4",
+      "rendezvousSock": "/tmp/cc-daemon-1000/1ea4607d/rv/19017cd8.sock",
+      "ptySock": "/tmp/cc-daemon-1000/1ea4607d/pty/19017cd8.sock",
+      "cliVersion": "2.1.222",
+      "startedAt": 1786705185492,
       "attempt": 1,
-      "cwd": "/home/jofre/projects/luminous_ui",
+      "cwd": "/home/jofre/projects/lexio",
       "dispatch": {
         "proto": 1,
-        "short": "ae6512ad",
-        "nonce": "b831b027",
-        "sessionId": "ae6512ad-fbeb-43c6-8323-5ece24f2798e",
-        "createdAt": 1785748790709,
+        "short": "19017cd8",
+        "nonce": "a6f75f9b",
+        "sessionId": "19017cd8-e48c-4242-91f9-88de157c39e4",
+        "createdAt": 1786705185119,
         "source": "slash",
-        "cwd": "/home/jofre/projects/luminous_ui",
+        "cwd": "/home/jofre/projects/lexio",
         "launch": {
           "mode": "resume",
-          "sessionId": "/home/jofre/.claude/projects/-home-jofre-projects-luminous-ui/f22fbe6d-43ff-4d8f-8b27-5a13cebb594f.jsonl",
+          "sessionId": "/home/jofre/.claude/projects/-home-jofre-projects-lexio/fbc49a5d-0b3b-4464-b310-52d9f7251576.jsonl",
           "fork": true,
           "flagArgs": [
-            "--reply-on-resume",
             "--settings",
-            "/run/user/1000/mult/mult-claude-settings-3384-07b12190b87c7b67.json",
+            "/run/user/1000/mult/mult-claude-settings-v2.json",
             "--permission-mode",
             "auto"
-          ]
+          ],
+          "restoresTranscript": true
         },
         "env": {
           "CLAUDE_BG_ISOLATION": "none"
         },
         "isolation": "none",
         "respawnFlags": [
-          "--reply-on-resume",
           "--settings",
-          "/run/user/1000/mult/mult-claude-settings-3384-07b12190b87c7b67.json",
+          "/run/user/1000/mult/mult-claude-settings-v2.json",
           "--permission-mode",
           "auto"
         ],
         "seed": {
-          "intent": "you can use more than one subagent",
-          "name": "Development loop with subagents for context management"
+          "intent": "use mobbin to pull related websites and apps and refactor and polish the design of the app /workflows",
+          "name": "Refactor app design using Mobbin references"
         },
         "cols": 206,
         "rows": 72
@@ -60,8 +59,19 @@
         1004,
         2031
       ],
-      "rvAuth": "f96e2e04c9f88ec36e8e8fcfc853a11b",
-      "ptyAuth": "12b68f3d117d0885f42121609e2414f9"
+      "firedInteractiveMarks": [
+        {
+          "kind": "content_paint",
+          "msgsLoaded": 106,
+          "msgsInJsonl": 106,
+          "msgsRenderedAtFirstPaint": 108
+        },
+        {
+          "kind": "prompt_idle"
+        }
+      ],
+      "rvAuth": "f806fde5291774949081b9d0a1f4eeda",
+      "ptyAuth": "0a1fb98bde475b23bae7d02b1a4fec83"
     }
   }
 }

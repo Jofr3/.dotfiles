@@ -1,6 +1,0 @@
-{
-  "mem": {
-    "command": "node",
-    "args": ["${CLAUDE_PLUGIN_ROOT}/../../mcp/mem/server.mjs"]
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "name": "mem",
-  "description": "Turso-backed memory for Claude Code: curated, scoped, threshold-gated recall of durable preferences, decisions and constraints.",
-  "version": "0.1.0",
-  "author": {
-    "name": "Jofr3"
-  }
-}

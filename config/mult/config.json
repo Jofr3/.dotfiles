@@ -1,6 +1,7 @@
 {
   "pi_agent_command": "npx -y @earendil-works/pi-coding-agent",
-  "claude_code_command": "npx -y @anthropic-ai/claude-code",
+  "claude_code_command": "claude",
+  "editor_command": "nvim",
   "projects": [
     { "name": "home", "path": "~/" },
     { "name": "dotfiles", "path": "~/.dotfiles" },
@@ -8,6 +9,7 @@
     { "name": "mult", "path": "~/projects/mult" },
     { "name": "luminous ui", "path": "~/projects/luminous_ui" },
     { "name": "ironfist", "path": "~/projects/ironfist" },
+    { "name": "design", "path": "~/projects/design" },
     { "name": "pi config", "path": "~/.dotfiles/config/pi" },
     { "name": "nix config", "path": "~/.dotfiles/config/nix" },
     { "name": "mult config", "path": "~/.dotfiles/config/mult" },
@@ -25,6 +27,9 @@
     { "name": "mydocumentium api", "path": "~/lsw/mydocumentium_api" },
     { "name": "mydocumentium", "path": "~/lsw/mydocumentium" },
     { "name": "myproductium", "path": "~/lsw/myproductium_app" },
+    { "name": "tacprod", "path": "~/lsw/tacprod" },
+    { "name": "tacprod app", "path": "~/lsw/tacprod_app" },
+    { "name": "tacprod tecnics app", "path": "~/lsw/tacprod_tecnics_app" },
     { "name": "targecopy", "path": "~/lsw/targecopy" },
     { "name": "targecopy app", "path": "~/lsw/targecopy_app" },
     { "name": "targecopy app clients", "path": "~/lsw/targecopy_app_clients" },

@@ -3,3 +3,9 @@ type = "sftp"
 host = "dev.myclientum.com"
 user = "dev_myclientum_com"
 port = 22
+
+[services.tacprod]
+type = "sftp"
+host = "dev2.tacprod.cat"
+user = "dev_tacprod_cat"
+port = 22

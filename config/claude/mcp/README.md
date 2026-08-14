@@ -8,28 +8,13 @@ escaping, and per-tool permission entries instead of one coarse `Bash(node …)`
 ```
 lib/mcp-stdio.mjs      shared JSON-RPC 2.0 / MCP transport, no dependencies
 drizzle-db/server.mjs  6 tools
-mem/server.mjs         7 tools
 ```
 
 ## Registration
 
-The two servers register by different routes, and the difference is not a style choice — it
-is whether a plugin exists to do it.
-
-**`mem` registers itself.** It is an enabled plugin (`mem@skills-dir`, auto-discovered from
-`skills/`), and a plugin may declare MCP servers in a `.mcp.json` at its root. So
-`skills/mem/.mcp.json` names this server:
-
-```json
-{ "mem": { "command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/../../mcp/mem/server.mjs"] } }
-```
-
-`${CLAUDE_PLUGIN_ROOT}` is `~/.claude/skills/mem`, so the hop lands back here. That file is
-tracked, which means a clone of this repo gets the server with no setup at all.
-
-**`drizzle-db` cannot do that.** It is a plain skill directory with no
-`.claude-plugin/plugin.json`, so nothing loads it as a plugin and there is no manifest to
-carry a `.mcp.json`. It has to be registered by hand, per machine:
+`drizzle-db` is a plain skill directory with no `.claude-plugin/plugin.json`, so nothing loads
+it as a plugin and there is no manifest to carry a `.mcp.json`. It has to be registered by
+hand, per machine:
 
 ```bash
 claude mcp add -s user drizzle-db -- node "$HOME/.claude/mcp/drizzle-db/server.mjs"
@@ -39,7 +24,13 @@ claude mcp list   # health-check
 That registration lives in `~/.claude.json`, which sits *beside* the `~/.claude` symlink
 rather than inside it, and is **not** part of this repo. Everything else here is tracked.
 
-**A third-party HTTP server can borrow the plugin route.** `claude mcp add -s user` is the
+A plugin skips that step: a plugin may declare MCP servers in a `.mcp.json` at its root, with
+`${CLAUDE_PLUGIN_ROOT}` pointing back at a server here. That is the only reason to prefer the
+plugin route — MCP is not a loader. It carries tools to a running session; it has no concept
+of a hook, and this repo already measured that its prompts and resources never reach the
+model's context (see below).
+
+**A third-party HTTP server can borrow the same route.** `claude mcp add -s user` is the
 obvious way to add a remote server, but it writes to that same untracked `~/.claude.json`, so
 the registration dies with the machine. A plugin directory holding nothing but a manifest and
 a `.mcp.json` gets the same server tracked instead — `skills/mobbin/` is two files and no code:
@@ -53,57 +44,32 @@ not off the directory containing a skill, so a plugin under `skills/` may legiti
 skill at all. OAuth is still per machine: the tracked file names the server, `/mcp` authenticates
 it, and the token lands in `.credentials.json`, which is gitignored.
 
-## Why the servers live here and not inside the plugin
+## Why servers live here and not inside a skill
 
-`skills/mem/` is a plugin: it owns the hooks (`hooks/hooks.json`, which only a plugin loader
-reads — `${CLAUDE_PLUGIN_ROOT}` expands nowhere else) and the four `/mem:*` skills. `mcp/` owns
-transports and servers. Keeping the split means both servers share
-`lib/mcp-stdio.mjs` instead of one of them vendoring a copy, and it keeps the plugin's manifest
-about loading rather than about protocol.
-
-MCP is not a loader. It carries tools to a running session; it has no concept of a hook, and
-this repo already measured that its prompts and resources never reach the model's context (see
-below). So a server can never replace the plugin — it is the typed surface the plugin points
-at.
+`mcp/` owns transports and servers so that every server shares `lib/mcp-stdio.mjs` instead of
+one of them vendoring a copy, and so a plugin's manifest stays about loading rather than about
+protocol.
 
 ## What earns a server
 
-Both servers import their skill's own modules rather than shelling out, so the safety rules
-have one copy: `drizzle-db` shares `classifyStatement` with its CLI, `mem` shares
-`src/format.mjs` with `bin/mem`. Neither pair can drift on what needs `--force`, or on how a
-memory reads back.
+The server imports its skill's own modules rather than shelling out, so the safety rules have
+one copy: `drizzle-db` shares `classifyStatement` with its CLI. The pair cannot drift on what
+needs `--force`.
 
-The one thing `format.mjs` deliberately does *not* share verbatim is the sentence telling the
-reader how to undo something — `CLI_HINTS` vs `TOOL_HINTS`. A tool result that read "restore
-with `mem forget 7 --restore`" would send the model to Bash for an operation it was just handed
-a typed tool for, which defeats the point of having the tool.
+One thing such a shared formatter should deliberately *not* share verbatim is the sentence
+telling the reader how to undo something. A tool result that read "restore with `foo --restore`"
+would send the model to Bash for an operation it was just handed a typed tool for, which
+defeats the point of having the tool. Keep separate CLI and tool hint strings.
 
-### mem was reverted once — what changed
+Expose the driven commands, not the maintenance tier — anything that destroys data in bulk
+belongs behind the CLI, where it is run by hand. Tool schemas are deferred now anyway: the
+host lists deferred tools by name and loads a schema only when `ToolSearch` asks for it, so
+the permanent-context cost of a wide tool surface is largely gone; the argument against
+wrapping everything is now about blast radius, not context.
 
-An earlier attempt wrapped the whole CLI as **22 tools** and was reverted: it put every
-maintenance command in context permanently to wrap something that was never broken. The
-rewrite is narrower and two things moved:
-
-1. **Only the driven commands.** search, remember, list, show, forget, pin, review — the
-   surface the four skills already describe. The maintenance tier (prune, maintain,
-   consolidate, pairs, undo, stats, export/import, reembed, tune, doctor) is not exposed. It
-   runs from hooks and by hand, and every one of those loses memories in bulk. `bin/mem` is
-   still the full surface.
-
-2. **Tool schemas are deferred now.** The host lists deferred tools by name and loads a schema
-   only when `ToolSearch` asks for it, so the permanent-context cost the revert was about is
-   largely gone.
-
-What it buys that the CLI cannot: the embedding extractor loads once and stays warm. Measured
-on this machine, same store, same queries —
-
-| | 1st search | 2nd | 3rd |
-| --- | --- | --- | --- |
-| `bin/mem search` (fresh process each time) | 403ms | 383ms | 391ms |
-| MCP server (one process) | 314ms | **19ms** | **19ms** |
-
-The CLI pays the model load on every invocation by design; that is the cost of costing nothing
-when idle. A long-lived server pays it once.
+What a server buys that a CLI cannot is a warm process — anything with an expensive one-time
+load (a model, a connection pool) pays it once instead of per invocation. The CLI pays that
+cost every time by design; that is what makes it cost nothing when idle.
 
 The general rule: wrap a skill only when the tool boundary buys something the CLI cannot —
 argument typing on a dangerous call, shared safety code, or a warm process. Wrapping for

@@ -1,0 +1,64 @@
+one vocabulary, and every pane speaks it
+
+Six surfaces had each drawn their own version of the same controls, so the app
+looked like six apps sharing a grid. The tokens are two tiers now: primitives
+that nothing outside `base.css` may name, and a semantic map that is the only
+thing a component is allowed to read. Density is one block to re-point rather
+than a sweep through every file, and `styles/tokens.test.ts` fails the build if
+a component reaches past the map for a raw hex, a raw space or a raw z-index.
+
+The dark map is a re-map and not an inversion. Elevation is carried by surface
+lightness, because a drop shadow on a dark ground is invisible by construction,
+and the accent is lightened and desaturated, because a saturated teal on a dark
+ground blooms. Neither map is the OS's decision: the stored `pref` is the
+authority and `data-theme` is stamped before paint.
+
+`src/ui/` is what stops the six-apps problem coming back. `.icon-btn`, `.field`,
+`.select`, `.chip` and `.stat` are each one treatment for a job that had four
+private implementations. `.field` took its geometry verbatim from the best of
+the existing inputs rather than inventing a seventh, so adopting it was not a
+visual change for the two fields that already looked right.
+
+Then the five places the app contradicted itself, all of them found by driving
+it rather than by reading it:
+
+- A note's body sizes to its content. It was a permanently expanded three-row
+  textarea, so three notes filled the pane and the placeholder "Write in
+  Markdown…" repeated down it — a list of notes that could not be read as a
+  list. No edit mode was added to fix it: it is the same always-editable field,
+  and `field-sizing: content` with `rows={1}` means an empty note is one line
+  and a written one is as tall as it needs, capped at eight so a single long
+  note cannot eat the pane. Chromium-only, which this app is; the `rows={1}`
+  fallback is a one-line field at the same resting height rather than nothing.
+
+- The journal offered one action twice — a composer, and directly under it a
+  command that did the same job. The composer is the primary action and the
+  duplicate is gone. An entry's body is prose now, in a prose face at
+  `--measure-prose`, instead of monospace running the width of a 2x2 pane.
+
+- The inspector is contained by the pane that opens it. It was a column in the
+  pane's flow with nothing capping it, and the pane is `overflow: hidden` — so
+  at 1x1 its own "Add link" button was below the fold with no way to scroll to
+  it. The panel had been unusable at the size it is most often opened at.
+
+- A habit's cadence is a dressed control rather than a bare `<select>`, which
+  was the loudest inconsistency on the screen. The chevron is a sibling span
+  and not a `background-image`: a data URI is a separate document, resolves
+  neither `currentcolor` nor a custom property, and would have needed a literal
+  hex that could not follow the theme. A streak reads as a figure with its unit
+  instead of a naked digit that says nothing about what it counts.
+
+- A day that holds something now looks different from a day that does not. The
+  calendar's entries were a hairline you had to know was there.
+
+`Calendar.tsx` gained `data-type` and not one entity type name. A module
+colours its own chip from its own file, which is the only way per-type
+appearance can exist without the generic surface learning what a todo is —
+`views/genericity.test.ts` asserts that against the source so it cannot
+regress quietly.
+
+Verified: `check` clean, 382 unit tests, 56 Playwright tests across desktop and
+mobile viewports, and every pane driven by hand in both themes.
+
+
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>

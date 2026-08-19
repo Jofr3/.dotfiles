@@ -27,16 +27,32 @@
       ...
     }@inputs:
     let
+      # A profile pairs a NixOS module with the matching home-manager entry
+      # point. Everything both profiles share lives in machines/common.nix and
+      # home/common.nix.
+      profiles = {
+        desktop = {
+          system = ./profiles/desktop.nix;
+          home = ./home/desktop;
+        };
+        server = {
+          system = ./profiles/server.nix;
+          home = ./home/server;
+        };
+      };
+
       mkHost =
         {
           hostName,
           hostId,
+          profile ? "desktop",
           hardware,
         }:
         nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs; };
           modules = [
             ./machines/common.nix
+            profiles.${profile}.system
             home-manager.nixosModules.home-manager
             {
               networking.hostName = hostName;
@@ -45,7 +61,7 @@
               home-manager.useUserPackages = true;
               home-manager.backupFileExtension = "bak";
               home-manager.extraSpecialArgs = { inherit inputs; };
-              home-manager.users.jofre = import ./home;
+              home-manager.users.jofre = import profiles.${profile}.home;
             }
           ]
           ++ hardware;
@@ -56,6 +72,7 @@
       nixosConfigurations.nixos = mkHost {
         hostName = "nixos";
         hostId = "9f0dfe7d";
+        profile = "desktop";
         hardware = [
           ./machines/personal/hardware.nix
           ./machines/personal/graphics.nix
@@ -66,6 +83,7 @@
       nixosConfigurations.nixos-lsw = mkHost {
         hostName = "nixos-lsw";
         hostId = "27e15669";
+        profile = "desktop";
         hardware = [
           ./machines/work/hardware.nix
           ./machines/work/graphics.nix
@@ -76,9 +94,20 @@
       nixosConfigurations.nixos-pc = mkHost {
         hostName = "nixos-pc";
         hostId = "6707fc68";
+        profile = "desktop";
         hardware = [
           ./machines/desktop/hardware.nix
           ./machines/desktop/graphics.nix
+        ];
+      };
+
+      # sudo nixos-rebuild switch --flake .#jofre-server
+      nixosConfigurations.jofre-server = mkHost {
+        hostName = "jofre-server";
+        hostId = "4b1c9a2e";
+        profile = "server";
+        hardware = [
+          ./machines/jofre-server/hardware.nix
         ];
       };
     };

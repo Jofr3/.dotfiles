@@ -1,8 +1,8 @@
+# Packages every machine gets. GUI applications live in ./desktop/packages.nix.
 { pkgs, ... }: {
   home.packages = with pkgs; [
     # cli tools
     btop
-    brightnessctl
     claude-code
     pi-coding-agent
     opencode
@@ -14,7 +14,6 @@
     jq
     lsof
     nix-prefetch-github
-    pulseaudio
     ripgrep
     rsync
     sops
@@ -22,53 +21,11 @@
     tmux
     unzip
     wget
-    sox
-    agent-browser
     jujutsu
     yazi
 
     # editors
     neovim
-    vscode
-
-    # terminals
-    foot
-    kitty
-
-    # browsers
-    chromium
-    google-chrome
-
-    # apps
-    dbeaver-bin
-    eog
-    gnome-calculator
-    gnome-text-editor
-    libreoffice
-    nautilus
-    overskride
-    thunderbird
-    wdisplays
-    zathura
-    pinta
-    _1password-gui
-    swayimg
-    t3code
-
-    # wayland utilities
-    cliphist
-    grim
-    satty
-    slurp
-    swaybg
-    wl-clipboard
-    wl-color-picker
-    wtype
-    xwayland-satellite
-
-    # vpn
-    openconnect
-    openfortivpn
 
     # development tools
     bun

@@ -5,5 +5,6 @@
     iotop
     ncdu
     tcpdump
+    tree-sitter
   ];
 }

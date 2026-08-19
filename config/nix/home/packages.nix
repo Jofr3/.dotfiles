@@ -53,6 +53,7 @@
     pinta
     _1password-gui
     swayimg
+    t3code
 
     # wayland utilities
     cliphist

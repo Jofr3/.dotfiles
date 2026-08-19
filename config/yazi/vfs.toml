@@ -9,3 +9,9 @@ type = "sftp"
 host = "dev2.tacprod.cat"
 user = "dev_tacprod_cat"
 port = 22
+
+[services.compartium]
+type = "sftp"
+host = "app.compartium.cat"
+user = "app_compartium_cat"
+port = 22

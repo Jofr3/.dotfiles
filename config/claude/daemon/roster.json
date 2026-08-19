@@ -1,17 +1,17 @@
 {
   "proto": 1,
-  "supervisorPid": 108361,
-  "updatedAt": 1786708785676,
+  "supervisorPid": 152731,
+  "updatedAt": 1786712371585,
   "workers": {
     "19017cd8": {
-      "pid": 108392,
-      "procStart": "1954517",
+      "pid": 152843,
+      "procStart": "2673031",
       "sessionId": "19017cd8-e48c-4242-91f9-88de157c39e4",
       "rendezvousSock": "/tmp/cc-daemon-1000/1ea4607d/rv/19017cd8.sock",
       "ptySock": "/tmp/cc-daemon-1000/1ea4607d/pty/19017cd8.sock",
       "cliVersion": "2.1.222",
       "startedAt": 1786705185492,
-      "attempt": 1,
+      "attempt": 2,
       "cwd": "/home/jofre/projects/lexio",
       "dispatch": {
         "proto": 1,
@@ -62,9 +62,9 @@
       "firedInteractiveMarks": [
         {
           "kind": "content_paint",
-          "msgsLoaded": 106,
-          "msgsInJsonl": 106,
-          "msgsRenderedAtFirstPaint": 108
+          "msgsLoaded": 203,
+          "msgsInJsonl": 203,
+          "msgsRenderedAtFirstPaint": 205
         },
         {
           "kind": "prompt_idle"

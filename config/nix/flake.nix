@@ -108,6 +108,7 @@
         profile = "server";
         hardware = [
           ./machines/jofre-server/hardware.nix
+          ./machines/jofre-server/network.nix
         ];
       };
     };

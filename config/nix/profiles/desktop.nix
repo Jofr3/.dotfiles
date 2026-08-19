@@ -7,6 +7,22 @@
   # networking
   networking.networkmanager.enable = true;
 
+  # Tailscale client -- puts this machine on the same tailnet as jofre-server,
+  # so `ssh jofre@jofre-server` and `http://jofre-server:5173` work from any
+  # network. Enrol once per machine, by hand, after the first rebuild:
+  #   sudo tailscale up
+  # The daemon just idles until then, so this is harmless on machines that
+  # never join.
+  #
+  # Note: the tailnet interface is deliberately NOT in firewall.trustedInterfaces
+  # here (unlike the server) -- these machines only need to reach out. Add
+  # `networking.firewall.trustedInterfaces = [ "tailscale0" ];` if you ever want
+  # to connect *to* one of them over the tailnet.
+  services.tailscale = {
+    enable = true;
+    openFirewall = true; # UDP 41641, for direct peer connections instead of relaying
+  };
+
   users.users.jofre.extraGroups = [
     "networkmanager"
     "video"

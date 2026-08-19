@@ -1,6 +1,8 @@
 { config, ... }:
 let
   sshKeyPath = "${config.home.homeDirectory}/.ssh/keys/jofre_key.pem";
+  # Personal key -- the one authorised on jofre-server (profiles/server.nix).
+  serverKeyPath = "${config.home.homeDirectory}/.ssh/keys/Jofr3";
   keyedHost =
     settings:
     settings
@@ -21,6 +23,24 @@ in
         ControlPersist = "10m";
         ServerAliveInterval = 60;
         Compression = true;
+      };
+
+      # Home server. Reached over the tailnet, so this works unchanged from any
+      # network -- Tailscale's MagicDNS resolves the hostname.
+      server = {
+        HostName = "jofre-server";
+        User = "jofre";
+        IdentityFile = serverKeyPath;
+        IdentitiesOnly = true;
+      };
+
+      # Same box by static LAN address -- a way in when Tailscale is down or
+      # not yet enrolled. Only works from the local network.
+      server-lan = {
+        HostName = "192.168.1.138";
+        User = "jofre";
+        IdentityFile = serverKeyPath;
+        IdentitiesOnly = true;
       };
 
       myclientum = keyedHost {

@@ -35,9 +35,9 @@
           system = ./profiles/desktop.nix;
           home = ./home/desktop;
         };
-        server = {
-          system = ./profiles/server.nix;
-          home = ./home/server;
+        remote = {
+          system = ./profiles/remote.nix;
+          home = ./home/remote;
         };
       };
 
@@ -101,14 +101,14 @@
         ];
       };
 
-      # sudo nixos-rebuild switch --flake .#jofre-server
-      nixosConfigurations.jofre-server = mkHost {
-        hostName = "jofre-server";
+      # sudo nixos-rebuild switch --flake .#nixos-remote
+      nixosConfigurations.nixos-remote = mkHost {
+        hostName = "nixos-remote";
         hostId = "4b1c9a2e";
-        profile = "server";
+        profile = "remote";
         hardware = [
-          ./machines/jofre-server/hardware.nix
-          ./machines/jofre-server/network.nix
+          ./machines/remote/hardware.nix
+          ./machines/remote/network.nix
         ];
       };
     };

@@ -1,7 +1,7 @@
 { config, ... }:
 let
   sshKeyPath = "${config.home.homeDirectory}/.ssh/keys/jofre_key.pem";
-  # Personal key -- the one authorised on jofre-server (profiles/server.nix).
+  # Personal key -- the one authorised on nixos-remote (profiles/server.nix).
   serverKeyPath = "${config.home.homeDirectory}/.ssh/keys/Jofr3";
   keyedHost =
     settings:
@@ -27,8 +27,8 @@ in
 
       # Home server. Reached over the tailnet, so this works unchanged from any
       # network -- Tailscale's MagicDNS resolves the hostname.
-      server = {
-        HostName = "jofre-server";
+      remote = {
+        HostName = "nixos-remote";
         User = "jofre";
         IdentityFile = serverKeyPath;
         IdentitiesOnly = true;
@@ -36,7 +36,7 @@ in
 
       # Same box by static LAN address -- a way in when Tailscale is down or
       # not yet enrolled. Only works from the local network.
-      server-lan = {
+      remote-lan = {
         HostName = "192.168.1.138";
         User = "jofre";
         IdentityFile = serverKeyPath;

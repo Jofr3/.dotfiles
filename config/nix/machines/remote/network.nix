@@ -1,4 +1,4 @@
-# Static addressing for jofre-server. The box hands out its own services on
+# Static addressing for nixos-remote. The box hands out its own services on
 # this address, so it must not move when the router's lease table does.
 # Reserve 192.168.1.138 on the router too, or exclude it from the DHCP pool.
 {

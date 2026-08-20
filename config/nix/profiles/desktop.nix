@@ -7,8 +7,8 @@
   # networking
   networking.networkmanager.enable = true;
 
-  # Tailscale client -- puts this machine on the same tailnet as jofre-server,
-  # so `ssh jofre@jofre-server` and `http://jofre-server:5173` work from any
+  # Tailscale client -- puts this machine on the same tailnet as nixos-remote,
+  # so `ssh jofre@nixos-remote` and `http://nixos-remote:5173` work from any
   # network. Enrol once per machine, by hand, after the first rebuild:
   #   sudo tailscale up
   # The daemon just idles until then, so this is harmless on machines that

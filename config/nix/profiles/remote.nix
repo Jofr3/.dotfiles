@@ -1,5 +1,5 @@
 # Headless server profile: no Wayland, no display manager, no theming.
-# Used by jofre-server.
+# Used by nixos-remote.
 { lib, pkgs, ... }:
 {
   # Password auth over SSH is off (see below), so this list is the only way in
@@ -34,7 +34,7 @@
   # from any network with no port forwarding and no public IP -- including
   # behind CGNAT. Enrol once, by hand, after the first rebuild:
   #   sudo tailscale up
-  # then reach the box at `jofre-server` (MagicDNS) or its 100.x.y.z address.
+  # then reach the box at `nixos-remote` (MagicDNS) or its 100.x.y.z address.
   services.tailscale = {
     enable = true;
     openFirewall = true; # UDP 41641, lets peers connect directly instead of relaying

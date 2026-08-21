@@ -5,9 +5,11 @@
   "projects": [
     { "name": "home", "path": "~/" },
     { "name": "dotfiles", "path": "~/.dotfiles" },
+    { "name": "dotfiles (remote)", "path": "~/.dotfiles", "remote": "remote" },
     { "name": "fish", "path": "~/.dotfiles/config/fish" },
     { "name": "mult", "path": "~/projects/mult" },
     { "name": "luminous ui", "path": "~/projects/luminous_ui" },
+    { "name": "luminous ui (remote)", "path": "~/projects/luminous_ui", "remote": "remote" },
     { "name": "ironfist", "path": "~/projects/ironfist" },
     { "name": "design", "path": "~/projects/design" },
     { "name": "pi config", "path": "~/.dotfiles/config/pi" },

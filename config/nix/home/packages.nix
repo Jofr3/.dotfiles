@@ -68,5 +68,8 @@
     # temporary
     vtsls
     intelephense
+
+    #pi
+    firecrawl-cli
   ];
 }

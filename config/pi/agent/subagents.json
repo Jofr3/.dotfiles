@@ -1,0 +1,17 @@
+{
+  "aliases": {
+    "luna": "openai-codex/gpt-5.6-luna",
+    "terra": "openai-codex/gpt-5.6-terra",
+    "sol": "openai-codex/gpt-5.6-sol"
+  },
+  "defaults": {
+    "concurrency": 6,
+    "maxTasks": 12,
+    "timeoutSeconds": 900,
+    "outputLimit": 6000,
+    "totalOutputLimit": 30000,
+    "thinking": "medium",
+    "fast": true,
+    "resources": "lean"
+  }
+}

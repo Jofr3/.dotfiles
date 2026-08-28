@@ -1,11 +1,14 @@
 {
-  "name": "pi-stagehand-extension",
+  "name": "pi-drizzle-extension",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Session-scoped Browserbase Stagehand tools for Pi",
+  "description": "Drizzle ORM database tools for Pi",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "test": "node --import tsx --test test/*.test.ts"
   },
   "pi": {
     "extensions": [
@@ -13,18 +16,22 @@
     ]
   },
   "dependencies": {
-    "@browserbasehq/stagehand": "3.6.0",
-    "zod": "3.25.76"
+    "@libsql/client": "0.17.4",
+    "drizzle-orm": "0.45.2",
+    "mysql2": "3.24.2",
+    "pg": "8.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.15",
+    "@types/pg": "8.18.0",
+    "tsx": "4.21.0"
   },
   "overrides": {
-    "ollama-ai-provider-v2@1.5.5": {
-      "zod": "3.25.76"
-    }
+    "esbuild": "0.28.1"
   },
   "peerDependencies": {
     "@earendil-works/pi-ai": "*",
     "@earendil-works/pi-coding-agent": "*",
-    "@earendil-works/pi-tui": "*",
     "typebox": "*"
   },
   "peerDependenciesMeta": {
@@ -32,9 +39,6 @@
       "optional": true
     },
     "@earendil-works/pi-coding-agent": {
-      "optional": true
-    },
-    "@earendil-works/pi-tui": {
       "optional": true
     },
     "typebox": {

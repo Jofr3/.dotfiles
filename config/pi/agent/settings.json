@@ -1,8 +1,8 @@
 {
   "lastChangelogVersion": "0.84.3",
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-5",
-  "hideThinkingBlock": false,
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-sol",
+  "hideThinkingBlock": true,
   "defaultThinkingLevel": "xhigh",
   "theme": "rose-pine-moon",
   "enableInstallTelemetry": false,

@@ -15,7 +15,17 @@ This is the runtime configuration/data directory for the Pi agent CLI, not Pi's 
 
 ## Pi source and documentation
 
-Pi source lives in `~/projects/pi-mono`. Installed documentation is under the active `@earendil-works/pi-coding-agent` package. For Pi extension work, read the relevant installed docs and linked examples completely before implementing.
+Pi's installed documentation, examples, and type definitions live under the active
+`@earendil-works/pi-coding-agent` package, reachable via the stable Nix-profile symlink
+`/etc/profiles/per-user/jofre/lib/node_modules/pi-monorepo` (`docs/`, `examples/`, `dist/*.d.ts`).
+
+**`PI-DOCS.md` in this directory is the map: which file covers which topic, plus search recipes.
+Read it whenever the user asks about Pi itself** — extensions, skills, prompt templates, themes,
+Pi packages, settings, keybindings, sessions/`/tree`, compaction, providers/models, security,
+SDK/RPC/JSON modes, TUI components, or the session file format — and read the relevant installed
+doc and its linked example completely before answering or implementing. The docs are pinned to the
+installed Pi version, so they take precedence over general knowledge. A `~/projects/pi-mono` source
+checkout is referenced historically but is not present on this machine.
 
 Global extensions are auto-discovered from `agent/extensions/`. Plain TypeScript uses jiti and normally needs no build step. Canonical imports for the installed distribution are:
 

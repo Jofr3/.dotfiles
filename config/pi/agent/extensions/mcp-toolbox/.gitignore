@@ -1,6 +1,0 @@
-node_modules/
-runtime/
-*.log
-config.json
-.env
-.env.*

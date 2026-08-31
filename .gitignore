@@ -10,3 +10,7 @@ config/claude/statsig/
 config/claude/telemetry/
 config/claude/history.jsonl
 config/claude/mcp-needs-auth-cache.json
+
+# Generated extension dependencies and downloaded runtimes
+node_modules/
+config/pi/agent/extensions/*/runtime/

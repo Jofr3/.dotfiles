@@ -3,7 +3,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 
-export type DatabaseDialect = "postgresql" | "mysql" | "sqlite" | "libsql";
+export type DatabaseDialect = "postgresql" | "mysql" | "sqlserver" | "sqlite" | "libsql";
 
 export interface ConnectionProfile {
 	name: string;
@@ -51,7 +51,10 @@ interface RawConnection {
 const DEFAULT_MAX_ROWS = 100;
 const DEFAULT_TIMEOUT_MS = 30_000;
 const ENV_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
-const CONNECTION_NAME = /^[A-Za-z0-9_.-]{1,64}$/;
+const CONNECTION_NAME = /^[A-Za-z0-9_.-](?:[A-Za-z0-9_. -]{0,62}[A-Za-z0-9_.-])?$/;
+const DATABASES_FIELDS = new Set(["name", "type", "url"]);
+const MAX_DATABASES_BYTES = 1024 * 1024;
+const MAX_DATABASES_CONNECTIONS = 100;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -85,6 +88,10 @@ export function normalizeDialect(value: unknown): DatabaseDialect | undefined {
 			return "postgresql";
 		case "mysql":
 			return "mysql";
+		case "mssql":
+		case "sqlserver":
+		case "sql-server":
+			return "sqlserver";
 		case "sqlite":
 			return "sqlite";
 		case "libsql":
@@ -99,6 +106,7 @@ export function inferDialect(url: string): DatabaseDialect | undefined {
 	const value = url.trim().toLowerCase();
 	if (/^postgres(?:ql)?:/.test(value)) return "postgresql";
 	if (/^mysql:/.test(value)) return "mysql";
+	if (/^(?:mssql|sqlserver):/.test(value)) return "sqlserver";
 	if (/^libsql:/.test(value)) return "libsql";
 	if (/^file:/.test(value) || value === ":memory:" || !/^[a-z][a-z0-9+.-]*:/i.test(value)) return "sqlite";
 	return undefined;
@@ -198,6 +206,80 @@ function readConfigFile(
 	return typeof root.default === "string" && CONNECTION_NAME.test(root.default) ? root.default : undefined;
 }
 
+function readDatabasesEnvironment(
+	value: string,
+	rawConnections: Map<string, RawConnection>,
+	config: Pick<DrizzleConfig, "notices">,
+	baseDir: string,
+): string | undefined {
+	if (Buffer.byteLength(value, "utf8") > MAX_DATABASES_BYTES) {
+		config.notices.push("Ignored DATABASES: value exceeds the 1 MiB configuration limit.");
+		return undefined;
+	}
+	let entries: unknown;
+	try {
+		entries = JSON.parse(value);
+	} catch {
+		config.notices.push("Ignored DATABASES: invalid JSON.");
+		return undefined;
+	}
+	if (!Array.isArray(entries)) {
+		config.notices.push("Ignored DATABASES: root must be an array.");
+		return undefined;
+	}
+
+	const seenNames = new Set<string>();
+	let firstAccepted: string | undefined;
+	let accepted = 0;
+	for (let index = 0; index < entries.length; index++) {
+		if (accepted >= MAX_DATABASES_CONNECTIONS) {
+			config.notices.push(`Ignored DATABASES entries after index ${index - 1}: at most ${MAX_DATABASES_CONNECTIONS} connections are supported.`);
+			break;
+		}
+		const entry = entries[index];
+		if (!isRecord(entry)) {
+			config.notices.push(`Ignored DATABASES entry ${index}: entry must be an object.`);
+			continue;
+		}
+		if (Object.keys(entry).some((key) => !DATABASES_FIELDS.has(key))) {
+			config.notices.push(`Ignored DATABASES entry ${index}: only name, type, and url fields are supported.`);
+			continue;
+		}
+		if (typeof entry.name !== "string" || !CONNECTION_NAME.test(entry.name)) {
+			config.notices.push(`Ignored DATABASES entry ${index}: name is invalid.`);
+			continue;
+		}
+		const dialect = normalizeDialect(entry.type);
+		if (!dialect) {
+			config.notices.push(`Ignored DATABASES entry ${index}: type is missing or unsupported.`);
+			continue;
+		}
+		if (typeof entry.url !== "string" || !entry.url.trim()) {
+			config.notices.push(`Ignored DATABASES entry ${index}: url is missing or empty.`);
+			continue;
+		}
+		if (seenNames.has(entry.name)) {
+			config.notices.push(`Ignored DATABASES entry ${index}: a previous valid entry has the same name.`);
+			continue;
+		}
+		seenNames.add(entry.name);
+		rawConnections.set(entry.name, {
+			name: entry.name,
+			dialect,
+			url: entry.url,
+			allowWrites: false,
+			confirmWrites: true,
+			maxRows: DEFAULT_MAX_ROWS,
+			timeoutMs: DEFAULT_TIMEOUT_MS,
+			source: `env:DATABASES[${index}]`,
+			baseDir,
+		});
+		firstAccepted ??= entry.name;
+		accepted++;
+	}
+	return firstAccepted;
+}
+
 function unavailableProfile(raw: RawConnection, source: string, reason: string, dialect = raw.dialect): ConnectionProfile {
 	return {
 		name: raw.name,
@@ -281,6 +363,11 @@ export function loadDrizzleConfig(options: LoadConfigOptions): DrizzleConfig {
 		});
 		defaultConnection ??= "env";
 	}
+
+	const databasesDefault = env.DATABASES === undefined
+		? undefined
+		: readDatabasesEnvironment(env.DATABASES, rawConnections, config, options.cwd);
+	if (databasesDefault) defaultConnection = databasesDefault;
 
 	for (const [name, raw] of rawConnections) config.connections.set(name, resolveRawConnection(raw, env));
 	if (defaultConnection && config.connections.has(defaultConnection)) config.defaultConnection = defaultConnection;

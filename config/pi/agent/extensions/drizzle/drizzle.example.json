@@ -8,6 +8,13 @@
       "confirmWrites": true,
       "maxRows": 100
     },
+    "warehouse": {
+      "dialect": "sqlserver",
+      "urlEnv": "SQLSERVER_DATABASE_URL",
+      "allowWrites": false,
+      "confirmWrites": true,
+      "maxRows": 100
+    },
     "local": {
       "dialect": "sqlite",
       "url": "file:./data/app.db",

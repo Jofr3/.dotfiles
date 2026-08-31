@@ -1,4 +1,5 @@
 import { sql, type SQL, type SQLChunk } from "drizzle-orm";
+import type { DatabaseDialect } from "./config.ts";
 
 export type SqlParameter = string | number | boolean | null;
 
@@ -51,6 +52,19 @@ const MUTATING_TOKENS = new Set([
 	"outfile",
 	"dumpfile",
 	"procedure",
+	"exec",
+	"execute",
+	"waitfor",
+	"dbcc",
+	"backup",
+	"restore",
+	"kill",
+	"shutdown",
+	"use",
+	"deny",
+	"openrowset",
+	"opendatasource",
+	"openquery",
 ]);
 const SIDE_EFFECT_FUNCTIONS = new Set([
 	"setval",
@@ -102,6 +116,15 @@ const SIDE_EFFECT_FUNCTIONS = new Set([
 	"writefile",
 	"readfile",
 	"edit",
+	"openrowset",
+	"opendatasource",
+	"openquery",
+	"xp_cmdshell",
+	"sp_configure",
+	"sp_oacreate",
+	"sp_oamethod",
+	"sp_oadestroy",
+	"sp_send_dbmail",
 ]);
 
 function blankRange(characters: string[], start: number, end: number): void {
@@ -227,8 +250,10 @@ export function analyzeSql(statement: string): SqlAnalysis {
 		const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 		return new RegExp(`(?:"${escaped}"|\\\`${escaped}\\\`|\\[${escaped}\\])\\s*\\(`, "i").test(statement);
 	});
+	const sequenceSideEffect = /\bnext\s+value\s+for\b/i.test(masked);
 	const readOnly = READ_OPERATIONS.has(operation)
 		&& !quotedSideEffect
+		&& !sequenceSideEffect
 		&& !tokens.some((token) => MUTATING_TOKENS.has(token) || SIDE_EFFECT_FUNCTIONS.has(token));
 	return { operation, readOnly, masked, tokens };
 }
@@ -292,8 +317,8 @@ export function bindSql(statement: string, parameters: SqlParameter[] = []): SQL
 	return sql.join(chunks, sql.empty());
 }
 
-export function limitReadQuery(query: SQL, operation: string, maxRows: number): SQL {
-	if (!WRAPPABLE_READ_OPERATIONS.has(operation)) return query;
+export function limitReadQuery(query: SQL, operation: string, maxRows: number, dialect?: DatabaseDialect): SQL {
+	if (!WRAPPABLE_READ_OPERATIONS.has(operation) || dialect === "sqlserver") return query;
 	return sql`SELECT * FROM (${query}) AS ${sql.identifier("__pi_drizzle_limited")} LIMIT ${maxRows + 1}`;
 }
 

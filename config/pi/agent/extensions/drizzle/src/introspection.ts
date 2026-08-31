@@ -57,6 +57,48 @@ ORDER BY table_schema, table_name, ordinal_position`,
 		};
 	}
 
+	if (profile.dialect === "sqlserver") {
+		if (action === "tables") {
+			return schema?.trim()
+				? {
+					statement: `SELECT TABLE_SCHEMA AS schema_name, TABLE_NAME AS table_name, TABLE_TYPE AS table_type
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = :p1
+ORDER BY TABLE_SCHEMA, TABLE_NAME`,
+					parameters: [schema.trim()],
+					operation: "SCHEMA TABLES",
+				}
+				: {
+					statement: `SELECT TABLE_SCHEMA AS schema_name, TABLE_NAME AS table_name, TABLE_TYPE AS table_type
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA NOT IN ('sys', 'INFORMATION_SCHEMA')
+ORDER BY TABLE_SCHEMA, TABLE_NAME`,
+					parameters: [],
+					operation: "SCHEMA TABLES",
+				};
+		}
+		const conditions = ["TABLE_NAME = :p1"];
+		const parameters: SqlParameter[] = [table!.trim()];
+		if (schema?.trim()) {
+			conditions.push("TABLE_SCHEMA = :p2");
+			parameters.push(schema.trim());
+		} else {
+			conditions.push("TABLE_SCHEMA NOT IN ('sys', 'INFORMATION_SCHEMA')");
+		}
+		return {
+			statement: `SELECT TABLE_SCHEMA AS schema_name, TABLE_NAME AS table_name, ORDINAL_POSITION AS ordinal_position,
+       COLUMN_NAME AS column_name, DATA_TYPE AS data_type, IS_NULLABLE AS is_nullable,
+       COLUMN_DEFAULT AS column_default, CHARACTER_MAXIMUM_LENGTH AS character_maximum_length,
+       NUMERIC_PRECISION AS numeric_precision, NUMERIC_SCALE AS numeric_scale,
+       DATETIME_PRECISION AS datetime_precision
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE ${conditions.join(" AND ")}
+ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION`,
+			parameters,
+			operation: "SCHEMA COLUMNS",
+		};
+	}
+
 	if (profile.dialect === "mysql") {
 		if (action === "tables") {
 			return schema?.trim()

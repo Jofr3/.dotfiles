@@ -5,7 +5,6 @@
     brightnessctl
     pulseaudio
     sox
-    agent-browser
 
     # editors
     vscode

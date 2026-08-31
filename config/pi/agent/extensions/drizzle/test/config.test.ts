@@ -125,3 +125,108 @@ test("missing configured environment variables make a profile unavailable", () =
 	assert.equal(profile?.available, false);
 	assert.match(profile?.reason ?? "", /APP_DATABASE_URL/);
 });
+
+test("DATABASES is the primary source and its first valid entry is the default", () => {
+	const layout = tempLayout();
+	const config = loadDrizzleConfig({
+		cwd: layout.project,
+		projectTrusted: true,
+		agentDir: layout.agentDir,
+		configDirName: ".pi",
+		env: {
+			DATABASES: JSON.stringify([
+				{ name: "warehouse db", type: "sqlserver", url: "sqlserver://reader:secret@warehouse.invalid:1433?database=analytics&encrypt=true" },
+				{ name: "app", type: "mysql", url: "mysql://reader:secret@app.invalid/main" },
+			]),
+		},
+	});
+	const warehouse = config.connections.get("warehouse db");
+	assert.equal(config.defaultConnection, "warehouse db");
+	assert.equal(warehouse?.dialect, "sqlserver");
+	assert.equal(warehouse?.source, "env:DATABASES[0]");
+	assert.equal(warehouse?.allowWrites, false);
+	assert.equal(warehouse?.confirmWrites, true);
+	assert.equal(warehouse?.maxRows, 100);
+	assert.equal(warehouse?.timeoutMs, 30_000);
+	assert.equal(config.connections.get("app")?.dialect, "mysql");
+});
+
+test("DATABASES profiles override files and legacy environment policy with safe defaults", () => {
+	const layout = tempLayout();
+	fs.writeFileSync(
+		path.join(layout.agentDir, "drizzle.json"),
+		JSON.stringify({
+			default: "app",
+			connections: {
+				app: { dialect: "sqlite", url: "file:unsafe.db", allowWrites: true, confirmWrites: false, maxRows: 999, timeoutMs: 1_000 },
+			},
+		}),
+	);
+	const config = loadDrizzleConfig({
+		cwd: layout.project,
+		projectTrusted: true,
+		agentDir: layout.agentDir,
+		configDirName: ".pi",
+		env: {
+			DATABASES: JSON.stringify([{ name: "app", type: "postgresql", url: "postgresql://reader:secret@app.invalid/main" }]),
+			DRIZZLE_ALLOW_WRITES: "true",
+			DRIZZLE_CONFIRM_WRITES: "false",
+			DRIZZLE_MAX_ROWS: "1000",
+			DRIZZLE_TIMEOUT_MS: "300000",
+		},
+	});
+	const app = config.connections.get("app");
+	assert.equal(app?.dialect, "postgresql");
+	assert.equal(app?.source, "env:DATABASES[0]");
+	assert.equal(app?.allowWrites, false);
+	assert.equal(app?.confirmWrites, true);
+	assert.equal(app?.maxRows, 100);
+	assert.equal(app?.timeoutMs, 30_000);
+});
+
+test("invalid DATABASES input is ignored without exposing its contents", () => {
+	const layout = tempLayout();
+	const marker = "do-not-leak-this-credential";
+	const malformed = loadDrizzleConfig({
+		cwd: layout.project,
+		projectTrusted: true,
+		agentDir: layout.agentDir,
+		configDirName: ".pi",
+		env: { DATABASES: `[{"name":"app","url":"${marker}"` },
+	});
+	assert.equal(malformed.connections.size, 0);
+	assert.match(malformed.notices.join("\n"), /invalid JSON/);
+	assert.doesNotMatch(malformed.notices.join("\n"), new RegExp(marker));
+
+	const invalidEntry = loadDrizzleConfig({
+		cwd: layout.project,
+		projectTrusted: true,
+		agentDir: layout.agentDir,
+		configDirName: ".pi",
+		env: {
+			DATABASES: JSON.stringify([{ name: "app", type: "sqlserver", url: `sqlserver://reader:${marker}@db.invalid`, allowWrites: true }]),
+		},
+	});
+	assert.equal(invalidEntry.connections.size, 0);
+	assert.match(invalidEntry.notices.join("\n"), /only name, type, and url/);
+	assert.doesNotMatch(invalidEntry.notices.join("\n"), new RegExp(marker));
+});
+
+test("duplicate DATABASES names keep the first valid entry", () => {
+	const layout = tempLayout();
+	const config = loadDrizzleConfig({
+		cwd: layout.project,
+		projectTrusted: true,
+		agentDir: layout.agentDir,
+		configDirName: ".pi",
+		env: {
+			DATABASES: JSON.stringify([
+				{ name: "app", type: "mysql", url: "mysql://reader:first@app.invalid/main" },
+				{ name: "app", type: "postgresql", url: "postgresql://reader:second@app.invalid/main" },
+			]),
+		},
+	});
+	assert.equal(config.connections.get("app")?.dialect, "mysql");
+	assert.match(config.connections.get("app")?.url ?? "", /first/);
+	assert.match(config.notices.join("\n"), /same name/);
+});

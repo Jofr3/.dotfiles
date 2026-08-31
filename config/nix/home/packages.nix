@@ -5,6 +5,7 @@
     btop
     claude-code
     pi-coding-agent
+    agent-browser
     opencode
     direnv
     eza

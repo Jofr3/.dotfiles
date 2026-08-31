@@ -23,6 +23,19 @@ test("public connection metadata redacts credentials and query parameters", () =
 	assert.match(details.fingerprint ?? "", /^[a-f0-9]{12}$/);
 });
 
+test("SQL Server connection metadata redacts DATABASES credentials and URL options", () => {
+	const sqlServerProfile: ConnectionProfile = {
+		...profile,
+		name: "warehouse",
+		dialect: "sqlserver",
+		source: "env:DATABASES[1]",
+		url: "sqlserver://reader:do-not-leak@sql.example.test:1433?database=warehouse&encrypt=true",
+	};
+	const serialized = JSON.stringify(publicConnectionDetails(sqlServerProfile));
+	assert.doesNotMatch(serialized, /reader|do-not-leak|database|encrypt/);
+	assert.match(serialized, /sqlserver:\/\/sql\.example\.test:1433/);
+});
+
 test("execution formatting bounds rows, keys, cells, and control characters", () => {
 	const hugeKey = `column-${"x".repeat(1_000)}`;
 	const execution: DatabaseExecution = {

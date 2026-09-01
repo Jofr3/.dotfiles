@@ -309,10 +309,10 @@ export default function drizzleExtension(pi: ExtensionAPI) {
 		name: "drizzle_execute",
 		label: "Drizzle Execute",
 		description:
-			"Execute one data-changing, potentially side-effecting, or DDL SQL statement through Drizzle ORM's dialect compiler and a single-statement driver protocol. The exact selected profile must explicitly set allowWrites=true; confirmWrites=true (the default) also requires operator confirmation. Use :p1, :p2, ... for bound values. Output is limited to 50KB/2000 lines and no full copy is saved.",
+			"Execute one data-changing, potentially side-effecting, or DDL SQL statement through Drizzle ORM's dialect compiler and a single-statement driver protocol. Profiles allow writes by default unless allowWrites=false; confirmWrites=true (the default) still requires operator confirmation. Use :p1, :p2, ... for bound values. Output is limited to 50KB/2000 lines and no full copy is saved.",
 		promptSnippet: "Run an explicitly authorized parameterized database write or DDL statement through Drizzle ORM",
 		promptGuidelines: [
-			"Use drizzle_execute only when the user explicitly authorized the exact database mutation, side effect, or DDL; never weaken allowWrites or confirmWrites to bypass the safety policy.",
+			"Use drizzle_execute only when the user explicitly authorized the exact database mutation, side effect, or DDL; respect allowWrites=false and never weaken confirmWrites to bypass the safety policy.",
 			"Bind drizzle_execute values with :p1/:p2 placeholders instead of embedding values directly in SQL.",
 		],
 		parameters: ExecuteParameters,
@@ -323,7 +323,7 @@ export default function drizzleExtension(pi: ExtensionAPI) {
 			if (!profile.allowWrites) {
 				throw new Error(
 					`Writes are disabled for Drizzle connection ${JSON.stringify(profile.name)}. ` +
-						"Set allowWrites=true in trusted configuration only when mutations are intended.",
+						"Set allowWrites=true for a file profile or DRIZZLE_ALLOW_WRITES=true for the legacy environment profile only when mutations are intended.",
 				);
 			}
 			if (profile.confirmWrites) {

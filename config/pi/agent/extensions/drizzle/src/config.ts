@@ -48,6 +48,7 @@ interface RawConnection {
 	baseDir: string;
 }
 
+const DEFAULT_ALLOW_WRITES = true;
 const DEFAULT_MAX_ROWS = 100;
 const DEFAULT_TIMEOUT_MS = 30_000;
 const ENV_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
@@ -193,7 +194,7 @@ function readConfigFile(
 				url: typeof value.url === "string" ? value.url : undefined,
 				urlEnv,
 				authTokenEnv,
-				allowWrites: value.allowWrites === true,
+				allowWrites: value.allowWrites !== false,
 				confirmWrites: value.confirmWrites !== false,
 				maxRows: clampRows(value.maxRows),
 				timeoutMs: clampTimeout(value.timeoutMs),
@@ -267,7 +268,7 @@ function readDatabasesEnvironment(
 			name: entry.name,
 			dialect,
 			url: entry.url,
-			allowWrites: false,
+			allowWrites: DEFAULT_ALLOW_WRITES,
 			confirmWrites: true,
 			maxRows: DEFAULT_MAX_ROWS,
 			timeoutMs: DEFAULT_TIMEOUT_MS,
@@ -354,7 +355,7 @@ export function loadDrizzleConfig(options: LoadConfigOptions): DrizzleConfig {
 				: env.TURSO_AUTH_TOKEN
 					? "TURSO_AUTH_TOKEN"
 					: undefined,
-			allowWrites: parseBoolean(env.DRIZZLE_ALLOW_WRITES, false),
+			allowWrites: parseBoolean(env.DRIZZLE_ALLOW_WRITES, DEFAULT_ALLOW_WRITES),
 			confirmWrites: parseBoolean(env.DRIZZLE_CONFIRM_WRITES, true),
 			maxRows: clampRows(Number(env.DRIZZLE_MAX_ROWS) || undefined),
 			timeoutMs: clampTimeout(Number(env.DRIZZLE_TIMEOUT_MS) || undefined),

@@ -4,7 +4,6 @@
     "app": {
       "dialect": "postgresql",
       "urlEnv": "DATABASE_URL",
-      "allowWrites": false,
       "confirmWrites": true,
       "maxRows": 100
     },
@@ -18,7 +17,6 @@
     "local": {
       "dialect": "sqlite",
       "url": "file:./data/app.db",
-      "allowWrites": true,
       "confirmWrites": true,
       "maxRows": 100
     },

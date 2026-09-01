@@ -7,7 +7,7 @@ A session-scoped Pi extension for inspecting and querying PostgreSQL, MySQL, SQL
 - `drizzle_connections` — list profiles and write policy without showing URLs or credentials.
 - `drizzle_schema` — list tables/views or inspect a table's columns.
 - `drizzle_query` — run one conservatively checked read-only statement.
-- `drizzle_execute` — run one write/DDL statement when the profile explicitly enables writes; confirms with the operator by default.
+- `drizzle_execute` — run one write/DDL statement unless the profile explicitly disables writes; confirms with the operator by default.
 - `/drizzle` — show connection status in the Pi UI.
 
 Connections and driver pools are created lazily and closed on session shutdown/reload.
@@ -23,7 +23,7 @@ export DATABASES='[
 ]'
 ```
 
-Each entry must contain only `name`, `type`, and `url`. Supported types are `postgresql`, `mysql`, `sqlserver`, `sqlite`, and `libsql`; aliases include `postgres`/`pg`, `mssql`/`sql-server`, and `turso`. `DATABASES` profiles override same-named file or legacy environment profiles, are always read-only (`allowWrites: false`), and use fixed safe defaults of `confirmWrites: true`, `maxRows: 100`, and `timeoutMs: 30000`. The first valid entry is the default. Connection names may contain internal spaces. Authenticated Turso/libSQL connections still require file configuration with `authTokenEnv`, because `DATABASES` deliberately has no token field.
+Each entry must contain only `name`, `type`, and `url`. Supported types are `postgresql`, `mysql`, `sqlserver`, `sqlite`, and `libsql`; aliases include `postgres`/`pg`, `mssql`/`sql-server`, and `turso`. `DATABASES` profiles override same-named file or legacy environment profiles, allow writes by default (`allowWrites: true`), and use fixed defaults of `confirmWrites: true`, `maxRows: 100`, and `timeoutMs: 30000`. The first valid entry is the default. Connection names may contain internal spaces. Authenticated Turso/libSQL connections still require file configuration with `authTokenEnv`, because `DATABASES` deliberately has no token field.
 
 For backward compatibility, the environment that starts Pi may instead provide one connection:
 
@@ -35,10 +35,10 @@ export DRIZZLE_DIALECT='postgresql' # postgresql | mysql | sqlserver | sqlite | 
 
 A generic ambient `DATABASE_URL` is intentionally ignored. To use `DATABASE_URL`, reference it explicitly with `urlEnv` in trusted configuration. `DRIZZLE_AUTH_TOKEN` (or `TURSO_AUTH_TOKEN`) supplies a libSQL/Turso token.
 
-The legacy environment profile is named `env`. It is read-only by default. Its optional policy variables are:
+The legacy environment profile is named `env`. It allows writes by default. Its optional policy variables are:
 
 ```sh
-export DRIZZLE_ALLOW_WRITES=false
+export DRIZZLE_ALLOW_WRITES=true
 export DRIZZLE_CONFIRM_WRITES=true
 export DRIZZLE_MAX_ROWS=100
 export DRIZZLE_TIMEOUT_MS=30000 # 1000..300000
@@ -62,7 +62,6 @@ Project configuration is ignored until the project is trusted. The project file 
     "app": {
       "dialect": "postgresql",
       "urlEnv": "DATABASE_URL",
-      "allowWrites": false,
       "confirmWrites": true,
       "maxRows": 100,
       "timeoutMs": 30000
@@ -75,7 +74,6 @@ Project configuration is ignored until the project is trusted. The project file 
     "local": {
       "dialect": "sqlite",
       "url": "file:./data/app.db",
-      "allowWrites": true,
       "confirmWrites": true
     },
     "turso": {
@@ -87,7 +85,7 @@ Project configuration is ignored until the project is trusted. The project file 
 }
 ```
 
-Prefer `urlEnv` and `authTokenEnv` over committing credentials. If both `urlEnv` and `url` are present, `urlEnv` wins. Relative SQLite paths in a config file resolve relative to that file; URI query parameters such as `?mode=ro` are preserved.
+Prefer `urlEnv` and `authTokenEnv` over committing credentials. If both `urlEnv` and `url` are present, `urlEnv` wins. `allowWrites` defaults to `true`; set it to `false` on file profiles that must reject mutations. Relative SQLite paths in a config file resolve relative to that file; URI query parameters such as `?mode=ro` are preserved.
 
 ## Parameterized SQL
 
@@ -105,7 +103,7 @@ A parameter may be reused. Every supplied parameter must be referenced. Use plac
 
 ## Safety and output limits
 
-- Writes are disabled unless a trusted profile sets `allowWrites: true`.
+- Writes are allowed by default. A file or legacy environment profile can opt out with `allowWrites: false` or `DRIZZLE_ALLOW_WRITES=false`; `DATABASES` profiles use the fixed write-enabled default.
 - `confirmWrites` defaults to `true`. In non-UI modes, confirmed writes are refused; set it to `false` only for intentionally pre-authorized automation.
 - Each command is compiled from Drizzle SQL chunks and sent through a single-statement driver protocol. PostgreSQL/MySQL reads use read-only transactions; SQLite/libSQL reads also enable `PRAGMA query_only` for the operation. SQL Server has no transaction-level read-only mode, so SQL Server profiles must use a database principal restricted to read/catalog permissions.
 - The read guard rejects DDL/mutation tokens, `SELECT INTO`, executable MySQL comments, ambiguous backslash escapes, and known side-effecting functions. Unknown UDFs/extensions may still have effects. **Use a database account with read-only privileges for the actual security boundary.** `allowWrites` and confirmation are defense-in-depth guardrails, not a replacement for database authorization.

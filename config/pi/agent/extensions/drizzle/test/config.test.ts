@@ -62,7 +62,7 @@ test("untrusted project configuration is skipped", () => {
 	assert.match(config.notices.join("\n"), /Skipped untrusted project config/);
 });
 
-test("explicit Drizzle environment URL infers dialect and keeps writes disabled", () => {
+test("explicit Drizzle environment URL infers dialect and allows writes by default", () => {
 	const layout = tempLayout();
 	const config = loadDrizzleConfig({
 		cwd: layout.project,
@@ -74,7 +74,7 @@ test("explicit Drizzle environment URL infers dialect and keeps writes disabled"
 	const profile = config.connections.get("env");
 	assert.equal(config.defaultConnection, "env");
 	assert.equal(profile?.dialect, "mysql");
-	assert.equal(profile?.allowWrites, false);
+	assert.equal(profile?.allowWrites, true);
 	assert.equal(profile?.confirmWrites, true);
 	assert.equal(profile?.source, "env:DRIZZLE_DATABASE_URL");
 	assert.equal(profile?.timeoutMs, 30_000);
@@ -90,6 +90,46 @@ test("generic DATABASE_URL does not opt the extension into database access", () 
 		env: { DATABASE_URL: "postgresql://production.invalid/app" },
 	});
 	assert.equal(config.connections.size, 0);
+});
+
+test("file profiles allow writes by default and honor an explicit opt-out", () => {
+	const layout = tempLayout();
+	fs.writeFileSync(
+		path.join(layout.agentDir, "drizzle.json"),
+		JSON.stringify({
+			connections: {
+				app: { dialect: "postgresql", urlEnv: "APP_DATABASE_URL" },
+				readonly: { dialect: "postgresql", urlEnv: "READONLY_DATABASE_URL", allowWrites: false },
+			},
+		}),
+	);
+	const config = loadDrizzleConfig({
+		cwd: layout.project,
+		projectTrusted: true,
+		agentDir: layout.agentDir,
+		configDirName: ".pi",
+		env: {
+			APP_DATABASE_URL: "postgresql://example.invalid/app",
+			READONLY_DATABASE_URL: "postgresql://example.invalid/readonly",
+		},
+	});
+	assert.equal(config.connections.get("app")?.allowWrites, true);
+	assert.equal(config.connections.get("readonly")?.allowWrites, false);
+});
+
+test("legacy environment profile honors an explicit write opt-out", () => {
+	const layout = tempLayout();
+	const config = loadDrizzleConfig({
+		cwd: layout.project,
+		projectTrusted: true,
+		agentDir: layout.agentDir,
+		configDirName: ".pi",
+		env: {
+			DRIZZLE_DATABASE_URL: "mysql://user:secret@example.invalid/app",
+			DRIZZLE_ALLOW_WRITES: "false",
+		},
+	});
+	assert.equal(config.connections.get("env")?.allowWrites, false);
 });
 
 test("relative SQLite file URLs preserve query parameters", () => {
@@ -144,21 +184,21 @@ test("DATABASES is the primary source and its first valid entry is the default",
 	assert.equal(config.defaultConnection, "warehouse db");
 	assert.equal(warehouse?.dialect, "sqlserver");
 	assert.equal(warehouse?.source, "env:DATABASES[0]");
-	assert.equal(warehouse?.allowWrites, false);
+	assert.equal(warehouse?.allowWrites, true);
 	assert.equal(warehouse?.confirmWrites, true);
 	assert.equal(warehouse?.maxRows, 100);
 	assert.equal(warehouse?.timeoutMs, 30_000);
 	assert.equal(config.connections.get("app")?.dialect, "mysql");
 });
 
-test("DATABASES profiles override files and legacy environment policy with safe defaults", () => {
+test("DATABASES profiles override files and legacy environment policy with fixed defaults", () => {
 	const layout = tempLayout();
 	fs.writeFileSync(
 		path.join(layout.agentDir, "drizzle.json"),
 		JSON.stringify({
 			default: "app",
 			connections: {
-				app: { dialect: "sqlite", url: "file:unsafe.db", allowWrites: true, confirmWrites: false, maxRows: 999, timeoutMs: 1_000 },
+				app: { dialect: "sqlite", url: "file:unsafe.db", allowWrites: false, confirmWrites: false, maxRows: 999, timeoutMs: 1_000 },
 			},
 		}),
 	);
@@ -169,7 +209,7 @@ test("DATABASES profiles override files and legacy environment policy with safe 
 		configDirName: ".pi",
 		env: {
 			DATABASES: JSON.stringify([{ name: "app", type: "postgresql", url: "postgresql://reader:secret@app.invalid/main" }]),
-			DRIZZLE_ALLOW_WRITES: "true",
+			DRIZZLE_ALLOW_WRITES: "false",
 			DRIZZLE_CONFIRM_WRITES: "false",
 			DRIZZLE_MAX_ROWS: "1000",
 			DRIZZLE_TIMEOUT_MS: "300000",
@@ -178,7 +218,7 @@ test("DATABASES profiles override files and legacy environment policy with safe 
 	const app = config.connections.get("app");
 	assert.equal(app?.dialect, "postgresql");
 	assert.equal(app?.source, "env:DATABASES[0]");
-	assert.equal(app?.allowWrites, false);
+	assert.equal(app?.allowWrites, true);
 	assert.equal(app?.confirmWrites, true);
 	assert.equal(app?.maxRows, 100);
 	assert.equal(app?.timeoutMs, 30_000);

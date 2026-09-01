@@ -1,16 +1,16 @@
-[services.myclientum]
+[sftp.myclientum]
 type = "sftp"
 host = "dev.myclientum.com"
 user = "dev_myclientum_com"
 port = 22
 
-[services.tacprod]
+[sftp.tacprod]
 type = "sftp"
 host = "dev2.tacprod.cat"
 user = "dev_tacprod_cat"
 port = 22
 
-[services.compartium]
+[sftp.compartium]
 type = "sftp"
 host = "app.compartium.cat"
 user = "app_compartium_cat"

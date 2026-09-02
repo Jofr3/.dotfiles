@@ -1,7 +1,103 @@
+[sftp.admin]
+type = "sftp"
+host = "13.36.131.255"
+user = "dev_admin_lasevaweb_com"
+port = 22
+
+[sftp.ateinsa]
+type = "sftp"
+host = "dev.ateinsa.com"
+user = "ateinsa"
+port = 22
+
+[sftp.ateinsa_new]
+type = "sftp"
+host = "dev2.ateinsa.com"
+user = "dev2_ateinsa_com"
+port = 22
+
+[sftp.ayudas]
+type = "sftp"
+host = "15.237.131.241"
+user = "ayudas_asetconsultoria_com"
+port = 22
+
+[sftp.beques]
+type = "sftp"
+host = "13.36.114.143"
+user = "dev-beques_ccosona_cat"
+port = 22
+
+[sftp.compartium]
+type = "sftp"
+host = "app.compartium.cat"
+user = "app_compartium_cat"
+port = 22
+
+[sftp.exportbdns]
+type = "sftp"
+host = "exportbdns.cat"
+user = "exportbdns_cat"
+port = 22
+
+[sftp.gardentona]
+type = "sftp"
+host = "devgarden.lasevaweb.com"
+user = "devgarden_lasevaweb_com"
+port = 22
+
+[sftp.gestio_mancoplana]
+type = "sftp"
+host = "13.36.114.143"
+user = "gestio_mancoplana_cat"
+port = 22
+
+[sftp.inscritum]
+type = "sftp"
+host = "ec2-13-36-131-255.eu-west-3.compute.amazonaws.com"
+user = "dev_inscritum_com"
+port = 22
+
+[sftp.intranet]
+type = "sftp"
+host = "intranet.ccosona.cat"
+user = "intranet_ccosona_cat"
+port = 22
+
+[sftp.memoria_mancoplana]
+type = "sftp"
+host = "13.36.114.143"
+user = "pam_mancoplana_cat"
+port = 22
+
 [sftp.myclientum]
 type = "sftp"
 host = "dev.myclientum.com"
 user = "dev_myclientum_com"
+port = 22
+
+[sftp.mydocumentium_api]
+type = "sftp"
+host = "devapi896623.mydocumentium.com"
+user = "devapi_mydocumentium_com"
+port = 22
+
+[sftp.myproductium]
+type = "sftp"
+host = "ec2-13-36-131-255.eu-west-3.compute.amazonaws.com"
+user = "dev_myproductium_com"
+port = 22
+
+[sftp.renovacions]
+type = "sftp"
+host = "ec2-13-36-114-143.eu-west-3.compute.amazonaws.com"
+user = "dev_renovacions_ccosona_cat"
+port = 22
+
+[sftp.senditum]
+type = "sftp"
+host = "dev.senditum.cat"
+user = "dev_senditum_cat"
 port = 22
 
 [sftp.tacprod]
@@ -10,8 +106,20 @@ host = "dev2.tacprod.cat"
 user = "dev_tacprod_cat"
 port = 22
 
-[sftp.compartium]
+[sftp.targecopy]
 type = "sftp"
-host = "app.compartium.cat"
-user = "app_compartium_cat"
+host = "dev.virtual.targecopy.com"
+user = "dev_virtual_targecopy_com"
+port = 22
+
+[sftp.vicfires]
+type = "sftp"
+host = "ec2-15-188-172-200.eu-west-3.compute.amazonaws.com"
+user = "dev_vicfires_cat"
+port = 22
+
+[sftp.vivelloc]
+type = "sftp"
+host = "ous.vivelloc.cat"
+user = "ous_vivelloc_cat"
 port = 22

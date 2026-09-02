@@ -8,6 +8,7 @@ import type { AssistantMessage, Usage } from "@earendil-works/pi-ai";
 import { StringEnum } from "@earendil-works/pi-ai";
 import {
 	type ExtensionAPI,
+	type ExtensionContext,
 	getMarkdownTheme,
 	keyHint,
 	withFileMutationQueue,
@@ -128,6 +129,14 @@ interface TaskResult {
 	attempts: number;
 }
 
+interface SubagentReplay {
+	version: 1;
+	input: SubagentInput;
+	totalOutputLimit?: number;
+	interrupted: boolean;
+	retryIndexes: number[];
+}
+
 interface SubagentDetails {
 	mode: RunMode;
 	concurrency: number;
@@ -135,6 +144,15 @@ interface SubagentDetails {
 	loadedConfigPaths: string[];
 	notices: string[];
 	results: TaskResult[];
+	replay?: SubagentReplay;
+}
+
+interface ResumeCandidate {
+	sessionId: string;
+	input: SubagentInput;
+	results: TaskResult[];
+	retryIndexes: number[];
+	totalOutputLimit?: number;
 }
 
 interface AttemptResult {
@@ -224,6 +242,163 @@ function formatUsage(usage: Usage, turns?: number): string {
 
 function cloneResult(result: TaskResult): TaskResult {
 	return { ...result, activity: [...result.activity], usage: { ...result.usage, cost: { ...result.usage.cost } } };
+}
+
+function cloneTaskInput(task: TaskInput): TaskInput {
+	return { ...task, tools: [...task.tools] };
+}
+
+function cloneSubagentInput(input: SubagentInput): SubagentInput {
+	return { ...input, tasks: input.tasks.map(cloneTaskInput) };
+}
+
+function isSubagentInput(value: unknown): value is SubagentInput {
+	if (!value || typeof value !== "object") return false;
+	const tasks = (value as { tasks?: unknown }).tasks;
+	return Array.isArray(tasks) && tasks.length > 0 && tasks.every((task) => {
+		if (!task || typeof task !== "object") return false;
+		const candidate = task as Partial<TaskInput>;
+		return typeof candidate.task === "string"
+			&& typeof candidate.model === "string"
+			&& Array.isArray(candidate.tools)
+			&& candidate.tools.every((tool) => typeof tool === "string");
+	});
+}
+
+function isBareRecoveryRequest(text: string): boolean {
+	return /^\s*(?:please\s+)?(?:resume|continue)(?:\s+(?:the\s+)?(?:subagents?(?:\s+workflow)?|workflow|work|task))?\s*[.!?]*\s*$/iu.test(text);
+}
+
+function hasMeaningfulMessagesAfter(entries: any[], resultIndex: number): boolean {
+	for (const entry of entries.slice(resultIndex + 1)) {
+		if (entry?.type !== "message") continue;
+		const message = entry.message;
+		if (
+			message?.role === "assistant"
+			&& (message.stopReason === "error" || message.stopReason === "aborted")
+			&& (!Array.isArray(message.content) || message.content.length === 0)
+		) {
+			continue;
+		}
+		return true;
+	}
+	return false;
+}
+
+function findLegacyToolCallInput(entries: any[], resultIndex: number, toolCallId: string): SubagentInput | undefined {
+	for (let index = resultIndex - 1; index >= 0; index--) {
+		const message = entries[index]?.type === "message" ? entries[index].message : undefined;
+		if (message?.role !== "assistant" || !Array.isArray(message.content)) continue;
+		for (const part of message.content) {
+			if (part?.type === "toolCall" && part.id === toolCallId && part.name === "subagent") {
+				return isSubagentInput(part.arguments) ? cloneSubagentInput(part.arguments) : undefined;
+			}
+		}
+	}
+	return undefined;
+}
+
+function isAbortRetryResult(result: TaskResult): boolean {
+	return ["aborted", "queued", "running"].includes(result.status)
+		|| (result.status === "skipped" && /subagent run was aborted/iu.test(result.output));
+}
+
+function findResumeCandidate(ctx: ExtensionContext, requireImmediate: boolean): ResumeCandidate | undefined {
+	const entries = ctx.sessionManager.getBranch() as any[];
+	for (let index = entries.length - 1; index >= 0; index--) {
+		const message = entries[index]?.type === "message" ? entries[index].message : undefined;
+		if (message?.role !== "toolResult" || !["subagent", "subagent_resume"].includes(message.toolName)) continue;
+		const details = message.details as SubagentDetails | undefined;
+		const results = Array.isArray(details?.results) ? details.results : [];
+		const interrupted = details?.replay?.interrupted
+			?? results.some((result) => ["aborted", "queued", "running"].includes(result.status));
+		if (!interrupted || (requireImmediate && hasMeaningfulMessagesAfter(entries, index))) return undefined;
+		const replayInput = details?.replay?.input;
+		const input = isSubagentInput(replayInput)
+			? cloneSubagentInput(replayInput)
+			: findLegacyToolCallInput(entries, index, message.toolCallId);
+		if (!input) return undefined;
+		const abortRetryIndexes = new Set(results.filter(isAbortRetryResult).map((result) => result.index));
+		const retryIndexes = (details?.replay?.retryIndexes ?? [...abortRetryIndexes])
+			.filter((value) => Number.isInteger(value) && abortRetryIndexes.has(value));
+		return retryIndexes.length > 0
+			? {
+				sessionId: ctx.sessionManager.getSessionId(),
+				input,
+				results: results.map(cloneResult),
+				retryIndexes,
+				totalOutputLimit: details?.replay?.totalOutputLimit,
+			}
+			: undefined;
+	}
+	return undefined;
+}
+
+function appendRecoveryInstruction(instructions: string | undefined): string {
+	const note = "Recovery: this child task is restarting after an interrupted attempt. Inspect the current filesystem and external state before acting, preserve valid partial work, and continue idempotently instead of assuming a clean start.";
+	if (!instructions?.trim()) return note;
+	const available = Math.max(0, 12000 - note.length - 2);
+	return `${instructions.slice(0, available)}\n\n${note}`;
+}
+
+function replacePreviousForRecovery(task: string, previous: string): string {
+	const matches = task.match(/\{previous\}/gu);
+	if (!matches?.length) return task;
+	const withoutPlaceholders = task.replace(/\{previous\}/gu, "");
+	const availablePerPlaceholder = Math.max(0, Math.floor((30000 - withoutPlaceholders.length) / matches.length));
+	const replacement = previous.slice(0, availablePerPlaceholder);
+	return task.replace(/\{previous\}/gu, () => replacement).slice(0, 30000);
+}
+
+function buildResumeInput(candidate: ResumeCandidate): SubagentInput {
+	const request = cloneSubagentInput(candidate.input);
+	const byIndex = new Map(candidate.results.map((result, position) => [result.index ?? position, result]));
+	const retryIndexes = new Set(candidate.retryIndexes);
+	let selected = request.tasks
+		.map((task, index) => ({ task, index, result: byIndex.get(index) }))
+		.filter(({ index }) => retryIndexes.has(index));
+	if (selected.length === 0) throw new Error("The interrupted subagent workflow has no unfinished tasks.");
+
+	if ((request.mode ?? "parallel") === "sequential") {
+		const first = Math.min(...selected.map(({ index }) => index));
+		selected = request.tasks.slice(first).map((task, offset) => ({
+			task,
+			index: first + offset,
+			result: byIndex.get(first + offset),
+		}));
+		const previous = first > 0 ? byIndex.get(first - 1)?.output ?? "" : "";
+		selected[0] = {
+			...selected[0],
+			task: { ...selected[0].task, task: replacePreviousForRecovery(selected[0].task.task, previous) },
+		};
+	}
+
+	const tasks = selected.map(({ task, result }) => ({
+		...task,
+		model: result?.model ?? task.model,
+		thinking: result?.thinking ?? task.thinking,
+		fast: result?.fastRequested ?? task.fast,
+		resources: result?.resources ?? task.resources,
+		tools: result?.tools ? [...result.tools] : [...task.tools],
+		cwd: result?.cwd ?? task.cwd,
+		instructions: appendRecoveryInstruction(task.instructions),
+	}));
+	return {
+		...request,
+		tasks,
+		concurrency: (request.mode ?? "parallel") === "sequential"
+			? 1
+			: Math.min(request.concurrency ?? tasks.length, tasks.length),
+	};
+}
+
+function recoveryPrompt(): string {
+	return [
+		"Resume the most recent interrupted subagent workflow before doing any other parent-level work.",
+		"Call `subagent_resume` now with an empty object. It will restart only unfinished child tasks with a fresh cancellation signal; do not redo tasks that already succeeded.",
+		"After it returns, combine the earlier successful handoffs with the resumed results and continue the original objective.",
+		"Do not replace the interrupted child task with parent-side exploration before calling the resume tool.",
+	].join(" ");
 }
 
 function pushActivity(result: TaskResult, text: string): void {
@@ -745,6 +920,149 @@ function modelVisibleOutput(details: SubagentDetails, totalLimit: number): strin
 	);
 }
 
+async function runSubagentRequest(
+	params: SubagentInput,
+	signal: AbortSignal | undefined,
+	onUpdate: ToolUpdate | undefined,
+	ctx: ExtensionContext,
+	totalOutputLimitOverride?: number,
+): Promise<AgentToolResult<SubagentDetails>> {
+	const config = loadSubagentConfig(ctx.cwd, ctx.isProjectTrusted());
+	if (params.tasks.length > config.defaults.maxTasks) {
+		throw new Error(`Requested ${params.tasks.length} subagents; configured maximum is ${config.defaults.maxTasks}.`);
+	}
+	const parentModel = ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined;
+	const tasks = params.tasks.map((task, index) => resolveTask(task, index, config, ctx.cwd, parentModel));
+	const mode: RunMode = params.mode ?? "parallel";
+	const concurrency = mode === "sequential"
+		? 1
+		: Math.max(1, Math.min(params.concurrency ?? config.defaults.concurrency, tasks.length, HARD_MAX_CONCURRENCY));
+	const timeoutSeconds = params.timeoutSeconds ?? config.defaults.timeoutSeconds;
+	const totalOutputLimit = totalOutputLimitOverride ?? config.defaults.totalOutputLimit;
+	const replayInput: SubagentInput = {
+		...cloneSubagentInput(params),
+		mode,
+		concurrency,
+		timeoutSeconds,
+		tasks: params.tasks.map((input, index) => ({
+			...cloneTaskInput(input),
+			model: tasks[index].model,
+			thinking: tasks[index].thinking,
+			fast: tasks[index].fast,
+			resources: tasks[index].resources,
+			tools: [...tasks[index].tools],
+			cwd: tasks[index].cwd,
+			outputLimit: tasks[index].outputLimit,
+		})),
+	};
+	const artifactDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "pi-subagents-"));
+	await fs.promises.chmod(artifactDir, 0o700);
+	const results = tasks.map(initialResult);
+	const makeDetails = (): SubagentDetails => {
+		const interrupted = Boolean(signal?.aborted) || results.some((result) => result.status === "aborted");
+		return {
+			mode,
+			concurrency,
+			artifactDir,
+			loadedConfigPaths: [...config.loadedPaths],
+			notices: [...config.notices],
+			results: results.map(cloneResult),
+			replay: {
+				version: 1,
+				input: cloneSubagentInput(replayInput),
+				totalOutputLimit,
+				interrupted,
+				retryIndexes: interrupted
+					? results.filter(isAbortRetryResult).map((result) => result.index)
+					: [],
+			},
+		};
+	};
+	const emit = () => onUpdate?.({
+		content: [{ type: "text", text: statusSummary(results) }],
+		details: makeDetails(),
+	});
+	const runOne = async (task: ResolvedTask, sharedContext?: string) => {
+		try {
+			const result = await runResolvedTask(
+				task,
+				sharedContext,
+				timeoutSeconds,
+				artifactDir,
+				signal,
+				(update) => {
+					results[task.index] = update;
+					emit();
+				},
+			);
+			results[task.index] = result;
+			return result;
+		} catch (error) {
+			const result = initialResult(task);
+			result.status = signal?.aborted ? "aborted" : "failed";
+			result.error = error instanceof Error ? error.message : String(error);
+			result.output = `Error: ${result.error}`;
+			pushActivity(result, result.status);
+			results[task.index] = result;
+			emit();
+			return result;
+		}
+	};
+
+	if (mode === "parallel") {
+		await mapWithLimit(tasks, concurrency, (task) => runOne(task, params.sharedContext), signal);
+		if (signal?.aborted) {
+			for (const queued of tasks.filter((task) => results[task.index].status === "queued")) {
+				results[queued.index] = {
+					...initialResult(queued),
+					status: "skipped",
+					output: "Skipped because the subagent run was aborted.",
+				};
+			}
+			emit();
+		}
+	} else {
+		let previous = "";
+		for (let index = 0; index < tasks.length; index++) {
+			if (signal?.aborted) {
+				for (const skipped of tasks.slice(index)) {
+					results[skipped.index] = {
+						...initialResult(skipped),
+						status: "skipped",
+						output: "Skipped because the subagent run was aborted.",
+					};
+				}
+				emit();
+				break;
+			}
+			const task = tasks[index];
+			const chainedTask = { ...task, task: task.task.replace(/\{previous\}/g, () => previous) };
+			const result = await runOne(chainedTask, params.sharedContext);
+			previous = result.output;
+			if (result.status !== "succeeded") {
+				for (const skipped of tasks.slice(index + 1)) {
+					results[skipped.index] = {
+						...initialResult(skipped),
+						status: "skipped",
+						output: signal?.aborted
+							? "Skipped because the subagent run was aborted."
+							: "Skipped because an earlier sequential task failed.",
+					};
+				}
+				emit();
+				break;
+			}
+		}
+	}
+
+	const details = makeDetails();
+	return {
+		content: [{ type: "text", text: modelVisibleOutput(details, totalOutputLimit) }],
+		details,
+		usage: totalUsage(details.results),
+	};
+}
+
 function configureChildFastMode(pi: ExtensionAPI): boolean {
 	if (process.env[CHILD_MARKER] !== "1") return false;
 	const tier = process.env[CHILD_SERVICE_TIER];
@@ -760,6 +1078,37 @@ function configureChildFastMode(pi: ExtensionAPI): boolean {
 
 export default function (pi: ExtensionAPI) {
 	if (configureChildFastMode(pi)) return;
+
+	let armedResume: ResumeCandidate | undefined;
+	const clearArmedResume = () => {
+		armedResume = undefined;
+	};
+
+	pi.on("session_start", clearArmedResume);
+	pi.on("session_shutdown", clearArmedResume);
+	pi.on("agent_settled", clearArmedResume);
+
+	pi.on("input", (event, ctx) => {
+		if (event.source === "extension" || event.streamingBehavior !== undefined) return { action: "continue" };
+		if (!isBareRecoveryRequest(event.text)) {
+			clearArmedResume();
+			return { action: "continue" };
+		}
+		const sessionId = ctx.sessionManager.getSessionId();
+		const candidate = armedResume?.sessionId === sessionId
+			? armedResume
+			: findResumeCandidate(ctx, true);
+		if (!candidate) {
+			clearArmedResume();
+			return { action: "continue" };
+		}
+		armedResume = candidate;
+		return { action: "transform", text: recoveryPrompt(), images: event.images };
+	});
+
+	pi.on("tool_call", (event) => {
+		if (armedResume && event.toolName !== "subagent_resume") clearArmedResume();
+	});
 
 	pi.registerCommand("subagents", {
 		description: "Show dynamic subagent aliases and defaults",
@@ -783,6 +1132,31 @@ export default function (pi: ExtensionAPI) {
 	});
 
 	pi.registerTool({
+		name: "subagent_resume",
+		label: "Resume Subagents",
+		description: "Resume the most recent interrupted subagent workflow. Restarts only unfinished tasks with their original effective settings and a fresh cancellation signal.",
+		parameters: Type.Object({}),
+		async execute(_toolCallId, _params, signal, onUpdate: ToolUpdate | undefined, ctx) {
+			const sessionId = ctx.sessionManager.getSessionId();
+			const candidate = armedResume?.sessionId === sessionId
+				? armedResume
+				: findResumeCandidate(ctx, true);
+			if (!candidate) throw new Error("No interrupted subagent workflow is available to resume.");
+			clearArmedResume();
+			return runSubagentRequest(
+				buildResumeInput(candidate),
+				signal,
+				onUpdate,
+				ctx,
+				candidate.totalOutputLimit,
+			);
+		},
+		renderCall(_args, theme) {
+			return new Text(theme.fg("toolTitle", theme.bold("subagents resume")), 0, 0);
+		},
+	});
+
+	pi.registerTool({
 		name: "subagent",
 		label: "Subagents",
 		description: [
@@ -800,115 +1174,12 @@ export default function (pi: ExtensionAPI) {
 			"Use lean resources unless the child specifically needs user/project skills or extensions; choose inherit only in that case.",
 			"Do not assign parallel mutating subagent tasks to overlapping files; give each writer an explicit ownership boundary.",
 			"Treat subagent handoffs as the primary context and read their full artifact files only when a missing detail is necessary.",
+			"When a terse resume or continue request follows an interrupted subagent run, call subagent_resume before replacing the unfinished child task with parent-side work.",
 		],
 		parameters: SubagentParams,
 
 		async execute(_toolCallId, params: SubagentInput, signal, onUpdate: ToolUpdate | undefined, ctx) {
-			const config = loadSubagentConfig(ctx.cwd, ctx.isProjectTrusted());
-			if (params.tasks.length > config.defaults.maxTasks) {
-				throw new Error(`Requested ${params.tasks.length} subagents; configured maximum is ${config.defaults.maxTasks}.`);
-			}
-			const parentModel = ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined;
-			const tasks = params.tasks.map((task, index) => resolveTask(task, index, config, ctx.cwd, parentModel));
-			const mode: RunMode = params.mode ?? "parallel";
-			const concurrency = mode === "sequential"
-				? 1
-				: Math.max(1, Math.min(params.concurrency ?? config.defaults.concurrency, tasks.length, HARD_MAX_CONCURRENCY));
-			const timeoutSeconds = params.timeoutSeconds ?? config.defaults.timeoutSeconds;
-			const artifactDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "pi-subagents-"));
-			await fs.promises.chmod(artifactDir, 0o700);
-			const results = tasks.map(initialResult);
-			const makeDetails = (): SubagentDetails => ({
-				mode,
-				concurrency,
-				artifactDir,
-				loadedConfigPaths: [...config.loadedPaths],
-				notices: [...config.notices],
-				results: results.map(cloneResult),
-			});
-			const emit = () => onUpdate?.({
-				content: [{ type: "text", text: statusSummary(results) }],
-				details: makeDetails(),
-			});
-			const runOne = async (task: ResolvedTask, sharedContext?: string) => {
-				try {
-					const result = await runResolvedTask(
-						task,
-						sharedContext,
-						timeoutSeconds,
-						artifactDir,
-						signal,
-						(update) => {
-							results[task.index] = update;
-							emit();
-						},
-					);
-					results[task.index] = result;
-					return result;
-				} catch (error) {
-					const result = initialResult(task);
-					result.status = signal?.aborted ? "aborted" : "failed";
-					result.error = error instanceof Error ? error.message : String(error);
-					result.output = `Error: ${result.error}`;
-					pushActivity(result, result.status);
-					results[task.index] = result;
-					emit();
-					return result;
-				}
-			};
-
-			if (mode === "parallel") {
-				await mapWithLimit(tasks, concurrency, (task) => runOne(task, params.sharedContext), signal);
-				if (signal?.aborted) {
-					for (const queued of tasks.filter((task) => results[task.index].status === "queued")) {
-						results[queued.index] = {
-							...initialResult(queued),
-							status: "skipped",
-							output: "Skipped because the subagent run was aborted.",
-						};
-					}
-					emit();
-				}
-			} else {
-				let previous = "";
-				for (let index = 0; index < tasks.length; index++) {
-					if (signal?.aborted) {
-						for (const skipped of tasks.slice(index)) {
-							results[skipped.index] = {
-								...initialResult(skipped),
-								status: "skipped",
-								output: "Skipped because the subagent run was aborted.",
-							};
-						}
-						emit();
-						break;
-					}
-					const task = tasks[index];
-					const chainedTask = { ...task, task: task.task.replace(/\{previous\}/g, previous) };
-					const result = await runOne(chainedTask, params.sharedContext);
-					previous = result.output;
-					if (result.status !== "succeeded") {
-						for (const skipped of tasks.slice(index + 1)) {
-							results[skipped.index] = {
-								...initialResult(skipped),
-								status: "skipped",
-								output: signal?.aborted
-									? "Skipped because the subagent run was aborted."
-									: "Skipped because an earlier sequential task failed.",
-							};
-						}
-						emit();
-						break;
-					}
-				}
-			}
-
-			const details = makeDetails();
-			return {
-				content: [{ type: "text", text: modelVisibleOutput(details, config.defaults.totalOutputLimit) }],
-				details,
-				usage: totalUsage(details.results),
-			};
+			return runSubagentRequest(params, signal, onUpdate, ctx);
 		},
 
 		renderCall(args, theme) {

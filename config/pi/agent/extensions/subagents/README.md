@@ -41,6 +41,7 @@ The parent agent decides the semantic composition on the fly rather than selecti
 - Tracks nested tokens and cost in Pi's session totals.
 - Supports sequential `{previous}` handoffs for genuinely dependent work.
 - Propagates aborts and timeouts to the child process tree and does not start queued work after cancellation.
+- Recovers an accidentally aborted workflow when the next idle input is a bare `resume` or `continue` request.
 - Removes parent session/model `PI_*` metadata from child startup environments.
 
 ## Model selection guidance
@@ -160,6 +161,20 @@ Choose the lowest sufficient thinking level independently from the model. A Terr
 }
 ```
 
+## Resuming after Escape
+
+Escape terminates active child process trees, so a child cannot literally continue in the same process. The extension instead records a replay snapshot in the completed tool result and registers a `subagent_resume` helper tool.
+
+When the next idle prompt is `resume`, `continue`, or a short variant such as `resume the subagent workflow`, the input hook directs the parent to call that helper before doing parent-side work. Recovery:
+
+- starts fresh child processes with a fresh cancellation signal;
+- reruns only tasks canceled by Escape or skipped because of that cancellation, while keeping prior successes, failures, and timeouts in the existing conversation;
+- resumes a sequential workflow at its first cancellation-affected step and carries the preceding successful `{previous}` handoff forward;
+- preserves effective model, thinking, tools, resources, cwd, and execution settings;
+- tells restarted writers to inspect existing state and preserve valid partial work before editing.
+
+The shortcut is intentionally limited to the immediate interrupted workflow. A later generic `continue` after unrelated work is not treated as a replay request. Pi's `/resume` command remains the built-in session selector and is not intercepted.
+
 ## Fast mode
 
 Pi removed the old non-working `*-fast` Codex model variants. This extension does not invent model IDs. Instead, `fast: true` injects OpenAI's `service_tier: "priority"` into GPT-5.6 Luna/Terra/Sol child requests.
@@ -213,7 +228,7 @@ Parallel read-only work is safe. Parallel writers must have disjoint ownership b
 
 ## Tests
 
-The test suite uses Node's built-in test runner, a fake JSONL child process, and one model-free Pi RPC smoke test. It covers config trust/aliases, registration, parallel and sequential dispatch, nested usage, artifacts, strict output limits, partial failures, environment isolation, priority child mode, and cancellation.
+The test suite uses Node's built-in test runner, a fake JSONL child process, and one model-free Pi RPC smoke test. It covers config trust/aliases, registration, parallel and sequential dispatch, nested usage, artifacts, strict output limits, partial failures, environment isolation, priority child mode, cancellation, replay snapshots, stale/session-switched resume rejection, and parallel/sequential recovery.
 
 ```bash
 npm --prefix ~/.pi/agent/extensions/subagents test

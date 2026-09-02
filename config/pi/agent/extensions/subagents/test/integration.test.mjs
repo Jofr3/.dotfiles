@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile, readdir, writeFile } from "node:fs/promises";
+import { readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
@@ -19,7 +19,15 @@ extension({
 	on(name, handler) { registrations.handlers.push({ name, handler }); },
 });
 const tool = registrations.tools.find((item) => item.name === "subagent");
+const resumeTool = registrations.tools.find((item) => item.name === "subagent_resume");
+const inputHandler = registrations.handlers.find((item) => item.name === "input")?.handler;
+const agentSettledHandler = registrations.handlers.find((item) => item.name === "agent_settled")?.handler;
+const sessionStartHandler = registrations.handlers.find((item) => item.name === "session_start")?.handler;
 if (!tool) throw new Error("subagent tool was not registered");
+if (!resumeTool) throw new Error("subagent_resume tool was not registered");
+if (!inputHandler) throw new Error("subagent input handler was not registered");
+if (!agentSettledHandler) throw new Error("subagent agent_settled handler was not registered");
+if (!sessionStartHandler) throw new Error("subagent session_start handler was not registered");
 const ctx = {
 	cwd: workspace,
 	isProjectTrusted: () => true,
@@ -35,13 +43,21 @@ const task = (overrides = {}) => ({
 	tools: [],
 	...overrides,
 });
+const sessionManager = (branch, id = "test-session") => ({
+	getBranch: () => branch,
+	getSessionId: () => id,
+});
 
 test.after(() => { process.argv[1] = originalArgv1; });
 
-test("extension registers the command, strict model schema, and tool", () => {
+test("extension registers the command, strict model schema, resume handler, and tools", () => {
 	assert.ok(registrations.commands.some((item) => item.name === "subagents"));
 	assert.equal(tool.parameters.properties.tasks.items.properties.model.minLength, 1);
 	assert.equal(tool.parameters.properties.tasks.items.properties.model.pattern, "\\S");
+	assert.deepEqual(resumeTool.parameters.properties, {});
+	assert.equal(typeof inputHandler, "function");
+	assert.equal(typeof agentSettledHandler, "function");
+	assert.equal(typeof sessionStartHandler, "function");
 });
 
 test("parallel execution preserves order, progress, artifacts, usage, and cleans prompt files", async () => {
@@ -66,6 +82,202 @@ test("parallel execution preserves order, progress, artifacts, usage, and cleans
 	}
 	const files = await readdir(result.details.artifactDir);
 	assert.equal(files.some((name) => name.endsWith("-system.md")), false);
+});
+
+test("bare continue resumes only unfinished parallel tasks and ignores stale runs", async () => {
+	const request = {
+		mode: "parallel",
+		concurrency: 2,
+		timeoutSeconds: 10,
+		tasks: [task({ label: "done", task: "done" }), task({ label: "unfinished", task: "unfinished" })],
+	};
+	const prior = await tool.execute("call-original", request, undefined, undefined, ctx);
+	prior.details.results[1].status = "aborted";
+	prior.details.results[1].error = "Subagent run aborted.";
+	delete prior.details.replay; // Backward compatibility with sessions created before replay snapshots.
+	const branch = [
+		{
+			type: "message",
+			message: {
+				role: "assistant",
+				content: [{ type: "toolCall", id: "call-original", name: "subagent", arguments: request }],
+			},
+		},
+		{
+			type: "message",
+			message: {
+				role: "toolResult",
+				toolName: "subagent",
+				toolCallId: "call-original",
+				details: prior.details,
+			},
+		},
+		{ type: "message", message: { role: "assistant", content: [], stopReason: "error" } },
+	];
+	const recoveryCtx = { ...ctx, sessionManager: sessionManager(branch) };
+	const transformed = inputHandler({
+		text: "continue",
+		images: undefined,
+		source: "interactive",
+		streamingBehavior: undefined,
+	}, recoveryCtx);
+	assert.equal(transformed.action, "transform");
+	assert.match(transformed.text, /Call `subagent_resume` now/u);
+
+	const resumed = await resumeTool.execute("call-resume", {}, undefined, undefined, recoveryCtx);
+	assert.deepEqual(resumed.details.results.map((item) => item.label), ["unfinished"]);
+	assert.ok(resumed.details.results.every((item) => item.status === "succeeded"));
+	assert.match(resumed.details.replay.input.tasks[0].instructions, /restarting after an interrupted attempt/u);
+	assert.equal(resumed.details.replay.interrupted, false);
+
+	inputHandler({ text: "do something else", source: "interactive", streamingBehavior: undefined }, recoveryCtx);
+	const staleCtx = {
+		...ctx,
+		sessionManager: sessionManager([
+			...branch,
+			{ type: "message", message: { role: "user", content: "other work" } },
+		]),
+	};
+	assert.equal(inputHandler({
+		text: "resume",
+		source: "interactive",
+		streamingBehavior: undefined,
+	}, staleCtx).action, "continue");
+	await assert.rejects(
+		resumeTool.execute("stale-resume", {}, undefined, undefined, staleCtx),
+		/No interrupted subagent workflow/u,
+	);
+
+	assert.equal(inputHandler({
+		text: "resume",
+		source: "interactive",
+		streamingBehavior: undefined,
+	}, recoveryCtx).action, "transform");
+	agentSettledHandler({}, recoveryCtx);
+	const ignoredResumeCtx = {
+		...ctx,
+		sessionManager: sessionManager([
+			...branch,
+			{ type: "message", message: { role: "user", content: "resume" } },
+			{ type: "message", message: { role: "assistant", content: [{ type: "text", text: "Continuing." }], stopReason: "stop" } },
+		]),
+	};
+	await assert.rejects(
+		resumeTool.execute("ignored-resume", {}, undefined, undefined, ignoredResumeCtx),
+		/No interrupted subagent workflow/u,
+	);
+
+	assert.equal(inputHandler({
+		text: "resume",
+		source: "interactive",
+		streamingBehavior: undefined,
+	}, recoveryCtx).action, "transform");
+	sessionStartHandler({ reason: "resume" }, { ...ctx, sessionManager: sessionManager([], "other-session") });
+	await assert.rejects(
+		resumeTool.execute(
+			"cross-session-resume",
+			{},
+			undefined,
+			undefined,
+			{ ...ctx, sessionManager: sessionManager([], "other-session") },
+		),
+		/No interrupted subagent workflow/u,
+	);
+});
+
+test("recovery snapshots resolved mechanical defaults instead of rereading changed config", async () => {
+	const configPath = join(process.env.PI_CODING_AGENT_DIR, "subagents.json");
+	await writeFile(configPath, JSON.stringify({
+		defaults: {
+			concurrency: 1,
+			timeoutSeconds: 11,
+			outputLimit: 1234,
+			totalOutputLimit: 4000,
+			thinking: "high",
+			fast: false,
+			resources: "lean",
+		},
+	}));
+	try {
+		const request = {
+			tasks: [task({ label: "one", thinking: undefined, outputLimit: undefined }), task({ label: "two", thinking: undefined, outputLimit: undefined })],
+		};
+		const prior = await tool.execute("call-defaults", request, undefined, undefined, ctx);
+		assert.equal(prior.details.replay.input.concurrency, 1);
+		assert.equal(prior.details.replay.input.timeoutSeconds, 11);
+		assert.equal(prior.details.replay.input.tasks[0].thinking, "high");
+		assert.equal(prior.details.replay.input.tasks[0].outputLimit, 1234);
+		assert.equal(prior.details.replay.totalOutputLimit, 4000);
+		for (const result of prior.details.results) result.status = "aborted";
+		prior.details.replay.interrupted = true;
+		prior.details.replay.retryIndexes = [0, 1];
+		await rm(configPath);
+
+		const recoveryCtx = {
+			...ctx,
+			sessionManager: sessionManager([{
+				type: "message",
+				message: {
+					role: "toolResult",
+					toolName: "subagent",
+					toolCallId: "call-defaults",
+					details: prior.details,
+				},
+			}]),
+		};
+		assert.equal(inputHandler({
+			text: "resume",
+			source: "interactive",
+			streamingBehavior: undefined,
+		}, recoveryCtx).action, "transform");
+		const resumed = await resumeTool.execute("call-defaults-resume", {}, undefined, undefined, recoveryCtx);
+		assert.equal(resumed.details.concurrency, 1);
+		assert.equal(resumed.details.replay.input.timeoutSeconds, 11);
+		assert.equal(resumed.details.replay.input.tasks[0].outputLimit, 1234);
+		assert.equal(resumed.details.replay.totalOutputLimit, 4000);
+	} finally {
+		await rm(configPath, { force: true });
+	}
+});
+
+test("sequential recovery preserves the successful prefix handoff without rerunning it", async () => {
+	const request = {
+		mode: "sequential",
+		timeoutSeconds: 10,
+		tasks: [
+			task({ label: "first", task: "first" }),
+			task({ label: "second", task: "second {previous}" }),
+			task({ label: "third", task: "third {previous}" }),
+		],
+	};
+	const prior = await tool.execute("call-sequential", request, undefined, undefined, ctx);
+	prior.details.results[1].status = "aborted";
+	prior.details.results[1].error = "Subagent run aborted.";
+	prior.details.results[2].status = "skipped";
+	prior.details.replay.interrupted = true;
+	prior.details.replay.retryIndexes = [1, 2];
+	const recoveryCtx = {
+		...ctx,
+		sessionManager: sessionManager([{
+			type: "message",
+			message: {
+				role: "toolResult",
+				toolName: "subagent",
+				toolCallId: "call-sequential",
+				details: prior.details,
+			},
+		}]),
+	};
+	const transformed = inputHandler({
+		text: "please resume the subagent workflow",
+		source: "interactive",
+		streamingBehavior: undefined,
+	}, recoveryCtx);
+	assert.equal(transformed.action, "transform");
+	const resumed = await resumeTool.execute("call-sequential-resume", {}, undefined, undefined, recoveryCtx);
+	assert.deepEqual(resumed.details.results.map((item) => item.label), ["second", "third"]);
+	assert.match(resumed.details.results[0].output, /child:second child:first/u);
+	assert.match(resumed.details.results[1].output, /child:third child:second child:first/u);
 });
 
 test("per-task and aggregate truncation limits include their notices", async () => {
@@ -164,6 +376,37 @@ test("child startup does not inherit parent session metadata", async () => {
 	}
 });
 
+test("an abort snapshot excludes parallel tasks that already failed", async () => {
+	const startLog = join(workspace, "mixed-starts.log");
+	await writeFile(startLog, "");
+	process.env.FAKE_CHILD_START_LOG = startLog;
+	const controller = new AbortController();
+	const updates = [];
+	try {
+		const pending = tool.execute("call-mixed-abort", {
+			mode: "parallel",
+			concurrency: 2,
+			timeoutSeconds: 20,
+			tasks: [
+				task({ label: "failed", task: "FAIL_BEFORE_OUTPUT" }),
+				task({ label: "interrupted", task: "HANG" }),
+			],
+		}, controller.signal, (update) => updates.push(update), ctx);
+		const deadline = Date.now() + 5_000;
+		while (!updates.some((update) => update.details.results[0].status === "failed")) {
+			if (Date.now() > deadline) throw new Error("failed child did not settle before abort");
+			await new Promise((resolve) => setTimeout(resolve, 20));
+		}
+		controller.abort();
+		const result = await pending;
+		assert.equal(result.details.results[0].status, "failed");
+		assert.equal(result.details.results[1].status, "aborted");
+		assert.deepEqual(result.details.replay.retryIndexes, [1]);
+	} finally {
+		delete process.env.FAKE_CHILD_START_LOG;
+	}
+});
+
 test("abort stops active children, skips the queue, and preserves accrued usage", async () => {
 	const startLog = join(workspace, "starts.log");
 	await writeFile(startLog, "");
@@ -188,6 +431,8 @@ test("abort stops active children, skips the queue, and preserves accrued usage"
 		assert.equal(starts.length, 1);
 		assert.equal(result.details.results[0].status, "aborted");
 		assert.ok(result.details.results.slice(1).every((item) => item.status === "skipped"));
+		assert.equal(result.details.replay.interrupted, true);
+		assert.deepEqual(result.details.replay.retryIndexes, [0, 1, 2, 3]);
 		assert.equal(result.usage.input, 10);
 		assert.match(result.details.results[0].error, /aborted/u);
 	} finally {

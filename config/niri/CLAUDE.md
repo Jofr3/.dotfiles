@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Niri scrollable tiling Wayland compositor configuration, part of a NixOS dotfiles setup. The config is symlinked to `~/.config/niri/` via Home Manager (`home/configs.nix`). Niri is enabled as a NixOS program in `machines/common.nix`.
+Niri scrollable tiling Wayland compositor configuration, part of a NixOS dotfiles setup. The config is symlinked to `~/.config/niri/` and niri is enabled as a NixOS program, both from `config/nix/modules/desktop/niri.nix` (see `config/nix/AGENTS.md` for the layout).
 
 ## Configuration
 

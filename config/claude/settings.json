@@ -2,7 +2,7 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "claude-opus-5[1m]",
+  "model": "claude-fable-5-1[1m]",
   "hooks": {
     "Stop": [
       {
@@ -38,6 +38,11 @@
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(rm:-rf /home/jofre/lsw/ateinsa_new/storage/*)",
+      "Bash(*deploy-prod.sh*)"
+    ],
     "environment": [
       "### Org-wide",
       "**Organization**: None configured",
@@ -63,11 +68,11 @@
       "**Trusted repo**: /home/jofre/lsw/ateinsa_new (working directory) and its remote gitlab.com:lasevaweb_ateinsa/appserver-new.git",
       "**Org-specific CLIs**: None configured — nix and php seen frequently in this project's transcripts but are standard toolchain, not org-specific",
       "routine under /home/jofre/lsw/ateinsa_new/ prefix: git, build/dev scripts, and file edits within the tracked tree are routine per repo conventions (small, scoped, reversible changes per CLAUDE.md)"
-    ],
-    "soft_deny": [
-      "$defaults",
-      "Bash(rm:-rf /home/jofre/lsw/ateinsa_new/storage/*)",
-      "Bash(*deploy-prod.sh*)"
     ]
+  },
+  "modelSettings": {
+    "claude-fable-5-1": {
+      "effortLevel": "xhigh"
+    }
   }
 }

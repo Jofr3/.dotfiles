@@ -1,6 +1,6 @@
 {
   "pi_agent_command": "npx -y @earendil-works/pi-coding-agent",
-  "claude_code_command": "claude",
+  "claude_code_command": "npx -y @anthropic-ai/claude-code",
   "editor_command": "nvim",
   "projects": [
     { "name": "home", "path": "~/" },

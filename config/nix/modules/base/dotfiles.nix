@@ -15,7 +15,6 @@
         btop.source = "${dotfiles}/config/btop";
         helix.source = "${dotfiles}/config/helix";
         yazi.source = "${dotfiles}/config/yazi";
-        opencode.source = "${dotfiles}/config/opencode";
       };
 
       home.file.".claude" = {

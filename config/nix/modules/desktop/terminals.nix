@@ -13,7 +13,6 @@
       xdg.configFile = {
         foot.source = "${dotfiles}/config/foot";
         kitty.source = "${dotfiles}/config/kitty";
-        wezterm.source = "${dotfiles}/config/wezterm";
       };
     };
 }

@@ -4,6 +4,13 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+
+    import-tree.url = "github:vic/import-tree";
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -20,96 +27,9 @@
     };
   };
 
-  outputs =
-    {
-      nixpkgs,
-      home-manager,
-      ...
-    }@inputs:
-    let
-      # A profile pairs a NixOS module with the matching home-manager entry
-      # point. Everything both profiles share lives in machines/common.nix and
-      # home/common.nix.
-      profiles = {
-        desktop = {
-          system = ./profiles/desktop.nix;
-          home = ./home/desktop;
-        };
-        remote = {
-          system = ./profiles/remote.nix;
-          home = ./home/remote;
-        };
-      };
-
-      mkHost =
-        {
-          hostName,
-          hostId,
-          profile ? "desktop",
-          hardware,
-        }:
-        nixpkgs.lib.nixosSystem {
-          specialArgs = { inherit inputs; };
-          modules = [
-            ./machines/common.nix
-            profiles.${profile}.system
-            home-manager.nixosModules.home-manager
-            {
-              networking.hostName = hostName;
-              networking.hostId = hostId;
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.backupFileExtension = "bak";
-              home-manager.extraSpecialArgs = { inherit inputs; };
-              home-manager.users.jofre = import profiles.${profile}.home;
-            }
-          ]
-          ++ hardware;
-        };
-    in
-    {
-      # sudo nixos-rebuild switch --flake .#nixos
-      nixosConfigurations.nixos = mkHost {
-        hostName = "nixos";
-        hostId = "9f0dfe7d";
-        profile = "desktop";
-        hardware = [
-          ./machines/personal/hardware.nix
-          ./machines/personal/graphics.nix
-        ];
-      };
-
-      # sudo nixos-rebuild switch --flake .#nixos-lsw
-      nixosConfigurations.nixos-lsw = mkHost {
-        hostName = "nixos-lsw";
-        hostId = "27e15669";
-        profile = "desktop";
-        hardware = [
-          ./machines/work/hardware.nix
-          ./machines/work/graphics.nix
-        ];
-      };
-
-      # sudo nixos-rebuild switch --flake .#nixos-pc
-      nixosConfigurations.nixos-pc = mkHost {
-        hostName = "nixos-pc";
-        hostId = "6707fc68";
-        profile = "desktop";
-        hardware = [
-          ./machines/desktop/hardware.nix
-          ./machines/desktop/graphics.nix
-        ];
-      };
-
-      # sudo nixos-rebuild switch --flake .#nixos-remote
-      nixosConfigurations.nixos-remote = mkHost {
-        hostName = "nixos-remote";
-        hostId = "4b1c9a2e";
-        profile = "remote";
-        hardware = [
-          ./machines/remote/hardware.nix
-          ./machines/remote/network.nix
-        ];
-      };
-    };
+  # Dendritic layout: every file under ./modules is a flake-parts module and is
+  # imported automatically (paths with a `_`-prefixed component are skipped).
+  # A file owns one feature and writes into flake.modules.{nixos,homeManager}.<name>;
+  # hosts are the modules named "hosts/<hostname>" -- see modules/hosts.nix.
+  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 }

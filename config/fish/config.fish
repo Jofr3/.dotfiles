@@ -1,7 +1,7 @@
 # Settings
 set -g fish_greeting
 set -U fish_prompt_pwd_dir_length 0
-set -g fish_history_ignore "exit" "ls" "history" "clear" "ff" "nvim" "nr" "hr" "cc" "hr" "nr" "cd"
+set -g fish_history_ignore "exit" "ls" "history" "clear" "ff" "nvim" "nr" "hr" "cc" "cd"
 set -g fish_autosuggestion_enabled 0
 
 # Prompt
@@ -33,11 +33,8 @@ set -Ux SOPS_AGE_KEY_FILE "$HOME/.ssh/keys/sops"
 alias n="nvim"
 alias ff="fastfetch"
 alias b="btop"
-# alias op="opencode"
 alias bcc="npx -y @anthropic-ai/claude-code --chrome"
-alias bcx="bunx @openai/codex@latest"
 alias bpi="bunx @mariozechner/pi-coding-agent"
-alias bgi="bunx @google/gemini-cli"
 alias cc="claude"
 
 alias ..="cd .."
@@ -49,7 +46,6 @@ alias p="sudo lsof -i -P -n"
 
 alias nd="nix develop"
 alias nr="sudo nixos-rebuild switch --flake /home/jofre/.dotfiles/config/nix/."
-alias hr="home-manager switch --flake /home/jofre/.dotfiles/config/nix/.#jofre@nixos"
 
 alias ls="exa --icons --group-directories-first"
 alias lt="exa --tree --level=4 --icons --group-directories-first"
@@ -61,12 +57,3 @@ alias vpn-ateinsa="sudo openfortivpn mail.ateinsa.com:10443 --username=jscaricac
 
 # Keybinds
 bind \ef super-cd
-# bind \es "~/.dotfiles/scripts/tmux-sessionizer.sh"
-
-# Auto-start tmux
-# if status is-interactive
-# and not set -q TMUX
-# and not set -q VSCODE_INJECTION
-# and command -v tmux >/dev/null 2>&1
-#     exec tmux new-session -A -s jofre -c /home/jofre/
-# end

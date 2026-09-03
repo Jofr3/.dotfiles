@@ -24,6 +24,7 @@
     wget
     jujutsu
     yazi
+    harlequin
 
     # editors
     neovim

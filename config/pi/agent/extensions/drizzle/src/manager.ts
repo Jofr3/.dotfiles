@@ -16,6 +16,7 @@ import mysql from "mysql2/promise";
 import type { FieldPacket, QueryOptions, ResultSetHeader, RowDataPacket } from "mysql2";
 import { Pool as PostgresPool, type QueryConfig, type QueryResult } from "pg";
 import type { ConnectionProfile, DatabaseDialect } from "./config.ts";
+import { normalizeMySqlUrl } from "./mysql.ts";
 
 interface PostgresConnection {
 	dialect: "postgresql";
@@ -83,17 +84,32 @@ function connectionFingerprint(profile: ConnectionProfile): string {
 		.digest("hex");
 }
 
-function secureMySqlUrl(raw: string, timeoutMs: number): string {
-	const url = new URL(raw);
+export function secureMySqlUrl(raw: string, timeoutMs: number): string {
+	const url = new URL(normalizeMySqlUrl(raw));
 	for (const key of [...url.searchParams.keys()]) {
 		const normalized = key.toLowerCase().replace(/[-_]/g, "");
-		if (normalized === "multiplestatements" || normalized === "connecttimeout" || normalized === "connectionlimit") {
+		if (
+			normalized === "multiplestatements"
+			|| normalized === "multistatements"
+			|| normalized === "connecttimeout"
+			|| normalized === "connectionlimit"
+		) {
 			url.searchParams.delete(key);
 		}
 	}
-	const flags = url.searchParams.get("flags");
-	if (flags) {
-		const safeFlags = flags.split(/[ ,]+/).filter((flag) => !/^[+-]?MULTI_STATEMENTS$/i.test(flag));
+	const flagValues = url.searchParams.getAll("flags");
+	if (flagValues.length) {
+		const safeFlags = flagValues.flatMap((value) => {
+			let parsed: unknown = value;
+			try {
+				parsed = JSON.parse(value);
+			} catch {
+				// mysql2 treats non-JSON flag values as plain strings.
+			}
+			return (Array.isArray(parsed) ? parsed : [parsed])
+				.flatMap((flag) => String(flag).split(/[ ,]+/))
+				.filter((flag) => flag && !/^[+-]?MULTI_STATEMENTS$/i.test(flag));
+		});
 		if (safeFlags.length) url.searchParams.set("flags", safeFlags.join(","));
 		else url.searchParams.delete("flags");
 	}
@@ -256,7 +272,8 @@ function profileSecrets(profile: ConnectionProfile): string[] {
 	}
 	if (!profile.url) return [...secrets];
 	try {
-		const url = new URL(profile.url);
+		const normalizedUrl = profile.dialect === "mysql" ? normalizeMySqlUrl(profile.url) : profile.url;
+		const url = new URL(normalizedUrl);
 		for (const encoded of [url.username, url.password]) {
 			if (!encoded) continue;
 			secrets.add(encoded);

@@ -23,7 +23,7 @@ export DATABASES='[
 ]'
 ```
 
-Each entry must contain only `name`, `type`, and `url`. Supported types are `postgresql`, `mysql`, `sqlserver`, `sqlite`, and `libsql`; aliases include `postgres`/`pg`, `mssql`/`sql-server`, and `turso`. `DATABASES` profiles override same-named file or legacy environment profiles, allow writes by default (`allowWrites: true`), and use fixed defaults of `confirmWrites: true`, `maxRows: 100`, and `timeoutMs: 30000`. The first valid entry is the default. Connection names may contain internal spaces. Authenticated Turso/libSQL connections still require file configuration with `authTokenEnv`, because `DATABASES` deliberately has no token field.
+Each entry must contain only `name`, `type`, and `url`. Supported types are `postgresql`, `mysql`, `sqlserver`, `sqlite`, and `libsql`; aliases include `postgres`/`pg`, `mssql`/`sql-server`, and `turso`. MySQL connections also accept the Go driver TCP DSN form `username:password@tcp(host:3306)/database?parameters`; unlike a URI, punctuation in its password does not need percent-encoding. Other Go DSN network forms such as `unix(...)` are not supported. `DATABASES` profiles override same-named file or legacy environment profiles, allow writes by default (`allowWrites: true`), and use fixed defaults of `confirmWrites: true`, `maxRows: 100`, and `timeoutMs: 30000`. The first valid entry is the default. Connection names may contain internal spaces. Authenticated Turso/libSQL connections still require file configuration with `authTokenEnv`, because `DATABASES` deliberately has no token field.
 
 For backward compatibility, the environment that starts Pi may instead provide one connection:
 

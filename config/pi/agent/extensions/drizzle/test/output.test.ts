@@ -36,6 +36,19 @@ test("SQL Server connection metadata redacts DATABASES credentials and URL optio
 	assert.match(serialized, /sqlserver:\/\/sql\.example\.test:1433/);
 });
 
+test("MySQL Go-style DSN metadata exposes only the normalized target", () => {
+	const mysqlProfile: ConnectionProfile = {
+		...profile,
+		name: "legacy mysql",
+		dialect: "mysql",
+		source: "env:DATABASES[2]",
+		url: "reader:do-not-leak?or@this@tcp(mysql.example.test:3307)/app",
+	};
+	const details = publicConnectionDetails(mysqlProfile);
+	assert.equal(details.target, "mysql://mysql.example.test:3307/app");
+	assert.doesNotMatch(JSON.stringify(details), /reader|do-not-leak|or@this/);
+});
+
 test("execution formatting bounds rows, keys, cells, and control characters", () => {
 	const hugeKey = `column-${"x".repeat(1_000)}`;
 	const execution: DatabaseExecution = {

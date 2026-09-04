@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
+import { normalizeMySqlUrl } from "./mysql.ts";
 
 export type DatabaseDialect = "postgresql" | "mysql" | "sqlserver" | "sqlite" | "libsql";
 
@@ -381,7 +382,8 @@ export function publicConnectionIdentity(profile: ConnectionProfile): { target: 
 	let target = `${profile.dialect ?? "unknown"}:unavailable`;
 	if (profile.url) {
 		try {
-			const url = new URL(profile.url);
+			const normalizedUrl = profile.dialect === "mysql" ? normalizeMySqlUrl(profile.url) : profile.url;
+			const url = new URL(normalizedUrl);
 			if (url.protocol === "file:") target = url.href.replace(/[?#].*$/, "");
 			else target = `${url.protocol}//${url.host}${url.pathname}`;
 		} catch {

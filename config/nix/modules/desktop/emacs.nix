@@ -3,9 +3,9 @@
     { pkgs, ... }:
     {
       programs.emacs = {
-        enable = true;
+        enable = false;
         package = pkgs.emacs-pgtk;
       };
-      services.emacs.enable = true;
+      services.emacs.enable = false;
     };
 }

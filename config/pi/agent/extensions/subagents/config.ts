@@ -30,6 +30,7 @@ const BUILTIN_ALIASES: Record<string, string> = {
 	luna: "openai-codex/gpt-5.6-luna",
 	terra: "openai-codex/gpt-5.6-terra",
 	sol: "openai-codex/gpt-5.6-sol",
+	astra: "openai-codex/gpt-6-astra",
 };
 
 const BUILTIN_DEFAULTS: SubagentDefaults = {

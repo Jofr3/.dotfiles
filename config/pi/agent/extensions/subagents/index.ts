@@ -29,7 +29,7 @@ const ACTIVITY_LIMIT = 16;
 const STDERR_LIMIT = 64 * 1024;
 const HARD_MAX_TASKS = 12;
 const HARD_MAX_CONCURRENCY = 8;
-const PRIORITY_MODELS = /^(openai|openai-codex)\/gpt-5\.6-(luna|terra|sol)$/;
+const PRIORITY_MODELS = /^(openai|openai-codex)\/(?:gpt-5\.6-(?:luna|terra|sol)|gpt-6-astra)$/;
 
 const ThinkingSchema = StringEnum(["off", "minimal", "low", "medium", "high", "xhigh", "max"] as const);
 const ResourceSchema = StringEnum(["lean", "inherit"] as const);
@@ -39,7 +39,7 @@ const TaskSchema = Type.Object({
 	task: Type.String({ description: "Self-contained delegated task", minLength: 1, maxLength: 30000 }),
 	label: Type.Optional(Type.String({ description: "Short stable label for progress and results", maxLength: 80 })),
 	model: Type.String({
-		description: 'Model alias ("luna", "terra", "sol", "inherit") or exact provider/model',
+		description: 'Model alias ("luna", "terra", "sol", "astra", "inherit") or exact provider/model',
 		minLength: 1,
 		pattern: "\\S",
 	}),
@@ -47,7 +47,7 @@ const TaskSchema = Type.Object({
 		ThinkingSchema,
 	),
 	fast: Type.Optional(
-		Type.Boolean({ description: "Request OpenAI priority service tier for supported GPT-5.6 models. Default: true." }),
+		Type.Boolean({ description: "Request OpenAI priority service tier for supported GPT-5.6 and GPT-6 Astra models. Default: true." }),
 	),
 	resources: Type.Optional(
 		ResourceSchema,
@@ -665,7 +665,7 @@ async function runAttempt(
 	result.status = "running";
 	result.attempts = 1;
 	result.priorityApplied = priority;
-	pushActivity(result, priority ? "starting with GPT-5.6 priority tier" : "starting");
+	pushActivity(result, priority ? "starting with OpenAI priority tier" : "starting");
 	onProgress(cloneResult(result));
 
 	const promptPath = path.join(runDir, `${String(task.index + 1).padStart(2, "0")}-${sanitizeLabel(task.label)}-system.md`);
@@ -1162,14 +1162,14 @@ export default function (pi: ExtensionAPI) {
 		description: [
 			"Compose isolated child pi agents per task. For each task, choose the model, reasoning level, exact tool allowlist, resource mode, fast priority tier, cwd, and optional role instructions needed at that moment.",
 			"Batch independent work in one parallel call to reduce latency and keep exploration, logs, and intermediate reasoning out of the parent context.",
-			"Model aliases: Luna for fast narrow work, Terra for deeper work, Sol for the hardest cross-cutting work, or inherit/provider/model.",
+			"Model aliases: Luna for fast narrow work, Terra for deeper work, Sol for the hardest cross-cutting work, Astra for exceptional tasks needing GPT-6 capability, or inherit/provider/model.",
 			"Parallel writing tasks must own disjoint files. Full outputs are written to temporary artifacts; only compact handoffs enter parent context.",
 		].join(" "),
-		promptSnippet: "Compose isolated Luna/Terra/Sol agents on the fly and run them in parallel",
+		promptSnippet: "Compose isolated Luna/Terra/Sol/Astra agents on the fly and run them in parallel",
 		promptGuidelines: [
 			"Use subagent to batch independent exploration, research, review, testing, or implementation work when it will reduce latency or parent-context growth.",
 			"Prefer one parallel subagent call with several independent tasks over several sequential calls.",
-			"Compose every subagent on the fly: select Luna for fast narrow tasks, Terra for deeper tasks, or Sol only for the hardest cross-cutting tasks; then choose the lowest sufficient thinking level and minimum required tools.",
+			"Compose every subagent on the fly: select Luna for fast narrow tasks, Terra for deeper tasks, Sol for the hardest cross-cutting tasks, or Astra only when GPT-6 capability materially justifies its higher cost; then choose the lowest sufficient thinking level and minimum required tools.",
 			"Give each subagent task-specific role or behavioral guidance through its instructions field instead of relying on predefined profiles.",
 			"Use lean resources unless the child specifically needs user/project skills or extensions; choose inherit only in that case.",
 			"Do not assign parallel mutating subagent tasks to overlapping files; give each writer an explicit ownership boundary.",

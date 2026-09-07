@@ -14,7 +14,7 @@ test.after(() => {
 	delete process.env.PI_DYNAMIC_SUBAGENT_SERVICE_TIER;
 });
 
-test("child mode registers only the priority provider hook", () => {
+test("child mode registers only the priority provider hook for supported models", () => {
 	const registrations = { commands: [], tools: [], handlers: [] };
 	extension({
 		registerCommand(...args) { registrations.commands.push(args); },
@@ -30,6 +30,11 @@ test("child mode registers only the priority provider hook", () => {
 	assert.deepEqual(
 		hook({ payload }, { model: { provider: "openai-codex", id: "gpt-5.6-luna" } }),
 		{ model: "gpt-5.6-luna", service_tier: "priority" },
+	);
+	const astraPayload = { model: "gpt-6-astra" };
+	assert.deepEqual(
+		hook({ payload: astraPayload }, { model: { provider: "openai-codex", id: "gpt-6-astra" } }),
+		{ model: "gpt-6-astra", service_tier: "priority" },
 	);
 	assert.equal(hook({ payload }, { model: { provider: "other", id: "model" } }), undefined);
 });

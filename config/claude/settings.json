@@ -2,7 +2,7 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "claude-fable-5-1[1m]",
+  "model": "opus[1m]",
   "hooks": {
     "Stop": [
       {
@@ -34,6 +34,11 @@
     "lua-lsp@claude-plugins-official": true
   },
   "spinnerTipsEnabled": false,
+  "modelSettings": {
+    "claude-fable-5-1": {
+      "effortLevel": "xhigh"
+    }
+  },
   "tui": "fullscreen",
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
@@ -69,10 +74,5 @@
       "**Org-specific CLIs**: None configured — nix and php seen frequently in this project's transcripts but are standard toolchain, not org-specific",
       "routine under /home/jofre/lsw/ateinsa_new/ prefix: git, build/dev scripts, and file edits within the tracked tree are routine per repo conventions (small, scoped, reversible changes per CLAUDE.md)"
     ]
-  },
-  "modelSettings": {
-    "claude-fable-5-1": {
-      "effortLevel": "xhigh"
-    }
   }
 }

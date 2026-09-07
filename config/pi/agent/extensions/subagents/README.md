@@ -8,11 +8,11 @@ Each task is assembled from these parts:
 
 | Part | Choices |
 |---|---|
-| `model` | `luna`, `terra`, `sol`, `inherit`, or an exact `provider/model` |
+| `model` | `luna`, `terra`, `sol`, `astra`, `inherit`, or an exact `provider/model` |
 | `thinking` | `off`, `minimal`, `low`, `medium`, `high`, `xhigh`, or `max` |
 | `tools` | Exact allowlist, `[]` for no tools, or `["*"]` for all normal tools |
 | `resources` | `lean` or `inherit` |
-| `fast` | Request GPT-5.6 priority service or use normal service |
+| `fast` | Request priority service for supported GPT-5.6 or GPT-6 Astra models, or use normal service |
 | `instructions` | Optional task-specific role, constraints, output contract, and ownership |
 | `cwd` | Optional child process working directory (not a filesystem boundary) |
 | `outputLimit` | Maximum result bytes admitted to the parent context |
@@ -51,9 +51,10 @@ These are routing hints, not profiles:
 - **Luna** — narrow reconnaissance, fact gathering, focused tests, mechanical edits.
 - **Terra** — deeper planning, debugging, review, and substantial implementation.
 - **Sol** — hardest cross-cutting architecture, subtle final review, or implementation escalation.
+- **Astra** — exceptional high-stakes work where GPT-6 capability materially justifies its higher cost.
 - **inherit** — use the parent model when changing models provides no benefit.
 
-Choose the lowest sufficient thinking level independently from the model. A Terra task can use `low`; a Luna task can use `high`; Sol can use `max` when justified.
+Choose the lowest sufficient thinking level independently from the model. A Terra task can use `low`; a Luna task can use `high`; Sol or Astra can use `max` when justified.
 
 ## Examples
 
@@ -177,11 +178,11 @@ The shortcut is intentionally limited to the immediate interrupted workflow. A l
 
 ## Fast mode
 
-Pi removed the old non-working `*-fast` Codex model variants. This extension does not invent model IDs. Instead, `fast: true` injects OpenAI's `service_tier: "priority"` into GPT-5.6 Luna/Terra/Sol child requests.
+Pi removed the old non-working `*-fast` Codex model variants. This extension does not invent model IDs. Instead, `fast: true` injects OpenAI's `service_tier: "priority"` into GPT-5.6 Luna/Terra/Sol and GPT-6 Astra child requests.
 
 Priority mode is best-effort:
 
-- It applies only to `openai` or `openai-codex` GPT-5.6 Luna/Terra/Sol.
+- It applies only to `openai` or `openai-codex` GPT-5.6 Luna/Terra/Sol and GPT-6 Astra.
 - If the provider rejects priority before any tool executes, the child retries once without it.
 - Priority service can consume quota or be priced differently. Set `fast: false` whenever normal latency is acceptable.
 
@@ -201,7 +202,8 @@ A trusted project can override them with the nearest `.pi/subagents.json`. Proje
   "aliases": {
     "luna": "openai-codex/gpt-5.6-luna",
     "terra": "openai-codex/gpt-5.6-terra",
-    "sol": "openai-codex/gpt-5.6-sol"
+    "sol": "openai-codex/gpt-5.6-sol",
+    "astra": "openai-codex/gpt-6-astra"
   },
   "defaults": {
     "concurrency": 6,

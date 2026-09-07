@@ -1,7 +1,8 @@
 // Niri configuration - Rose Pine Moon theme
 
 // Startup
-spawn-at-startup "foot" "--server"
+// foot --server runs as a systemd user unit (programs.foot.server in
+// modules/desktop/terminals.nix) so rebuilds restart it.
 // spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "swaybg" "-i" "/home/jofre/.dotfiles/config/nix/theme/wallpaper.jpg" "-m" "fill"
 // spawn-at-startup "xwayland-satellite"

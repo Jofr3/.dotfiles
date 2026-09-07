@@ -54,6 +54,8 @@ test("extension registers the command, strict model schema, resume handler, and 
 	assert.ok(registrations.commands.some((item) => item.name === "subagents"));
 	assert.equal(tool.parameters.properties.tasks.items.properties.model.minLength, 1);
 	assert.equal(tool.parameters.properties.tasks.items.properties.model.pattern, "\\S");
+	assert.match(tool.parameters.properties.tasks.items.properties.model.description, /astra/u);
+	assert.match(tool.description, /Astra/u);
 	assert.deepEqual(resumeTool.parameters.properties, {});
 	assert.equal(typeof inputHandler, "function");
 	assert.equal(typeof agentSettledHandler, "function");
@@ -323,12 +325,13 @@ test("unsupported priority service retries normally within the task timeout", as
 		tasks: [task({
 			label: "priority-fallback",
 			task: "PRIORITY_REJECT",
-			model: "openai-codex/gpt-5.6-luna",
+			model: "astra",
 			fast: true,
 		})],
 	}, undefined, undefined, ctx);
 	const item = result.details.results[0];
 	assert.equal(item.status, "succeeded");
+	assert.equal(result.details.replay.input.tasks[0].model, "openai-codex/gpt-6-astra");
 	assert.equal(item.attempts, 2);
 	assert.equal(item.fastFallback, true);
 	assert.equal(item.priorityApplied, false);

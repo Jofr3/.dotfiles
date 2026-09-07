@@ -37,6 +37,7 @@ test("configuration merges global and nearest trusted project defaults", async (
 	const trusted = loadSubagentConfig(project, true);
 	assert.equal(trusted.loadedPaths.length, 2);
 	assert.equal(trusted.aliases.quick, "provider/project");
+	assert.equal(trusted.aliases.astra, "openai-codex/gpt-6-astra");
 	assert.equal(trusted.defaults.concurrency, 8);
 	assert.equal(trusted.defaults.maxTasks, 1);
 	assert.equal(trusted.defaults.timeoutSeconds, 10);

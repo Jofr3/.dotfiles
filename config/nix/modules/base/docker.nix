@@ -1,12 +1,10 @@
 {
   flake.modules.nixos.base = {
-    virtualisation.docker.enable = true;
+    virtualisation.docker.enable = false;
     users.users.jofre.extraGroups = [ "docker" ];
   };
 
-  flake.modules.homeManager.base =
-    { pkgs, ... }:
-    {
-      home.packages = [ pkgs.docker-compose ];
-    };
+  flake.modules.homeManager.base = { pkgs, ... }: {
+    home.packages = [ pkgs.docker-compose ];
+  };
 }

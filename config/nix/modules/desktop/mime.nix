@@ -2,11 +2,12 @@
   flake.modules.homeManager.desktop.xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "text/html" = "google-chrome.desktop";
-      "x-scheme-handler/http" = "google-chrome.desktop";
-      "x-scheme-handler/https" = "google-chrome.desktop";
-      "x-scheme-handler/about" = "google-chrome.desktop";
-      "x-scheme-handler/unknown" = "google-chrome.desktop";
+      "text/html" = "google-chrome-jofre.desktop";
+      "application/xhtml+xml" = "google-chrome-jofre.desktop";
+      "x-scheme-handler/http" = "google-chrome-jofre.desktop";
+      "x-scheme-handler/https" = "google-chrome-jofre.desktop";
+      "x-scheme-handler/about" = "google-chrome-jofre.desktop";
+      "x-scheme-handler/unknown" = "google-chrome-jofre.desktop";
       "inode/directory" = "org.gnome.Nautilus.desktop";
       "application/pdf" = "org.pwmt.zathura.desktop";
       "image/jpeg" = "swayimg.desktop";

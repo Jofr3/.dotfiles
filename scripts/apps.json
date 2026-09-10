@@ -8,7 +8,7 @@
   "Emacs": "emacsclient -c",
   "Nautilus": "nautilus",
   "Firefox": "firefox",
-  "Google chrome": { "command": "google-chrome-stable --remote-debugging-port=9222 --user-data-dir=\"$HOME/.config/google-chrome-jofre\"", "workspace": "chrome" },
+  "Google chrome": { "command": "chrome-jofre", "workspace": "chrome" },
   "Kitty": "kitty",
   "Thunderbird": { "command": "thunderbird", "workspace": "mail" },
   "VSCode": "code",

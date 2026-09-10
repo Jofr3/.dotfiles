@@ -3,17 +3,28 @@
     { config, pkgs, ... }:
     let
       dotfiles = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles";
+      chromeJofre = pkgs.writeShellApplication {
+        name = "chrome-jofre";
+        runtimeInputs = [ pkgs.google-chrome ];
+        text = ''
+          exec google-chrome-stable \
+            --remote-debugging-port=9222 \
+            --user-data-dir="${config.home.homeDirectory}/.config/google-chrome-jofre" \
+            "$@"
+        '';
+      };
     in
     {
-      home.packages = with pkgs; [
-        chromium
-        google-chrome
+      home.packages = [
+        pkgs.chromium
+        pkgs.google-chrome
+        chromeJofre
       ];
 
       xdg.desktopEntries.google-chrome-jofre = {
         name = "Google Chrome (Jofre)";
         genericName = "Web Browser";
-        exec = "${pkgs.google-chrome}/bin/google-chrome-stable --remote-debugging-port=9222 --user-data-dir=${config.home.homeDirectory}/.config/google-chrome-jofre %U";
+        exec = "${chromeJofre}/bin/chrome-jofre %U";
         icon = "google-chrome";
         terminal = false;
         categories = [

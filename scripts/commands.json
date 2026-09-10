@@ -32,7 +32,7 @@
       "hold": false
     },
     "dot": {
-      "command": "$HOME/.dotfiles/scripts/dot.sh",
+      "command": "dot",
       "terminal": true,
       "hold": false
     },

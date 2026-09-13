@@ -1,0 +1,31 @@
+model = "gpt-6-astra"
+model_reasoning_effort = "xhigh"
+[projects."/home/jofre/projects/luminous"]
+trust_level = "trusted"
+
+[projects."/home/jofre/projects/luminous_new"]
+trust_level = "trusted"
+
+[projects."/home/jofre/projects/luminous_2"]
+trust_level = "trusted"
+
+[projects."/home/jofre/projects/luminous_ui"]
+trust_level = "trusted"
+
+[projects."/home/jofre/.dotfiles"]
+trust_level = "trusted"
+
+[mcp_servers.pencil]
+command = "/home/jofre/.vscode/extensions/highagency.pencildev-0.6.30/out/mcp-server-linux-x64"
+args = [ "--app", "visual_studio_code" ]
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
+
+[plugins."google-drive@openai-curated"]
+enabled = true
+
+[tui.model_availability_nux]
+"gpt-5.5" = 1
+"gpt-5.6-sol" = 1
+gpt-6-astra = 1

@@ -1,0 +1,58 @@
+# Credentials and local environment overrides
+/auth.json
+/auth.json.*
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Conversations, history, memories, and shell snapshots
+/sessions/
+/archived_sessions/
+/history.jsonl
+/session_index.jsonl
+/memories/
+/shell_snapshots/
+/thread-writer-locks/
+
+# Runtime databases and SQLite journal/WAL files
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+
+# Logs, caches, and temporary files
+/log/
+/logs/
+/cache/
+/tmp/
+/.tmp/
+*.log
+
+# Downloaded models metadata, runtimes, and installation state
+/models_cache.json
+/version.json
+/installation_id
+/packages/
+/.*_migration
+
+# Generated plugin installs and bundled system skills
+/plugins/cache/
+/plugins/marketplaces/
+/plugins/.remote-plugin-install-staging/
+/skills/.system/
+
+# Dependencies and generated Python files for custom skills/plugins
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+
+# Editor and backup files
+.DS_Store
+*.swp
+*.swo
+*.bak
+*~

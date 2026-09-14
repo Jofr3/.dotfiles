@@ -5,10 +5,28 @@
       dotfiles = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles";
     in
     {
-      home.packages = [ pkgs.codex ];
+      home.packages = [
+        pkgs.codex
+        pkgs.agent-browser
+      ];
+
+      programs.uv = {
+        enable = true;
+        tool = {
+          # Drivers are libraries, so install them as extras in sqlit's environment.
+          packages = [ "sqlit-tui[mssql,mysql,postgres,d1]" ];
+          prune = true;
+        };
+      };
+
+      home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
       home.sessionVariables.CODEX_HOME = "${config.xdg.configHome}/codex";
 
-      # Keep Codex state in CODEX_HOME and only the editable config in the repo.
+      # Keep Codex state in CODEX_HOME and editable config and skills in the repo.
       xdg.configFile."codex/config.toml".source = "${dotfiles}/config/codex/config.toml";
+      home.file.".agents/skills" = {
+        source = "${dotfiles}/config/codex/skills";
+        recursive = true;
+      };
     };
 }

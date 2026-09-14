@@ -1,0 +1,3 @@
+interface:
+  display_name: "sqlit"
+  short_description: "Query project databases with the sqlit CLI"

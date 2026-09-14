@@ -16,6 +16,7 @@
     { "name": "niri config", "path": "~/.dotfiles/config/niri" },
     { "name": "nvim config", "path": "~/.dotfiles/config/nvim" },
     { "name": "claude config", "path": "~/.dotfiles/config/claude" },
+    { "name": "codex config", "path": "~/.dotfiles/config/codex" },
     { "name": "kitty config", "path": "~/.dotfiles/config/kitty" },
     { "name": "yazi config", "path": "~/.dotfiles/config/yazi" },
     { "name": "bench", "path": "~/projects/bench" },

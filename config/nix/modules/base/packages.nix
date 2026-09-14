@@ -16,7 +16,6 @@
         btop
         claude-code
         pi-coding-agent
-        agent-browser
         opencode
         direnv
         eza
@@ -34,7 +33,6 @@
         wget
         jujutsu
         yazi
-        harlequin
 
         # editors
         neovim
@@ -45,7 +43,6 @@
         gnumake
         ninja
         sshpass
-        uv
 
         # languages & runtimes
         go

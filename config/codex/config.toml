@@ -24,6 +24,18 @@ trust_level = "trusted"
 [projects."/home/jofre/lsw/beques"]
 trust_level = "trusted"
 
+[projects."/home/jofre"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/arete"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/myclientum"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/ateinsa_new"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
@@ -34,3 +46,26 @@ alternate_screen = "never"
 "gpt-5.5" = 1
 "gpt-5.6-sol" = 1
 gpt-6-astra = 4
+
+[hooks.state]
+
+[hooks.state."/<session-flags>/config.toml:pre_tool_use:0:0"]
+trusted_hash = "sha256:a042a5f4632a8e35ad092e7648e78dc111a6cff264734ec09977f7802afb62dd"
+
+[hooks.state."/<session-flags>/config.toml:permission_request:0:0"]
+trusted_hash = "sha256:37068bfd6a3fee46ca15790d0622aadd34d4c3cd952ee768873c82b336012b6c"
+
+[hooks.state."/<session-flags>/config.toml:post_tool_use:0:0"]
+trusted_hash = "sha256:f47f28ddf8419b9a09d04349ef5eae29fc1d84499b2ea6bc66179172ca6f7631"
+
+[hooks.state."/<session-flags>/config.toml:session_start:0:0"]
+trusted_hash = "sha256:dfd873f5b77a384664dcd49b3e8730f6b8db579ec3d14bb739b4b8b2089cf0fb"
+
+[hooks.state."/<session-flags>/config.toml:user_prompt_submit:0:0"]
+trusted_hash = "sha256:1e4a814109da77343b391071694856a98474dda6db4e4a0f49c347eada80fe9d"
+
+[hooks.state."/<session-flags>/config.toml:stop:0:0"]
+trusted_hash = "sha256:3ba7f523f245c01ceb997163a7d4185920af392e85d04f407f42802d848eb00c"
+
+[hooks.state."/<session-flags>/config.toml:interrupt:0:0"]
+trusted_hash = "sha256:e0c4bbb5e3d6a2e9c53d9aca18a0ed7ca8ca89916aa2ee1082a3b00d8da0163f"

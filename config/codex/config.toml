@@ -21,10 +21,13 @@ trust_level = "trusted"
 [projects."/home/jofre/projects/mult"]
 trust_level = "trusted"
 
+[projects."/home/jofre/lsw/beques"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
 [tui.model_availability_nux]
 "gpt-5.5" = 1
 "gpt-5.6-sol" = 1
-gpt-6-astra = 3
+gpt-6-astra = 4

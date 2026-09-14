@@ -10,7 +10,6 @@
     {
       xdg.configFile = {
         nvim.source = "${dotfiles}/config/nvim";
-        mult.source = "${dotfiles}/config/mult";
         tmux.source = "${dotfiles}/config/tmux";
         btop.source = "${dotfiles}/config/btop";
         helix.source = "${dotfiles}/config/helix";

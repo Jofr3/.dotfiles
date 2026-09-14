@@ -195,6 +195,26 @@
         "type": "github"
       }
     },
+    "mult": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789385928,
+        "narHash": "sha256-CTdfW+XSt3UhWvs0ZKOj8NFceDSa8SpYfd9wu4L4UcE=",
+        "owner": "Jofr3",
+        "repo": "mult",
+        "rev": "c613fb765ca63082125126e776c7bb9be34b0ade",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Jofr3",
+        "repo": "mult",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1789149629,
@@ -241,6 +261,7 @@
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
+        "mult": "mult",
         "nixpkgs": "nixpkgs",
         "sops-nix": "sops-nix",
         "stylix": "stylix"

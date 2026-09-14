@@ -6,11 +6,27 @@
     };
 
   flake.modules.homeManager.base =
-    { config, ... }:
-    let
-      dotfiles = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles";
-    in
+    { config, lib, ... }:
     {
-      xdg.configFile.git.source = "${dotfiles}/config/git";
+      programs.git = {
+        enable = true;
+
+        settings.user = {
+          email = "jofrescari@gmail.com";
+          name = "Jofr3";
+        };
+
+        includes = [
+          {
+            condition = "gitdir:~/lsw/**/.git";
+            contents.user = {
+              email = "jofrelsw@gmail.com";
+              name = "JofreLSW";
+            };
+          }
+        ];
+
+        ignores = [ "**/.claude/settings.local.json" ];
+      };
     };
 }

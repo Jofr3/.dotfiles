@@ -13,7 +13,6 @@
       programs.uv = {
         enable = true;
         tool = {
-          # Drivers are libraries, so install them as extras in sqlit's environment.
           packages = [ "sqlit-tui[mssql,mysql,postgres,d1]" ];
           prune = true;
         };

@@ -16,11 +16,14 @@
       dotfiles = "${config.home.homeDirectory}/.dotfiles";
     in
     {
+      home.packages = [
+        pkgs.brightnessctl
+        pkgs.swayimg
+      ];
+
       wayland.windowManager.niri = {
         enable = true;
-        # Validate with the same niri that NixOS installs. NixOS also owns
-        # the session's systemd units and desktop portals.
-        package = osConfig.programs.niri.package;
+        package = pkgs.niri;
         checkConfig = true;
         systemd.enable = false;
         portalPackage = null;
@@ -233,42 +236,17 @@
               "-5%"
             ];
 
-            # Screenshot
-            "Super+S".spawn-sh =
-              ''mkdir -p "$HOME/Documents/screenshots" && grim -g "$(slurp)" - | tee "$HOME/Documents/screenshots/$(date +%Y%m%d-%H%M%S).png" | wl-copy --type image/png'';
-
             # Help menu
             "Super+Shift+Slash".show-hotkey-overlay = { };
 
             # Launchers
             "Super+Return".spawn = [ "footclient" ];
-            "Super+O".spawn = [
-              "bash"
-              "${dotfiles}/scripts/apps-launcher.sh"
-            ];
             "Super+U".spawn = [
               "bash"
               "${dotfiles}/scripts/bookmarks-launcher.sh"
             ];
-            "Super+X".spawn = [
-              "bash"
-              "${dotfiles}/scripts/commands-launcher.sh"
-            ];
           };
         };
-      };
-
-      # Keep managing the whole directory so Home Manager replaces the old
-      # out-of-store symlink instead of writing through it into the repo.
-      # The native module still generates and validates config.kdl.
-      xdg.configFile = {
-        "niri/config.kdl".enable = false;
-        niri.source = pkgs.linkFarm "niri-config" [
-          {
-            name = "config.kdl";
-            path = config.xdg.configFile."niri/config.kdl".source;
-          }
-        ];
       };
     };
 }

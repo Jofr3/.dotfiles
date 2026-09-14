@@ -8,6 +8,7 @@
       ];
 
       sops.secrets.ATEINSA_VPN_PASSWORD = { };
+      sops.secrets.LSW_VPN_PASSWORD = { };
       sops.templates."ateinsa-vpn.conf".content = ''
         host = mail.ateinsa.com
         port = 10443
@@ -19,6 +20,12 @@
       programs.fish.functions.vpn-ateinsa = ''
         sudo ${pkgs.openfortivpn}/bin/openfortivpn \
           --config "${config.sops.templates."ateinsa-vpn.conf".path}" $argv
+      '';
+
+      programs.fish.functions.vpn-lsw = ''
+        sudo ${pkgs.openconnect}/bin/openconnect \
+          -b vpn.lasevaweb.com:8443 --user=jofre --passwd-on-stdin $argv \
+          < "${config.sops.secrets.LSW_VPN_PASSWORD.path}"
       '';
     };
 }

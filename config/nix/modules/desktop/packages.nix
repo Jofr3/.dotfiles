@@ -4,15 +4,11 @@
     { pkgs, ... }:
     {
       home.packages = with pkgs; [
-        # cli tools that need hardware
-        brightnessctl
-
         # editors
         vscode
 
         # apps
         dbeaver-bin
-        eog
         gnome-calculator
         gnome-text-editor
         libreoffice
@@ -21,9 +17,6 @@
         wdisplays
         zathura
         pinta
-        _1password-gui
-        swayimg
-        t3code
       ];
     };
 }

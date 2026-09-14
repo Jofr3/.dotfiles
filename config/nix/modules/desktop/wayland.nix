@@ -14,9 +14,6 @@
     {
       home.packages = with pkgs; [
         cliphist
-        grim
-        satty
-        slurp
         swaybg
         wl-clipboard
         wl-color-picker

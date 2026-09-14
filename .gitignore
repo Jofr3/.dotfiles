@@ -1,4 +1,5 @@
 scripts/passwords.json
+config/fish/fish_variables
 config/pi/agent/auth.json
 config/pi/agent/sessions/
 config/claude/projects/

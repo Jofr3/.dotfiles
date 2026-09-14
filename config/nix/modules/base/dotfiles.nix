@@ -1,5 +1,5 @@
 # Config directories symlinked straight into the repo, so edits take effect
-# without a rebuild. Programs that also have a NixOS side (fish, git, niri,
+# without a rebuild. Programs that also have a NixOS side (git, niri,
 # terminals, browsers) link their config from their own feature file.
 {
   flake.modules.homeManager.base =

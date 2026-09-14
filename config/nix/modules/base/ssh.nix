@@ -18,6 +18,14 @@
         };
     in
     {
+      programs.fish.interactiveShellInit = ''
+        # Only load SSH keys once per session, not in every child shell.
+        if not set -q SSH_AGENT_LOADED
+          ssh-add ~/.ssh/keys/* > /dev/null 2>&1
+          set -gx SSH_AGENT_LOADED 1
+        end
+      '';
+
       programs.ssh = {
         enable = true;
         enableDefaultConfig = false;

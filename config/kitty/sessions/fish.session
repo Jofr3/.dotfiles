@@ -1,2 +1,2 @@
-cd ~/.dotfiles/config/fish
+cd ~/.dotfiles/config/nix/modules/base
 launch

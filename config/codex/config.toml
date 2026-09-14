@@ -27,6 +27,9 @@ trust_level = "trusted"
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
+[tui]
+alternate_screen = "never"
+
 [tui.model_availability_nux]
 "gpt-5.5" = 1
 "gpt-5.6-sol" = 1

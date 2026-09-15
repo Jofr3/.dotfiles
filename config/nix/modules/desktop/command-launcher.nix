@@ -19,7 +19,9 @@
           terminal = true;
         };
         "text correction".command = ''
-          claude -p "Correct the following text for grammar and spelling. The text may be in English, Catalan, or Spanish - detect the language and correct it in that same language. Output ONLY the corrected text, nothing else: $(wl-paste)" | wtype -
+          codex exec --skip-git-repo-check --ephemeral \
+            --model gpt-5.6-terra -c 'service_tier="fast"' \
+            "Correct the following text for grammar and spelling. The text may be in English, Catalan, or Spanish - detect the language and correct it in that same language. Output ONLY the corrected text, nothing else: $(wl-paste)" | wtype -
         '';
       };
       commandsJson = pkgs.writeText "commands-launcher.json" (builtins.toJSON commands);

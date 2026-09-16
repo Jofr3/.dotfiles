@@ -33,6 +33,11 @@ against the selected adapter rather than ignoring them or weakening TLS to
 make a connection succeed. If a record uses an unfamiliar DSN format, inspect
 the application's driver configuration instead of guessing.
 
+Verified with sqlit 1.6.4: a SQL Server source value `encrypt=disable` maps to
+`options: {"auth_type": "sql", "tls_mode": "disable"}` for SQL authentication.
+Apply this only when the source explicitly disables encryption; it is not a
+workaround for driver loading or TLS errors.
+
 ## Task-only connections without persisted secrets
 
 `sqlit query` needs a named profile even for a one-off command. Set a private
@@ -103,6 +108,12 @@ Propagate its return code with `raise SystemExit(...)`. Keep required TLS/auth
 settings in `connection["options"]`; SQL Server SQL authentication uses
 `{"auth_type": "sql"}` alongside its TLS settings. Extend the profile using the
 installed schema when an actual connection requires SSH or another feature.
+For NixOS SQL Server, replace the `"sqlit"` executable in the subprocess argument
+list with `sys.executable, "/absolute/skill/path/scripts/sqlit_nixos.py"`, retaining
+the same arguments and environment; see [nixos.md](nixos.md). For connection-only
+tests, add a subprocess timeout (for example 45 seconds); a timeout does not
+establish whether credentials are valid. Do not apply this probe timeout to
+arbitrary queries or retry writes automatically.
 The password-command interface strips leading and trailing whitespace. If a
 password depends on those characters, use a supported credential mechanism
 that preserves them instead of this pattern.

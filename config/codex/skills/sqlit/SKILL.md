@@ -1,9 +1,21 @@
 ---
 name: sqlit
-description: Interact with project databases using the sqlit CLI, including schema inspection, SQL queries and files, exports, and authorized data changes. Use for SQL Server, MySQL, PostgreSQL, and Cloudflare D1 database access, or when sqlit is explicitly requested. Credentials usually come from the DATABASES environment variable. Do not select for SQL code editing alone or when the user explicitly chooses another database client.
+description: Required for user-requested database queries, connection tests, schema inspection, SQL files, exports, and authorized data changes through the sqlit CLI. Use for SQL Server, MySQL, PostgreSQL, and Cloudflare D1 database access, or when sqlit is explicitly requested. Check the DATABASES environment variable first for credentials. Do not select for SQL code editing alone.
 ---
 
 # sqlit
+
+Always use `sqlit` for user-requested database access, including connection
+tests. Do not fall back to `sqlcmd`, `psql`, `mysql`, application/ORM consoles,
+direct database-driver calls, or other clients when `sqlit` fails.
+
+Diagnose and resolve `sqlit` or its runtime dependency errors within the
+authorized scope, then retry through `sqlit`. If the issue cannot be resolved,
+report the blocker and that the database query or connection remains unverified;
+do not switch clients to complete the task.
+
+Python and shell scripts may parse credentials, prepare temporary profiles,
+and invoke the `sqlit` CLI, but must not connect to or query the database directly.
 
 Use `sqlit query` for commands that execute SQL and exit. Bare `sqlit`,
 `sqlit -c NAME`, connection URLs, and `sqlit connect PROVIDER` open the TUI;
@@ -11,7 +23,9 @@ use those when interactive exploration is requested.
 
 The configured drivers are SQL Server, MySQL, PostgreSQL, and Cloudflare D1.
 Their provider names are `mssql`, `mysql`, `postgresql`, and `d1` respectively.
-Check the installed surface when starting work or troubleshooting a mismatch:
+Check the installed version once per session if it is not already known. Use
+the documented commands below for sqlit 1.6.4; consult the relevant help only
+for a different version, an unfamiliar option, or an actual CLI mismatch:
 
 ```bash
 sqlit --version
@@ -23,11 +37,39 @@ The command details below were checked against sqlit 1.6.4. A provider appearing
 in help does not prove its driver is installed. Diagnose missing-driver errors
 for the selected provider instead of assuming all advertised providers work.
 
+## Connection tests: short path
+
+For a connection-only request, reuse instructions and connection metadata
+already established in the session. Read any still-required project instructions,
+but do not explore module documentation, UI, application code, or schema unless
+needed to identify the target. A constant query does not require schema inspection.
+
+Resolve the exact `DATABASES` record, prepare a temporary profile using
+[references/connections.md](references/connections.md), and run one bounded
+`SELECT 1 AS ok` through `sqlit query`. SQL Server may include `DB_NAME()` to
+confirm the database. Stop after success and report the target, credential
+source, and result. Do not create project files or change application settings
+for a connection test.
+
+On **NixOS + SQL Server**, use the verified runtime helper described in
+[references/nixos.md](references/nixos.md) for the first attempt. It exposes
+existing compatible libraries to the child process without installing packages
+or changing persistent configuration.
+
+If a test fails, distinguish local driver loading from network, authentication,
+and SQL errors. Batch the relevant diagnostics; retry only after addressing an
+identified cause. For library errors, check all dependencies and their ELF
+architecture together before retrying. Search only the selected provider's
+runtime, not every installed package. Consult upstream documentation when the
+installed code and these references do not explain the failure.
+
 ## Resolve credentials
 
-Start with `DATABASES`. In this setup it is a JSON array of records containing
-`name`, `type`, and `url`. The field named `url` can contain a driver-specific
-DSN rather than a URL. Parse it as data; do not execute it or print its contents.
+Start with `DATABASES` before searching project files or asking for credentials.
+In this setup it is a JSON array of records containing `name`, `type`, and `url`.
+The field named `url` can contain a driver-specific DSN rather than a URL.
+Parse it as data; do not execute it or print its contents. Report the credential
+source with the connection result.
 
 List candidate names and types without exposing connection strings:
 
@@ -97,8 +139,10 @@ reference. Keep passwords, tokens, and full DSNs out of command arguments,
 generated source files, logs, and replies. Preserve TLS/authentication options
 from the source connection; resolve unsupported options instead of dropping them.
 
-Inspect the real schema before composing queries. MySQL, PostgreSQL, and SQL
-Server expose `information_schema.tables` and `information_schema.columns`;
+Inspect the real schema before composing queries against application tables.
+Connection probes such as `SELECT 1` and `DB_NAME()` need no schema discovery.
+MySQL, PostgreSQL, and SQL Server expose `information_schema.tables` and
+`information_schema.columns`;
 filter by the relevant schema/table. D1 uses SQLite SQL: inspect `sqlite_schema`
 and `PRAGMA table_info(...)`. Use `TOP (N)` on SQL Server and `LIMIT N` on
 MySQL, PostgreSQL, and D1 for small samples, with an appropriate `ORDER BY`.

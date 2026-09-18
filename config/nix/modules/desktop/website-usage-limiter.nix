@@ -9,6 +9,7 @@
     let
       dailyLimitsMinutes = {
         "youtube.com" = 45;
+        "reddit.com" = 10;
       };
       pollIntervalSeconds = 5;
       debuggerPort = 9222;

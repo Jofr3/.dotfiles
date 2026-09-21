@@ -13,8 +13,6 @@
     { pkgs, ... }:
     {
       home.packages = with pkgs; [
-        cliphist
-        swaybg
         wl-clipboard
         wl-color-picker
         wtype

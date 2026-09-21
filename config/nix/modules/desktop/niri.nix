@@ -29,15 +29,6 @@
         portalPackage = null;
 
         settings = {
-          # foot --server runs as a systemd user unit in terminals.nix.
-          spawn-at-startup = [
-            "swaybg"
-            "-i"
-            "${dotfiles}/config/nix/theme/wallpaper.jpg"
-            "-m"
-            "fill"
-          ];
-
           prefer-no-csd = { };
           screenshot-path = "~/Pictures/Screenshots/%Y-%m-%d_%H-%M-%S.png";
           hotkey-overlay.skip-at-startup = { };
@@ -182,7 +173,7 @@
             "Super+D".focus-workspace = "database";
 
             # Overview
-            "Super+Space".toggle-overview = { };
+            "Super+Shift+Space".toggle-overview = { };
 
             # Focus by index
             "Super+1".focus-column = 1;
@@ -240,7 +231,7 @@
             "Super+Shift+Slash".show-hotkey-overlay = { };
 
             # Launchers
-            "Super+Return".spawn = [ "footclient" ];
+            "Super+Return".spawn = [ "foot" ];
             "Super+U".spawn = [
               "bash"
               "${dotfiles}/scripts/bookmarks-launcher.sh"

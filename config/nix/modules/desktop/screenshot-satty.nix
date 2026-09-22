@@ -21,6 +21,7 @@
           grim -g "$geometry" -t ppm - | satty \
             --filename - \
             --fullscreen \
+            --disable-notifications \
             --output-filename "$screenshots_dir/$(date +%Y%m%d-%H%M%S).png" \
             --copy-command wl-copy \
             --actions-on-enter save-to-clipboard,save-to-file,exit \

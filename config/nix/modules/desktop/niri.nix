@@ -173,7 +173,7 @@
             "Super+D".focus-workspace = "database";
 
             # Overview
-            "Super+Shift+Space".toggle-overview = { };
+            "Super+Space".toggle-overview = { };
 
             # Focus by index
             "Super+1".focus-column = 1;

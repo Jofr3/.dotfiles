@@ -13,6 +13,7 @@
     { pkgs, ... }:
     {
       home.packages = with pkgs; [
+        cliphist
         wl-clipboard
         wl-color-picker
         wtype

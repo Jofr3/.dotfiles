@@ -1,12 +1,7 @@
-# Noctalia owns the desktop-shell layer around Niri: bar, panels, launcher,
-# notifications, wallpaper, OSDs, and lock/session surfaces.
+# A transient hardware island for Niri. Noctalia only owns this surface and
+# the volume/brightness OSDs; the rest of the desktop stays compositor-native.
 {
-  flake.modules.nixos.desktop = {
-    programs.noctalia = {
-      enable = true;
-      recommendedServices.enable = true;
-    };
-  };
+  flake.modules.nixos.desktop.programs.noctalia.enable = true;
 
   flake.modules.homeManager.desktop =
     {
@@ -19,37 +14,81 @@
       dotfiles = "${config.home.homeDirectory}/.dotfiles";
       toml = pkgs.formats.toml { };
 
+      islandControl = pkgs.writeShellApplication {
+        name = "noctalia-island";
+        runtimeInputs = [
+          pkgs.coreutils
+          pkgs.noctalia
+        ];
+        text = ''
+          state_dir="''${XDG_RUNTIME_DIR:?XDG_RUNTIME_DIR is not set}/noctalia-island"
+          timer_file="$state_dir/timer.pid"
+
+          arm_timer() {
+            mkdir -p "$state_dir"
+
+            if [[ -r "$timer_file" ]]; then
+              read -r timer_pid < "$timer_file" || true
+              if [[ "$timer_pid" =~ ^[0-9]+$ ]]; then
+                kill "$timer_pid" 2>/dev/null || true
+              fi
+            fi
+
+            (
+              sleep 5
+              noctalia msg bar-hide island
+            ) >/dev/null 2>&1 &
+            printf '%s\n' "$!" > "$timer_file"
+          }
+
+          case "''${1:-show}" in
+            show)
+              noctalia msg bar-show island
+              ;;
+            network)
+              noctalia msg panel-toggle control-center network
+              ;;
+            bluetooth)
+              noctalia msg panel-toggle control-center bluetooth
+              ;;
+            wifi-toggle)
+              noctalia msg wifi-toggle
+              ;;
+            bluetooth-toggle)
+              noctalia msg bluetooth-toggle
+              ;;
+            *)
+              echo "usage: noctalia-island {show|network|bluetooth|wifi-toggle|bluetooth-toggle}" >&2
+              exit 2
+              ;;
+          esac
+
+          arm_timer
+        '';
+      };
+
       settings = {
         shell = {
-          corner_radius_scale = 0.75;
+          clipboard_enabled = false;
+          corner_radius_scale = 1.0;
           font_family = "FiraCode Nerd Font";
-          time_format = "{:%H:%M}";
-          date_format = "%A, %d %B";
           telemetry_enabled = false;
-          settings_show_advanced = true;
 
           animation = {
             enabled = true;
             speed = 1.2;
           };
 
-          launcher = {
-            compact = true;
-            app_grid = false;
-            sort_by_usage = true;
+          shadow = {
+            direction = "down";
+            alpha = 0.5;
           };
 
           panel = {
-            transparency_mode = "solid";
-            borders = true;
-            shadow = false;
-            launcher_placement = "floating";
-            launcher_position = "center";
-            clipboard_placement = "floating";
-            clipboard_position = "center";
-            control_center_placement = "attached";
-            wallpaper_placement = "attached";
-            session_placement = "attached";
+            control_center_placement = "floating";
+            control_center_position = "auto";
+            floating_offset = 12;
+            open_near_click_control_center = false;
           };
         };
 
@@ -75,61 +114,106 @@
 
         notification = {
           enable_daemon = true;
-          background_opacity = 1.0;
-          offset_x = 8;
-          offset_y = 8;
-        };
-
-        osd = {
-          position = "top_center";
-          background_opacity = 1.0;
-          offset_y = 8;
-        };
-
-        bar.main = {
-          position = "top";
-          thickness = 34;
-          background_opacity = 1.0;
-          radius = 0;
-          margin_ends = 0;
-          margin_edge = 0;
-          padding = 10;
-          widget_spacing = 4;
-          shadow = false;
-          reserve_space = true;
-          capsule = false;
-
-          start = [
-            "launcher"
-            "workspaces"
-            "active_window"
-          ];
-          center = [ "clock" ];
-          end = [
-            "media"
-            "privacy"
-            "tray"
-            "network"
-            "bluetooth"
-            "volume"
-            "battery"
-            "notifications"
-            "control-center"
-            "session"
-          ];
+          show_app_name = true;
+          show_actions = true;
+          keep_dismissed_in_history = true;
+          layer = "top";
+          background_opacity = 0.96;
+          offset_x = 16;
+          offset_y = 12;
         };
 
         control_center = {
-          sidebar = "compact";
-          show_shortcut_labels = false;
-          shortcuts = map (type: { inherit type; }) [
-            "wifi"
-            "bluetooth"
-            "caffeine"
-            "notification"
-            "wallpaper"
-            "session"
-          ];
+          sidebar = "none";
+          sidebar_section = "none";
+        };
+
+        lockscreen.enabled = false;
+        system.monitor.enabled = false;
+        dock.enabled = false;
+        desktop_widgets.enabled = false;
+
+        osd = {
+          enabled = true;
+          position = "top_left";
+          background_opacity = 0.96;
+          offset_x = 16;
+          offset_y = 12;
+
+          kinds = {
+            volume = true;
+            volume_output = true;
+            volume_input = false;
+            brightness = true;
+            wifi = false;
+            bluetooth = false;
+            power_profile = false;
+            caffeine = false;
+            nightlight = false;
+            dnd = false;
+            lock_keys = false;
+            keyboard_layout = false;
+            privacy = false;
+          };
+        };
+
+        bar = {
+          order = [ "island" ];
+
+          island = {
+            enabled = true;
+            position = "top";
+            layer = "overlay";
+            auto_hide = false;
+            smart_auto_hide = false;
+            show_on_workspace_switch = false;
+            reserve_space = false;
+
+            thickness = 44;
+            background_opacity = 0.96;
+            border = "outline";
+            border_width = 1.0;
+            radius = 22;
+            concave_edge_corners = false;
+            # Noctalia bars use fixed end margins rather than content-sized
+            # layer surfaces. Both configured Niri outputs are 1920 px wide,
+            # so this produces a compact 180 px island without a transparent
+            # full-width surface obscuring windows beneath it.
+            margin_ends = 870;
+            margin_edge = 8;
+            padding = 14;
+            widget_spacing = 14;
+            shadow = true;
+            capsule = false;
+
+            start = [ ];
+            center = [
+              "network"
+              "bluetooth"
+            ];
+            end = [ ];
+          };
+        };
+
+        widget = {
+          network = {
+            show_label = true;
+            vpn_status = "hidden";
+            actions = {
+              left = "exec ${lib.getExe islandControl} network";
+              right = "exec ${lib.getExe islandControl} wifi-toggle";
+              middle = "none";
+            };
+          };
+
+          bluetooth = {
+            show_label = true;
+            actions = {
+              left = "exec ${lib.getExe islandControl} bluetooth";
+              right = "exec ${lib.getExe islandControl} bluetooth-toggle";
+              middle = "none";
+            };
+          };
         };
       };
 
@@ -151,32 +235,13 @@
       xdg.configFile."noctalia/config.toml".source = checkedConfig;
 
       wayland.windowManager.niri.settings = {
-        spawn-at-startup = [ "noctalia" ];
-
-        debug.honor-xdg-activation-with-invalid-serial = { };
-
-        binds = {
-          "Super+Space".spawn = noctalia "panel-toggle launcher";
-          "Super+Shift+S".spawn = noctalia "panel-toggle control-center";
-          "Super+Comma".spawn = noctalia "settings-toggle";
-          "Super+C".spawn = noctalia "panel-toggle clipboard";
-          "Alt+Tab".spawn = noctalia "window-switcher";
-
-          "XF86AudioRaiseVolume".spawn = noctalia "volume-up";
-          "XF86AudioLowerVolume".spawn = noctalia "volume-down";
-          "XF86AudioMute".spawn = noctalia "volume-mute";
-          "XF86MonBrightnessUp".spawn = noctalia "brightness-up";
-          "XF86MonBrightnessDown".spawn = noctalia "brightness-down";
-        };
-
         _children = [
           {
-            window-rule = {
-              match._props.app-id = "dev.noctalia.Noctalia";
-              open-floating = true;
-              default-column-width.fixed = 1080;
-              default-window-height.fixed = 920;
-            };
+            spawn-at-startup._args = [
+              "sh"
+              "-c"
+              "noctalia --daemon && noctalia msg bar-hide island"
+            ];
           }
           {
             layer-rule = {
@@ -185,6 +250,19 @@
             };
           }
         ];
+
+        binds = {
+          "Super+B".spawn = [
+            (lib.getExe islandControl)
+            "show"
+          ];
+
+          "XF86AudioRaiseVolume".spawn = noctalia "volume-up";
+          "XF86AudioLowerVolume".spawn = noctalia "volume-down";
+          "XF86AudioMute".spawn = noctalia "volume-mute";
+          "XF86MonBrightnessUp".spawn = noctalia "brightness-up";
+          "XF86MonBrightnessDown".spawn = noctalia "brightness-down";
+        };
       };
     };
 }

@@ -9,6 +9,8 @@
       sshKeyPath = "${config.home.homeDirectory}/.ssh/keys/jofre_key.pem";
       # Personal key -- the one authorised on nixos-remote (../server/openssh.nix).
       serverKeyPath = "${config.home.homeDirectory}/.ssh/keys/Jofr3";
+      ateinsaKey = "${config.home.homeDirectory}/.ssh/keys/dev2_ateinsa_com_key.pub";
+      gitKey = "${config.home.homeDirectory}/.ssh/keys/jofre_gitlab.pub";
       keyedHost =
         settings:
         settings
@@ -48,12 +50,26 @@
             IdentitiesOnly = true;
           };
 
+          "gitlab.com" = {
+            HostName = "gitlab.com";
+            User = "git";
+            IdentityFile = gitKey;
+            IdentitiesOnly = true;
+          };
+
           # Same box by static LAN address -- a way in when Tailscale is down or
           # not yet enrolled. Only works from the local network.
           remote-lan = {
             HostName = "192.168.1.138";
             User = "jofre";
             IdentityFile = serverKeyPath;
+            IdentitiesOnly = true;
+          };
+
+          dev2_ateinsa = {
+            HostName = "dev2.ateinsa.com";
+            User = "ateinsa";
+            IdentityFile = ateinsaKey;
             IdentitiesOnly = true;
           };
 

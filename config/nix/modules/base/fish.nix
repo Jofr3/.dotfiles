@@ -14,6 +14,7 @@
         SHELL = lib.getExe config.programs.fish.package;
         XDG_CONFIG_HOME = config.xdg.configHome;
         PI_ONEPASSWORD_DESKTOP_ACCOUNT = "Jofre Scaricaciottoli Sirvent";
+        SSH_AUTH_SOCK = "/home/jofre/.bitwarden-ssh-agent.sock";
       };
       home.sessionPath = [ "${config.home.homeDirectory}/.cargo/bin" ];
 

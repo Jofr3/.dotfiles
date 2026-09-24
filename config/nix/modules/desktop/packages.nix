@@ -17,6 +17,7 @@
         wdisplays
         zathura
         pinta
+bitwarden-desktop
       ];
     };
 }

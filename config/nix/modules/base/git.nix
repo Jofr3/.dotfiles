@@ -28,5 +28,21 @@
 
         ignores = [ "**/.claude/settings.local.json" ];
       };
+
+      programs.ssh.settings = {
+        "github.com" = {
+          HostName = "github.com";
+          User = "git";
+          IdentityFile = "${config.home.homeDirectory}/.ssh/keys/Jofr3";
+          IdentitiesOnly = true;
+        };
+
+        "gitlab.com" = {
+          HostName = "gitlab.com";
+          User = "git";
+          IdentityFile = "${config.home.homeDirectory}/.ssh/keys/jofre_gitlab.pub";
+          IdentitiesOnly = true;
+        };
+      };
     };
 }

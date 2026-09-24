@@ -8,11 +8,13 @@
       ...
     }:
     let
-      ageKeyPath = "${config.home.homeDirectory}/.ssh/keys/sops";
+      # Restored from secrets/age-key.age by `nix run .#rebuild`.
+      ageKeyPath = "${config.xdg.configHome}/sops/age/keys.txt";
       environmentSecrets = [
         "DATABASES"
         "OP_SERVICE_ACCOUNT_TOKEN"
         "FIRECRAWL_API_KEY"
+        "CLOUDFLARE_API_TOKEN"
       ];
     in
     {
@@ -20,11 +22,12 @@
 
       sops = {
         defaultSopsFile = ../../secrets/secrets.yaml;
-        age.sshKeyPaths = [ ageKeyPath ];
+        age.keyFile = ageKeyPath;
 
         secrets.DATABASES = { };
         secrets.OP_SERVICE_ACCOUNT_TOKEN = { };
         secrets.FIRECRAWL_API_KEY = { };
+        secrets.CLOUDFLARE_API_TOKEN = { };
       };
 
       # Load only environment secrets; passwords for rendered configs stay in files.
@@ -35,9 +38,7 @@
       '') environmentSecrets;
 
       programs.fish.functions.secrets = ''
-        # Convert the SSH key for the SOPS CLI, as sops-nix does during activation.
-        env -u SOPS_AGE_KEY_FILE SOPS_AGE_KEY=(${lib.getExe pkgs.ssh-to-age} -private-key -i "${ageKeyPath}") \
-          ${lib.getExe pkgs.sops} $argv "${config.home.homeDirectory}/.dotfiles/config/nix/secrets/secrets.yaml"
+        SOPS_AGE_KEY_FILE="${ageKeyPath}" ${lib.getExe pkgs.sops} $argv "${config.home.homeDirectory}/.dotfiles/config/nix/secrets/secrets.yaml"
       '';
     };
 }

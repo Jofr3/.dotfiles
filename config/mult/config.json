@@ -42,6 +42,8 @@
     { "name": "vicfires", "path": "~/lsw/vicfires", "sftp": "vicfires" },
     { "name": "beques", "path": "~/lsw/beques", "sftp": "beques" },
     { "name": "local", "path": "~/lsw/local" },
-    { "name": "lexio", "path": "~/projects/lexio" }
+    { "name": "lexio", "path": "~/projects/lexio" },
+    { "name": "lexio (remote)", "path": "~/projects/lexio", "remote": "remote" },
+    { "name": "lectio", "path": "~/projects/lectio" }
   ]
 }

@@ -5,7 +5,8 @@ laptop, intel), `nixos-pc` (desktop, amdgpu) and `nixos-remote` (headless home
 server). Built with flake-parts + import-tree following the dendritic pattern
 (https://github.com/mightyiam/dendritic). Read this before editing.
 
-Rebuild: `sudo nixos-rebuild switch --flake .#<host>`
+Rebuild: `nix run .#rebuild -- <host>` (see `modules/rebuild.nix`; on a fresh
+clone it restores the sops key first), or `sudo nixos-rebuild switch --flake .#<host>`.
 
 ## The three rules
 
@@ -46,6 +47,7 @@ wiring per layer in `modules/home-manager.nix`.
 flake.nix                   inputs + one line: mkFlake { inherit inputs; } (import-tree ./modules)
 modules/
   flake-parts.nix           systems, flakeModules.modules, formatter
+  rebuild.nix               `nix run .#rebuild`: restore sops key, then nixos-rebuild switch
   hosts.nix                 hosts/* -> nixosConfigurations
   layers.nix                desktop and server import base
   home-manager.nix          HM as a NixOS module, users.jofre imports the HM side of each layer
@@ -122,7 +124,11 @@ go in `base/dotfiles.nix`; if the program has its own feature file, put the
 symlink there (`fish.nix`, `git.nix`, `niri.nix`, `terminals.nix`).
 
 **Secrets.** `base/sops.nix`, data in `secrets/secrets.yaml`, keys in
-`.sops.yaml`. Decrypted with the age key derived from `~/.ssh/keys/sops`.
+`.sops.yaml`. Decrypted with the age key in `~/.config/sops/age/keys.txt`,
+which is committed passphrase-encrypted as `secrets/age-key.age` and restored
+by `nix run .#rebuild` (the sudo password is tried first, then a separate
+prompt). After changing the passphrase, re-run
+`age -p -o secrets/age-key.age ~/.config/sops/age/keys.txt`.
 
 ## Before rebuilding
 

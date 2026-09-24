@@ -2,31 +2,7 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "fable[1m]",
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$HOME/.claude/skills/evolve/hooks/stop-observe.mjs\"",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$HOME/.claude/skills/evolve/hooks/prompt-nudge.mjs\"",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
-  },
+  "model": "opus[1m]",
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true,
     "php-lsp@claude-plugins-official": true,

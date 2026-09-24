@@ -14,6 +14,7 @@
           shift || true
           flake=''${FLAKE:-$HOME/.dotfiles/config/nix}
           key="$HOME/.config/age/key.txt"
+          restored=
 
           decrypt() {
             AGE_PASSPHRASE="$1" age -d -j batchpass ${../secrets/age-key.age} 2>/dev/null
@@ -33,9 +34,16 @@
             (umask 077 && printf '%s\n' "$identity" >"$key")
             unset identity
             echo "restored $key"
+            restored=1
           fi
 
-          exec sudo nixos-rebuild switch --flake "$flake#$host" "$@"
+          sudo nixos-rebuild switch --flake "$flake#$host" "$@"
+
+          # An unchanged generation does not re-run Home Manager activation,
+          # so decrypt the secrets with the key that was just restored.
+          if [ -n "$restored" ]; then
+            sudo systemctl restart "home-manager-$USER.service"
+          fi
         '';
       };
     };

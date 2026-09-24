@@ -39,7 +39,7 @@
           rb = "sudo reboot now";
           p = "sudo lsof -i -P -n";
           nd = "nix develop";
-          nr = "sudo nixos-rebuild switch --flake ${config.home.homeDirectory}/.dotfiles/config/nix/.";
+          nr = "nix run ${config.home.homeDirectory}/.dotfiles/config/nix#rebuild";
           ls = "exa --icons --group-directories-first";
           lt = "exa --tree --level=4 --icons --group-directories-first";
           grep = "grep --color='auto'";

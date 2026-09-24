@@ -26,8 +26,6 @@
         nix-prefetch-github
         ripgrep
         rsync
-        sops
-        ssh-to-age
         tmux
         unzip
         wget

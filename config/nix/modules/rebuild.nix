@@ -1,5 +1,5 @@
-# `nix run .#rebuild [-- <host> [nixos-rebuild args...]]` from this directory.
-# On a fresh clone it restores the sops age key from secrets/age-key.age,
+# `nix run .#rebuild [-- <host> [nixos-rebuild args...]]`, also behind the `nr` abbr.
+# On a fresh clone it restores the age key from secrets/age-key.age,
 # trying the sudo password first and asking for a separate one if that fails,
 # so a new machine needs nothing but the repo and a password.
 {
@@ -12,7 +12,8 @@
         text = ''
           host=''${1:-$(uname -n)}
           shift || true
-          key="$HOME/.config/sops/age/keys.txt"
+          flake=''${FLAKE:-$HOME/.dotfiles/config/nix}
+          key="$HOME/.config/age/key.txt"
 
           decrypt() {
             AGE_PASSPHRASE="$1" age -d -j batchpass ${../secrets/age-key.age} 2>/dev/null
@@ -34,7 +35,7 @@
             echo "restored $key"
           fi
 
-          exec sudo nixos-rebuild switch --flake ".#$host" "$@"
+          exec sudo nixos-rebuild switch --flake "$flake#$host" "$@"
         '';
       };
     };

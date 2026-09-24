@@ -6,7 +6,7 @@ server). Built with flake-parts + import-tree following the dendritic pattern
 (https://github.com/mightyiam/dendritic). Read this before editing.
 
 Rebuild: `nix run .#rebuild -- <host>` (see `modules/rebuild.nix`; on a fresh
-clone it restores the sops key first), or `sudo nixos-rebuild switch --flake .#<host>`.
+clone it restores the age key first), or `sudo nixos-rebuild switch --flake .#<host>`.
 
 ## The three rules
 
@@ -47,16 +47,16 @@ wiring per layer in `modules/home-manager.nix`.
 flake.nix                   inputs + one line: mkFlake { inherit inputs; } (import-tree ./modules)
 modules/
   flake-parts.nix           systems, flakeModules.modules, formatter
-  rebuild.nix               `nix run .#rebuild`: restore sops key, then nixos-rebuild switch
+  rebuild.nix               `nix run .#rebuild`: restore age key, then nixos-rebuild switch
   hosts.nix                 hosts/* -> nixosConfigurations
   layers.nix                desktop and server import base
   home-manager.nix          HM as a NixOS module, users.jofre imports the HM side of each layer
-  base/                     features every machine gets (boot, nix, user, fish, ssh, docker, sops, packages, ...)
+  base/                     features every machine gets (boot, nix, user, fish, ssh, docker, secrets, packages, ...)
   desktop/                  graphical features (niri, audio, stylix, wayland, terminals, browsers, mime, ...)
   server/                   headless features (openssh, firewall, gc, auto-upgrade, no-sleep, ...)
   hardware/                 GPU modules
   hosts/<hostname>/         host.nix (hostname, hostId, imports) + hardware.nix (wrapped nixos-generate-config)
-theme/  secrets/  .sops.yaml
+theme/  secrets/
 ```
 
 Directories are only a grouping aid. A file may write to any module name; for
@@ -123,12 +123,15 @@ Never paste the generated file at top level; it is not a flake-parts module.
 go in `base/dotfiles.nix`; if the program has its own feature file, put the
 symlink there (`fish.nix`, `git.nix`, `niri.nix`, `terminals.nix`).
 
-**Secrets.** `base/sops.nix`, data in `secrets/secrets.yaml`, keys in
-`.sops.yaml`. Decrypted with the age key in `~/.config/sops/age/keys.txt`,
-which is committed passphrase-encrypted as `secrets/age-key.age` and restored
-by `nix run .#rebuild` (the sudo password is tried first, then a separate
-prompt). After changing the passphrase, re-run
-`age -p -o secrets/age-key.age ~/.config/sops/age/keys.txt`.
+**Secrets.** `base/secrets.nix`, plain age, no sops. One file per secret,
+`secrets/<NAME>.age`, encrypted to the age key in `~/.config/age/key.txt`.
+That key is committed passphrase-encrypted as `secrets/age-key.age` and
+restored by `nix run .#rebuild` (the sudo password is tried first, then a
+separate prompt). Home Manager activation decrypts every secret to
+`~/.local/state/secrets/<NAME>`. Add or change one with `secret-edit NAME`,
+then `git add` it; list it in `environmentSecrets` to export it in fish.
+After changing the passphrase, re-run
+`age -p -o secrets/age-key.age ~/.config/age/key.txt`.
 
 ## Before rebuilding
 

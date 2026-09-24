@@ -47,3 +47,8 @@ plugins/data/
 # tracked their commits as ours and produced a large diff for changes nobody
 # made.
 plugins/marketplaces/
+
+# Skills synced down from the claude.ai account (Settings → Capabilities →
+# Skills). Claude Code owns this directory and rewrites it on every sync, and
+# the bucket name is tied to one account/org. Manage them on claude.ai instead.
+skills/synced/

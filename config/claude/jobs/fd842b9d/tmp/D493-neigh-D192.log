@@ -1,0 +1,23 @@
+
+Mutation harness (D211) — 5 mutant(s)
+
+⚠️  --allow-dirty: mutating 1 file(s) with uncommitted changes:
+      packages/engine/src/attack.ts
+
+  D192-weakness              … KILLED           3.5s
+  D192-resistance            … KILLED           4.2s
+  D192-predebuff             … KILLED           3.4s
+  D192-othersOnly            … KILLED           3.7s
+  D192-ontarget-trio         … KILLED           3.5s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D192-weakness             D192                  KILLED           3.5s    1
+D192-resistance           D192                  KILLED           4.2s    1
+D192-predebuff            D192                  KILLED           3.4s    1
+D192-othersOnly           D192 (inheriting D16… KILLED           3.7s    1
+D192-ontarget-trio        D192 (inheriting D15… KILLED           3.5s    1
+────────────────────────────────────────────────────────────────────────────────────
+5 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 21.5s total
+

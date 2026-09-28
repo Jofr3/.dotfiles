@@ -1,0 +1,884 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ ❯ packages/engine/src/censusAtHead.test.ts (50 tests | 4 failed) 199ms
+     × the headline arithmetic closes over all four columns 38ms
+     × the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it 1ms
+     × 🆕🆕 D420 — the TWELVE readers, RUN LIVE over the corpus, resolve 415 sentences / 1,368 printings 17ms
+     × RUNG (b) — none of the seventeen is in the unbuilt remainder, or in any backlog row 11ms
+ ❯ packages/engine/src/compoundCompose.test.ts (30 tests | 1 failed) 147ms
+     × 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused 18ms
+ ❯ packages/engine/src/cancelThenPrevent.test.ts (33 tests | 1 failed) 139ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 26ms
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts (27 tests | 3 failed) 129ms
+     × 🛑 three REAL printings are still flagged — the attribution control (D214) 10ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 19ms
+     × 🛑 `MATCH_RECORD_VERSION` STAYS 29 — DRIVEN, in three directions including LOSS 4ms
+ ❯ packages/engine/src/preDamageFamily.test.ts (44 tests | 1 failed) 119ms
+     × 🛑 `MATCH_RECORD_VERSION` STAYS 26 — no field, no op, no continuation key 12ms
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts (26 tests | 1 failed) 145ms
+     × 🛑 the resolving corpus gains TWO sentences and TWO printings 30ms
+ ❯ packages/engine/src/counterUntilHp.test.ts (37 tests | 1 failed) 129ms
+     × 🛑 the PLACEMENT family closes from SEVEN rows to FOUR to TWO, each refusal by name 15ms
+ ❯ packages/engine/src/basicEnergyScaling.test.ts (22 tests | 1 failed) 121ms
+     × 🛑 EXACTLY ONE sentence moved, and it is the one this slice names 29ms
+ ❯ packages/engine/src/classedBoardSpread.test.ts (33 tests | 1 failed) 126ms
+     × 🛑 the RAW residue fell by exactly 2 sentences / 4 printings 26ms
+ ❯ packages/engine/src/handDiscardScaledSnipe.test.ts (35 tests | 1 failed) 118ms
+     × the resolving corpus gains ONE sentence and TWO printings 23ms
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts (31 tests | 1 failed) 125ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 27ms
+ ❯ packages/engine/src/defenderStatusPair.test.ts (38 tests | 3 failed) 123ms
+     × 🛑 the five REAL near misses stay on the loud path, and `\.$` is why 12ms
+     × the four sentences this slice LEFT are still flagged — the loud path still works 3ms
+     × 🛑 `MATCH_RECORD_VERSION` STAYS 26, and it is DRIVEN rather than reasoned 4ms
+ ❯ packages/engine/src/flipDefenderAttackLock.test.ts (25 tests | 1 failed) 122ms
+     × the resolving corpus gains ONE sentence and ONE printing 29ms
+ ❯ packages/engine/src/defenderStatusTriple.test.ts (31 tests | 3 failed) 117ms
+     × 🛑 THE ATTRIBUTION CONTROL, RE-POINTED: three REAL printings are still flagged (D214) 9ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 20ms
+     × 🛑 `MATCH_RECORD_VERSION` STAYS 29 — DRIVEN, in three directions 3ms
+ ❯ packages/engine/src/counterBenchPut.test.ts (29 tests | 1 failed) 108ms
+     × refuses the EIGHT real catalog rows that share its words 17ms
+ ❯ packages/engine/src/exOnlyActive.test.ts (18 tests | 1 failed) 100ms
+     × 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM 62ms
+ ❯ packages/engine/src/therapeuticEnergy.test.ts (54 tests | 1 failed) 96ms
+     × PARK? NO. PERSIST? NO — MATCH_RECORD_VERSION stays 11, DERIVED 13ms
+ ❯ packages/engine/src/retreatCostBonus.test.ts (27 tests | 1 failed) 107ms
+     × the NINE-reader instrument steps by exactly 1 sentence / 1 printing 32ms
+ ❯ packages/engine/src/counterFold.test.ts (28 tests | 1 failed) 92ms
+     × 🛑 the PLACEMENT family closes from TEN rows to SEVEN to TWO, each refusal by name 18ms
+ ❯ packages/engine/src/opponentBenchCount.test.ts (25 tests | 1 failed) 97ms
+     × the TEN-reader instrument steps by exactly 1 sentence / 1 printing 28ms
+ ❯ packages/engine/src/benchNamedBonus.test.ts (24 tests | 1 failed) 92ms
+     × 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345 28ms
+ ❯ packages/engine/src/checkup.test.ts (36 tests | 1 failed) 88ms
+     × returns null for anything but the exact sentences 11ms
+ ❯ packages/engine/src/clearStatus.test.ts (36 tests | 1 failed) 89ms
+     × PARK? NO. PERSIST? NO — MATCH_RECORD_VERSION stays 11 11ms
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts (21 tests | 1 failed) 95ms
+     × the census moves by exactly 2 printings on exactly 1 sentence 58ms
+ ❯ packages/engine/src/inPlayTypeBonus.test.ts (24 tests | 1 failed) 91ms
+     × 🛑 the TEN-reader instrument steps by exactly 1 sentence / 1 printing 29ms
+ ❯ packages/engine/src/precociousEvolution.test.ts (13 tests | 1 failed) 78ms
+     × 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two 30ms
+ ❯ packages/engine/src/sameEnergyBonus.test.ts (25 tests | 1 failed) 91ms
+     × the resolving corpus gains TWO sentences and TWO printings 30ms
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts (22 tests | 1 failed) 83ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 32ms
+ ❯ packages/engine/src/counterPutChosen.test.ts (23 tests | 1 failed) 82ms
+     × 🛑 the PLACEMENT family, and the TWO rows it still refuses, each for its own reason 17ms
+ ❯ packages/engine/src/moreEnergyBonus.test.ts (22 tests | 1 failed) 88ms
+     × the resolving corpus gains ONE sentence and ONE printing 28ms
+ ❯ packages/engine/src/counterMove.test.ts (21 tests | 1 failed) 81ms
+     × refuses the SIX real catalog rows that share its words 14ms
+ ❯ packages/engine/src/counterPut.test.ts (25 tests | 1 failed) 78ms
+     × refuses the NINE real catalog rows that share its words 15ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 41 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/basicEnergyScaling.test.ts > D500 §6 — what the corpus looked like before, computed from what it looks like now > 🛑 EXACTLY ONE sentence moved, and it is the one this slice names
+AssertionError: expected [ 531, 1565 ] to deeply equal [ 530, 1564 ]
+
+- Expected
++ Received
+
+  [
+-   530,
+-   1564,
++   531,
++   1565,
+  ]
+
+ ❯ packages/engine/src/basicEnergyScaling.test.ts:663:84
+    661|     // fewer, and every one of those points was refused by all thirtee…
+    662|     const resolvedNow = legalAttackCorpus().filter(([, text]) => resol…
+    663|     expect([resolvedNow.length - moved.length, units(resolvedNow) - un…
+       |                                                                                    ^
+    664|       530, 1564,
+    665|     ]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/41]⎯
+
+ FAIL  packages/engine/src/benchNamedBonus.test.ts > §7 — the census moves in exactly ONE summand, and the other three are measured > 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(530) ] to have a length of 531 but got 532
+
+- Expected
++ Received
+
+- 531
++ 532
+
+ ❯ packages/engine/src/benchNamedBonus.test.ts:842:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/41]⎯
+
+ FAIL  packages/engine/src/cancelThenPrevent.test.ts > §8 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/cancelThenPrevent.test.ts:662:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/41]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the headline arithmetic closes over all four columns
+AssertionError: expected 2021 to be 2020 // Object.is equality
+
+- Expected
++ Received
+
+- 2020
++ 2021
+
+ ❯ packages/engine/src/censusAtHead.test.ts:4231:19
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/41]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it
+AssertionError: expected 116 to be 117 // Object.is equality
+
+- Expected
++ Received
+
+- 117
++ 116
+
+ ❯ packages/engine/src/censusAtHead.test.ts:6283:27
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/41]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > 🆕🆕 D420 — the TWELVE readers, RUN LIVE over the corpus, resolve 415 sentences / 1,368 printings
+AssertionError: expected 532 to be 531 // Object.is equality
+
+- Expected
++ Received
+
+- 531
++ 532
+
+ ❯ packages/engine/src/censusAtHead.test.ts:8304:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/41]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D301 — the opponent-energy scaling family: the backlog row measured PHANTOM > RUNG (b) — none of the seventeen is in the unbuilt remainder, or in any backlog row
+AssertionError: expected 166 to be 167 // Object.is equality
+
+- Expected
++ Received
+
+- 167
++ 166
+
+ ❯ packages/engine/src/censusAtHead.test.ts:8783:62
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/41]⎯
+
+ FAIL  packages/engine/src/checkup.test.ts > deriveAttackEffect (effects.ts) > returns null for anything but the exact sentences
+AssertionError: expected [ { op: 'applyStatus', …(3) } ] to be null
+
+- Expected:
+null
+
++ Received:
+[
+  {
+    "confusionDamage": 80,
+    "op": "applyStatus",
+    "status": "confused",
+    "target": "defender",
+  },
+]
+
+ ❯ packages/engine/src/checkup.test.ts:907:40
+    905|       "",
+    906|     ]) {
+    907|       expect(deriveAttackEffect(text)).toBeNull();
+       |                                        ^
+    908|     }
+    909|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/41]⎯
+
+ FAIL  packages/engine/src/classedBoardSpread.test.ts > D492 §10 — the residue this slice moved, and the engine version > 🛑 the RAW residue fell by exactly 2 sentences / 4 printings
+AssertionError: expected [ 108, 166 ] to deeply equal [ 109, 167 ]
+
+- Expected
++ Received
+
+  [
+-   109,
+-   167,
++   108,
++   166,
+  ]
+
+ ❯ packages/engine/src/classedBoardSpread.test.ts:1004:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/41]⎯
+
+ FAIL  packages/engine/src/clearStatus.test.ts > the structural questions > PARK? NO. PERSIST? NO — MATCH_RECORD_VERSION stays 11
+AssertionError: expected [ 'burned', 'confusionDamage', …(2) ] to deeply equal [ Array(3) ]
+
+- Expected
++ Received
+
+  [
+    "burned",
++   "confusionDamage",
+    "poisonDamage",
+    "rotation",
+  ]
+
+ ❯ packages/engine/src/clearStatus.test.ts:685:51
+    683|     const active = done.state.players.p1.active;
+    684|     if (active === null) throw new Error("no Active");
+    685|     expect(Object.keys(active.conditions).sort()).toEqual(["burned", "…
+       |                                                   ^
+    686|     expect(Object.keys(active)).not.toContain("statusRecovery");
+    687|     expect(programFor("sv01-145")?.abilities?.[0]?.program).toEqual([{…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/41]⎯
+
+ FAIL  packages/engine/src/compoundCompose.test.ts > §4 — the SHADOW REFUSAL: the anchor wins, the splitter is the fallback > 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused
+AssertionError: expected [ [ 3, …(1) ], [ 1, …(1) ], …(201) ] to have a length of 202 but got 203
+
+- Expected
++ Received
+
+- 202
++ 203
+
+ ❯ packages/engine/src/compoundCompose.test.ts:612:26
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/41]⎯
+
+ FAIL  packages/engine/src/counterBenchPut.test.ts > the anchor — 4 printings, 1 clause, one regex with one (\d+) capture > refuses the EIGHT real catalog rows that share its words
+AssertionError: expected [ { op: 'applyStatus', …(3) } ] to be null
+
+- Expected:
+null
+
++ Received:
+[
+  {
+    "confusionDamage": 80,
+    "op": "applyStatus",
+    "status": "confused",
+    "target": "defender",
+  },
+]
+
+ ❯ packages/engine/src/counterBenchPut.test.ts:403:40
+    401|   it("refuses the EIGHT real catalog rows that share its words", () =>…
+    402|     for (const text of NEAR_MISSES) {
+    403|       expect(deriveAttackEffect(text)).toBeNull();
+       |                                        ^
+    404|     }
+    405|     // THE TWO THAT MATTER MOST are the ABILITY printings of this exac…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/41]⎯
+
+ FAIL  packages/engine/src/counterFold.test.ts > §1 — the three printed folds, and the placement family's remaining refusals > 🛑 the PLACEMENT family closes from TEN rows to SEVEN to TWO, each refusal by name
+AssertionError: expected [ Array(1) ] to have a length of 2 but got 1
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ packages/engine/src/counterFold.test.ts:177:38
+    175|     // is the stronger rung: a single looser anchor would have claimed…
+    176|     // ONE op and passed any `toContain`-shaped successor to this bloc…
+    177|     expect(unread.map(([, t]) => t)).toHaveLength(2);
+       |                                      ^
+    178|     expect(unread.reduce((sum, [n]) => sum + n, 0)).toBe(4);
+    179|     for (const [text, program] of [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/41]⎯
+
+ FAIL  packages/engine/src/counterMove.test.ts > the anchor — 2 printings, 1 clause, one regex with NO capture > refuses the SIX real catalog rows that share its words
+AssertionError: expected [ { op: 'applyStatus', …(3) } ] to be null
+
+- Expected:
+null
+
++ Received:
+[
+  {
+    "confusionDamage": 80,
+    "op": "applyStatus",
+    "status": "confused",
+    "target": "defender",
+  },
+]
+
+ ❯ packages/engine/src/counterMove.test.ts:361:40
+    359|   it("refuses the SIX real catalog rows that share its words", () => {
+    360|     for (const text of REAL_NEAR_MISSES) {
+    361|       expect(deriveAttackEffect(text)).toBeNull();
+       |                                        ^
+    362|     }
+    363|     // THE TWO THAT MATTER are the other counter MOVES, and they are d…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/41]⎯
+
+ FAIL  packages/engine/src/counterPut.test.ts > the anchor — 2 printings, 2 clauses, one regex with one (\d+) capture > refuses the NINE real catalog rows that share its words
+AssertionError: expected [ { op: 'applyStatus', …(3) } ] to be null
+
+- Expected:
+null
+
++ Received:
+[
+  {
+    "confusionDamage": 80,
+    "op": "applyStatus",
+    "status": "confused",
+    "target": "defender",
+  },
+]
+
+ ❯ packages/engine/src/counterPut.test.ts:374:40
+    372|   it("refuses the NINE real catalog rows that share its words", () => {
+    373|     for (const text of NEAR_MISSES) {
+    374|       expect(deriveAttackEffect(text)).toBeNull();
+       |                                        ^
+    375|     }
+    376|     // 🆕🆕🆕 **D451 — THIS PARAGRAPH SAID "no capture expresses it" A…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/41]⎯
+
+ FAIL  packages/engine/src/counterPutChosen.test.ts > §1 — the two printed sentences, and what the placement family still refuses > 🛑 the PLACEMENT family, and the TWO rows it still refuses, each for its own reason
+AssertionError: expected [ Array(1) ] to have a length of 2 but got 1
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ packages/engine/src/counterPutChosen.test.ts:183:21
+    181|     // running, and for the same reason: corpus line 179 carries 1 pri…
+    182|     // carries 2.
+    183|     expect(unbuilt).toHaveLength(2);
+       |                     ^
+    184|     expect(
+    185|       family.filter(([, t]) => !resolvedByAnyReader(t)).reduce((sum, […
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/41]⎯
+
+ FAIL  packages/engine/src/counterUntilHp.test.ts > §1 — three sentences, five printings, and the class is CLOSED > 🛑 the PLACEMENT family closes from SEVEN rows to FOUR to TWO, each refusal by name
+AssertionError: expected [ [ 3, …(1) ] ] to have a length of 2 but got 1
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ packages/engine/src/counterUntilHp.test.ts:206:20
+    204|     // bullets (a) and (b) below, both re-pointed rather than deleted.…
+    205|     // DISAGREE AGAIN, −2 AND −3**: line 179 carries 1 printing and li…
+    206|     expect(unread).toHaveLength(2);
+       |                    ^
+    207|     expect(unread.reduce((sum, [n]) => sum + n, 0)).toBe(4);
+    208|     const unbuilt = unread.map(([, t]) => t);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/41]⎯
+
+ FAIL  packages/engine/src/defenderStatusPair.test.ts > §2 — the derivation, parameterised on both axes > 🛑 the five REAL near misses stay on the loud path, and `\.$` is why
+AssertionError: expected [ { op: 'applyStatus', …(3) } ] to be null
+
+- Expected:
+null
+
++ Received:
+[
+  {
+    "confusionDamage": 80,
+    "op": "applyStatus",
+    "status": "confused",
+    "target": "defender",
+  },
+]
+
+ ❯ packages/engine/src/defenderStatusPair.test.ts:506:82
+    504|     // under one title is exactly the mistake D464 corrected two ancho…
+    505|     expect(deriveAttackEffect(LEFT_LOUD.headsTails)).toBeNull();
+    506|     for (const text of LEFT_LOUD.dotAnchorTrio) expect(deriveAttackEff…
+       |                                                                                  ^
+    507|     // The compound is refused WHOLE — deliberately, so the SPLITTER c…
+    508|     // rather than a hand-written anchor shadowing the composition pat…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/41]⎯
+
+ FAIL  packages/engine/src/defenderStatusPair.test.ts > §7 — the printed text stops being flagged, on every carrier > the four sentences this slice LEFT are still flagged — the loud path still works
+AssertionError: expected undefined to be 'Your opponent\'s Active Pokémon is no…' // Object.is equality
+
+- Expected:
+"Your opponent's Active Pokémon is now Confused. Put 8 damage counters instead of 3 on that Pokémon for this Special Condition."
+
++ Received:
+undefined
+
+ ❯ packages/engine/src/defenderStatusPair.test.ts:947:90
+    945|     for (const text of [LEFT_LOUD.headsTails, ...LEFT_LOUD.dotAnchorTr…
+    946|       const doctored = withEffect(b, "fix-ninetales", text);
+    947|       expect(find(swing(doctored, "ninetales").events, "ATTACK_EFFECT_…
+       |                                                                                          ^
+    948|     }
+    949|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/41]⎯
+
+ FAIL  packages/engine/src/defenderStatusPair.test.ts > §8 — purity and the structural answers > 🛑 `MATCH_RECORD_VERSION` STAYS 26, and it is DRIVEN rather than reasoned
+AssertionError: expected [ 'burned', 'confusionDamage', …(2) ] to deeply equal [ Array(3) ]
+
+- Expected
++ Received
+
+  [
+    "burned",
++   "confusionDamage",
+    "poisonDamage",
+    "rotation",
+  ]
+
+ ❯ packages/engine/src/defenderStatusPair.test.ts:994:83
+    992|     // than as a diff between two boards of ONE build — a diff is blin…
+    993|     // grew on both (D279). This slice reads all three and adds none.
+    994|     expect(Object.keys(liveRun.state.players.p2.active?.conditions ?? …
+       |                                                                                   ^
+    995|       "burned",
+    996|       "poisonDamage",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/41]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §5 — the printed text stops being flagged, and the loud path still works > 🛑 THE ATTRIBUTION CONTROL, RE-POINTED: three REAL printings are still flagged (D214)
+AssertionError: expected undefined to be 'Your opponent\'s Active Pokémon is no…' // Object.is equality
+
+- Expected:
+"Your opponent's Active Pokémon is now Confused. Put 8 damage counters instead of 3 on that Pokémon for this Special Condition."
+
++ Received:
+undefined
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:509:80
+    507|     for (const text of DOT_ANCHOR_TRIO) {
+    508|       const doctored = withEffect(board(), text);
+    509|       expect(find(swing(doctored, 0).events, "ATTACK_EFFECT_SKIPPED")?…
+       |                                                                                ^
+    510|     }
+    511|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/41]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:536:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/41]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §7 — purity and the structural answers > 🛑 `MATCH_RECORD_VERSION` STAYS 29 — DRIVEN, in three directions
+AssertionError: expected [ 'burned', 'confusionDamage', …(2) ] to deeply equal [ Array(3) ]
+
+- Expected
++ Received
+
+  [
+    "burned",
++   "confusionDamage",
+    "poisonDamage",
+    "rotation",
+  ]
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:612:67
+    610|     // blind to a key that grew on both (D279). This slice writes all …
+    611|     // none, and an ABSENT `conditions` still reads as "no condition".
+    612|     expect(Object.keys(defenderConditions(liveRun.state)).sort()).toEq…
+       |                                                                   ^
+    613|       "burned",
+    614|       "poisonDamage",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/41]⎯
+
+ FAIL  packages/engine/src/exOnlyActive.test.ts > §1 — the population, re-derived LIVE rather than quoted > 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(530) ] to have a length of 531 but got 532
+
+- Expected
++ Received
+
+- 531
++ 532
+
+ ❯ packages/engine/src/exOnlyActive.test.ts:190:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/41]⎯
+
+ FAIL  packages/engine/src/flipDefenderAttackLock.test.ts > §8 — the census moves in exactly ONE summand > the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/flipDefenderAttackLock.test.ts:705:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/41]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §5 — the printed text stops being flagged, and the loud path still works > 🛑 three REAL printings are still flagged — the attribution control (D214)
+AssertionError: expected undefined to be 'Your opponent\'s Active Pokémon is no…' // Object.is equality
+
+- Expected:
+"Your opponent's Active Pokémon is now Confused. Put 8 damage counters instead of 3 on that Pokémon for this Special Condition."
+
++ Received:
+undefined
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:540:80
+    538|     for (const text of STILL_LOUD) {
+    539|       const doctored = withEffect(b, text);
+    540|       expect(find(swing(doctored, 0).events, "ATTACK_EFFECT_SKIPPED")?…
+       |                                                                                ^
+    541|     }
+    542|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/41]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:561:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/41]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §7 — purity and the structural answers > 🛑 `MATCH_RECORD_VERSION` STAYS 29 — DRIVEN, in three directions including LOSS
+AssertionError: expected [ 'burned', 'confusionDamage', …(2) ] to deeply equal [ Array(3) ]
+
+- Expected
++ Received
+
+  [
+    "burned",
++   "confusionDamage",
+    "poisonDamage",
+    "rotation",
+  ]
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:656:79
+    654|     expect(JSON.stringify(sibling?.op === "coinFlipGate" ? sibling.the…
+    655|     // …and the SpecialConditions block is the shipped three-key shape…
+    656|     expect(Object.keys(persisted.players.p2.active?.conditions ?? {}).…
+       |                                                                               ^
+    657|       "burned",
+    658|       "poisonDamage",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/41]⎯
+
+ FAIL  packages/engine/src/flipStatusHeadsTails.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts:806:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/41]⎯
+
+ FAIL  packages/engine/src/handDiscardScaledSnipe.test.ts > D489 §9 — the census this row moves, and the summands it does not > the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/handDiscardScaledSnipe.test.ts:1026:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/41]⎯
+
+ FAIL  packages/engine/src/inPlayTypeBonus.test.ts > §6 — the fixture, the census this row moves, and the questions asked of it > 🛑 the TEN-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/inPlayTypeBonus.test.ts:628:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/41]⎯
+
+ FAIL  packages/engine/src/moreEnergyBonus.test.ts > §6 — the census moves in exactly ONE summand, and the step is 1 and 1 > the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(530) ] to have a length of 531 but got 532
+
+- Expected
++ Received
+
+- 531
++ 532
+
+ ❯ packages/engine/src/moreEnergyBonus.test.ts:618:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/41]⎯
+
+ FAIL  packages/engine/src/opponentBenchCount.test.ts > §5 — the fixture, the census this row moves, and the summands it does not > the TEN-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/opponentBenchCount.test.ts:691:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/41]⎯
+
+ FAIL  packages/engine/src/perHeadsEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts:661:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/41]⎯
+
+ FAIL  packages/engine/src/preDamageFamily.test.ts > §9 — nothing persisted moves, and it is DRIVEN rather than argued > 🛑 `MATCH_RECORD_VERSION` STAYS 26 — no field, no op, no continuation key
+AssertionError: expected [ 'burned', 'confusionDamage', …(2) ] to deeply equal [ Array(3) ]
+
+- Expected
++ Received
+
+  [
+    "burned",
++   "confusionDamage",
+    "poisonDamage",
+    "rotation",
+  ]
+
+ ❯ packages/engine/src/preDamageFamily.test.ts:939:49
+    937|     tooled = attachToolFromDeck(tooled, "p2", "active", CHESTPLATE);
+    938|     const paralyzed = swing(tooled, IDX.lock).state.players.p2.active?…
+    939|     expect(Object.keys(paralyzed ?? {}).sort()).toEqual([
+       |                                                 ^
+    940|       "burned",
+    941|       "poisonDamage",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/41]⎯
+
+ FAIL  packages/engine/src/precociousEvolution.test.ts > D306 §2 — what BUILT.attack would move by, keyed on the READER > 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two
+AssertionError: expected 1566 to be 1565 // Object.is equality
+
+- Expected
++ Received
+
+- 1565
++ 1566
+
+ ❯ packages/engine/src/precociousEvolution.test.ts:548:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/41]⎯
+
+ FAIL  packages/engine/src/retreatCostBonus.test.ts > §6 — the fixture, the census this row moves, and the summands it does not > the NINE-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/retreatCostBonus.test.ts:800:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/41]⎯
+
+ FAIL  packages/engine/src/sameEnergyBonus.test.ts > §7 — the census moves in exactly ONE summand, and the step is 2 and 2 > the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(530) ] to have a length of 531 but got 532
+
+- Expected
++ Received
+
+- 531
++ 532
+
+ ❯ packages/engine/src/sameEnergyBonus.test.ts:808:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/41]⎯
+
+ FAIL  packages/engine/src/sawkRequirementSplit.test.ts > §1 — D362's counts reproduce and its ATTRIBUTION does not > the census moves by exactly 2 printings on exactly 1 sentence
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(530) ] to have a length of 531 but got 532
+
+- Expected
++ Received
+
+- 531
++ 532
+
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts:249:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/41]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §2 — the census moves in exactly ONE summand, and the step is 1 and 1 > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 532, 1566 ] to deeply equal [ 531, 1565 ]
+
+- Expected
++ Received
+
+  [
+-   531,
+-   1565,
++   532,
++   1566,
+  ]
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:185:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/41]⎯
+
+ FAIL  packages/engine/src/therapeuticEnergy.test.ts > the structural questions > PARK? NO. PERSIST? NO — MATCH_RECORD_VERSION stays 11, DERIVED
+AssertionError: expected [ 'burned', 'confusionDamage', …(2) ] to deeply equal [ Array(3) ]
+
+- Expected
++ Received
+
+  [
+    "burned",
++   "confusionDamage",
+    "poisonDamage",
+    "rotation",
+  ]
+
+ ❯ packages/engine/src/therapeuticEnergy.test.ts:1524:51
+    1522|     const active = done.state.players.p2.active;
+    1523|     if (active === null) throw new Error("no Active");
+    1524|     expect(Object.keys(active.conditions).sort()).toEqual(["burned", "…
+       |                                                   ^
+    1525|     expect(Object.keys(active)).not.toContain("statusImmunities");
+    1526|     expect(Object.keys(active)).not.toContain("statusRecovery");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/41]⎯
+
+
+ Test Files  32 failed | 451 passed (483)
+      Tests  41 failed | 10983 passed (11024)
+   Start at  21:54:33
+   Duration  187.42s (transform 26.69s, setup 0ms, import 199.76s, tests 56.82s, environment 36.58s)
+

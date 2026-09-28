@@ -1,0 +1,60 @@
+[0m[2m[35m$[0m [2m[1mbun scripts/typecheck-coverage.ts && tsc -b && bun scripts/lint-coverage.ts && biome lint . --error-on-warnings && vitest run[0m
+typecheck-coverage: OK — all 722 TypeScript files are in 6 project(s) of tsconfig.json (apps/api/tsconfig.json, packages/engine/tsconfig.json, packages/schema/tsconfig.json, tsconfig.app.json, tsconfig.node.json, tsconfig.scripts.json).
+lint-coverage: OK — all 724 source files are covered by Biome.
+Checked 760 files in 1457ms. No fixes applied.
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/retreatCostBonus.test.ts (27 tests | 1 failed) 134ms
+     × the NINE-reader instrument steps by exactly 1 sentence / 1 printing 39ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/retreatCostBonus.test.ts > §6 — the fixture, the census this row moves, and the summands it does not > the NINE-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 367, 1263 ] to deeply equal [ 367, 1261 ]
+
+- Expected
++ Received
+
+  [
+    367,
+-   1261,
++   1263,
+  ]
+
+ ❯ packages/engine/src/retreatCostBonus.test.ts:1130:50842
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 474 passed (475)
+      Tests  1 failed | 10791 passed (10792)
+   Start at  08:47:15
+   Duration  131.72s (transform 30.26s, setup 0ms, import 213.58s, tests 57.91s, environment 37.80s)
+
+[0m[31merror[0m[2m:[0m script [1m"check"[0m exited with code 1[0m

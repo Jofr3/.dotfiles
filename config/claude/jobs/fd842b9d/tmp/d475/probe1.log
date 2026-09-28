@@ -1,0 +1,47 @@
+
+Mutation harness (D211) — 15 mutant(s)
+
+⚠️  --allow-dirty: mutating 2 file(s) with uncommitted changes:
+      packages/engine/src/attack.ts
+      packages/engine/src/effects.ts
+
+  D475-anchor-loses-its-start-anchor … KILLED           3.6s
+  D475-anchor-loses-its-end-anchor … KILLED           3.6s
+  D475-anchor-drops-the-printed-scope … KILLED           3.6s
+  D475-anchor-admits-a-type-word … KILLED           3.6s
+  D475-arm-emits-the-self-attached-member … KILLED           3.7s
+  D475-arm-emits-the-body-count-member … KILLED           3.5s
+  D475-arm-drops-the-positive-per-guard … KILLED           3.5s
+  D475-arm-reads-the-whole-match-as-the-amount … KILLED           3.5s
+  D475-both-actives-arm-moves-ahead-of-the-body-one … SURVIVES(known)  3.8s
+  D475-flip-count-reads-only-the-attacker … KILLED           3.6s
+  D475-flip-count-reads-only-the-defender … KILLED           4.1s
+  D475-flip-count-reads-the-defender-twice … KILLED           3.6s
+  D475-flip-count-counts-a-printed-type … KILLED           3.8s
+  D475-flip-count-reads-the-whole-board … KILLED           3.8s
+  D475-flip-count-counts-units-not-cards … KILLED           3.8s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D475-anchor-loses-its-st… D475                  KILLED           3.6s    1
+D475-anchor-loses-its-en… D475                  KILLED           3.6s    1
+D475-anchor-drops-the-pr… D475                  KILLED           3.6s    2
+D475-anchor-admits-a-typ… D475                  KILLED           3.6s    1
+D475-arm-emits-the-self-… D475                  KILLED           3.7s    3
+D475-arm-emits-the-body-… D475                  KILLED           3.5s    1
+D475-arm-drops-the-posit… D475                  KILLED           3.5s    1
+D475-arm-reads-the-whole… D475                  KILLED           3.5s    1
+D475-both-actives-arm-mo… D475                  SURVIVES(known)  3.8s    3
+D475-flip-count-reads-on… D475                  KILLED           3.6s    1
+D475-flip-count-reads-on… D475                  KILLED           4.1s    1
+D475-flip-count-reads-th… D475                  KILLED           3.6s    1
+D475-flip-count-counts-a… D475                  KILLED           3.8s    1
+D475-flip-count-reads-th… D475                  KILLED           3.8s    1
+D475-flip-count-counts-u… D475                  KILLED           3.8s    1
+────────────────────────────────────────────────────────────────────────────────────
+14 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 70.0s total
+
+  known survivor  D475-both-actives-arm-moves-ahead-of-the-body-one — equivalent
+      STRUCTURAL disjointness (D468's SECOND kind, the kind that carries NO GUARD — correctly none, because a lookahead here would be unkillable by construction, which D205/D208/D467 call a vacuous guard). All THREE `Flip a coin for each …` anchors are `^…$` over the whole sentence and all three end with the identical run `\. This attack does (\d+) damage for each heads\.$`; the MANDATORY bytes immediately before that run disagree three ways — `…attached to both Active Pokémon` here, `…attached to this Pokémon` at D128, `… you have in play` at D474 — and a string cannot end three ways, so no input reaches two arms and any order computes the identical function. ⚠️ THE DECLARATION IS PREFERRED OVER DELETING THE ROW FOR D427's REASON, AND IT SELF-INVALIDATES: the day any one of the three tails is loosened to admit a sibling's sentence — an optional scope on D128's anchor, a `(?: you have)?` on D474's, an optional `both ` here — two of them overlap, this mutation becomes observable and the row reports STALE-SURVIVOR. ⚠️ AND THE MAINTENANCE OBLIGATION IS THE OPPOSITE OF A GUARDED EQUIVALENCE'S (D467): a guarded one must be re-derived whenever either pattern moves; a structural one cannot be broken without changing the sentence an anchor spells, so this row is the thing that will notice.
+

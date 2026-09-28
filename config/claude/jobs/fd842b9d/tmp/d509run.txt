@@ -1,0 +1,23 @@
+
+Mutation harness (D211) — 5 mutant(s)
+
+⚠️  --allow-dirty: mutating 1 file(s) with uncommitted changes:
+      src/features/online/components/OnlineHud.tsx
+
+  D509-online-hud-drops-the-confusion-hint … KILLED           3.8s
+  D509-online-hud-hardcodes-the-confusion-amount … KILLED           3.9s
+  D509-online-hud-hint-reads-the-poison-number … KILLED           3.9s
+  D509-online-hud-hint-fires-on-every-rotation … KILLED           3.9s
+  D509-online-hud-drops-the-optional-battle-guard … KILLED           3.9s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D509-online-hud-drops-th… D509                  KILLED           3.8s    1
+D509-online-hud-hardcode… D509                  KILLED           3.9s    1
+D509-online-hud-hint-rea… D509                  KILLED           3.9s    1
+D509-online-hud-hint-fir… D509                  KILLED           3.9s    1
+D509-online-hud-drops-th… D509                  KILLED           3.9s    1
+────────────────────────────────────────────────────────────────────────────────────
+5 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 23.1s total
+

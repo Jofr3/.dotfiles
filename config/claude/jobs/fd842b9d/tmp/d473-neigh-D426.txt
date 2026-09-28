@@ -1,0 +1,35 @@
+
+Mutation harness (D211) — 11 mutant(s)
+
+⚠️  --allow-dirty: mutating 1 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+
+  D426-decider-is-the-actor  … KILLED           3.7s
+  D426-redact-answerer-gate-reads-the-controller … KILLED           3.8s
+  D426-park-empties-the-actors-own-hand … KILLED           3.5s
+  D426-apply-arm-reads-the-controllers-hand … KILLED           3.4s
+  D426-exact-hand-parks-instead-of-forcing … KILLED           3.4s
+  D426-mandatory-pick-becomes-declinable … KILLED           3.4s
+  D426-caption-round-trips-the-printed-sentence … KILLED           3.4s
+  D426-log-derives-the-speaker-from-the-other-seat … KILLED           3.6s
+  D426-anchor-loses-the-article-branch … KILLED           3.9s
+  D426-zero-count-derives    … KILLED           3.4s
+  D426-absent-group-defaults-to-the-plural … KILLED           3.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D426-decider-is-the-actor D426                  KILLED           3.7s    2
+D426-redact-answerer-gat… D426                  KILLED           3.8s    3
+D426-park-empties-the-ac… D426                  KILLED           3.5s    1
+D426-apply-arm-reads-the… D426                  KILLED           3.4s    1
+D426-exact-hand-parks-in… D426                  KILLED           3.4s    1
+D426-mandatory-pick-beco… D426                  KILLED           3.4s    1
+D426-caption-round-trips… D426                  KILLED           3.4s    1
+D426-log-derives-the-spe… D426                  KILLED           3.6s    1
+D426-anchor-loses-the-ar… D426                  KILLED           3.9s    2
+D426-zero-count-derives   D426                  KILLED           3.4s    1
+D426-absent-group-defaul… D426                  KILLED           3.4s    1
+────────────────────────────────────────────────────────────────────────────────────
+11 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 54.2s total
+

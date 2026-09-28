@@ -1,0 +1,10 @@
+packages/engine/src/benchNamedBonus.test.ts:1095:7
+packages/engine/src/censusAtHead.test.ts:4361:27
+packages/engine/src/censusAtHead.test.ts:6353:37
+packages/engine/src/exOnlyActive.test.ts:214:21
+packages/engine/src/moreEnergyBonus.test.ts:805:8
+packages/engine/src/opponentBenchCount.test.ts:949:58427
+packages/engine/src/precociousEvolution.test.ts:697:29087
+packages/engine/src/retreatCostBonus.test.ts:1061:58435
+packages/engine/src/sameEnergyBonus.test.ts:969:7
+packages/engine/src/sawkRequirementSplit.test.ts:269:21

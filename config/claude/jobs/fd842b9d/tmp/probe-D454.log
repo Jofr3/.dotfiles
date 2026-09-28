@@ -1,0 +1,35 @@
+[0m[2m[35m$[0m [2m[1mbun scripts/mutation/run.ts --decision "D454" --allow-dirty[0m
+
+Mutation harness (D211) — 12 mutant(s)
+
+  D454-status-target-ternary-inverted … KILLED           3.4s
+  D454-status-immunity-announces-then-applies … KILLED           3.5s
+  D454-burn-writes-the-poison-slot … KILLED           4.2s
+  D454-self-damage-lands-across-the-table … KILLED           3.5s
+  D454-self-damage-overwrites-the-counters … KILLED           3.3s
+  D454-recoil-arms-the-defender … KILLED           3.3s
+  D454-recoil-merge-takes-the-smaller … KILLED           3.3s
+  D454-recoil-window-is-your-own-next-turn … KILLED           3.3s
+  D454-hand-discard-crosses-the-table … KILLED           3.4s
+  D454-discarded-hand-leaves-the-game … KILLED           3.3s
+  D454-draw-until-ignores-the-hand … KILLED           3.9s
+  D454-draw-until-measures-the-opponents-hand … KILLED           3.9s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D454-status-target-terna… D454                  KILLED           3.4s    3
+D454-status-immunity-ann… D454                  KILLED           3.5s    3
+D454-burn-writes-the-poi… D454                  KILLED           4.2s    4
+D454-self-damage-lands-a… D454                  KILLED           3.5s    3
+D454-self-damage-overwri… D454                  KILLED           3.3s    2
+D454-recoil-arms-the-def… D454                  KILLED           3.3s    2
+D454-recoil-merge-takes-… D454                  KILLED           3.3s    1
+D454-recoil-window-is-yo… D454                  KILLED           3.3s    2
+D454-hand-discard-crosse… D454                  KILLED           3.4s    3
+D454-discarded-hand-leav… D454                  KILLED           3.3s    3
+D454-draw-until-ignores-… D454                  KILLED           3.9s    4
+D454-draw-until-measures… D454                  KILLED           3.9s    4
+────────────────────────────────────────────────────────────────────────────────────
+12 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 73.6s total
+

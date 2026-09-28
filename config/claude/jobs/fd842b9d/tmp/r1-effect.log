@@ -1,0 +1,23 @@
+=== UNDER R1 MUTATION ===
+surface=25
+corpus=640  claimed=640
+non-deriveAttack members=12 -> attackCancelHeadRows, bonusConsequentProgram, discardScaledBoostProgram, foldApostrophes, optionalBoostProgram, optionalCostBoostProgram, searchTopOrderProgram, splitAttackCancelClause, splitAttackGateClause, splitAttackRequirementClause, splitAttackTrailingClause, timingGateFromAttackText
+  attackCancelHeadRows(sample) -> object [["Discard a Stadium in play.",{"kind":"  !==null? true
+  bonusConsequentProgram(sample) -> string "THREW:TypeError: Spread syntax requires  !==null? true
+  discardScaledBoostProgram(sample) -> undefined undefined  !==null? true
+  foldApostrophes(sample) -> string "At the end of your opponent's next turn  !==null? true
+  optionalBoostProgram(sample) -> string "THREW:TypeError: Spread syntax requires  !==null? true
+  optionalCostBoostProgram(sample) -> string "THREW:TypeError: undefined is not an ob  !==null? true
+  searchTopOrderProgram(sample) -> object [{"op":"shuffleDeck"},{"op":"searchDeck"  !==null? true
+  splitAttackCancelClause(sample) -> object null  !==null? false
+  splitAttackGateClause(sample) -> object null  !==null? false
+  splitAttackRequirementClause(sample) -> object null  !==null? false
+  splitAttackTrailingClause(sample) -> object null  !==null? false
+  timingGateFromAttackText(sample) -> undefined undefined  !==null? true
+
+restored OK
+=== AT HEAD ===
+surface=13
+corpus=640  claimed=529
+non-deriveAttack members=0 -> 
+

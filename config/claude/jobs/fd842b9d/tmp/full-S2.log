@@ -1,0 +1,15 @@
+
+Mutation harness (D211) — 1 mutant(s), FULL suite
+
+  D497-surface-recomputes-on-every-call … SURVIVES(known)  131.3s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D497-surface-recomputes-… D497                  SURVIVES(known)  131.3s  2
+────────────────────────────────────────────────────────────────────────────────────
+0 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 263.2s total
+
+  known survivor  D497-surface-recomputes-on-every-call — equivalent
+      PURITY equivalence, not structural (D468) and not guarded (D467): surface()'s computation reads only Object.entries(effects), a module namespace whose key set and values are fixed at load, so recomputing returns a value-equal array on every call and no caller can distinguish one build from the other. Measured at D497: probed GREEN against angeliteCancel, installedRecoil, derivedAttackGate, precociousEvolution and discardScaledDamage, and GREEN under --full over the whole suite. FALSIFIER, executable and checked: the equivalence holds only while nothing REPLACES an effects export after the first call. grep -rn 'vi.mock(|vi.spyOn(' packages/engine/src returns ZERO — this engine's suites never stub a module namespace — so no board today can separate the memoised build from the recomputing one. The day a suite stubs an effects export, or effects.ts gains an export assigned lazily rather than at load, the memoised surface goes stale where the recomputing one does not, this row reports KILLED, and the run fails STALE-SURVIVOR
+

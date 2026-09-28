@@ -1,0 +1,135 @@
+[
+  {
+    "id": "D483-snipe-targets-ignores-the-class",
+    "decision": "D483",
+    "what": "🛑 **C1 — THE CENTRAL ARM AT ITS NEAREST WRONG SIBLING: the funnel builds the narrowed set and then RETURNS THE UNNARROWED ONE.** One identifier — `classed` → `scope` on the un-windowed return — and every printed class narrowing evaporates while the op, the arity, the zone, the park, the amount and the caption all stay exactly right. ⚠️ **SILENT IN EVERY CENSUS**: both sentences still resolve, `BUILT.attack` is unmoved, both anchors still match and the derived op still carries its `filter` — the ONLY thing that moves is which bodies the prompt offers. It is D435's plausible-looking wrong answer at the address the whole slice turns on: an `ex`-only snipe that hits any Benched body, which is what the card would say if it did not print the word. §5 drives it as three DIFFERENT candidate lists on one board and §6 as the zero-match silence disappearing.",
+    "file": "packages/engine/src/interpreter.ts",
+    "find": "  if (op.damagedOnly !== true) return classed;",
+    "replace": "  if (op.damagedOnly !== true) return scope;",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-class-filter-reads-no-card",
+    "decision": "D483",
+    "what": "⚠️ **C2 — THE FILTER IS ASKED OF NOTHING**: `topCardOf(state, pokemon)` becomes `undefined`, which `matchesFilter` answers FALSE for (its conservative direction, stated in `cards.ts`). Every narrowed set is then EMPTY on every board, so both printed sentences become silent no-ops that pay their cost and hit nobody — the *other* end of C1's failure, and the reason §5 asserts a non-empty candidate list before §6 asserts an empty one. **A build that got the card source wrong would look exactly like a board with no `ex` on it**, which is precisely what §6's controls exist to separate.",
+    "file": "packages/engine/src/interpreter.ts",
+    "find": "          return pokemon !== undefined && matchesFilter(topCardOf(state, pokemon), narrowing);",
+    "replace": "          return pokemon !== undefined && matchesFilter(undefined, narrowing);",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-snipe-note-drops-the-class",
+    "decision": "D483",
+    "what": "🛑 **C3 — THE DIALOG CONTRADICTS ITS OWN VALIDATOR (D206/D331/D478).** The heading falls back to the bare noun while `snipeTargets` still narrows, so the prompt says *\"Choose 1 of your opponent's Benched Pokémon\"* over a list holding TWO of a four-body Bench. ⚠️ **THE BOARD IS CORRECT AND ONLY THE WORDS ARE WRONG**, which is the failure mode no state-shaped assertion can reach and the one D437 wrote its own window into this function for. It is also the row that keeps `retrieveNoun`'s `suffixPokemon` arm LIVE: under this mutation nothing in the engine renders that phrase again and `bodiesInPlayScaling.test.ts` §7's re-pointed rung still passes, so the caption is the only witness.",
+    "file": "packages/engine/src/interpreter.ts",
+    "find": "  const noun = narrowing === undefined ? \"Pokémon\" : retrieveNoun(narrowing).plural;",
+    "replace": "  const noun = \"Pokémon\";",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-class-noun-map-pair-collapses-to-ex",
+    "decision": "D483",
+    "what": "⚠️ **C4 — THE PRINTED PAIR IS READ AS THE SINGLETON.** *\"Benched Pokémon ex or Benched Pokémon V\"* maps to `suffixPokemon ex` alone, so the `V` stops being a candidate on a card that names it in so many words. 🛑 **THE SENTENCE STILL RESOLVES AND THE CENSUS DOES NOT MOVE** — this is a wrong CANDIDATE SET behind a correct-looking derivation, and it is the exact reason the load-bearing bench is `ex, V, plain, ex` rather than uniform: §5 reads three different candidate lists off one board and §6's CONTROL B watches the `V`-only board go silent.",
+    "file": "packages/engine/src/effects.ts",
+    "find": "  [\n    \"ex or Benched Pokémon V\",\n    {\n      kind: \"anyOf\",\n      filters: [\n        { kind: \"suffixPokemon\", suffix: \"ex\" },\n        { kind: \"suffixPokemon\", suffix: \"V\" },\n      ],\n    },\n  ],",
+    "replace": "  [\n    \"ex or Benched Pokémon V\",\n    { kind: \"suffixPokemon\", suffix: \"ex\" },\n  ],",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-class-noun-map-ex-widens-to-the-pair",
+    "decision": "D483",
+    "what": "⚠️ **C5 — C4's MIRROR, AND IT IS THE WIDENING RATHER THAN THE NARROWING**: the row that spells `ex` alone maps to the `anyOf`, so file line 111's *\"Benched Pokémon **ex**\"* offers `V` bodies the card never named. **The pair of rows is what makes each one a claim**; a single-direction row here would leave a build that resolved both nouns to one filter looking correct on half the evidence. §5's `[0, 3]` vs `[0, 1, 3]` is the whole discrimination and it is asserted as a set INEQUALITY rather than as two lengths.",
+    "file": "packages/engine/src/effects.ts",
+    "find": "  [\"ex\", { kind: \"suffixPokemon\", suffix: \"ex\" }],",
+    "replace": "  [\"ex\", { kind: \"anyOf\", filters: [{ kind: \"suffixPokemon\", suffix: \"ex\" }, { kind: \"suffixPokemon\", suffix: \"V\" }] }],",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-class-alternation-shortest-first",
+    "decision": "D483",
+    "what": "⚠️ **C6 — THE ALTERNATION IS BUILT SHORTEST-FIRST**, which is the ordering an author writes without thinking and the one place in this file where order is load-bearing: `ex` is a strict PREFIX of `ex or Benched Pokémon V`, so the shorter key matches and ` or Benched Pokémon V` is left for the terminator to refuse. **Corpus file line 615 goes back to the loud `ATTACK_EFFECT_SKIPPED` path and the other printed row is untouched**, so exactly half the slice disappears — a census move of 1, which is small enough to look like a rounding and is why §3 pins the sort as a rung of its own.",
+    "file": "packages/engine/src/effects.ts",
+    "find": "  `(?: (${[...BENCHED_SNIPE_CLASS_NOUNS.keys()].sort((a, b) => b.length - a.length).join(\"|\")}))?` +",
+    "replace": "  `(?: (${[...BENCHED_SNIPE_CLASS_NOUNS.keys()].sort((a, b) => a.length - b.length).join(\"|\")}))?` +",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-flat-arm-reads-the-group-behind-the-class",
+    "decision": "D483",
+    "what": "🛑 **C7 — THE OFF-BY-ONE-GROUP MISTAKE AN INSERTED CAPTURE INVITES, AND IT IS D400/D447's OWN SPECIES AT A THIRD SITE.** The class is read from `match[5]`, which is now the DAMAGED-BODY WINDOW: neither the compiler nor a type sees a `match[n]`, the sentence still matches, and the arm looks up the window's captured text (`\" that has any damage counters on it\"`) in the noun map, misses, and refuses. **Both printed rows fall to the loud path through the `readable` conjunct** — the guard doing the job it was written for, on a defect it was not written for.",
+    "file": "packages/engine/src/effects.ts",
+    "find": "    const classNoun = match[4];",
+    "replace": "    const classNoun = match[5];",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-both-riders-resolved-rather-than-refused",
+    "decision": "D483",
+    "what": "⚠️ **C8 — THE UNPRINTED COMPOSITION IS RESOLVED, SILENTLY PREFERRING ONE RIDER OVER THE OTHER** (`CHOSEN_ANY_TARGET`'s D448 rule, dropped). With `bothRiders` gone, *\"Benched Pokémon ex that has any damage counters on it\"* derives to a `damageChosen` carrying the CLASS and NOT the window, because the class branch returns first — an op that narrows on one of the two printed axes and drops the other. 🛑 **NO CARD PRINTS IT, WHICH IS THE POINT**: the refusal is what keeps a half-honoured sentence off the derived path instead of relying on the catalog, and §7 drives it against BOTH single-rider spellings so the rung cannot pass by accident.",
+    "file": "packages/engine/src/effects.ts",
+    "find": "    const bothRiders = damagedOnly && classNoun !== undefined;",
+    "replace": "    const bothRiders = false;",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-selfdiscard-arm-drops-the-class",
+    "decision": "D483",
+    "what": "🛑 **C9 — ONE CALLER OF THE SHARED FRAGMENT HONOURS THE WIDENING AND ANOTHER DROPS IT, WHICH IS THE EXACT DRIFT D383 MADE THE FRAGMENT SHARED TO PREVENT.** Arm 9b-bis stops emitting the `filter`, so corpus file line 111 — the row D472 priced, D477 declined and `costBenchSnipe.test.ts` fielded as a refusal witness — derives to a snipe that hits ANY Benched body after discarding all its Energy. ⚠️ **THE SENTENCE STILL RESOLVES AND `BUILT.attack` STAYS AT 1595**, so every census figure in the repo is unmoved; the only witnesses are the derived op in §2 and the candidate list in §5.",
+    "file": "packages/engine/src/effects.ts",
+    "find": "      if (costNarrowing !== undefined) {\n        return [\n          { op: \"discardEnergy\", from: \"yourActive\", filter, count: cost },\n          {\n            op: \"damageChosen\",\n            target: benchSide,\n            amount: hit,\n            count: bodies,\n            source: \"attack\",\n            deals: true,\n            filter: costNarrowing,\n          },\n        ];\n      }\n",
+    "replace": "",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts",
+      "packages/engine/src/costBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-gated-arm-drops-the-class",
+    "decision": "D483",
+    "what": "⚠️ **C10 — C9's TWIN AT THE THIRD CALLER, AND IT IS A ROW EVEN THOUGH NO CARD PRINTS THE COMPOSITION.** Arm 6c-bis stops reading the class inside its `conditionGate`, so a gated narrowed snipe would derive un-narrowed. **The catalog prints one gated bench snipe and it carries no class**, so this is the reading the deriver WOULD give rather than a claim that it is printed — which is why §7 drives it on a CONSTRUCTED sentence, labelled as such (D440). D437 and D447 each made this same call at this same arm; the row is what keeps the fragment's four callers from becoming three opinions.",
+    "file": "packages/engine/src/effects.ts",
+    "find": "      if (gatedNarrowing !== undefined) {\n        return [\n          {\n            op: \"conditionGate\",\n            cond,\n            // biome-ignore lint/suspicious/noThenProperty: `then` is the effect contract's gated-step list, not a thenable (arrays are not callable).\n            then: [\n              {\n                op: \"damageChosen\",\n                target: gatedSide,\n                amount,\n                count,\n                source: \"attack\",\n                deals: true,\n                filter: gatedNarrowing,\n              },\n            ],\n          },\n        ];\n      }\n",
+    "replace": "",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-payoff-honours-the-class-it-cannot-carry",
+    "decision": "D483",
+    "what": "🛑 **C11 — THE FOURTH CALLER STOPS REFUSING AND RETURNS THE UN-NARROWED PAYOFF**, which is strictly worse than an unbuilt sentence (D190b/D199): `AttackOptionalCostPayoff.benchSnipe` is `{amount, count}` with no slot for a class, so a narrowed payoff would aim a SHIPPED reader at bodies the card never offered. ⚠️ **AND IT LOOKS LIKE A COVERAGE WIN** — a sentence that was refused now resolves and no census figure falls, because the composition is not printed at all. `optionalCostPayoff` is `deriveAttackOptionalCostBoost`'s half, a DIFFERENT reader from the two arms above, which is why §7 drives it there rather than through `deriveAttackEffect`.",
+    "file": "packages/engine/src/effects.ts",
+    "find": "    if (snipe[4] !== undefined) return null;",
+    "replace": "",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  },
+  {
+    "id": "D483-payoff-refusals-swap-their-groups",
+    "decision": "D483",
+    "what": "⚠️ **C12 — THE TWO ADJACENT REFUSALS READ EACH OTHER'S GROUP.** `snipe[5]` (the damaged-body window, D437's) becomes `snipe[4]`, so the payoff refuses the CLASS twice and stops refusing the WINDOW at all — a doubled guard and a missing one, which is exactly what an inserted capture produces when only one of two adjacent index reads is re-pointed. 🛑 **THE CLASS RUNG ALONE CANNOT SEE IT**, because a class payoff is refused either way; it takes the WINDOW rung beside it, which is why §7 asserts both refusals and a live control between them.",
+    "file": "packages/engine/src/effects.ts",
+    "find": "    if (snipe[5] !== undefined) return null;",
+    "replace": "    if (snipe[4] !== undefined) return null;",
+    "expectKilledBy": [
+      "packages/engine/src/classNarrowedBenchSnipe.test.ts"
+    ]
+  }
+]

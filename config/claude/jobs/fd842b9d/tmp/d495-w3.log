@@ -1,0 +1,215 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts (26 tests | 1 failed) 147ms
+     × 🛑 the resolving corpus gains TWO sentences and TWO printings 31ms
+ ❯ packages/engine/src/compoundCompose.test.ts (30 tests | 1 failed) 146ms
+     × 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused 18ms
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts (27 tests | 1 failed) 122ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 24ms
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts (31 tests | 1 failed) 120ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 24ms
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts (22 tests | 1 failed) 80ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 31ms
+ ❯ packages/engine/src/defenderStatusTriple.test.ts (31 tests | 1 failed) 107ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 23ms
+ ❯ packages/engine/src/bareAttackLock.test.ts (26 tests | 1 failed) 73ms
+     × refuses the COIN-GATED defender lock, which this slice measured and left out 8ms
+ ❯ packages/engine/src/censusAtHead.test.ts (50 tests | 1 failed) 200ms
+     × the headline arithmetic closes over all four columns 35ms
+ ❯ packages/engine/src/precociousEvolution.test.ts (13 tests | 1 failed) 88ms
+     × 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two 44ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/bareAttackLock.test.ts > §5 — anchored end to end, and every refusal is a warrant > refuses the COIN-GATED defender lock, which this slice measured and left out
+AssertionError: expected [ { op: 'coinFlipGate', …(1) } ] to be null
+
+- Expected:
+null
+
++ Received:
+[
+  {
+    "op": "coinFlipGate",
+    "then": [
+      {
+        "op": "preventAttack",
+        "target": "defender",
+      },
+    ],
+  },
+]
+
+ ❯ packages/engine/src/bareAttackLock.test.ts:428:7
+    426|         "Flip a coin. If heads, during your opponent's next turn, the …
+    427|       ),
+    428|     ).toBeNull();
+       |       ^
+    429|   });
+    430|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the headline arithmetic closes over all four columns
+AssertionError: expected 2017 to be 2016 // Object.is equality
+
+- Expected
++ Received
+
+- 2016
++ 2017
+
+ ❯ packages/engine/src/censusAtHead.test.ts:4231:19
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  packages/engine/src/compoundCompose.test.ts > §4 — the SHADOW REFUSAL: the anchor wins, the splitter is the fallback > 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused
+AssertionError: expected 498 to be 497 // Object.is equality
+
+- Expected
++ Received
+
+- 497
++ 498
+
+ ❯ packages/engine/src/compoundCompose.test.ts:622:33
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 528, 1560 ] to deeply equal [ 527, 1559 ]
+
+- Expected
++ Received
+
+  [
+-   527,
+-   1559,
++   528,
++   1560,
+  ]
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:546:58
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 528, 1560 ] to deeply equal [ 527, 1559 ]
+
+- Expected
++ Received
+
+  [
+-   527,
+-   1559,
++   528,
++   1560,
+  ]
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:565:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  packages/engine/src/flipStatusHeadsTails.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 528, 1560 ] to deeply equal [ 527, 1559 ]
+
+- Expected
++ Received
+
+  [
+-   527,
+-   1559,
++   528,
++   1560,
+  ]
+
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts:735:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  packages/engine/src/perHeadsEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ 527, 1560 ] to deeply equal [ 526, 1559 ]
+
+- Expected
++ Received
+
+  [
+-   526,
+-   1559,
++   527,
++   1560,
+  ]
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts:667:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  packages/engine/src/precociousEvolution.test.ts > D306 §2 — what BUILT.attack would move by, keyed on the READER > 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two
+AssertionError: expected 1612 to be 1611 // Object.is equality
+
+- Expected
++ Received
+
+- 1611
++ 1612
+
+ ❯ packages/engine/src/precociousEvolution.test.ts:635:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §2 — the census moves in exactly ONE summand, and the step is 1 and 1 > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 528, 1561 ] to deeply equal [ 527, 1560 ]
+
+- Expected
++ Received
+
+  [
+-   527,
+-   1560,
++   528,
++   1561,
+  ]
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:190:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  9 failed | 471 passed (480)
+      Tests  9 failed | 10935 passed (10944)
+   Start at  21:27:13
+   Duration  173.46s (transform 25.88s, setup 0ms, import 189.41s, tests 49.10s, environment 31.10s)
+

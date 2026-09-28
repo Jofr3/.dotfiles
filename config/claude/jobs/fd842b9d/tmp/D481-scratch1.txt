@@ -1,0 +1,1105 @@
+scripts/catalog-manifest.ts:58:26 - error TS2307: Cannot find module 'bun:sqlite' or its corresponding type declarations.
+
+58 import { Database } from "bun:sqlite";
+                            ~~~~~~~~~~~~
+
+scripts/catalog-manifest.ts:59:41 - error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+59 import { statSync, writeFileSync } from "node:fs";
+                                           ~~~~~~~~~
+
+scripts/catalog-manifest.ts:354:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+354 if (process.argv.includes("--check")) {
+        ~~~~~~~
+
+scripts/catalog-manifest.ts:355:25 - error TS2868: Cannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig.
+
+355   const current = await Bun.file(OUT)
+                            ~~~
+
+scripts/catalog-manifest.ts:361:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+361     console.error(`${OUT} is STALE — run: bun run scripts/catalog-manifest.ts`);
+        ~~~~~~~
+
+scripts/catalog-manifest.ts:362:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+362     process.exit(1);
+        ~~~~~~~
+
+scripts/catalog-manifest.ts:364:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+364   console.log(`${OUT} is current (${rows} rows, sqlite mtime ${stat.mtime.toISOString()}).`);
+      ~~~~~~~
+
+scripts/catalog-manifest.ts:367:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+367   console.log(`${OUT} written — ${rows} rows, ${perSet.length} sets, ${Object.keys(printed).length} fixture rows, ${absent.length} absent.`);
+      ~~~~~~~
+
+scripts/lint-coverage.ts:61:27 - error TS2591: Cannot find name 'node:child_process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+61 import { spawnSync } from "node:child_process";
+                             ~~~~~~~~~~~~~~~~~~~~
+
+scripts/lint-coverage.ts:62:52 - error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+62 import { existsSync, readFileSync, statSync } from "node:fs";
+                                                      ~~~~~~~~~
+
+scripts/lint-coverage.ts:86:33 - error TS2534: A function returning 'never' cannot have a reachable end point.
+
+86 function fail(message: string): never {
+                                   ~~~~~
+
+scripts/lint-coverage.ts:87:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+87   console.error(message);
+     ~~~~~~~
+
+scripts/lint-coverage.ts:88:3 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+88   process.exit(1);
+     ~~~~~~~
+
+scripts/lint-coverage.ts:105:3 - error TS2322: Type 'unknown[]' is not assignable to type 'string[]'.
+  Type 'unknown' is not assignable to type 'string'.
+
+105   return [...seen].filter((f) => existsSync(f)).sort();
+      ~~~~~~
+
+scripts/lint-coverage.ts:151:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+151   console.log(`lint-coverage: OK — all ${files.length} source files are covered by Biome.`);
+      ~~~~~~~
+
+scripts/lint-coverage.ts:152:3 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+152   process.exit(0);
+      ~~~~~~~
+
+scripts/mutation/opcoverage.ts:97:30 - error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+97 import { readFileSync } from "node:fs";
+                                ~~~~~~~~~
+
+scripts/mutation/opcoverage.ts:100:22 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+100 const FANIN = Number(process.env.FANIN ?? 4);
+                         ~~~~~~~
+
+scripts/mutation/opcoverage.ts:101:20 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+101 const LEV = Number(process.env.LEV ?? 2);
+                       ~~~~~~~
+
+scripts/mutation/opcoverage.ts:400:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+400 console.log(
+    ~~~~~~~
+
+scripts/mutation/opcoverage.ts:405:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+405   console.log(`⚠ ${absent} row(s) whose \`find\` does not occur — run scripts/mutation/precheck.ts`);
+      ~~~~~~~
+
+scripts/mutation/opcoverage.ts:414:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+414 console.log(`producer-side row·kind pairs: ${prodPairs}   implementation-side: ${implPairs}`);
+    ~~~~~~~
+
+scripts/mutation/opcoverage.ts:444:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+444 console.log(`producer-ONLY: ${prodOnly.length} ${JSON.stringify(prodOnly)}`);
+    ~~~~~~~
+
+scripts/mutation/opcoverage.ts:445:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+445 console.log(
+    ~~~~~~~
+
+scripts/mutation/opcoverage.ts:449:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+449 console.log(`implementation-ONLY: ${implOnly.length} ${JSON.stringify(implOnly)}`);
+    ~~~~~~~
+
+scripts/mutation/opcoverage.ts:450:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+450 console.log(`NEITHER seat: ${neither.length} ${JSON.stringify(neither)}`);
+    ~~~~~~~
+
+scripts/mutation/opcoverage.ts:475:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+475 console.log("\n=== SEAT-LINE COVERAGE (the stopping rule) ===");
+    ~~~~~~~
+
+scripts/mutation/opcoverage.ts:476:34 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+476 for (const r of seatRows.sort()) console.log(r);
+                                     ~~~~~~~
+
+scripts/mutation/opcoverage.ts:477:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+477 console.log(`SEAT LINES: ${seatCovered}/${seatTotal} = ${(seatCovered / seatTotal).toFixed(3)}`);
+    ~~~~~~~
+
+scripts/mutation/opcoverage.ts:480:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+480 console.log(`DECISION POINTS: ${implPairs}/${dpTotal} = ${dpRatio}  (weaker — ${dpCaveat})`);
+    ~~~~~~~
+
+scripts/mutation/precheck.ts:20:30 - error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+20 import { readFileSync } from "node:fs";
+                                ~~~~~~~~~
+
+scripts/mutation/precheck.ts:79:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+79 console.log(`checked ${String(MUTANTS.length)} mutants`);
+   ~~~~~~~
+
+scripts/mutation/precheck.ts:81:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+81   console.error(`\n${String(broken.length)} BROKEN ROW(S):`);
+     ~~~~~~~
+
+scripts/mutation/precheck.ts:82:29 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+82   for (const row of broken) console.error(`  ${row}`);
+                               ~~~~~~~
+
+scripts/mutation/precheck.ts:84:50 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+84 if (!splice.ok) for (const line of splice.lines) console.error(line);
+                                                    ~~~~~~~
+
+scripts/mutation/precheck.ts:85:38 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+85 if (broken.length > 0 || !splice.ok) process.exit(1);
+                                        ~~~~~~~
+
+scripts/mutation/precheck.ts:86:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+86 console.log(
+   ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:58:34 - error TS2591: Cannot find name 'node:child_process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+58 import { spawn, spawnSync } from "node:child_process";
+                                    ~~~~~~~~~~~~~~~~~~~~
+
+scripts/mutation/recovery-gate.ts:59:78 - error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+59 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+                                                                                ~~~~~~~~~
+
+scripts/mutation/recovery-gate.ts:60:24 - error TS2591: Cannot find name 'node:os'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+60 import { tmpdir } from "node:os";
+                          ~~~~~~~~~
+
+scripts/mutation/recovery-gate.ts:61:40 - error TS2591: Cannot find name 'node:path'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+61 import { dirname, join, resolve } from "node:path";
+                                          ~~~~~~~~~~~
+
+scripts/mutation/recovery-gate.ts:62:31 - error TS2591: Cannot find name 'node:url'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+62 import { fileURLToPath } from "node:url";
+                                 ~~~~~~~~~~
+
+scripts/mutation/recovery-gate.ts:64:61 - error TS2339: Property 'url' does not exist on type 'ImportMeta'.
+
+64 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+                                                               ~~~
+
+scripts/mutation/recovery-gate.ts:80:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+80     console.log(`  ✓ ${label}`);
+       ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:84:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+84   console.log(`  ✗ ${line}`);
+     ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:95:47 - error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+95         files: [{ path: subject, originalB64: Buffer.from(ORIGINAL).toString("base64") }],
+                                                 ~~~~~~
+
+scripts/mutation/recovery-gate.ts:111:15 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+111     env: { ...process.env, MUTATION_JOURNAL_PATH: JOURNAL },
+                  ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:123:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+123     process.kill(1, 0);
+        ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:126:20 - error TS2503: Cannot find namespace 'NodeJS'.
+
+126     return (err as NodeJS.ErrnoException).code === "EPERM" ? 1 : null;
+                       ~~~~~~
+
+scripts/mutation/recovery-gate.ts:141:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+141     console.log("\nD411 — journal liveness gate\n");
+        ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:144:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+144     console.log("(1) journal names a LIVE pid — must refuse and write nothing");
+        ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:146:39 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+146     writeJournalNaming(sleeper.pid ?? process.pid, subject);
+                                          ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:159:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+159     console.log("\n(2) the same journal, pid now DEAD — must recover and clear");
+        ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:163:39 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+163     writeJournalNaming(sleeper.pid ?? process.pid, subject);
+                                          ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:171:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+171     console.log("\n(3) journal names a FOREIGN-OWNED pid — must refuse (the EPERM arm)");
+        ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:174:7 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+174       console.log("  ⚠️ NOT RUN — no foreign-owned pid on this machine (running as uid 0?).");
+          ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:175:7 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+175       console.log("     The EPERM arm of `pidIsAlive` is unexercised here, and says so.");
+          ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:193:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+193     console.error(`\n🛑 recovery-gate: ${failures.length} check(s) FAILED`);
+        ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:194:34 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+194     for (const line of failures) console.error(`   ${line}`);
+                                     ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:195:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+195     console.error("");
+        ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:196:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+196     process.exit(1);
+        ~~~~~~~
+
+scripts/mutation/recovery-gate.ts:198:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+198   console.log("\nrecovery-gate: OK — refuses a live journal, still recovers a dead one.\n");
+      ~~~~~~~
+
+scripts/mutation/run.ts:109:34 - error TS2591: Cannot find name 'node:child_process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+109 import { spawn, spawnSync } from "node:child_process";
+                                     ~~~~~~~~~~~~~~~~~~~~
+
+scripts/mutation/run.ts:110:65 - error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+110 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+                                                                    ~~~~~~~~~
+
+scripts/mutation/run.ts:111:27 - error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+111 import { mkdirSync } from "node:fs";
+                              ~~~~~~~~~
+
+scripts/mutation/run.ts:112:40 - error TS2591: Cannot find name 'node:path'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+112 import { dirname, join, resolve } from "node:path";
+                                           ~~~~~~~~~~~
+
+scripts/mutation/run.ts:113:31 - error TS2591: Cannot find name 'node:url'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+113 import { fileURLToPath } from "node:url";
+                                  ~~~~~~~~~~
+
+scripts/mutation/run.ts:116:61 - error TS2339: Property 'url' does not exist on type 'ImportMeta'.
+
+116 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+                                                                ~~~
+
+scripts/mutation/run.ts:126:3 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+126   process.env.MUTATION_JOURNAL_PATH ?? join(REPO_ROOT, "tmp", "mutation-journal.json");
+      ~~~~~~~
+
+scripts/mutation/run.ts:134:34 - error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+134 const inFlight = new Map<string, Buffer>();
+                                     ~~~~~~
+
+scripts/mutation/run.ts:142:10 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+142     pid: process.pid,
+             ~~~~~~~
+
+scripts/mutation/run.ts:161:7 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+161       process.stderr.write(`\n!! FAILED TO RESTORE ${path}: ${String(err)}\n`);
+          ~~~~~~~
+
+scripts/mutation/run.ts:162:7 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+162       process.stderr.write(`!! original bytes are in ${JOURNAL}\n`);
+          ~~~~~~~
+
+scripts/mutation/run.ts:184:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+184     process.kill(pid, 0);
+        ~~~~~~~
+
+scripts/mutation/run.ts:187:20 - error TS2503: Cannot find namespace 'NodeJS'.
+
+187     return (err as NodeJS.ErrnoException).code === "EPERM";
+                       ~~~~~~
+
+scripts/mutation/run.ts:233:23 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+233   if (journal.pid !== process.pid && pidIsAlive(journal.pid)) {
+                          ~~~~~~~
+
+scripts/mutation/run.ts:234:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+234     console.error(`\n🛑  A mutation run is ALREADY IN FLIGHT (pid ${journal.pid}, started ${journal.startedAt}).`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:235:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+235     console.error("    Refusing to recover: its journal is not wreckage, it is that run's net.");
+        ~~~~~~~
+
+scripts/mutation/run.ts:236:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+236     console.error("    Restoring from it would overwrite the mutant that run has on disk right");
+        ~~~~~~~
+
+scripts/mutation/run.ts:237:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+237     console.error("    now, and its row would report CLOBBER against this process.\n");
+        ~~~~~~~
+
+scripts/mutation/run.ts:239:7 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+239       console.error(`    in flight: ${entry.path}`);
+          ~~~~~~~
+
+scripts/mutation/run.ts:241:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+241     console.error("\n    Wait for it to finish, or stop it (a SIGINT/SIGTERM restores and clears).");
+        ~~~~~~~
+
+scripts/mutation/run.ts:242:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+242     console.error("    If you are certain that pid is NOT this harness (pids are reused), delete");
+        ~~~~~~~
+
+scripts/mutation/run.ts:243:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+243     console.error(`    ${JOURNAL} by hand — but read it first: it holds the only copy of the`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:244:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+244     console.error("    original bytes.\n");
+        ~~~~~~~
+
+scripts/mutation/run.ts:248:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+248   console.error(`\n⚠️  A previous mutation run (pid ${journal.pid}, started ${journal.startedAt})`);
+      ~~~~~~~
+
+scripts/mutation/run.ts:249:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+249   console.error("    did not restore its files. Restoring them now from the journal.\n");
+      ~~~~~~~
+
+scripts/mutation/run.ts:251:31 - error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+251     writeFileSync(entry.path, Buffer.from(entry.originalB64, "base64"));
+                                  ~~~~~~
+
+scripts/mutation/run.ts:252:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+252     console.error(`    restored ${entry.path}`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:255:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+255   console.error("\n    Done. Verify with `git diff --stat`, then re-run.\n");
+      ~~~~~~~
+
+scripts/mutation/run.ts:315:13 - error TS7006: Parameter 'line' implicitly has an 'any' type.
+
+315       .map((line) => line.slice(3).trim())
+                ~~~~
+
+scripts/mutation/run.ts:317:13 - error TS7006: Parameter 'path' implicitly has an 'any' type.
+
+317       .map((path) => (path.includes(" -> ") ? path.slice(path.indexOf(" -> ") + 4) : path))
+                ~~~~
+
+scripts/mutation/run.ts:318:13 - error TS7006: Parameter 'path' implicitly has an 'any' type.
+
+318       .map((path) => path.replace(/^"|"$/g, ""))
+                ~~~~
+
+scripts/mutation/run.ts:325:3 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+325   process.on("exit", restoreAll);
+      ~~~~~~~
+
+scripts/mutation/run.ts:327:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+327     process.on(sig, () => {
+        ~~~~~~~
+
+scripts/mutation/run.ts:328:7 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+328       process.stderr.write(`\n[${sig}] restoring ${inFlight.size} file(s) before exit…\n`);
+          ~~~~~~~
+
+scripts/mutation/run.ts:331:7 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+331       process.exit(130);
+          ~~~~~~~
+
+scripts/mutation/run.ts:334:3 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+334   process.on("uncaughtException", (err) => {
+      ~~~~~~~
+
+scripts/mutation/run.ts:334:36 - error TS7006: Parameter 'err' implicitly has an 'any' type.
+
+334   process.on("uncaughtException", (err) => {
+                                       ~~~
+
+scripts/mutation/run.ts:335:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+335     process.stderr.write(`\n[uncaught] ${String(err)}\n`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:338:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+338     process.exit(1);
+        ~~~~~~~
+
+scripts/mutation/run.ts:340:3 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+340   process.on("unhandledRejection", (err) => {
+      ~~~~~~~
+
+scripts/mutation/run.ts:340:37 - error TS7006: Parameter 'err' implicitly has an 'any' type.
+
+340   process.on("unhandledRejection", (err) => {
+                                        ~~~
+
+scripts/mutation/run.ts:341:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+341     process.stderr.write(`\n[unhandled rejection] ${String(err)}\n`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:344:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+344     process.exit(1);
+        ~~~~~~~
+
+scripts/mutation/run.ts:382:17 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+382       env: { ...process.env, CI: "1", FORCE_COLOR: "0" },
+                    ~~~~~~~
+
+scripts/mutation/run.ts:386:33 - error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+386     proc.stdout?.on("data", (d: Buffer) => {
+                                    ~~~~~~
+
+scripts/mutation/run.ts:389:33 - error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+389     proc.stderr?.on("data", (d: Buffer) => {
+                                    ~~~~~~
+
+scripts/mutation/run.ts:392:23 - error TS7006: Parameter 'code' implicitly has an 'any' type.
+
+392     proc.on("close", (code) => {
+                          ~~~~
+
+scripts/mutation/run.ts:569:24 - error TS2591: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+569     if (!onDisk.equals(Buffer.from(mutatedText))) {
+                           ~~~~~~
+
+scripts/mutation/run.ts:573:7 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+573       process.stderr.write(
+          ~~~~~~~
+
+scripts/mutation/run.ts:638:16 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+638   const argv = process.argv.slice(2);
+                   ~~~~~~~
+
+scripts/mutation/run.ts:658:7 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+658       console.log(`${mutant.id.padEnd(22)} ${mutant.decision.padEnd(22)} ${mutant.what}${tag}`);
+          ~~~~~~~
+
+scripts/mutation/run.ts:659:7 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+659       console.log(`${" ".repeat(22)} ${mutant.file} → ${mutant.expectKilledBy.join(", ")}`);
+          ~~~~~~~
+
+scripts/mutation/run.ts:670:37 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+670   if (journalState === "in-flight") process.exit(3);
+                                        ~~~~~~~
+
+scripts/mutation/run.ts:671:37 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+671   if (journalState === "recovered") process.exit(2);
+                                        ~~~~~~~
+
+scripts/mutation/run.ts:685:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+685     console.error("No mutants selected.");
+        ~~~~~~~
+
+scripts/mutation/run.ts:686:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+686     process.exit(2);
+        ~~~~~~~
+
+scripts/mutation/run.ts:691:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+691   console.log(
+      ~~~~~~~
+
+scripts/mutation/run.ts:700:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+700     console.log(
+        ~~~~~~~
+
+scripts/mutation/run.ts:710:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+710     process.stdout.write(`  ${mutant.id.padEnd(26)} … `);
+        ~~~~~~~
+
+scripts/mutation/run.ts:713:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+713     console.log(`${row.verdict.padEnd(16)} ${(row.ms / 1000).toFixed(1)}s`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:718:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+718   console.log(`\n${"─".repeat(84)}`);
+      ~~~~~~~
+
+scripts/mutation/run.ts:719:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+719   console.log(
+      ~~~~~~~
+
+scripts/mutation/run.ts:722:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+722   console.log("─".repeat(84));
+      ~~~~~~~
+
+scripts/mutation/run.ts:724:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+724     console.log(
+        ~~~~~~~
+
+scripts/mutation/run.ts:728:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+728   console.log("─".repeat(84));
+      ~~~~~~~
+
+scripts/mutation/run.ts:738:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+738   console.log(
+      ~~~~~~~
+
+scripts/mutation/run.ts:743:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+743     console.log(`  known survivor  ${row.mutant.id} — ${row.mutant.survives?.kind}`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:744:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+744     console.log(`      ${row.mutant.survives?.reason}\n`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:747:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+747     console.log(`\n⚠️  SURVIVED (undeclared) — ${row.mutant.id}  [${row.mutant.decision}]`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:748:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+748     console.log(`    ${row.mutant.what}`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:749:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+749     console.log(`    ${row.mutant.file}`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:750:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+750     console.log(
+        ~~~~~~~
+
+scripts/mutation/run.ts:755:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+755     console.log(`\n⚠️  STALE-SURVIVOR — ${row.mutant.id}  [${row.mutant.decision}]`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:756:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+756     console.log(`    Declared unkillable for: ${row.mutant.survives?.reason}`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:757:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+757     console.log("    It was KILLED. That reason has stopped being true — update the row.");
+        ~~~~~~~
+
+scripts/mutation/run.ts:760:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+760     console.log(`\n⏭  SKIPPED-DIRTY — ${row.mutant.id}  [${row.mutant.decision}]`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:761:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+761     console.log(`    ${row.note}`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:764:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+764     console.log(`\n🛑 CLOBBER — ${row.mutant.id}  [${row.mutant.decision}]`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:765:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+765     console.log(`    ${row.note}`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:768:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+768     console.log(`\n⚠️  ERROR — ${row.mutant.id}: ${row.note}`);
+        ~~~~~~~
+
+scripts/mutation/run.ts:774:3 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+774   process.exit(
+      ~~~~~~~
+
+scripts/mutation/splice-gate.ts:52:30 - error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+52 import { readFileSync } from "node:fs";
+                                ~~~~~~~~~
+
+scripts/mutation/splice-gate.ts:126:38 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+126     for (const line of report.lines) console.error(line);
+                                         ~~~~~~~
+
+scripts/mutation/splice-gate.ts:127:5 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+127     process.exit(1);
+        ~~~~~~~
+
+scripts/mutation/splice-gate.ts:129:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+129   console.log(`splice-gate: OK — ${report.lines[0] ?? ""}.`);
+      ~~~~~~~
+
+scripts/mutation/splice-gate.ts:134:17 - error TS2339: Property 'main' does not exist on type 'ImportMeta'.
+
+134 if (import.meta.main) main();
+                    ~~~~
+
+scripts/opaque-anatomy-gate.ts:87:23 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+87 const SUBMAX = Number(process.env.SUBMAX ?? 4);
+                         ~~~~~~~
+
+scripts/opaque-anatomy-gate.ts:269:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+269   console.error(`opaque-anatomy-gate: ${failures.length} claim(s) FAILED\n`);
+      ~~~~~~~
+
+scripts/opaque-anatomy-gate.ts:270:29 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+270   for (const f of failures) console.error(`  🛑 ${f}\n`);
+                                ~~~~~~~
+
+scripts/opaque-anatomy-gate.ts:271:3 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+271   process.exit(1);
+      ~~~~~~~
+
+scripts/opaque-anatomy-gate.ts:274:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+274 console.log(
+    ~~~~~~~
+
+scripts/opaque-anatomy.ts:116:23 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+116 const SUBMAX = Number(process.env.SUBMAX ?? 4);
+                          ~~~~~~~
+
+scripts/opaque-anatomy.ts:427:17 - error TS2339: Property 'main' does not exist on type 'ImportMeta'.
+
+427 if (import.meta.main) {
+                    ~~~~
+
+scripts/opaque-anatomy.ts:428:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+428   console.log("=== THE `OPAQUE` ANATOMY (D471) ===");
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:429:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+429   console.log(
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:432:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+432   console.log(
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:436:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+436   console.log("\n=== AXIS ① — THE k-REGION PROBE ===");
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:437:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+437   console.log("CLASS                    sentences  printings");
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:445:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+445     console.log(`${c.padEnd(24)} ${P(hits.length)}        ${P(hits.reduce((s, a) => s + a.units, 0))}`);
+        ~~~~~~~
+
+scripts/opaque-anatomy.ts:449:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+449   console.log(
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:452:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+452   console.log(
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:456:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+456   console.log(
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:460:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+460   console.log("\n=== AXIS ② — THE MARKERS, WITH THEIR BUILT-SIDE CONTROL ===");
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:461:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+461   console.log("MARKER              VERDICT      OPAQUE       RESIDUE        BUILT");
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:463:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+463     console.log(
+        ~~~~~~~
+
+scripts/opaque-anatomy.ts:467:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+467   console.log(
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:470:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+470   console.log(
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:473:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+473   console.log("   six were written as blockers and refuted by this very column.");
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:475:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+475   console.log("\n=== ROWS, BY CLASS ===");
+      ~~~~~~~
+
+scripts/opaque-anatomy.ts:477:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+477     console.log(`\n── ${c} ${"─".repeat(Math.max(0, 60 - c.length))}`);
+        ~~~~~~~
+
+scripts/opaque-anatomy.ts:479:7 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+479       console.log(`${P(a.units)}p  ${a.text}`);
+          ~~~~~~~
+
+scripts/opaque-anatomy.ts:481:9 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+481         console.log(`     ${a.hit.k} region(s) → BUILT: ${a.hit.onto}`);
+            ~~~~~~~
+
+scripts/opaque-anatomy.ts:482:9 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+482         console.log(
+            ~~~~~~~
+
+scripts/opaque-anatomy.ts:486:30 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+486       if (a.marker !== null) console.log(`     NEEDS: ${a.marker.needs}`);
+                                 ~~~~~~~
+
+scripts/opaque-anatomy.ts:488:9 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+488         console.log("     no bounded multi-region edit reaches a built string, and no BLOCKER marker fires.");
+            ~~~~~~~
+
+scripts/residue-census-gate.ts:60:30 - error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+60 import { readFileSync } from "node:fs";
+                                ~~~~~~~~~
+
+scripts/residue-census-gate.ts:206:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+206   console.error(`residue-census-gate: ${failures.length} claim(s) FAILED\n`);
+      ~~~~~~~
+
+scripts/residue-census-gate.ts:207:29 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+207   for (const f of failures) console.error(`  🛑 ${f}\n`);
+                                ~~~~~~~
+
+scripts/residue-census-gate.ts:208:3 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+208   process.exit(1);
+      ~~~~~~~
+
+scripts/residue-census-gate.ts:210:1 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+210 console.log(
+    ~~~~~~~
+
+scripts/residue-census.ts:249:30 - error TS2591: Cannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+249 import { readFileSync } from "node:fs";
+                                 ~~~~~~~~~
+
+scripts/residue-census.ts:258:23 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+258 const SUBMAX = Number(process.env.SUBMAX ?? 4);
+                          ~~~~~~~
+
+scripts/residue-census.ts:260:16 - error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+260 const NEEDLE = process.argv[2] ?? null;
+                   ~~~~~~~
+
+scripts/residue-census.ts:272:11 - error TS7006: Parameter 'l' implicitly has an 'any' type.
+
+272     .map((l) => l.replace(/\s*\/\/.*$/, ""))
+              ~
+
+scripts/residue-census.ts:482:3 - error TS2532: Object is possibly 'undefined'.
+
+482   slot[0]++;
+      ~~~~~~~
+
+scripts/residue-census.ts:483:3 - error TS2532: Object is possibly 'undefined'.
+
+483   slot[1] += units;
+      ~~~~~~~
+
+scripts/residue-census.ts:514:17 - error TS2339: Property 'main' does not exist on type 'ImportMeta'.
+
+514 if (import.meta.main && NEEDLE === null) {
+                    ~~~~
+
+scripts/residue-census.ts:515:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+515   console.log("=== THE BLOCKER CENSUS (D459) ===");
+      ~~~~~~~
+
+scripts/residue-census.ts:516:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+516   console.log(
+      ~~~~~~~
+
+scripts/residue-census.ts:519:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+519   console.log(
+      ~~~~~~~
+
+scripts/residue-census.ts:524:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+524     console.log(`  − ${k.padEnd(9)} ${P(s ?? 0)}            / ${P(u ?? 0)}`);
+        ~~~~~~~
+
+scripts/residue-census.ts:526:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+526   console.log(
+      ~~~~~~~
+
+scripts/residue-census.ts:537:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+537   console.log("\n=== CLASS TABLE ===");
+      ~~~~~~~
+
+scripts/residue-census.ts:538:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+538   console.log("CLASS            sentences  printings");
+      ~~~~~~~
+
+scripts/residue-census.ts:541:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+541     console.log(
+        ~~~~~~~
+
+scripts/residue-census.ts:545:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+545   console.log(
+      ~~~~~~~
+
+scripts/residue-census.ts:548:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+548   console.log("\n=== ROWS, BY CLASS ===");
+      ~~~~~~~
+
+scripts/residue-census.ts:550:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+550     console.log(`\n── ${c} ${"─".repeat(Math.max(0, 60 - c.length))}`);
+        ~~~~~~~
+
+scripts/residue-census.ts:552:7 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+552       console.log(`${P(r.units)}p  ${r.text}`);
+          ~~~~~~~
+
+scripts/residue-census.ts:556:24 - error TS2339: Property 'main' does not exist on type 'ImportMeta'.
+
+556 } else if (import.meta.main) {
+                           ~~~~
+
+scripts/residue-census.ts:558:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+558   console.log(`=== ${hits.length} residue row(s) matching ${JSON.stringify(NEEDLE)} ===`);
+      ~~~~~~~
+
+scripts/residue-census.ts:560:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+560     console.log(`\n[${r.cls}] ${r.units}p  ${r.text}`);
+        ~~~~~~~
+
+scripts/residue-census.ts:564:3 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+564   console.log(`\n(${nonResidue.length} corpus sentence(s) matching that needle are BUILT:)`);
+      ~~~~~~~
+
+scripts/residue-census.ts:565:36 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+565   for (const [u, t] of nonResidue) console.log(`  ${arm(t)?.padEnd(8)} ${u}p  ${t}`);
+                                       ~~~~~~~
+
+scripts/residue-census.ts:570:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+570     console.log(`${pad}SEGMENT ${r.seg.index + 1}/${r.seg.total} removed.`);
+        ~~~~~~~
+
+scripts/residue-census.ts:571:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+571     console.log(`${pad}  KEPT  ✅ builds (${arm(r.seg.kept)}): ${r.seg.kept}`);
+        ~~~~~~~
+
+scripts/residue-census.ts:572:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+572     console.log(`${pad}        ${derivation(r.seg.kept)}`);
+        ~~~~~~~
+
+scripts/residue-census.ts:573:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+573     console.log(`${pad}  CUT   ${r.seg.cutBuilds ? `✅ builds (${arm(r.seg.cut)})` : "🛑 does NOT build"}: ${r.seg.cut}`);
+        ~~~~~~~
+
+scripts/residue-census.ts:576:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+576     console.log(`${pad}SUBST ${r.sub.size} token(s): «${r.sub.from}» → «${r.sub.to}»`);
+        ~~~~~~~
+
+scripts/residue-census.ts:577:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+577     console.log(`${pad}  onto BUILT (${arm(r.sub.onto)}): ${r.sub.onto}`);
+        ~~~~~~~
+
+scripts/residue-census.ts:578:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+578     console.log(`${pad}        ${derivation(r.sub.onto)}`);
+        ~~~~~~~
+
+scripts/residue-census.ts:581:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+581     console.log(
+        ~~~~~~~
+
+scripts/residue-census.ts:586:26 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+586     if (r.span.repaired) console.log(`${pad}      KEPT  ${r.span.kept}`);
+                             ~~~~~~~
+
+scripts/residue-census.ts:587:25 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+587     if (r.seg === null) console.log(`${pad}      ${derivation(r.span.kept)}`);
+                            ~~~~~~~
+
+scripts/residue-census.ts:590:5 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+590     console.log(`${pad}no deletion and no substitution this instrument can make reaches a built string.`);
+        ~~~~~~~
+
+
+Found 217 errors in 11 files.
+
+Errors  Files
+     8  scripts/catalog-manifest.ts:58
+     8  scripts/lint-coverage.ts:61
+    14  scripts/mutation/opcoverage.ts:97
+     7  scripts/mutation/precheck.ts:20
+    25  scripts/mutation/recovery-gate.ts:58
+    81  scripts/mutation/run.ts:109
+     5  scripts/mutation/splice-gate.ts:52
+     5  scripts/opaque-anatomy-gate.ts:87
+    24  scripts/opaque-anatomy.ts:116
+     5  scripts/residue-census-gate.ts:60
+    35  scripts/residue-census.ts:249
+
+real	0m3.738s
+user	0m7.885s
+sys	0m0.162s

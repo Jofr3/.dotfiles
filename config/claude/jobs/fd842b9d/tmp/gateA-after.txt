@@ -1,0 +1,1 @@
+residue-census-gate: OK — §A three pinned literals agree (137 / 111 / 154), §B 7 tail-repair claims hold, §C 1761 repaired candidate(s) over 31303 spans in 111 residue sentences, none outside a tail span.

@@ -1,0 +1,24 @@
+===== --decision D474 =====
+
+🛑 CLOBBER — D474-debt-per-energy-anchor-drops-its-optional-filter  [D474]
+    packages/engine/src/effects.ts was written by another process during the mutation window. That version is preserved at /home/jofre/projects/luminous_ui/tmp/mutation-journal.json.clobbered-1788651466399; the bytes on disk are the ones this harness read at the start. RECOVER IT BY HAND before doing anything else.
+===== --decision D196 =====
+  known survivor  D196-live-active — equivalent
+      D196 recorded this as EQUIVALENT rather than dropping it. The only pre-fold mutation of the attacker is the confusion self-damage, which carries `energy` across untouched and on tails never reaches the fold — so the live Active and the declaration snapshot hold the same Energy on every reachable board.
+
+===== --decision D459 =====
+────────────────────────────────────────────────────────────────────────────────────
+8 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 37.1s total
+
+===== --decision D463 =====
+  known survivor  D463-audit-d130-empty-program-survives-zero-heads — equivalent
+      🔎 **DECLARED AFTER THE PROBE REPORTED IT AS A GAP, AND THE FINDING IS ABOUT D130's COMMENT RATHER THAN ABOUT THE SUITE.** That comment says an empty `EffectOp[]` "would route the attack through `settleProgram` to say nothing at all, which is a different ending with the same result", and that "different ending is how a no-op grows a KO sweep it did not have". **MEASURED AT THIS HEAD, THE TWO ENDINGS ARE BYTE-IDENTICAL AND NO BOARD IN THIS REPO DISTINGUISHES THEM**: the mutation was applied to `attack.ts` and the WHOLE engine suite run against it — 341 files / 8,888 tests, all green. The reason is visible ten lines below the guard, in a comment that contradicts the one above it: with no damaged-trigger and no KO-Tool stage, `epilogue` is `[attackEpilogue]` alone, `advance` pops that stage and calls `finishAttack` itself, and `settleProgram` draining an empty program reaches the same call — which the no-program branch calls "byte-identical to the pre-slice tail" in so many words. So the coalesce is written FROM THE RULE, exactly like the `cancelSplit === null` conjunct forty lines up that D420 also found undriven. ⚠️ **IT IS NOT DELETED, FOR THE REASON THAT CONJUNCT IS NOT**: a program-shaped null and an empty program are different states, and the day a stage runs BETWEEN the queue build and the drain, they stop agreeing. 🛑 **THE ROW IS SELF-INVALIDATING (D427): the day any board tells the two endings apart, this is KILLED and the sweep fails with `STALE-SURVIVOR`** — which is the whole reason it is declared rather than dropped. ⚠️ **AND IT IS THE SECOND OVERSTATEMENT ON THE SAME UNPINNED LINE.** D130's other claim about this expansion — that a parking op is "the one thing D130's expansion cannot express" — is what D463 spent the slice disproving. A line with no mutant row for 333 decisions accumulated two claims stronger than the code, and needling for it is what found both.
+
+===== --decision D464 =====
+────────────────────────────────────────────────────────────────────────────────────
+12 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 52.7s total
+
+===== --decision D465 =====
+────────────────────────────────────────────────────────────────────────────────────
+15 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 43.2s total
+

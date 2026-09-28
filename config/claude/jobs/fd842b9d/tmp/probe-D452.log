@@ -1,0 +1,38 @@
+[0m[2m[35m$[0m [2m[1mbun scripts/mutation/run.ts --decision "D452" --allow-dirty[0m
+
+Mutation harness (D211) — 12 mutant(s)
+
+⚠️  --allow-dirty: mutating 1 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+
+  D452-singular-mill-drops-to-a-gate … KILLED           3.5s
+  D452-singular-anchor-loses-its-caret … KILLED           3.6s
+  D452-singular-mill-count-is-the-neighbours … KILLED           3.6s
+  D452-singular-mill-hits-the-wrong-deck … KILLED           3.6s
+  D452-singular-mill-hardcodes-two-flips … KILLED           3.6s
+  D452-singular-mill-loses-the-plural-floor … KILLED           3.6s
+  D452-hand-anchor-reads-your-own-hand … KILLED           3.4s
+  D452-hand-arm-shuffles-the-card-back … KILLED           3.5s
+  D452-hand-arm-is-the-mill  … KILLED           3.5s
+  D452-hand-arm-loses-the-printed-ceiling … KILLED           3.6s
+  D452-d130-printed-mill-anchor-was-unpinned … KILLED           3.3s
+  D452-d130-until-tails-mill-count-hardcoded … KILLED           3.3s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D452-singular-mill-drops… D452                  KILLED           3.5s    1
+D452-singular-anchor-los… D452                  KILLED           3.6s    1
+D452-singular-mill-count… D452                  KILLED           3.6s    1
+D452-singular-mill-hits-… D452                  KILLED           3.6s    1
+D452-singular-mill-hardc… D452                  KILLED           3.6s    1
+D452-singular-mill-loses… D452                  KILLED           3.6s    1
+D452-hand-anchor-reads-y… D452                  KILLED           3.4s    1
+D452-hand-arm-shuffles-t… D452                  KILLED           3.5s    1
+D452-hand-arm-is-the-mill D452                  KILLED           3.5s    1
+D452-hand-arm-loses-the-… D452                  KILLED           3.6s    1
+D452-d130-printed-mill-a… D452                  KILLED           3.3s    1
+D452-d130-until-tails-mi… D452                  KILLED           3.3s    1
+────────────────────────────────────────────────────────────────────────────────────
+12 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 49.2s total
+

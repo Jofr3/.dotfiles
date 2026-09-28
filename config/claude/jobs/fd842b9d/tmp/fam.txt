@@ -1,0 +1,204 @@
+
+=== COPY-ATTACK (use it as this attack) :: 6 sentences / 13 printings
+  4  Choose 1 of your Benched N's Pokémon's attacks and use it as this attack.
+  3  Choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+  1  Choose 1 of your opponent's Active Tera Pokémon's attacks and use it as this attack.
+  1  Discard the top card of your deck, and if that card is a Pokémon that doesn't have a Rule Box, choose 1 of its attacks and use it as this attack. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
+  1  Flip a coin. If heads, choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+  3  Reveal the top 10 cards of your opponent's deck. You may choose an attack from a Pokémon you find there and use it as this attack. Shuffle the revealed cards into your opponent's deck.
+
+=== IN-PLAY BODY COUNT (for each … in play) :: 13 sentences / 21 printings
+  2  Flip a coin for each {D} Pokémon you have in play. This attack does 60 damage for each heads.
+  1  If a Stadium is in play, this attack also does 30 damage to each of your opponent's Benched Pokémon, and discard that Stadium. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  If you have 3 or more Energy in play, this attack does 70 more damage. This attack's damage isn't affected by Weakness.
+  1  If your opponent has any Future Pokémon in play, this attack does 120 more damage.
+  2  This attack does 20 damage for each of your Pokémon in play that has the Round attack.
+  2  This attack does 30 damage for each of your Ancient Pokémon in play.
+  2  This attack does 40 damage for each Pokémon in play that has "Koffing" or "Weezing" in its name (both yours and your opponent's).
+  2  This attack does 40 damage for each of your Pokémon in play that has the Round attack.
+  1  This attack does 40 damage for each of your Stage 1 Pokémon in play.
+  2  This attack does 50 damage for each of your Drifloon and Drifblim in play. This attack also does 30 damage to each of your Drifloon and Drifblim. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  This attack does 60 damage for each of your opponent's Pokémon ex and Pokémon V in play.
+  2  This attack does 60 damage for each of your opponent's Pokémon ex in play.
+  2  This attack does 70 damage for each of your Pokémon in play that has the Round attack.
+
+=== DISCARD-PILE CARD COUNT (for each … discard pile) :: 8 sentences / 16 printings
+  3  Put 2 damage counters on 1 of your opponent's Pokémon for each Basic {G} Energy card in your discard pile. Then, shuffle those Energy cards into your deck.
+  2  This attack does 10 more damage for each Ancient card in your discard pile.
+  1  This attack does 20 damage for each Pokémon in your discard pile that has the United Wings attack.
+  2  This attack does 20 damage for each Supporter card that has "Team Rocket" in its name in your discard pile.
+  2  This attack does 20 more damage for each Energy card in your discard pile.
+  2  This attack does 30 damage for each Basic Energy card in your opponent's discard pile.
+  2  This attack does 30 damage for each Item card in your opponent's discard pile.
+  2  This attack does 60 more damage for each Ethan's Adventure card in your discard pile.
+
+=== ENERGY-ATTACHED COUNT (for each … attached to) :: 7 sentences / 9 printings
+  1  Flip a coin for each Energy attached to both Active Pokémon. This attack does 60 damage for each heads.
+  2  This attack does 20 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  This attack does 20 more damage for each {L} Energy attached to all of your Iono's Pokémon.
+  1  This attack does 30 damage for each {W} Energy attached to this Pokémon. Before doing damage, you may attach any number of Basic {W} Energy cards from your hand to this Pokémon.
+  1  This attack does 30 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  This attack does 40 damage for each Basic Energy attached to this Pokémon.
+  2  This attack does 70 damage for each Special Energy card attached to this Pokémon.
+
+=== DAMAGE-COUNTER COUNT (for each damage counter) :: 6 sentences / 7 printings
+  1  Put up to 9 damage counters on this Pokémon. This attack does 20 damage for each damage counter you placed in this way.
+  1  This Pokémon also does 10 damage to itself for each damage counter on it.
+  1  This attack does 10 damage for each damage counter on all of your Benched Cynthia's Pokémon. This attack's damage isn't affected by Weakness.
+  1  This attack does 10 more damage for each damage counter on all of your opponent's Pokémon.
+  2  This attack does 20 damage for each damage counter on all of your Benched {F} Pokémon.
+  1  This attack does 20 damage to 1 of your opponent's Benched Pokémon for each damage counter on that Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+
+=== MOVE ENERGY :: 7 sentences / 11 printings
+  2  Move all Energy from this Pokémon to 1 of your Benched Pokémon.
+  1  Move all Energy from this Pokémon to your Benched Pokémon in any way you like.
+  2  Move an Energy from 1 of your opponent's Pokémon to another of their Pokémon.
+  1  Search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck. If you put any Pokémon onto your Bench in this way, move an Energy from this Pokémon to the new Benched Pokémon.
+  3  You may move an Energy from your opponent's Active Pokémon to 1 of their Benched Pokémon.
+  1  You may move any amount of Energy from your Pokémon to your other Pokémon in any way you like.
+  1  You may move any amount of {M} Energy from your Pokémon to your other Pokémon in any way you like.
+
+=== MOVE DAMAGE COUNTERS :: 3 sentences / 3 printings
+  1  Move all damage counters from 1 of your Benched Ancient Pokémon to your opponent's Active Pokémon.
+  1  You may move any number of damage counters from your opponent's Benched Pokémon to their Active Pokémon.
+  1  Your opponent's Active Pokémon is now Confused. You may move any number of damage counters from your opponent's Pokémon to their other Pokémon in any way you like.
+
+=== HEAL N damage from … :: 3 sentences / 5 printings
+  1  Heal 100 damage from 1 of your Benched Ancient Pokémon.
+  2  Heal 100 damage from each of your Basic Pokémon.
+  2  Heal 100 damage from each of your Benched Pokémon.
+
+=== SEARCH DECK → ATTACH ENERGY :: 5 sentences / 8 printings
+  2  Search your deck for up to 2 Basic Energy cards and attach them to 1 of your Pokémon. Then, shuffle your deck.
+  2  Search your deck for up to 2 Basic Energy cards and attach them to your Future Pokémon in any way you like. Then, shuffle your deck.
+  2  Search your deck for up to 2 Basic {G} Energy cards and up to 2 Basic {L} Energy cards and attach them to your Pokémon in any way you like. Then, shuffle your deck.
+  1  Search your deck for up to 2 Basic {P} Energy cards and attach them to 1 of your Benched Pokémon. Then, shuffle your deck.
+  1  Search your deck for up to 3 Basic Energy cards of different types and attach them to your Tera Pokémon in any way you like. Then, shuffle your deck.
+
+=== REMAINING-HP FILL (until its remaining HP is N) :: 3 sentences / 5 printings
+  2  Put damage counters on each of your opponent's Benched Pokémon until its remaining HP is 100.
+  1  Put damage counters on your opponent's Active Pokémon until its remaining HP is 10.
+  2  Put damage counters on your opponent's Active Pokémon until its remaining HP is 50.
+
+=== DISCARD-ENERGY COST → BENCH SNIPE :: 4 sentences / 6 printings
+  2  Discard 2 Energy from this Pokémon. This attack also does 120 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  2  Discard all Energy from this Pokémon, and this attack also does 90 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  Discard all Energy from this Pokémon, and this attack does 210 damage to 1 of your opponent's Benched Pokémon ex. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  Discard all {R} Energy from this Pokémon, and this attack does 180 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+
+=== BENCH/BOARD SPREAD (This attack also does …) :: 5 sentences / 7 printings
+  1  This attack also does 10 damage to 1 of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  This attack also does 10 damage to each Benched Pokémon (both yours and your opponent's). (Don't apply Weakness and Resistance for Benched Pokémon.)
+  3  This attack also does 10 damage to each of your opponent's Benched Pokémon for each Prize card your opponent has taken. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  This attack also does 40 damage to 1 of your Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  This attack also does 40 damage to each Benched Pokémon that has any damage counters on it (both yours and your opponent's). (Don't apply Weakness and Resistance for Benched Pokémon.)
+
+=== COIN-FLIP LEAD (Flip …) :: 19 sentences / 26 printings
+  1  Flip 2 coins. For each heads, discard an Energy from your opponent's Active Pokémon.
+  1  Flip 2 coins. For each heads, discard the top card of your opponent's deck.
+  2  Flip 2 coins. If both of them are tails, this Pokémon also does 90 damage to itself.
+  1  Flip 2 coins. This attack does 90 damage for each heads. If both of them are tails,  your opponent's Active Pokémon is now Confused.
+  2  Flip 2 coins. This attack does 90 damage for each heads. If either of them is heads, your opponent's Active Pokémon is now Paralyzed.
+  1  Flip 3 coins. Attach a number of Basic {L} Energy cards up to the number of heads from your discard pile to your Benched Pokémon in any way you like.
+  1  Flip 3 coins. For each heads, discard a random card from your opponent's hand.
+  1  Flip 3 coins. For each tails, discard an Energy from this Pokémon.
+  1  Flip 3 coins. If 1 of them is heads, this attack does 20 more damage. If 2 of them are heads, this attack does 50 more damage. If all of them are heads, this attack does 80 more damage.
+  2  Flip 3 coins. Put a number of cards up to the number of heads from your discard pile into your hand.
+  1  Flip 4 coins. This attack does 60 damage for each heads. If at least 2 of them are heads, your opponent's Active Pokémon is now Paralyzed.
+  1  Flip a coin for each Energy attached to both Active Pokémon. This attack does 60 damage for each heads.
+  2  Flip a coin for each {D} Pokémon you have in play. This attack does 60 damage for each heads.
+  1  Flip a coin until you get tails. For each heads, discard an Energy from your opponent's Active Pokémon.
+  1  Flip a coin. If heads, choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+  1  Flip a coin. If heads, during your opponent's next turn, the Defending Pokémon can't attack.
+  2  Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed and Poisoned. If tails, your opponent's Active Pokémon is now Confused.
+  2  Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed, and discard an Energy from that Pokémon.
+  2  Flip a coin. If tails, this attack does nothing. If heads, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon.
+
+=== DURING-YOUR-OPPONENT'S-NEXT-TURN LEAD :: 8 sentences / 10 printings
+  1  During your opponent's next turn, Pokémon that have 2 or less Energy attached can't attack. (This includes new Pokémon that come into play.)
+  1  During your opponent's next turn, attacks used by the Defending Pokémon cost {C} more, and its Retreat Cost is {C} more.
+  2  During your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails, that attack doesn't happen.
+  1  During your opponent's next turn, if they attach an Energy card from their hand to the Defending Pokémon, their turn ends.
+  1  During your opponent's next turn, if this Pokémon is damaged by an attack (even if this Pokémon is Knocked Out), put 6 damage counters on the Attacking Pokémon.
+  2  During your opponent's next turn, if this Pokémon is damaged by an attack (even if this Pokémon is Knocked Out), put damage counters on the Attacking Pokémon equal to the damage done to this Pokémon.
+  1  During your opponent's next turn, prevent all damage done to each of your Future Pokémon by attacks from Pokémon ex. If this Pokémon is no longer your Active Pokémon, this effect ends.
+  1  During your opponent's next turn, prevent all damage done to this Pokémon by attacks from Ancient Pokémon.
+
+=== STATUS-ONLY (… is now …) :: 4 sentences / 5 printings
+  2  Your opponent's Active Pokémon is now Burned, Confused, and Poisoned.
+  1  Your opponent's Active Pokémon is now Confused. Put 8 damage counters instead of 3 on that Pokémon for this Special Condition.
+  1  Your opponent's Active Pokémon is now Confused. You may move any number of damage counters from your opponent's Pokémon to their other Pokémon in any way you like.
+  1  Your opponent's Active Pokémon is now Poisoned. During your opponent's next turn, Energy cards can't be attached from your opponent's hand to that Pokémon.
+
+=== UNBUCKETED :: 71 sentences / 94 printings
+  1  Attach up to 3 Energy cards from your opponent's discard pile to their Pokémon in any way you like.
+  1  Both Active Pokémon are now Asleep. During your next turn, attacks used by this Pokémon do 100 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance).
+  2  Choose 1 of your opponent's Pokémon 6 times. (You can choose the same Pokémon more than once.) For each time you chose a Pokémon, do 20 damage to it. This damage isn't affected by Weakness or Resistance.
+  3  Choose 2 of your opponent's Benched Pokémon. Shuffle those Pokémon and all attached cards into your opponent's deck. If 1 of your Pokémon used Angelite during your last turn, this attack can't be used.
+  1  Choose 2 of your opponent's Pokémon and put 3 damage counters on each of them.
+  2  Choose 3 of your opponent's Benched Pokémon. If you do, shuffle all of your opponent's Benched Pokémon that you didn't choose, and all cards attached to those Pokémon, into their deck.
+  1  Devolve 1 of your opponent's evolved Pokémon by putting the highest Stage Evolution card on it into your opponent's hand.
+  3  Discard a Team Rocket's Energy from this Pokémon. If you do, discard your opponent's Active Pokémon and all attached cards.
+  1  Discard a card from your hand. If you do, draw 2 cards.
+  1  Discard a card from your hand. If you do, draw 3 cards.
+  1  Discard a card from your hand. If you do, your opponent discards a card from their hand.
+  1  Discard the top 3 cards of your deck, and this attack does 80 damage for each Energy card you discarded in this way.
+  1  Discard the top 7 cards of your deck, and this attack does 70 damage for each Misty's Pokémon that you discarded in this way.
+  2  Discard the top card of each player's deck. This attack does 140 more damage for each Energy card discarded in this way.
+  2  Discard the top card of your opponent's deck. If you played an Ancient Supporter card from your hand during this turn, discard 3 more cards in this way.
+  2  Discard up to 2 Pokémon Tools from your opponent's Pokémon.
+  2  Discard up to 3 Energy cards from your hand. This attack does 60 damage to 1 of your opponent's Pokémon for each Energy card you discarded in this way. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  Draw 3 cards from the bottom of your deck.
+  1  During your next turn, attacks used by this Pokémon do 120 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance).
+  1  During your next turn, if the Defending Pokémon is Knocked Out, take 2 more Prize cards.
+  2  During your next turn, the Defending Pokémon takes 50 more damage from attacks (after applying Weakness and Resistance).
+  2  During your next turn, this Pokémon's Hyper Fang attack's base damage is 240.
+  1  During your next turn, your Pokémon can't attack. (This includes new Pokémon that come into play.)
+  1  Each player draws 3 cards.
+  1  If 1 of your other Ancient Pokémon used an attack during your last turn, this attack does 150 more damage.
+  1  If this Pokémon has any damage counters on it, this attack can be used for {F}.
+  1  If this Pokémon is affected by a Special Condition, ignore all Energy in this attack's cost.
+  1  If you have any Tera Pokémon on your Bench, this attack does 100 more damage.
+  1  If you have exactly 1 Prize card remaining, your opponent's Active Pokémon is now Paralyzed.
+  1  If you played a Future Supporter card from your hand during this turn, this attack does 100 more damage.
+  1  If you use this attack when you have exactly 1 Prize card remaining, you win this game.
+  1  If your opponent's Active Pokémon is a Tera Pokémon, this attack does 230 more damage.
+  2  If your opponent's Active Pokémon is a {N} Pokémon, it is now Paralyzed.
+  1  Look at 1 of your opponent's face-down Prize cards.
+  1  Look at the top card of your opponent's deck. You may have your opponent shuffle their deck.
+  1  Put 2 damage counters on 1 of your opponent's Pokémon.
+  1  Put 2 damage counters on each of your opponent's Pokémon that has any damage counters on it.
+  1  Put 2 damage counters on each of your opponent's Pokémon.
+  1  Put 6 damage counters on each Pokémon that has an Ability (both yours and your opponent's).
+  2  Reveal the top 5 cards of your deck. This attack does 70 damage for each Future card you find there. Then, discard those Future cards and shuffle the other cards back into your deck.
+  1  Search your deck for a number of cards up to the number of your Benched Pokémon and put them into your hand. Then, shuffle your deck.
+  1  Search your deck for up to 3 Basic Energy cards of different types, reveal them, and put them into your hand. Then, shuffle your deck.
+  1  Search your deck for up to 5 Pokémon that are the same type as any Basic Energy attached to this Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.
+  1  Shuffle up to 3 Basic {W} Energy cards from your discard pile into your deck.
+  1  Shuffle your hand into your deck. Then, draw 6 cards.
+  1  Shuffle your hand into your deck. Then, draw a card for each card in your opponent's hand.
+  1  Switch in 1 of your opponent's Benched Pokémon to the Active Spot. If you do, this attack does 120 damage to the new Active Pokémon. If you didn't play Xerosic's Machinations from your hand during this turn, this attack does nothing.
+  1  Switch this Pokémon with 1 of your Benched {L} Pokémon.
+  2  This attack does 100 damage for each Special Condition affecting your opponent's Active Pokémon.
+  2  This attack does 100 damage to each of your opponent's Pokémon ex and Pokémon V. This attack's damage isn't affected by Weakness or Resistance.
+  1  This attack does 30 damage for each card in your opponent's hand.
+  1  This attack does 30 damage to each of your opponent's Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  This attack does 40 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  2  This attack does 40 more damage for each Stage 2 Pokémon on your Bench.
+  1  This attack does 50 damage for each of your Pokémon that has any damage counters on it.
+  1  This attack does 50 damage to each Pokémon that has any damage counters on it (both yours and your opponent's), except for this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  1  This attack does 60 damage to 1 of your opponent's Benched Pokémon ex or Benched Pokémon V. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  2  This attack does 60 damage to each of your opponent's Pokémon ex. This attack's damage isn't affected by Weakness or Resistance.
+  1  This attack does 80 more damage for each of your Benched Charjabug.
+  1  Until the end of your next turn, the Defending Pokémon's Weakness is now {C}. (The amount of Weakness doesn't change.)
+  1  You can use this attack only if this Pokémon used Rollout during your last turn.
+  1  You may put all Energy attached to this Pokémon into your hand to have this attack do 80 more damage.
+  2  You may search your deck for any number of Fennel cards, reveal them, and put them into your hand. Then, shuffle your deck.
+  2  You may turn 1 of your face-down Prize cards face up. If you do, this attack does 80 more damage. (That Prize card remains face up for the rest of the game.)
+  1  Your opponent chooses 3 cards from their hand and shuffles those cards into their deck.
+  1  Your opponent discards a card from their hand. If this Pokémon evolved from Salandit during this turn, your opponent discards 2 more cards.
+  1  Your opponent flips a coin for each of their Benched Pokémon. This attack does 80 damage to your opponent's Active Pokémon for each tails. This attack's damage isn't affected by Weakness or Resistance.
+  2  Your opponent reveals their hand. Discard a card you find there.
+  1  Your opponent reveals their hand. Discard all Item cards and Pokémon Tool cards you find there.
+  3  Your opponent reveals their hand. This attack does 50 damage for each Trainer card you find there.
+  1  Your opponent reveals their hand. You may use the effect of a Supporter card you find there as the effect of this attack.

@@ -6,8 +6,15 @@
     };
 
   flake.modules.homeManager.base =
-    { config, lib, ... }:
     {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
+    {
+      home.packages = [ pkgs.gh ];
+
       programs.git = {
         enable = true;
 

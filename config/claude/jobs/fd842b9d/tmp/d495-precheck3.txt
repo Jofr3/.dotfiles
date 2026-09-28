@@ -1,0 +1,8 @@
+checked 2401 mutants
+[0m[31m
+5 BROKEN ROW(S):[0m
+[0m[31m  D495-anchor-loses-its-caret: find occurs 0× in packages/engine/src/effects.ts[0m
+[0m[31m  D495-anchor-loses-its-terminator: find occurs 0× in packages/engine/src/effects.ts[0m
+[0m[31m  D495-anchor-widens-the-verb: find occurs 0× in packages/engine/src/effects.ts[0m
+[0m[31m  D495-anchor-drops-the-possessive-apostrophe-class: find occurs 0× in packages/engine/src/effects.ts[0m
+[0m[31m  D495-anchor-drops-the-contraction-apostrophe-class: find occurs 0× in packages/engine/src/effects.ts[0m

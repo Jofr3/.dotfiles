@@ -1,0 +1,112 @@
+
+##### A. discard-pile card count (damage)
+  WHOLE CORPUS: 6 sentences / 12 printings
+  already resolved: 0 sentences / 0 printings
+  UNRESOLVED: 6 sentences / 12 printings
+    [2] This attack does 10 more damage for each Ancient card in your discard pile.
+    [2] This attack does 20 damage for each Supporter card that has "Team Rocket" in its name in your discard pile.
+    [2] This attack does 20 more damage for each Energy card in your discard pile.
+    [2] This attack does 30 damage for each Basic Energy card in your opponent's discard pile.
+    [2] This attack does 30 damage for each Item card in your opponent's discard pile.
+    [2] This attack does 60 more damage for each Ethan's Adventure card in your discard pile.
+
+##### A'. ANY sentence mentioning 'discard pile' + 'for each'
+  WHOLE CORPUS: 8 sentences / 16 printings
+  already resolved: 0 sentences / 0 printings
+  UNRESOLVED: 8 sentences / 16 printings
+    [3] Put 2 damage counters on 1 of your opponent's Pokémon for each Basic {G} Energy card in your discard pile. Then, shuffle those Energy cards into your deck.
+    [2] This attack does 10 more damage for each Ancient card in your discard pile.
+    [1] This attack does 20 damage for each Pokémon in your discard pile that has the United Wings attack.
+    [2] This attack does 20 damage for each Supporter card that has "Team Rocket" in its name in your discard pile.
+    [2] This attack does 20 more damage for each Energy card in your discard pile.
+    [2] This attack does 30 damage for each Basic Energy card in your opponent's discard pile.
+    [2] This attack does 30 damage for each Item card in your opponent's discard pile.
+    [2] This attack does 60 more damage for each Ethan's Adventure card in your discard pile.
+
+##### B. in-play body count, ANY
+  WHOLE CORPUS: 15 sentences / 26 printings
+  already resolved: 5 sentences / 8 printings
+  UNRESOLVED: 10 sentences / 18 printings
+    [2] Flip a coin for each {D} Pokémon you have in play. This attack does 60 damage for each heads.
+    [2] This attack does 20 damage for each of your Pokémon in play that has the Round attack.
+    [2] This attack does 30 damage for each of your Ancient Pokémon in play.
+    [2] This attack does 40 damage for each Pokémon in play that has "Koffing" or "Weezing" in its name (both yours and your opponent's).
+    [2] This attack does 40 damage for each of your Pokémon in play that has the Round attack.
+    [1] This attack does 40 damage for each of your Stage 1 Pokémon in play.
+    [2] This attack does 50 damage for each of your Drifloon and Drifblim in play. This attack also does 30 damage to each of your Drifloon and Drifblim. (Don't apply Weakness and Resistance for Benched Pokémon.)
+    [1] This attack does 60 damage for each of your opponent's Pokémon ex and Pokémon V in play.
+    [2] This attack does 60 damage for each of your opponent's Pokémon ex in play.
+    [2] This attack does 70 damage for each of your Pokémon in play that has the Round attack.
+
+##### C. copy-attack
+  WHOLE CORPUS: 6 sentences / 13 printings
+  already resolved: 0 sentences / 0 printings
+  UNRESOLVED: 6 sentences / 13 printings
+    [4] Choose 1 of your Benched N's Pokémon's attacks and use it as this attack.
+    [3] Choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+    [1] Choose 1 of your opponent's Active Tera Pokémon's attacks and use it as this attack.
+    [1] Discard the top card of your deck, and if that card is a Pokémon that doesn't have a Rule Box, choose 1 of its attacks and use it as this attack. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
+    [1] Flip a coin. If heads, choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+    [3] Reveal the top 10 cards of your opponent's deck. You may choose an attack from a Pokémon you find there and use it as this attack. Shuffle the revealed cards into your opponent's deck.
+
+##### D. Move/You may move ... Energy
+  WHOLE CORPUS: 9 sentences / 23 printings
+  already resolved: 3 sentences / 13 printings
+  UNRESOLVED: 6 sentences / 10 printings
+    [2] Move all Energy from this Pokémon to 1 of your Benched Pokémon.
+    [1] Move all Energy from this Pokémon to your Benched Pokémon in any way you like.
+    [2] Move an Energy from 1 of your opponent's Pokémon to another of their Pokémon.
+    [3] You may move an Energy from your opponent's Active Pokémon to 1 of their Benched Pokémon.
+    [1] You may move any amount of Energy from your Pokémon to your other Pokémon in any way you like.
+    [1] You may move any amount of {M} Energy from your Pokémon to your other Pokémon in any way you like.
+
+##### E. Search your deck for ... Energy cards ... attach
+  WHOLE CORPUS: 17 sentences / 28 printings
+  already resolved: 12 sentences / 20 printings
+  UNRESOLVED: 5 sentences / 8 printings
+    [2] Search your deck for up to 2 Basic Energy cards and attach them to 1 of your Pokémon. Then, shuffle your deck.
+    [2] Search your deck for up to 2 Basic Energy cards and attach them to your Future Pokémon in any way you like. Then, shuffle your deck.
+    [2] Search your deck for up to 2 Basic {G} Energy cards and up to 2 Basic {L} Energy cards and attach them to your Pokémon in any way you like. Then, shuffle your deck.
+    [1] Search your deck for up to 2 Basic {P} Energy cards and attach them to 1 of your Benched Pokémon. Then, shuffle your deck.
+    [1] Search your deck for up to 3 Basic Energy cards of different types and attach them to your Tera Pokémon in any way you like. Then, shuffle your deck.
+
+##### F. until its remaining HP is
+  WHOLE CORPUS: 3 sentences / 5 printings
+  already resolved: 0 sentences / 0 printings
+  UNRESOLVED: 3 sentences / 5 printings
+    [2] Put damage counters on each of your opponent's Benched Pokémon until its remaining HP is 100.
+    [1] Put damage counters on your opponent's Active Pokémon until its remaining HP is 10.
+    [2] Put damage counters on your opponent's Active Pokémon until its remaining HP is 50.
+
+##### G. Heal N damage from
+  WHOLE CORPUS: 16 sentences / 55 printings
+  already resolved: 11 sentences / 47 printings
+  UNRESOLVED: 5 sentences / 8 printings
+    [1] Heal 100 damage from 1 of your Benched Ancient Pokémon.
+    [2] Heal 100 damage from each of your Basic Pokémon.
+    [2] Heal 100 damage from each of your Benched Pokémon.
+    [1] Heal 50 damage from this Pokémon. During your next turn, this Pokémon can't retreat.
+    [2] Heal 60 damage from this Pokémon. During your next turn, this Pokémon can't retreat.
+
+##### H. for each ... Energy attached to
+  WHOLE CORPUS: 28 sentences / 60 printings
+  already resolved: 21 sentences / 51 printings
+  UNRESOLVED: 7 sentences / 9 printings
+    [1] Flip a coin for each Energy attached to both Active Pokémon. This attack does 60 damage for each heads.
+    [2] This attack does 20 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+    [1] This attack does 20 more damage for each {L} Energy attached to all of your Iono's Pokémon.
+    [1] This attack does 30 damage for each {W} Energy attached to this Pokémon. Before doing damage, you may attach any number of Basic {W} Energy cards from your hand to this Pokémon.
+    [1] This attack does 30 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+    [1] This attack does 40 damage for each Basic Energy attached to this Pokémon.
+    [2] This attack does 70 damage for each Special Energy card attached to this Pokémon.
+
+##### I. for each damage counter
+  WHOLE CORPUS: 16 sentences / 38 printings
+  already resolved: 10 sentences / 31 printings
+  UNRESOLVED: 6 sentences / 7 printings
+    [1] Put up to 9 damage counters on this Pokémon. This attack does 20 damage for each damage counter you placed in this way.
+    [1] This Pokémon also does 10 damage to itself for each damage counter on it.
+    [1] This attack does 10 damage for each damage counter on all of your Benched Cynthia's Pokémon. This attack's damage isn't affected by Weakness.
+    [1] This attack does 10 more damage for each damage counter on all of your opponent's Pokémon.
+    [2] This attack does 20 damage for each damage counter on all of your Benched {F} Pokémon.
+    [1] This attack does 20 damage to 1 of your opponent's Benched Pokémon for each damage counter on that Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)

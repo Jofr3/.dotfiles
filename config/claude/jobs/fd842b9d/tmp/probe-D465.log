@@ -1,0 +1,46 @@
+[0m[2m[35m$[0m [2m[1mbun scripts/mutation/run.ts --decision "D465" --allow-dirty[0m
+
+Mutation harness (D211) — 15 mutant(s)
+
+⚠️  --allow-dirty: mutating 3 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+      packages/engine/src/interpreter.ts
+      scripts/residue-census.ts
+
+  D465-tail-repair-never-fires … KILLED           0.8s
+  D465-tail-repair-fires-on-every-span … KILLED           0.9s
+  D465-dangling-separator-survives … KILLED           0.9s
+  D465-terminator-doubles    … KILLED           0.9s
+  D465-terminator-invented-on-a-paren … KILLED           0.9s
+  D465-recoil-fold-never-scales … KILLED           3.4s
+  D465-recoil-fold-always-scales … KILLED           3.3s
+  D465-counter-unit-lost     … KILLED           3.3s
+  D465-floor-becomes-exact   … KILLED           3.3s
+  D465-fold-counts-its-own-placement … KILLED           3.3s
+  D465-fold-reads-the-wrong-seat … KILLED           3.3s
+  D465-anchor-loses-its-terminator … KILLED           3.4s
+  D465-anchor-loses-its-head … KILLED           3.4s
+  D465-rider-not-set         … KILLED           3.3s
+  D465-printed-zero-derives  … KILLED           3.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D465-tail-repair-never-f… D465                  KILLED           0.8s    cmd
+D465-tail-repair-fires-o… D465                  KILLED           0.9s    cmd
+D465-dangling-separator-… D465                  KILLED           0.9s    cmd
+D465-terminator-doubles   D465                  KILLED           0.9s    cmd
+D465-terminator-invented… D465                  KILLED           0.9s    cmd
+D465-recoil-fold-never-s… D465                  KILLED           3.4s    1
+D465-recoil-fold-always-… D465                  KILLED           3.3s    1
+D465-counter-unit-lost    D465                  KILLED           3.3s    1
+D465-floor-becomes-exact  D465                  KILLED           3.3s    1
+D465-fold-counts-its-own… D465                  KILLED           3.3s    1
+D465-fold-reads-the-wron… D465                  KILLED           3.3s    1
+D465-anchor-loses-its-te… D465                  KILLED           3.4s    1
+D465-anchor-loses-its-he… D465                  KILLED           3.4s    1
+D465-rider-not-set        D465                  KILLED           3.3s    1
+D465-printed-zero-derives D465                  KILLED           3.4s    1
+────────────────────────────────────────────────────────────────────────────────────
+15 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 42.1s total
+

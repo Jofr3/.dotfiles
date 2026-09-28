@@ -1,0 +1,202 @@
+[0m[2m[35m$[0m [2m[1mtsc -b && bun scripts/lint-coverage.ts && biome lint . --error-on-warnings && vitest run[0m
+lint-coverage: OK — all 706 source files are covered by Biome.
+Checked 742 files in 1452ms. No fixes applied.
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/censusAtHead.test.ts (50 tests | 4 failed) 197ms
+     × the headline arithmetic closes over all four columns 36ms
+     × the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it 1ms
+     × BUILT.attack IS that live sum plus the registry attacks — no literal in the addition 36ms
+     × RUNG (b) — none of the seventeen is in the unbuilt remainder, or in any backlog row 11ms
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts (26 tests | 1 failed) 151ms
+     × 🛑 the resolving corpus gains TWO sentences and TWO printings 33ms
+ ❯ packages/engine/src/compoundCompose.test.ts (30 tests | 1 failed) 160ms
+     × 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused 21ms
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts (27 tests | 1 failed) 142ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 28ms
+ ❯ packages/engine/src/defenderStatusTriple.test.ts (31 tests | 1 failed) 122ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 31ms
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts (22 tests | 1 failed) 84ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 31ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the headline arithmetic closes over all four columns
+AssertionError: expected 400 to be 398 // Object.is equality
+
+- Expected
++ Received
+
+- 398
++ 400
+
+ ❯ packages/engine/src/censusAtHead.test.ts:4361:27
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it
+AssertionError: expected 154 to be 152 // Object.is equality
+
+- Expected
++ Received
+
+- 152
++ 154
+
+ ❯ packages/engine/src/censusAtHead.test.ts:6283:27
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > BUILT.attack IS that live sum plus the registry attacks — no literal in the addition
+AssertionError: expected 1580 to be 1578 // Object.is equality
+
+- Expected
++ Received
+
+- 1578
++ 1580
+
+ ❯ packages/engine/src/censusAtHead.test.ts:8430:66
+    8428|     expect(compoundUnits).toBe(COMPOUND_ATTACK_UNITS);
+    8429|
+    8430|     expect(derived + registryUnits + splitUnits + compoundUnits).toBe(…
+       |                                                                  ^
+    8431|   });
+    8432|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D301 — the opponent-energy scaling family: the backlog row measured PHANTOM > RUNG (b) — none of the seventeen is in the unbuilt remainder, or in any backlog row
+AssertionError: expected 152 to be 154 // Object.is equality
+
+- Expected
++ Received
+
+- 154
++ 152
+
+ ❯ packages/engine/src/censusAtHead.test.ts:9074:7
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  packages/engine/src/compoundCompose.test.ts > §4 — the SHADOW REFUSAL: the anchor wins, the splitter is the fallback > 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused
+AssertionError: expected 470 to be 468 // Object.is equality
+
+- Expected
++ Received
+
+- 468
++ 470
+
+ ❯ packages/engine/src/compoundCompose.test.ts:622:33
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 504, 1528 ] to deeply equal [ 502, 1526 ]
+
+- Expected
++ Received
+
+  [
+-   502,
+-   1526,
++   504,
++   1528,
+  ]
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:546:58
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 504, 1528 ] to deeply equal [ 502, 1526 ]
+
+- Expected
++ Received
+
+  [
+-   502,
+-   1526,
++   504,
++   1528,
+  ]
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:565:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  packages/engine/src/perHeadsEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ 503, 1528 ] to deeply equal [ 501, 1526 ]
+
+- Expected
++ Received
+
+  [
+-   501,
+-   1526,
++   503,
++   1528,
+  ]
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts:654:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §2 — the census moves in exactly ONE summand, and the step is 1 and 1 > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 504, 1529 ] to deeply equal [ 502, 1527 ]
+
+- Expected
++ Received
+
+  [
+-   502,
+-   1527,
++   504,
++   1529,
+  ]
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:190:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  6 failed | 455 passed (461)
+      Tests  9 failed | 10380 passed (10389)
+   Start at  17:24:47
+   Duration  132.20s (transform 31.63s, setup 0ms, import 212.63s, tests 57.11s, environment 39.61s)
+
+[0m[31merror[0m[2m:[0m script [1m"check"[0m exited with code 1[0m

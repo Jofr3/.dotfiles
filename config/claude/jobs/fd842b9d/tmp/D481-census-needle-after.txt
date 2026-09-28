@@ -1,0 +1,102 @@
+=== 12 residue row(s) matching "damage counter" ===
+
+[OPAQUE] 1p  If this Pokémon has any damage counters on it, this attack can be used for {F}.
+  no deletion and no substitution this instrument can make reaches a built string.
+
+[SUBST-3] 1p  Move all damage counters from 1 of your Benched Ancient Pokémon to your opponent's Active Pokémon.
+  SUBST 3 token(s): «Ancient» → «Team Rocket's»
+    onto BUILT (reader): Move all damage counters from 1 of your Benched Team Rocket's Pokémon to your opponent's Active Pokémon.
+          deriveAttackEffect → [{"op":"moveCountersToDefender","ownerPokemon":"Team Rocket"}]
+  SPAN  delete 1 token(s) at 9 (1 minimal span(s) build): «Ancient»
+        deriveAttackEffect → [{"op":"moveCountersToDefender"}]
+
+[PHRASE-18] 3p  Put 2 damage counters on 1 of your opponent's Pokémon for each Basic {G} Energy card in your discard pile. Then, shuffle those Energy cards into your deck.
+  SPAN  delete 18 token(s) at 10 (1 minimal span(s) build) [TAIL REPAIR]: «for each Basic {G} Energy card in your discard pile. Then, shuffle those Energy cards into your deck.»
+        KEPT  Put 2 damage counters on 1 of your opponent's Pokémon.
+        deriveAttackEffect → [{"op":"damageChosen","target":"opponentAny","amount":20,"count":1,"source":"attack"}]
+
+[OPAQUE] 1p  Put up to 9 damage counters on this Pokémon. This attack does 20 damage for each damage counter you placed in this way.
+  no deletion and no substitution this instrument can make reaches a built string.
+
+[OPAQUE] 1p  This attack also does 40 damage to each Benched Pokémon that has any damage counters on it (both yours and your opponent's). (Don't apply Weakness and Resistance for Benched Pokémon.)
+  no deletion and no substitution this instrument can make reaches a built string.
+
+[COMPOUND-head] 1p  This attack does 10 damage for each damage counter on all of your Benched Cynthia's Pokémon. This attack's damage isn't affected by Weakness.
+  SEGMENT 2/2 removed.
+    KEPT  ✅ builds (reader): This attack does 10 damage for each damage counter on all of your Benched Cynthia's Pokémon.
+          deriveAttackDamageMultiplier → {"per":10,"count":{"kind":"damageCountersOnYourBench","filter":{"kind":"ownerPokemon","owner":"Cynthia"}}}
+    CUT   🛑 does NOT build: This attack's damage isn't affected by Weakness.
+  SPAN  delete 7 token(s) at 16 (1 minimal span(s) build): «This attack's damage isn't affected by Weakness.»
+
+[PHRASE-7] 1p  This attack does 20 damage to 1 of your opponent's Benched Pokémon for each damage counter on that Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  SPAN  delete 7 token(s) at 11 (1 minimal span(s) build): «Pokémon for each damage counter on that»
+        deriveAttackEffect → [{"op":"damageChosen","target":"opponentBench","amount":20,"count":1,"source":"attack","deals":true}]
+
+[OPAQUE] 1p  This attack does 50 damage for each of your Pokémon that has any damage counters on it.
+  no deletion and no substitution this instrument can make reaches a built string.
+
+[OPAQUE] 1p  This attack does 50 damage to each Pokémon that has any damage counters on it (both yours and your opponent's), except for this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  no deletion and no substitution this instrument can make reaches a built string.
+
+[OPAQUE] 1p  You may move any number of damage counters from your opponent's Benched Pokémon to their Active Pokémon.
+  no deletion and no substitution this instrument can make reaches a built string.
+
+[COMPOUND-head] 1p  Your opponent's Active Pokémon is now Confused. Put 8 damage counters instead of 3 on that Pokémon for this Special Condition.
+  SEGMENT 2/2 removed.
+    KEPT  ✅ builds (reader): Your opponent's Active Pokémon is now Confused.
+          deriveAttackEffect → [{"op":"applyStatus","target":"defender","status":"confused"}]
+    CUT   🛑 does NOT build: Put 8 damage counters instead of 3 on that Pokémon for this Special Condition.
+  SPAN  delete 14 token(s) at 7 (1 minimal span(s) build): «Put 8 damage counters instead of 3 on that Pokémon for this Special Condition.»
+
+[COMPOUND-head] 1p  Your opponent's Active Pokémon is now Confused. You may move any number of damage counters from your opponent's Pokémon to their other Pokémon in any way you like.
+  SEGMENT 2/2 removed.
+    KEPT  ✅ builds (reader): Your opponent's Active Pokémon is now Confused.
+          deriveAttackEffect → [{"op":"applyStatus","target":"defender","status":"confused"}]
+    CUT   🛑 does NOT build: You may move any number of damage counters from your opponent's Pokémon to their other Pokémon in any way you like.
+  SPAN  delete 21 token(s) at 7 (1 minimal span(s) build): «You may move any number of damage counters from your opponent's Pokémon to their other Pokémon in any way you like.»
+
+(44 corpus sentence(s) matching that needle are BUILT:)
+  reader   3p  At the end of your opponent's next turn, put 9 damage counters on the Defending Pokémon.
+  reader   1p  Choose 2 of your opponent's Pokémon and put 3 damage counters on each of them.
+  reader   5p  During your opponent's next turn, if this Pokémon is damaged by an attack (even if it is Knocked Out), put 8 damage counters on the Attacking Pokémon.
+  reader   1p  During your opponent's next turn, if this Pokémon is damaged by an attack (even if this Pokémon is Knocked Out), put 6 damage counters on the Attacking Pokémon.
+  reader   2p  During your opponent's next turn, if this Pokémon is damaged by an attack (even if this Pokémon is Knocked Out), put damage counters on the Attacking Pokémon equal to the damage done to this Pokémon.
+  reader   2p  If all of your Benched Pokémon have at least 1 damage counter on them, this attack does 120 more damage.
+  reader   1p  If any of your Benched Cubone have any damage counters on them, this attack does 120 more damage.
+  reader   3p  If this Pokémon has no damage counters on it, this attack does 120 more damage.
+  reader   1p  If your Benched Pokémon have any damage counters on them, this attack does 120 more damage.
+  reader   1p  If your Benched Pokémon have any damage counters on them, this attack does 80 more damage.
+  reader   1p  If your Benched Pokémon have any damage counters on them, this attack does 90 more damage.
+  reader   1p  If your opponent's Active Pokémon already has any damage counters on it, this attack does 100 more damage.
+  reader   3p  If your opponent's Active Pokémon already has any damage counters on it, this attack does 60 more damage.
+  reader   1p  If your opponent's Active Pokémon already has any damage counters on it, this attack does 80 more damage.
+  reader   2p  If your opponent's Active Pokémon has no damage counters on it before this attack does damage, this attack does nothing.
+  reader   2p  Knock Out 1 of your opponent's Pokémon that has exactly 6 damage counters on it.
+  reader   2p  Move all damage counters from 1 of your Benched Pokémon to 1 of your opponent's Pokémon.
+  reader   2p  Move all damage counters from 1 of your Benched Team Rocket's Pokémon to your opponent's Active Pokémon.
+  reader   1p  Put 2 damage counters on 1 of your opponent's Pokémon.
+  reader   1p  Put 2 damage counters on each of your opponent's Pokémon that has any damage counters on it.
+  reader   1p  Put 2 damage counters on each of your opponent's Pokémon.
+  reader   3p  Put 2 damage counters on your opponent's Benched Pokémon in any way you like.
+  reader   1p  Put 4 damage counters on your opponent's Pokémon in any way you like.
+  reader   1p  Put 6 damage counters on each Pokémon that has an Ability (both yours and your opponent's).
+  reader   4p  Put 6 damage counters on your opponent's Benched Pokémon in any way you like.
+  reader   2p  Put damage counters on each of your opponent's Benched Pokémon until its remaining HP is 100.
+  reader   1p  Put damage counters on your opponent's Active Pokémon until its remaining HP is 10.
+  reader   2p  Put damage counters on your opponent's Active Pokémon until its remaining HP is 50.
+  reader   1p  This Pokémon also does 10 damage to itself for each damage counter on it.
+  reader   3p  This attack also does 60 damage to 1 of your opponent's Benched Pokémon that has any damage counters on it. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  reader   4p  This attack does 10 damage for each damage counter on this Pokémon.
+  reader   2p  This attack does 10 less damage for each damage counter on this Pokémon.
+  reader   1p  This attack does 10 more damage for each damage counter on all of your opponent's Pokémon.
+  reader   6p  This attack does 10 more damage for each damage counter on this Pokémon.
+  reader   2p  This attack does 10 more damage for each damage counter on your opponent's Active Pokémon.
+  reader   2p  This attack does 20 damage for each damage counter on all of your Benched {F} Pokémon.
+  reader   7p  This attack does 20 damage for each damage counter on this Pokémon.
+  reader   3p  This attack does 20 damage for each damage counter on your opponent's Active Pokémon.
+  reader   2p  This attack does 30 more damage for each damage counter on your opponent's Active Pokémon.
+  reader   2p  This attack does 40 more damage for each damage counter on your opponent's Active Pokémon.
+  reader   1p  This attack does 50 more damage for each damage counter on your opponent's Active Pokémon.
+  reader   2p  This attack does 70 more damage for each damage counter on this Pokémon.
+  reader   1p  Your opponent's Active Pokémon is now Poisoned. During Pokémon Checkup, put 2 damage counters on that Pokémon instead of 1.
+  reader   4p  Your opponent's Active Pokémon is now Poisoned. During Pokémon Checkup, put 8 damage counters on that Pokémon instead of 1.

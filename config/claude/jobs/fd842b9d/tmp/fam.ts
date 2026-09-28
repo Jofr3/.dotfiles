@@ -1,0 +1,12 @@
+import { deriveAttackEffect } from "/home/jofre/projects/luminous_ui/packages/engine/src/effects";
+import { legalAttackCorpus, resolvedByAnyReader } from "/home/jofre/projects/luminous_ui/packages/engine/src/censusAttackCorpus";
+const u = (r: readonly (readonly [number,string])[]) => r.reduce((s,[n])=>s+n,0);
+const c = legalAttackCorpus();
+const inThisWayComma = c.filter(([,s]) => / in this way, /.test(s));
+console.log("/ in this way, /:", inThisWayComma.length, u(inThisWayComma), "built:", inThisWayComma.filter(([,s])=>resolvedByAnyReader(s)).length, u(inThisWayComma.filter(([,s])=>resolvedByAnyReader(s))));
+const marker = c.filter(([,s]) => s.includes(" in this way"));
+const bm = marker.filter(([,s])=>resolvedByAnyReader(s));
+console.log("' in this way':", marker.length, u(marker), "built:", bm.length, u(bm));
+const gated = c.filter(([,s]) => JSON.stringify(deriveAttackEffect(s) ?? []).includes('"recordGate"'));
+console.log("programs containing a recordGate:", gated.length, u(gated));
+for (const [p,s] of gated) console.log("   ", p, "|", s.slice(0,110));

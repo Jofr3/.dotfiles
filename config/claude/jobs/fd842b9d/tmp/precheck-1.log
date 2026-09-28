@@ -1,0 +1,9 @@
+checked 2331 mutants
+[0m[31m
+6 BROKEN ROW(S):[0m
+[0m[31m  D403-the-zone-is-the-whole-own-board: find occurs 0× in packages/engine/src/effects.ts[0m
+[0m[31m  D403-the-declinable-ceiling-is-dropped: find occurs 0× in packages/engine/src/effects.ts[0m
+[0m[31m  D455-the-mill-crosses-the-table: find occurs 0× in packages/engine/src/interpreter.ts[0m
+[0m[31m  D455-the-mill-announces-an-empty-deck: find occurs 0× in packages/engine/src/interpreter.ts[0m
+[0m[31m  D488-mill-does-not-record: find occurs 0× in packages/engine/src/interpreter.ts[0m
+[0m[31m  D488-empty-answer-is-not-filed: find occurs 0× in packages/engine/src/interpreter.ts[0m

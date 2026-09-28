@@ -1,0 +1,56 @@
+import io
+p='docs/progress.md'
+lines=io.open(p,encoding='utf-8').read().split('\n')
+old6=lines[5]
+assert old6.startswith('**Last updated:** 2026-09-11 — build session #440')
+new6=('**Last updated:** 2026-09-11 — build session #441 (**P3-M5 — D501, *the raised Confusion '
+ 'self-hit — THE FIRST `MATCH_RECORD_VERSION` BUMP OF THE RUN, OWED AND PAID, and a FALSE NUMBER THE '
+ 'HUD WAS SHOWING PLAYERS AT DECISION TIME.*** Built corpus **line 685**, *"Your opponent\'s Active '
+ 'Pokémon is now Confused. Put 8 damage counters instead of 3 on that Pokémon for this Special '
+ 'Condition."* — **1 sentence / 1 legal printing**, and **all three `instead of` rows are now '
+ 'claimed**. 🛑 **`MATCH_RECORD_VERSION` 29 → 30 — THE FIRST BUMP SINCE BEFORE D470, AND IT IS OWED '
+ 'RATHER THAN CHOSEN.** Address named FIRST and DRIVEN, not grepped: `SpecialConditions` ⊂ '
+ '`InPlayPokemon.conditions` ⊂ `PlayerState` ⊂ `GameState.players` ⊂ **`MatchRecord.state`**, '
+ 'persisted on every save **with no park in front** — so reachability (D450), serialized-alphabet '
+ '(D462) and no-carrier (D498) are all **INAPPLICABLE and none was used**. ⚠️ **AND MY CENTRAL '
+ 'INSTRUCTION WAS UNANSWERABLE**: I wrote *"check what `poisonDamage` did about this — it is the '
+ 'shipped precedent at the same address, so whatever argument it made is the one to re-derive."* '
+ '**`poisonDamage` MADE NO ARGUMENT.** Verified at ritual time: it landed **2026-07-14**, '
+ '`apps/api/.../match.ts` did not exist until **07-23**, and `MATCH_RECORD_VERSION` first appeared '
+ '**07-26** — **twelve days later.** It is a precedent for the SHAPE and silent on the CONSTANT, and '
+ 'my *"at the same address"* hid that: **a builder obeying the sentence hunts an argument that cannot '
+ 'exist, or infers "the sibling did not bump, so neither should I" from an absence that means '
+ 'nothing.** D476\'s hazard exactly — the citation\'s content contradicting the sentence citing it. '
+ '🛑 **THE OPTIONAL ROAD WAS AVAILABLE AND WAS REFUSED ON MEASURED GROUNDS, NOT REFLEX.** D441\'s '
+ 'discriminator says YES (absent would read as the default, and every v29 confusion hit WAS 30) and '
+ 'D434\'s *"rest must be OLD"* is **SATISFIED** — only the second time on record. **What decides it '
+ 'is a shipped COMPILE-TIME GUARD**: `redact.ts` and `projection.ts` each carry a `satisfies '
+ 'SpecialConditions` whose doc block exists so an added engine field is *a compile error rather than '
+ 'a silent drop* — **and an optional key satisfies both while reaching neither surface**, silently '
+ 'disarming the two instruments written to catch exactly this. **Both guards fired on the real edit; '
+ 'that is the evidence.** 🆕 **AND A FOURTH POSITION IN THE SEQUENCE**: D432 *no rest*, D434 *rest not '
+ 'old*, D435 *rest old but degradation is NaN*, **D501 *rest old, option available, REST CANNOT '
+ 'WITNESS*** — `rotation: "confused"` is byte-identical at 30 and at 80. **DRIVEN over a '
+ 'reconstructed v29 record with the key genuinely `delete`d**: the EVENT renders *"hit itself for '
+ 'undefined"* while the BOARD computes `damage + undefined` → **`NaN`**, `NaN >= hp` is **false**, '
+ 'and the body **can never be Knocked Out again on a board that looks entirely normal** — neither 80 '
+ 'nor 30, **D435\'s silent corruption at the sharpest address yet.** 🛑 **AND A LIVE FALSE CLAIM TO '
+ 'PLAYERS, FOUND BY GREPPING EVERY READ SITE BEFORE FIXING ANY** (D412): `GameHud.tsx` printed '
+ '*"Confused: attacking flips a coin — tails: 30 damage to itself"* **off `rotation` alone** — wrong '
+ 'at the exact moment a player decides whether to attack. **Verified at ritual time: the hard-coded '
+ '30 is gone and it now reads the board.** Two more hard-coded *"the 30 self-damage"* prose claims in '
+ '`events.ts` and `log.ts` were **falsified by this slice and corrected at the site.** The lattice is '
+ 'the **D489 full-weight shape** — vector `0/1 · 0/5 · 0/10 · 0/10 · 0/5 · 1/1`, **no proper subset '
+ 'builds** — with **one of six axes DEGENERATE** (the count `8`, already claimed by the Poison '
+ 'anchor\'s `(\\d+)`). ⚠️ **A CHEAPER TAIL-ONLY ANCHOR WAS DRIVEN AND REFUSED** (D485): the splitter '
+ '**does** compose at this head, but the tail points out of its clause **twice** and **492 claimed '
+ 'sentences end in a period**, so it would hang a Confusion amount off sentences that never mention '
+ 'Confusion. **Witness load 10 files / 1 row — the worst ratio of the run.** Engine **0.392.0 → '
+ '0.393.0**. Corpus **2,446 → 2,464**, declared survivors **48 UNCHANGED**, archive ratchet **171**. '
+ '`bun run check` GREEN, **484 files / 11,064 tests** (+1 file, **+40 tests**). Residue **83/117 → '
+ '82/116**, `BUILT.attack` **1615 → 1616**.)')
+lines[5]=new6
+lines.insert(7,'**Last updated (was):** '+old6.split('**Last updated:** ',1)[1])
+lines.insert(8,'')
+io.open(p,'w',encoding='utf-8').write('\n'.join(lines))
+print('ok')

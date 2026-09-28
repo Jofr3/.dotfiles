@@ -1,0 +1,2011 @@
+[0m[2m[35m$[0m [2m[1mbun scripts/typecheck-coverage.ts && tsc -b && bun scripts/lint-coverage.ts && biome lint . --error-on-warnings && vitest run[0m
+typecheck-coverage: OK — all 750 TypeScript files are in 6 project(s) of tsconfig.json (apps/api/tsconfig.json, packages/engine/tsconfig.json, packages/schema/tsconfig.json, tsconfig.app.json, tsconfig.node.json, tsconfig.scripts.json).
+lint-coverage: OK — all 752 source files are covered by Biome.
+Checked 788 files in 2s. No fixes applied.
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/censusAtHead.test.ts (50 tests | 4 failed) 454ms
+     × the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it 116ms
+     × 🆕🆕 D420 — the TWELVE readers, RUN LIVE over the corpus, resolve 415 sentences / 1,368 printings 14ms
+     × BUILT.attack IS that live sum plus the registry attacks — no literal in the addition 80ms
+     × RUNG (b) — none of the seventeen is in the unbuilt remainder, or in any backlog row 26ms
+ ❯ packages/engine/src/cancelThenPrevent.test.ts (33 tests | 2 failed) 476ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 82ms
+     × the engine version is 0.405.0 and `manifest.version` agrees 9ms
+ ❯ packages/engine/src/derivedBenchSearchMove.test.ts (41 tests | 2 failed) 405ms
+     × engineVersion stepped for a behaviour a card can reach, and `manifest.version` agrees 24ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 26ms
+ ❯ packages/engine/src/bothBenchSpread.test.ts (38 tests | 1 failed) 538ms
+     × 🛑 the RAW reader-only residue fell by exactly 2 sentences / 2 printings, and both rows left it 79ms
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts (26 tests | 2 failed) 364ms
+     × 🛑 the resolving corpus gains TWO sentences and TWO printings 66ms
+     × engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR 4ms
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts (31 tests | 2 failed) 279ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 41ms
+     × engineVersion is 0.405.0 9ms
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts (27 tests | 2 failed) 213ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 35ms
+     × engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR 6ms
+ ❯ packages/engine/src/flipDefenderAttackLock.test.ts (25 tests | 2 failed) 155ms
+     × the resolving corpus gains ONE sentence and ONE printing 44ms
+     × engineVersion is 0.405.0 2ms
+ ❯ packages/engine/src/classedBoardSpread.test.ts (33 tests | 2 failed) 326ms
+     × engineVersion is 0.405.0 and `manifest.version` agrees 23ms
+     × 🛑 the RAW residue fell by exactly 2 sentences / 4 printings 25ms
+ ❯ packages/engine/src/defenderStatusTriple.test.ts (31 tests | 2 failed) 228ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 63ms
+     × engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR 3ms
+ ❯ packages/engine/src/basicEnergyScaling.test.ts (22 tests | 2 failed) 315ms
+     × 🛑 EXACTLY ONE sentence moved, and it is the one this slice names 78ms
+     × 🛑 the address that IS persisted, and why a WIDENING there is still free 12ms
+ ❯ packages/engine/src/handDiscardScaledSnipe.test.ts (35 tests | 2 failed) 281ms
+     × the resolving corpus gains ONE sentence and TWO printings 41ms
+     × engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR 2ms
+ ❯ packages/engine/src/scaledBenchSpread.test.ts (32 tests | 1 failed) 231ms
+     × 🛑 the RAW reader-only residue fell by exactly 1 sentence / 3 printings, and this row left it 84ms
+ ❯ packages/engine/src/retreatCostBonus.test.ts (27 tests | 1 failed) 229ms
+     × the NINE-reader instrument steps by exactly 1 sentence / 1 printing 72ms
+ ❯ packages/engine/src/confusionDamage.test.ts (40 tests | 2 failed) 137ms
+     × 🛑 the hazard a bare-tail arm would open, counted over the whole column 33ms
+     × the engine version moved with the behaviour, and the manifest agrees 5ms
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts (21 tests | 1 failed) 338ms
+     × the census moves by exactly 2 printings on exactly 1 sentence 204ms
+ ❯ packages/engine/src/opponentBenchCount.test.ts (25 tests | 1 failed) 122ms
+     × the TEN-reader instrument steps by exactly 1 sentence / 1 printing 38ms
+ ❯ packages/engine/src/inPlayTypeBonus.test.ts (24 tests | 1 failed) 188ms
+     × 🛑 the TEN-reader instrument steps by exactly 1 sentence / 1 printing 53ms
+ ❯ packages/engine/src/exOnlyActive.test.ts (18 tests | 1 failed) 223ms
+     × 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM 141ms
+ ❯ packages/engine/src/benchNamedBonus.test.ts (24 tests | 1 failed) 216ms
+     × 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345 66ms
+ ❯ packages/engine/src/sameEnergyBonus.test.ts (25 tests | 1 failed) 258ms
+     × the resolving corpus gains TWO sentences and TWO printings 86ms
+ ❯ packages/engine/src/filteredBenchSnipe.test.ts (30 tests | 3 failed) 280ms
+     × 🛑 THE FAMILY: five sentences share the predicate, and this slice builds ONE 51ms
+     × 🛑 THE LOUD PATH IS STILL THERE, on the SAME body — index 2 is unread 6ms
+     × 🛑 the engine version moved with `package.json` 2ms
+ ❯ packages/engine/src/moreEnergyBonus.test.ts (22 tests | 1 failed) 130ms
+     × the resolving corpus gains ONE sentence and ONE printing 45ms
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts (22 tests | 2 failed) 116ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 42ms
+     × the engine version moved and the two spellings agree 2ms
+ ❯ packages/engine/src/precociousEvolution.test.ts (13 tests | 1 failed) 216ms
+     × 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two 90ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ ❯ packages/engine/src/perHeadsConsequent.test.ts (31 tests | 1 failed) 998ms
+     × the engine version moved and the record version did not 53ms
+ ❯ packages/engine/src/bothActivesFlipCount.test.ts (28 tests | 1 failed) 458ms
+     × engineVersion is 0.405.0 and `manifest.version` agrees 14ms
+ ❯ packages/engine/src/inPlayFlipCount.test.ts (23 tests | 1 failed) 434ms
+     × engineVersion is 0.405.0 and `manifest.version` agrees 20ms
+ ❯ packages/engine/src/bodiesInPlayScaling.test.ts (53 tests | 1 failed) 466ms
+     × the engine version moved with the behaviour 40ms
+ ❯ packages/engine/src/coinThreshold.test.ts (30 tests | 1 failed) 375ms
+     × engineVersion is 0.405.0 and `manifest.version` agrees 11ms
+ ❯ packages/engine/src/delayedCounters.test.ts (77 tests | 1 failed) 297ms
+     × the engine version moved with the behaviour 24ms
+ ❯ packages/engine/src/compoundCompose.test.ts (30 tests | 1 failed) 286ms
+     × the engine version moved with the behaviour 23ms
+ ❯ packages/engine/src/counterUntilHp.test.ts (37 tests | 1 failed) 261ms
+     × the engine version moved and the record version did not 21ms
+ ❯ packages/engine/src/energyInPlaySuppressed.test.ts (28 tests | 1 failed) 334ms
+     × engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR 20ms
+ ❯ packages/engine/src/prizeGateParalyze.test.ts (31 tests | 1 failed) 213ms
+     × 🛑 the ENGINE version moved and `MATCH_RECORD_VERSION` did not, and both are argued 15ms
+ ❯ packages/engine/src/devolveEach.test.ts (60 tests | 1 failed) 336ms
+     × the engine version moved with the behaviour 21ms
+ ❯ packages/engine/src/derivedDeckSearchAttach.test.ts (35 tests | 1 failed) 211ms
+     × engineVersion is 0.405.0 and `manifest.version` agrees 15ms
+ ❯ packages/engine/src/selfHealDealt.test.ts (30 tests | 1 failed) 172ms
+     × the engine version moved and the two spellings agree 11ms
+ ❯ packages/engine/src/defenderStatusPair.test.ts (38 tests | 1 failed) 277ms
+     × the engine version moved with the behaviour 28ms
+ ❯ packages/engine/src/preDamageFamily.test.ts (44 tests | 1 failed) 234ms
+     × the engine version is pinned, and it is THIS slice's pin 12ms
+ ❯ packages/engine/src/opponentHandDiscard.test.ts (36 tests | 1 failed) 279ms
+     × the engine version moved and the two spellings agree 16ms
+ ❯ packages/engine/src/derivedOpponentEnergyMove.test.ts (24 tests | 1 failed) 147ms
+     × the engine version was bumped in the same commit as the behaviour 11ms
+ ❯ packages/engine/src/opponentCounterMultiply.test.ts (37 tests | 1 failed) 150ms
+     × the engine version moved with the behaviour 12ms
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts (36 tests | 1 failed) 235ms
+     × the engine version moved with the behaviour 17ms
+ ❯ packages/engine/src/perTailsSelfDiscard.test.ts (27 tests | 1 failed) 257ms
+     × engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR 26ms
+ ❯ packages/engine/src/optionalSelfSwitch.test.ts (30 tests | 1 failed) 209ms
+     × the engine version moved with the behaviour 14ms
+ ❯ packages/engine/src/discardPileScaling.test.ts (30 tests | 1 failed) 204ms
+     × the engine version moved with the behaviour 15ms
+ ❯ packages/engine/src/derivedAttackGate.test.ts (22 tests | 1 failed) 174ms
+     × the engine version was bumped in the same commit as the behaviour 11ms
+ ❯ packages/engine/src/retreatCostPenalty.test.ts (31 tests | 1 failed) 291ms
+     × 🛑 the engine version moved with the behaviour 18ms
+ ❯ packages/engine/src/ownBenchSpread.test.ts (31 tests | 1 failed) 140ms
+     × the engine version moved and the two spellings agree 10ms
+ ❯ packages/engine/src/untilLeavesActiveBar.test.ts (36 tests | 1 failed) 194ms
+     × the engine version moved with the behaviour 18ms
+ ❯ packages/engine/src/preDamageRefusal.test.ts (27 tests | 1 failed) 119ms
+     × the engine version is pinned, and it is THIS slice's pin 11ms
+ ❯ packages/engine/src/namedDeckSearch.test.ts (21 tests | 1 failed) 177ms
+     × the engine version moved with the behaviour 15ms
+ ❯ packages/engine/src/eachDeckMillBoost.test.ts (36 tests | 1 failed) 159ms
+     × engineVersion is 0.405.0 and `manifest.version` agrees — the bump is for BEHAVIOUR 19ms
+ ❯ packages/engine/src/typedSelfSwitch.test.ts (32 tests | 1 failed) 119ms
+     × engineVersion is 0.405.0 14ms
+ ❯ packages/engine/src/takePrizeAttack.test.ts (35 tests | 1 failed) 170ms
+     × the engine version moved and the two spellings agree 11ms
+ ❯ packages/engine/src/specialConditionCount.test.ts (29 tests | 1 failed) 187ms
+     × the engine version moved with the behaviour, and `manifest.version` agrees 12ms
+ ❯ packages/engine/src/costBenchSnipe.test.ts (33 tests | 1 failed) 184ms
+     × engineVersion is 0.405.0 and `manifest.version` agrees 16ms
+ ❯ packages/engine/src/opponentBoardCounterScaling.test.ts (35 tests | 1 failed) 171ms
+     × the engine version moved with the behaviour 11ms
+ ❯ packages/engine/src/distinctEnergyTypes.test.ts (18 tests | 1 failed) 154ms
+     × the engine version moved with the behaviour 21ms
+ ❯ packages/engine/src/benchCounterSuppressed.test.ts (20 tests | 1 failed) 101ms
+     × engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR 11ms
+ ❯ packages/engine/src/noWeaknessBar.test.ts (35 tests | 1 failed) 179ms
+     × the engine version moved with the behaviour 20ms
+ ❯ packages/engine/src/ownerBoardEnergyScaling.test.ts (36 tests | 1 failed) 125ms
+     × the engine version moved with the behaviour 11ms
+ ❯ packages/engine/src/preDamageToolDiscard.test.ts (29 tests | 1 failed) 210ms
+     × the engine version is pinned, and it is THIS slice's pin 21ms
+ ❯ packages/engine/src/counterFold.test.ts (28 tests | 1 failed) 155ms
+     × the engine version moved and the record version did not 20ms
+ ❯ packages/engine/src/evolvedDiscardCompound.test.ts (35 tests | 1 failed) 126ms
+     × engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR 24ms
+ ❯ packages/engine/src/handRefreshOpponentHand.test.ts (24 tests | 1 failed) 227ms
+     × 🛑 the ENGINE version moved and `MATCH_RECORD_VERSION` did not, and both are argued 18ms
+ ❯ packages/engine/src/classNarrowedBenchSnipe.test.ts (36 tests | 1 failed) 117ms
+     × engineVersion is 0.405.0 and `manifest.version` agrees 12ms
+ ❯ packages/engine/src/boardWideSpread.test.ts (26 tests | 1 failed) 140ms
+     × engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR 17ms
+ ❯ packages/engine/src/opponentHandSweep.test.ts (27 tests | 1 failed) 138ms
+     × engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR 13ms
+ ❯ packages/engine/src/benchNounScaling.test.ts (25 tests | 1 failed) 147ms
+     × the fixture carries the two printed sentences BYTE FOR BYTE 14ms
+ ❯ packages/engine/src/engineVersionChangelog.test.ts (5 tests | 1 failed) 29ms
+     × (1)+(8) the newest heading targets the version the engine is actually on 10ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 89 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/basicEnergyScaling.test.ts > D500 §6 — what the corpus looked like before, computed from what it looks like now > 🛑 EXACTLY ONE sentence moved, and it is the one this slice names
+AssertionError: expected [ 537, 1573 ] to deeply equal [ 536, 1572 ]
+
+- Expected
++ Received
+
+  [
+-   536,
+-   1572,
++   537,
++   1573,
+  ]
+
+ ❯ packages/engine/src/basicEnergyScaling.test.ts:672:8
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/89]⎯
+
+ FAIL  packages/engine/src/basicEnergyScaling.test.ts > D500 §7 — the version stays 29, and the address is named before the argument > 🛑 the address that IS persisted, and why a WIDENING there is still free
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/basicEnergyScaling.test.ts:734:27
+    732|     expect(produced).toEqual([]);
+    733|     // …and the engine version DID move, because a card can reach the …
+    734|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    735|   });
+    736| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/89]⎯
+
+ FAIL  packages/engine/src/benchCounterSuppressed.test.ts > §8 — the version > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/benchCounterSuppressed.test.ts:658:27
+    656|     // A card can reach this: file line 529's printing scores a number…
+    657|     // at 0.387.0, and skips a §8.5 step it did not skip.
+    658|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    659|   });
+    660| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/89]⎯
+
+ FAIL  packages/engine/src/benchNamedBonus.test.ts > §7 — the census moves in exactly ONE summand, and the other three are measured > 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(544) ] to have a length of 545 but got 546
+
+- Expected
++ Received
+
+- 545
++ 546
+
+ ❯ packages/engine/src/benchNamedBonus.test.ts:842:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/89]⎯
+
+ FAIL  packages/engine/src/benchNounScaling.test.ts > §1 — the two printed rows, their printing counts, and the fixture > the fixture carries the two printed sentences BYTE FOR BYTE
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/benchNounScaling.test.ts:334:27
+    332|     // readable on the counter board (see `counterBoard`'s block).
+    333|     expect(card?.types).toEqual(["Fighting"]);
+    334|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    335|   });
+    336| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/89]⎯
+
+ FAIL  packages/engine/src/boardWideSpread.test.ts > D482 §9 — the surface, the version and what does NOT move > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/boardWideSpread.test.ts:774:27
+    772|     // block, which records the class the old count did not have at al…
+    773|     // TITLES that spell the version.
+    774|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    775|   });
+    776|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/89]⎯
+
+ FAIL  packages/engine/src/bodiesInPlayScaling.test.ts > §6 — `MATCH_RECORD_VERSION` STAYS 29, driven at all THREE addresses > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/bodiesInPlayScaling.test.ts:1579:27
+    1577|
+    1578|   it("the engine version moved with the behaviour", () => {
+    1579|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1580|   });
+    1581| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/89]⎯
+
+ FAIL  packages/engine/src/bothActivesFlipCount.test.ts > D475 §6 — `MATCH_RECORD_VERSION` stays 29, and this is D473's FIRST argument > engineVersion is 0.405.0 and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/bothActivesFlipCount.test.ts:1022:27
+    1020|     // not make is worse than a stale doc block, because the run log t…
+    1021|     // version the suite never checked.
+    1022|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1023|     expect(manifest.version).toBe("0.406.0");
+    1024|     expect(manifest.version).toBe(engineVersion);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/89]⎯
+
+ FAIL  packages/engine/src/bothBenchSpread.test.ts > D507 §9 — the residue, the surface, the version, and what stands still > 🛑 the RAW reader-only residue fell by exactly 2 sentences / 2 printings, and both rows left it
+AssertionError: expected [ 94, 146 ] to deeply equal [ 95, 147 ]
+
+- Expected
++ Received
+
+  [
+-   95,
+-   147,
++   94,
++   146,
+  ]
+
+ ❯ packages/engine/src/bothBenchSpread.test.ts:1023:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/89]⎯
+
+ FAIL  packages/engine/src/cancelThenPrevent.test.ts > §8 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/cancelThenPrevent.test.ts:662:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/89]⎯
+
+ FAIL  packages/engine/src/cancelThenPrevent.test.ts > §9 — the version question, asked at the durated address > the engine version is 0.405.0 and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/cancelThenPrevent.test.ts:704:27
+    702| describe("§9 — the version question, asked at the durated address", ()…
+    703|   it("the engine version is 0.406.0 and `manifest.version` agrees", ()…
+    704|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    705|   });
+    706|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/89]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it
+AssertionError: expected 94 to be 95 // Object.is equality
+
+- Expected
++ Received
+
+- 95
++ 94
+
+ ❯ packages/engine/src/censusAtHead.test.ts:6352:40
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/89]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > 🆕🆕 D420 — the TWELVE readers, RUN LIVE over the corpus, resolve 415 sentences / 1,368 printings
+AssertionError: expected 546 to be 545 // Object.is equality
+
+- Expected
++ Received
+
+- 545
++ 546
+
+ ❯ packages/engine/src/censusAtHead.test.ts:8317:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/89]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > BUILT.attack IS that live sum plus the registry attacks — no literal in the addition
+AssertionError: expected 1636 to be 1635 // Object.is equality
+
+- Expected
++ Received
+
+- 1635
++ 1636
+
+ ❯ packages/engine/src/censusAtHead.test.ts:8443:66
+    8441|     expect(compoundUnits).toBe(COMPOUND_ATTACK_UNITS);
+    8442|
+    8443|     expect(derived + registryUnits + splitUnits + compoundUnits).toBe(…
+       |                                                                  ^
+    8444|   });
+    8445|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/89]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D301 — the opponent-energy scaling family: the backlog row measured PHANTOM > RUNG (b) — none of the seventeen is in the unbuilt remainder, or in any backlog row
+AssertionError: expected 146 to be 147 // Object.is equality
+
+- Expected
++ Received
+
+- 147
++ 146
+
+ ❯ packages/engine/src/censusAtHead.test.ts:8796:62
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/89]⎯
+
+ FAIL  packages/engine/src/classNarrowedBenchSnipe.test.ts > §8 — the persisted address, and why 29 does not move > engineVersion is 0.405.0 and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/classNarrowedBenchSnipe.test.ts:1007:27
+    1005|     // `packages/engine` behaviour moved (a new op field, a new candid…
+    1006|     // a new caption arm), so the version steps.
+    1007|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1008|     expect(manifest.version).toBe(engineVersion);
+    1009|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/89]⎯
+
+ FAIL  packages/engine/src/classedBoardSpread.test.ts > D492 §10 — the residue this slice moved, and the engine version > engineVersion is 0.405.0 and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/classedBoardSpread.test.ts:991:27
+    989| describe("D492 §10 — the residue this slice moved, and the engine vers…
+    990|   it("engineVersion is 0.406.0 and `manifest.version` agrees", () => {
+    991|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    992|     expect(manifest.version).toBe("0.406.0");
+    993|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/89]⎯
+
+ FAIL  packages/engine/src/classedBoardSpread.test.ts > D492 §10 — the residue this slice moved, and the engine version > 🛑 the RAW residue fell by exactly 2 sentences / 4 printings
+AssertionError: expected [ 94, 146 ] to deeply equal [ 95, 147 ]
+
+- Expected
++ Received
+
+  [
+-   95,
+-   147,
++   94,
++   146,
+  ]
+
+ ❯ packages/engine/src/classedBoardSpread.test.ts:1004:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/89]⎯
+
+ FAIL  packages/engine/src/coinThreshold.test.ts > §7 — the record-shape derivation, made rather than inherited > engineVersion is 0.405.0 and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/coinThreshold.test.ts:708:27
+    706|     // and one exported type — which is exactly why the version and th…
+    707|     // version part company here: the union is parse-time and the reco…
+    708|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    709|   });
+    710| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/89]⎯
+
+ FAIL  packages/engine/src/compoundCompose.test.ts > §7 — the persisted question, asked and DRIVEN > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/compoundCompose.test.ts:1084:27
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/89]⎯
+
+ FAIL  packages/engine/src/confusionDamage.test.ts > §2 — a WHOLE-SENTENCE anchor, and the two measurements that warrant it > 🛑 the hazard a bare-tail arm would open, counted over the whole column
+AssertionError: expected 504 to be 503 // Object.is equality
+
+- Expected
++ Received
+
+- 503
++ 504
+
+ ❯ packages/engine/src/confusionDamage.test.ts:210:42
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/89]⎯
+
+ FAIL  packages/engine/src/confusionDamage.test.ts > §7 — the bump, and the corruption it refuses > the engine version moved with the behaviour, and the manifest agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/confusionDamage.test.ts:823:27
+    821|
+    822|   it("the engine version moved with the behaviour, and the manifest ag…
+    823|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    824|     expect(manifest.version).toBe("0.406.0");
+    825|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/89]⎯
+
+ FAIL  packages/engine/src/costBenchSnipe.test.ts > §8 — the surface, the version, and the mechanisms this slice did not add > engineVersion is 0.405.0 and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/costBenchSnipe.test.ts:974:27
+    972|     // {target:"opponentBench", …}` is `ALSO_BENCHED_SNIPE`'s. No new …
+    973|     // no new op VALUE — so there is no byte for a version to be about.
+    974|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    975|     expect(manifest.version).toBe(engineVersion);
+    976|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/89]⎯
+
+ FAIL  packages/engine/src/counterFold.test.ts > §3 — TWO REQUIRED fields on a shipped op, and the record version does not move > the engine version moved and the record version did not
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/counterFold.test.ts:521:27
+    519|
+    520|   it("the engine version moved and the record version did not", () => {
+    521|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    522|   });
+    523| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/89]⎯
+
+ FAIL  packages/engine/src/counterUntilHp.test.ts > §3 — a NEW `EffectOp` inhabitant, and the record version does not move > the engine version moved and the record version did not
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/counterUntilHp.test.ts:551:27
+    549|
+    550|   it("the engine version moved and the record version did not", () => {
+    551|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    552|   });
+    553| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/89]⎯
+
+ FAIL  packages/engine/src/defenderStatusPair.test.ts > §8 — purity and the structural answers > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/defenderStatusPair.test.ts:1024:27
+    1022|
+    1023|   it("the engine version moved with the behaviour", () => {
+    1024|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1025|   });
+    1026| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/89]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:544:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/89]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §7 — purity and the structural answers > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:655:27
+    653|     // now derives to a program: an OBSERVABLE change to what the engi…
+    654|     // real catalog row, which is the bump's whole trigger.
+    655|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    656|   });
+    657| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/89]⎯
+
+ FAIL  packages/engine/src/delayedCounters.test.ts > §8 — the bump, and the soft landing it refuses > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/delayedCounters.test.ts:1122:27
+    1120|
+    1121|   it("the engine version moved with the behaviour", () => {
+    1122|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1123|   });
+    1124| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/89]⎯
+
+ FAIL  packages/engine/src/derivedAttackGate.test.ts > D444 §6 — `MATCH_RECORD_VERSION` stays 29, driven over bytes both ways > the engine version was bumped in the same commit as the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/derivedAttackGate.test.ts:775:27
+    773|     // are one fact with two spellings, and the pin is authored HERE r…
+    774|     // inherited (D427 — count your own suite's pin).
+    775|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    776|   });
+    777| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/89]⎯
+
+ FAIL  packages/engine/src/derivedBenchSearchMove.test.ts > §1 — the sentence, the corpus row, and D230's refusal paid > engineVersion stepped for a behaviour a card can reach, and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/derivedBenchSearchMove.test.ts:171:27
+    169|
+    170|   it("engineVersion stepped for a behaviour a card can reach, and `man…
+    171|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    172|     expect(manifest.version).toBe(engineVersion);
+    173|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/89]⎯
+
+ FAIL  packages/engine/src/derivedBenchSearchMove.test.ts > §8 — the census this row moves, and the summands it does not > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/derivedBenchSearchMove.test.ts:1214:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/89]⎯
+
+ FAIL  packages/engine/src/derivedDeckSearchAttach.test.ts > 🆕🆕 D458 §5 — the engine version moved and the record version did not > engineVersion is 0.405.0 and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/derivedDeckSearchAttach.test.ts:1746:27
+    1744|     // that alone — no new op, no new field and no new prompt key were…
+    1745|     // reader looking for a vocabulary diff would find none and conclu…
+    1746|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1747|     expect(manifest.version).toBe(engineVersion);
+    1748|     // …and the historical values never come back, the shape every sib…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/89]⎯
+
+ FAIL  packages/engine/src/derivedOpponentEnergyMove.test.ts > §8 — the version block > the engine version was bumped in the same commit as the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/derivedOpponentEnergyMove.test.ts:665:27
+    663|     // inherited (D427 — every note counts the pins it inherited and n…
+    664|     // is about to author; this is D443's own).
+    665|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    666|   });
+    667| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/89]⎯
+
+ FAIL  packages/engine/src/devolveEach.test.ts > §11 — the version prediction is DRIVEN, not asserted > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/devolveEach.test.ts:1063:27
+    1061|
+    1062|   it("the engine version moved with the behaviour", () => {
+    1063|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1064|   });
+    1065| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/89]⎯
+
+ FAIL  packages/engine/src/discardPileScaling.test.ts > §6 — `MATCH_RECORD_VERSION` STAYS 29, driven in both directions > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/discardPileScaling.test.ts:911:27
+    909|
+    910|   it("the engine version moved with the behaviour", () => {
+    911|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    912|   });
+    913| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/89]⎯
+
+ FAIL  packages/engine/src/distinctEnergyTypes.test.ts > §4 — the census step this slice is > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/distinctEnergyTypes.test.ts:782:27
+    780|
+    781|   it("the engine version moved with the behaviour", () => {
+    782|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    783|   });
+    784| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/89]⎯
+
+ FAIL  packages/engine/src/eachDeckMillBoost.test.ts > D490 §9 — `MATCH_RECORD_VERSION` stays 29: reachability, driven > engineVersion is 0.405.0 and `manifest.version` agrees — the bump is for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/eachDeckMillBoost.test.ts:1234:27
+    1232|     // D488's rule fired a second time: *a prose census of exceptions …
+    1233|     // the moment it is written down, and the count is taken before th…
+    1234|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1235|     expect(manifest.version).toBe(engineVersion);
+    1236|     expect(deriveAttackDiscardScaledBoost(MILL_BOTH)).not.toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/89]⎯
+
+ FAIL  packages/engine/src/energyInPlaySuppressed.test.ts > §11 — the version > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/energyInPlaySuppressed.test.ts:748:27
+    746|     // A card can reach this: file line 337's printing scores a number…
+    747|     // at 0.388.0, and skips a §8.5 step it did not skip.
+    748|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    749|   });
+    750| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/89]⎯
+
+ FAIL  packages/engine/src/engineVersionChangelog.test.ts > the engine changelog records the version history it claims to (D506) > (1)+(8) the newest heading targets the version the engine is actually on
+AssertionError: the newest heading in index.ts targets 0.405.0, but the engine is on 0.406.0. everything released after 0.405.0 shipped with no heading. Write ONE heading PER BUMP — do not retarget the last one, which is exactly D501's defect (see the header). ⚠️ The number of missing headings is deliberately NOT computed here: this guard does not read the commit history, so it cannot know how many releases sit between 0.405.0 and 0.406.0: expected '0.405.0' to be '0.406.0' // Object.is equality
+
+Expected: "0.406.0"
+Received: "0.405.0"
+
+ ❯ packages/engine/src/engineVersionChangelog.test.ts:435:7
+    433|           : "a heading claims a version the engine has not shipped"
+    434|       }`,
+    435|     ).toBe(HEAD);
+       |       ^
+    436|     const ahead = HEADINGS.filter((h) => compare(h.to, HEAD) > 0 || co…
+    437|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/89]⎯
+
+ FAIL  packages/engine/src/evolvedDiscardCompound.test.ts > §10 — the version, and what it is owed for > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/evolvedDiscardCompound.test.ts:1031:27
+    1029|     // ZERO mechanism still owes it**: the tax is on what the engine D…
+    1030|     // of it is new.
+    1031|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1032|     expect(manifest.version).toBe(engineVersion);
+    1033|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/89]⎯
+
+ FAIL  packages/engine/src/exOnlyActive.test.ts > §1 — the population, re-derived LIVE rather than quoted > 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(544) ] to have a length of 545 but got 546
+
+- Expected
++ Received
+
+- 545
++ 546
+
+ ❯ packages/engine/src/exOnlyActive.test.ts:190:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/89]⎯
+
+ FAIL  packages/engine/src/filteredBenchSnipe.test.ts > §1 — the price and the family, re-derived off the corpus rather than quoted > 🛑 THE FAMILY: five sentences share the predicate, and this slice builds ONE
+AssertionError: expected [ …(4) ] to deeply equal [ …(3) ]
+
+- Expected
++ Received
+
+  [
+    "Put 2 damage counters on each of your opponent's Pokémon that has any damage counters on it.",
+    "This attack also does 40 damage to each Benched Pokémon that has any damage counters on it (both yours and your opponent's). (Don't apply Weakness and Resistance for Benched Pokémon.)",
+    "This attack also does 60 damage to 1 of your opponent's Benched Pokémon that has any damage counters on it. (Don't apply Weakness and Resistance for Benched Pokémon.)",
++   "This attack does 50 damage for each of your Pokémon that has any damage counters on it.",
+  ]
+
+ ❯ packages/engine/src/filteredBenchSnipe.test.ts:207:44
+    205|     // consequent really was the cost**, which is the claim D437 made …
+    206|     // The THREE that remain each still need their own consequent: a b…
+    207|     // spread, a COUNT/scaler, and a both-sides spread with a self-exc…
+       |                                            ^
+    208|     // 🆕🆕🆕 **D507 — THE SPLIT IS NOW 3 BUILT / 2 REFUSED, AND IT WA…
+    209|     // THREE.** *"This attack also does 40 damage to each Benched Poké…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/89]⎯
+
+ FAIL  packages/engine/src/filteredBenchSnipe.test.ts > §7 — Weakness is genuinely not applied, the far seat, and the loud path > 🛑 THE LOUD PATH IS STILL THERE, on the SAME body — index 2 is unread
+AssertionError: expected [ 'ATTACK_DECLARED', …(3) ] to include 'ATTACK_EFFECT_SKIPPED'
+ ❯ packages/engine/src/filteredBenchSnipe.test.ts:678:27
+    677|       { id: "fix-titan", damage: 20 },
+    678|     ]);
+    679|     const { state: done, events } = mustApply(state, { type: "attack",…
+       |                   ^
+    680|     expect(types(events)).not.toContain("EFFECT_PENDING");
+    681|     const dealt = findAll(events, "DAMAGE_DEALT");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/89]⎯
+
+ FAIL  packages/engine/src/filteredBenchSnipe.test.ts > §8 — the persisted question: `MATCH_RECORD_VERSION` STAYS 29 > 🛑 the engine version moved with `package.json`
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/filteredBenchSnipe.test.ts:764:27
+    762|     delete op.damagedOnly;
+    763|     expect("damagedOnly" in op).toBe(false);
+    764|     const prompt = record.phase.prompt;
+       |                           ^
+    765|     if (prompt.kind !== "choosePokemonMulti") throw new Error("expecte…
+    766|     const { state: done } = mustApply(record, {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/89]⎯
+
+ FAIL  packages/engine/src/flipDefenderAttackLock.test.ts > §8 — the census moves in exactly ONE summand > the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/flipDefenderAttackLock.test.ts:705:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/89]⎯
+
+ FAIL  packages/engine/src/flipDefenderAttackLock.test.ts > §8 — the census moves in exactly ONE summand > engineVersion is 0.405.0
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/flipDefenderAttackLock.test.ts:715:27
+    713|
+    714|   it("engineVersion is 0.406.0", () => {
+    715|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    716|   });
+    717|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/89]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:569:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/89]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §8 — the version > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:706:27
+    704|     // derives to a program, on two legal printings: an OBSERVABLE cha…
+    705|     // does with real catalog rows, which is the bump's whole trigger.
+    706|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    707|   });
+    708| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/89]⎯
+
+ FAIL  packages/engine/src/flipStatusHeadsTails.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts:806:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[50/89]⎯
+
+ FAIL  packages/engine/src/flipStatusHeadsTails.test.ts > §7 — engineVersion, and why MATCH_RECORD_VERSION does not move > engineVersion is 0.405.0
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts:827:27
+    825| describe("§7 — engineVersion, and why MATCH_RECORD_VERSION does not mo…
+    826|   it("engineVersion is 0.406.0", () => {
+    827|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    828|   });
+    829|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[51/89]⎯
+
+ FAIL  packages/engine/src/handDiscardScaledSnipe.test.ts > D489 §9 — the census this row moves, and the summands it does not > the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/handDiscardScaledSnipe.test.ts:1038:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[52/89]⎯
+
+ FAIL  packages/engine/src/handDiscardScaledSnipe.test.ts > D489 §9 — the census this row moves, and the summands it does not > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/handDiscardScaledSnipe.test.ts:1047:27
+    1045|     // that derived to `null` and fell to the loud `ATTACK_EFFECT_SKIP…
+    1046|     // discards from a hand and deals a number proportional to what it…
+    1047|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1048|     expect(deriveAttackEffect(PRINTED)).not.toBeNull();
+    1049|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[53/89]⎯
+
+ FAIL  packages/engine/src/handRefreshOpponentHand.test.ts > D516 §7 — what this slice did NOT buy, measured > 🛑 the ENGINE version moved and `MATCH_RECORD_VERSION` did not, and both are argued
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/handRefreshOpponentHand.test.ts:591:27
+    589|     // a measurement over the PRODUCERS rather than a property of the …
+    590|     // the rung below drives.
+    591|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    592|   });
+    593|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[54/89]⎯
+
+ FAIL  packages/engine/src/inPlayFlipCount.test.ts > D474 §6 — `MATCH_RECORD_VERSION` stays 29, and this is D473's FIRST argument > engineVersion is 0.405.0 and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/inPlayFlipCount.test.ts:898:27
+    896|     // not make is worse than a stale doc block, because the run log t…
+    897|     // version the suite never checked.
+    898|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    899|     expect(manifest.version).toBe("0.406.0");
+    900|     expect(manifest.version).toBe(engineVersion);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[55/89]⎯
+
+ FAIL  packages/engine/src/inPlayTypeBonus.test.ts > §6 — the fixture, the census this row moves, and the questions asked of it > 🛑 the TEN-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/inPlayTypeBonus.test.ts:628:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[56/89]⎯
+
+ FAIL  packages/engine/src/moreEnergyBonus.test.ts > §6 — the census moves in exactly ONE summand, and the step is 1 and 1 > the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(544) ] to have a length of 545 but got 546
+
+- Expected
++ Received
+
+- 545
++ 546
+
+ ❯ packages/engine/src/moreEnergyBonus.test.ts:618:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[57/89]⎯
+
+ FAIL  packages/engine/src/namedDeckSearch.test.ts > §4 — the census step this slice is > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/namedDeckSearch.test.ts:797:27
+    795|
+    796|   it("the engine version moved with the behaviour", () => {
+    797|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    798|   });
+    799| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[58/89]⎯
+
+ FAIL  packages/engine/src/noWeaknessBar.test.ts > §8 — the bump, and the soft landing it refuses > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/noWeaknessBar.test.ts:684:27
+    682|
+    683|   it("the engine version moved with the behaviour", () => {
+    684|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    685|   });
+    686| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[59/89]⎯
+
+ FAIL  packages/engine/src/opponentBenchCount.test.ts > §5 — the fixture, the census this row moves, and the summands it does not > the TEN-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/opponentBenchCount.test.ts:691:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[60/89]⎯
+
+ FAIL  packages/engine/src/opponentBoardCounterScaling.test.ts > §8 — `MATCH_RECORD_VERSION` STAYS 29, driven over the bytes > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/opponentBoardCounterScaling.test.ts:667:27
+    665|
+    666|   it("the engine version moved with the behaviour", () => {
+    667|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    668|   });
+    669| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[61/89]⎯
+
+ FAIL  packages/engine/src/opponentCounterMultiply.test.ts > §7 — the structural answers > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/opponentCounterMultiply.test.ts:816:27
+    814|
+    815|   it("the engine version moved with the behaviour", () => {
+    816|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    817|   });
+    818| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[62/89]⎯
+
+ FAIL  packages/engine/src/opponentHandDiscard.test.ts > §8 — the structural answers > the engine version moved and the two spellings agree
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/opponentHandDiscard.test.ts:1091:27
+    1089|
+    1090|   it("the engine version moved and the two spellings agree", () => {
+    1091|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1092|   });
+    1093| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[63/89]⎯
+
+ FAIL  packages/engine/src/opponentHandSweep.test.ts > §9 — the version, and what it is owed for > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/opponentHandSweep.test.ts:699:27
+    697|     // A sentence that derived to `null` derives to a two-op program, …
+    698|     // member runs in the interpreter. That is behaviour, so the bump …
+    699|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    700|     expect(manifest.version).toBe(engineVersion);
+    701|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[64/89]⎯
+
+ FAIL  packages/engine/src/optionalSelfSwitch.test.ts > §8 — `MATCH_RECORD_VERSION` stays 26, and BOTH parks are driven through a round trip > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/optionalSelfSwitch.test.ts:1018:27
+    1016|
+    1017|   it("the engine version moved with the behaviour", () => {
+    1018|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1019|   });
+    1020| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[65/89]⎯
+
+ FAIL  packages/engine/src/ownBenchSpread.test.ts > §3 — `target` is a union now, and the record version does not move > the engine version moved and the two spellings agree
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/ownBenchSpread.test.ts:532:27
+    530|
+    531|   it("the engine version moved and the two spellings agree", () => {
+    532|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    533|   });
+    534| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[66/89]⎯
+
+ FAIL  packages/engine/src/ownerBoardEnergyScaling.test.ts > §8 — `MATCH_RECORD_VERSION` STAYS 29, driven over the bytes > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/ownerBoardEnergyScaling.test.ts:904:27
+    902|
+    903|   it("the engine version moved with the behaviour", () => {
+    904|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    905|   });
+    906| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[67/89]⎯
+
+ FAIL  packages/engine/src/perHeadsConsequent.test.ts > §3 — no new persisted byte, in three directions > the engine version moved and the record version did not
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/perHeadsConsequent.test.ts:572:27
+    570|
+    571|   it("the engine version moved and the record version did not", () => {
+    572|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    573|   });
+    574| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[68/89]⎯
+
+ FAIL  packages/engine/src/perHeadsEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts:661:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[69/89]⎯
+
+ FAIL  packages/engine/src/perHeadsEnergyDiscard.test.ts > §7 — purity and the structural answers > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts:777:27
+    775|     // all now takes an unbounded sequence of them: an OBSERVABLE chan…
+    776|     // does with real catalog rows, which is the bump's whole trigger.
+    777|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    778|   });
+    779| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[70/89]⎯
+
+ FAIL  packages/engine/src/perTailsSelfDiscard.test.ts > §8 — the version > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/perTailsSelfDiscard.test.ts:810:27
+    808|     // and queues one park per tails, and a shipped union member gaine…
+    809|     // so `packages/engine` behaviour moved and the minor is owed (D27…
+    810|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    811|   });
+    812| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[71/89]⎯
+
+ FAIL  packages/engine/src/preDamageFamily.test.ts > §10 — purity and the version > the engine version is pinned, and it is THIS slice's pin
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/preDamageFamily.test.ts:1012:27
+    1010|     // and never the one it is about to AUTHOR** — and D428 was the fi…
+    1011|     // right. This line is the one being authored.
+    1012|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1013|   });
+    1014| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[72/89]⎯
+
+ FAIL  packages/engine/src/preDamageRefusal.test.ts > §7 — the version > the engine version is pinned, and it is THIS slice's pin
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/preDamageRefusal.test.ts:679:27
+    677|     // The increment is this line — the pin being AUTHORED, which is t…
+    678|     // as the thing every note forgets.
+    679|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    680|   });
+    681| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[73/89]⎯
+
+ FAIL  packages/engine/src/preDamageToolDiscard.test.ts > §9 — purity and the version > the engine version is pinned, and it is THIS slice's pin
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/preDamageToolDiscard.test.ts:743:27
+    741|     // anchor. ⚠️ D427 named the mechanism: **every note counts the pi…
+    742|     // and never the one it is about to AUTHOR.** This line is the one…
+    743|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    744|   });
+    745| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[74/89]⎯
+
+ FAIL  packages/engine/src/precociousEvolution.test.ts > D306 §2 — what BUILT.attack would move by, keyed on the READER > 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two
+AssertionError: expected 1586 to be 1585 // Object.is equality
+
+- Expected
++ Received
+
+- 1585
++ 1586
+
+ ❯ packages/engine/src/precociousEvolution.test.ts:548:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[75/89]⎯
+
+ FAIL  packages/engine/src/prizeGateParalyze.test.ts > D517 §7 — the price, and both version constants > 🛑 the ENGINE version moved and `MATCH_RECORD_VERSION` did not, and both are argued
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/prizeGateParalyze.test.ts:667:27
+    665|
+    666|   it("🛑 the ENGINE version moved and `MATCH_RECORD_VERSION` did not, …
+    667|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    668|   });
+    669|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[76/89]⎯
+
+ FAIL  packages/engine/src/retreatCostBonus.test.ts > §6 — the fixture, the census this row moves, and the summands it does not > the NINE-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/retreatCostBonus.test.ts:800:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[77/89]⎯
+
+ FAIL  packages/engine/src/retreatCostPenalty.test.ts > §8 — the persisted question: `MATCH_RECORD_VERSION` STAYS 29 > 🛑 the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/retreatCostPenalty.test.ts:643:27
+    641|
+    642|   it("🛑 the engine version moved with the behaviour", () => {
+    643|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    644|   });
+    645|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[78/89]⎯
+
+ FAIL  packages/engine/src/sameEnergyBonus.test.ts > §7 — the census moves in exactly ONE summand, and the step is 2 and 2 > the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(544) ] to have a length of 545 but got 546
+
+- Expected
++ Received
+
+- 545
++ 546
+
+ ❯ packages/engine/src/sameEnergyBonus.test.ts:808:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[79/89]⎯
+
+ FAIL  packages/engine/src/sawkRequirementSplit.test.ts > §1 — D362's counts reproduce and its ATTRIBUTION does not > the census moves by exactly 2 printings on exactly 1 sentence
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(544) ] to have a length of 545 but got 546
+
+- Expected
++ Received
+
+- 545
++ 546
+
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts:249:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[80/89]⎯
+
+ FAIL  packages/engine/src/scaledBenchSpread.test.ts > D505 §8 — the residue, the surface, the version, and what stands still > 🛑 the RAW reader-only residue fell by exactly 1 sentence / 3 printings, and this row left it
+AssertionError: expected [ 94, 146 ] to deeply equal [ 95, 147 ]
+
+- Expected
++ Received
+
+  [
+-   95,
+-   147,
++   94,
++   146,
+  ]
+
+ ❯ packages/engine/src/scaledBenchSpread.test.ts:865:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[81/89]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §2 — the census moves in exactly ONE summand, and the step is 1 and 1 > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:185:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[82/89]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §6 — the span probe's tail repair, which is why this row was visible at all > the engine version moved and the two spellings agree
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:413:27
+    411|
+    412|   it("the engine version moved and the two spellings agree", () => {
+    413|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    414|   });
+    415| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[83/89]⎯
+
+ FAIL  packages/engine/src/selfHealDealt.test.ts > §3 — the carrier is `EffectContext`, and `MATCH_RECORD_VERSION` stays 26 > the engine version moved and the two spellings agree
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/selfHealDealt.test.ts:455:27
+    453|
+    454|   it("the engine version moved and the two spellings agree", () => {
+    455|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    456|   });
+    457| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[84/89]⎯
+
+ FAIL  packages/engine/src/specialConditionCount.test.ts > D518 §6 — `MATCH_RECORD_VERSION` HOLDS at 30: there is no carrier at all > the engine version moved with the behaviour, and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/specialConditionCount.test.ts:755:27
+    753|
+    754|   it("the engine version moved with the behaviour, and `manifest.versi…
+    755|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    756|     expect(manifest.version).toBe("0.406.0");
+    757|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[85/89]⎯
+
+ FAIL  packages/engine/src/takePrizeAttack.test.ts > §3 — `MATCH_RECORD_VERSION` stays 26, and the prediction is DRIVEN > the engine version moved and the two spellings agree
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/takePrizeAttack.test.ts:361:27
+    359|
+    360|   it("the engine version moved and the two spellings agree", () => {
+    361|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    362|   });
+    363| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[86/89]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §7 — the persisted bytes, and why 29 does not move > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:914:27
+    912|
+    913|   it("the engine version moved with the behaviour", () => {
+    914|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    915|   });
+    916| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[87/89]⎯
+
+ FAIL  packages/engine/src/typedSelfSwitch.test.ts > §8 — the engine version > engineVersion is 0.405.0
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/typedSelfSwitch.test.ts:709:27
+    707| describe("§8 — the engine version", () => {
+    708|   it("engineVersion is 0.406.0", () => {
+    709|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    710|   });
+    711| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[88/89]⎯
+
+ FAIL  packages/engine/src/untilLeavesActiveBar.test.ts > §9 — a v26 record still means what it meant, and this one is readable too > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/untilLeavesActiveBar.test.ts:951:27
+    949|
+    950|   it("the engine version moved with the behaviour", () => {
+    951|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    952|   });
+    953| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[89/89]⎯
+
+
+ Test Files  72 failed | 430 passed (502)
+      Tests  89 failed | 11374 passed (11463)
+   Start at  05:10:25
+   Duration  228.45s (transform 57.24s, setup 0ms, import 386.42s, tests 99.78s, environment 61.59s)
+
+[0m[31merror[0m[2m:[0m script [1m"check"[0m exited with code 1[0m
+ne/src/preDamageFamily.test.ts > §10 — purity and the version > the engine version is pinned, and it is THIS slice's pin
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/preDamageFamily.test.ts:1012:27
+    1010|     // and never the one it is about to AUTHOR** — and D428 was the fi…
+    1011|     // right. This line is the one being authored.
+    1012|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1013|   });
+    1014| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[86/108]⎯
+
+ FAIL  packages/engine/src/preDamageRefusal.test.ts > §7 — the version > the engine version is pinned, and it is THIS slice's pin
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/preDamageRefusal.test.ts:679:27
+    677|     // The increment is this line — the pin being AUTHORED, which is t…
+    678|     // as the thing every note forgets.
+    679|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    680|   });
+    681| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[87/108]⎯
+
+ FAIL  packages/engine/src/preDamageToolDiscard.test.ts > §9 — purity and the version > the engine version is pinned, and it is THIS slice's pin
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/preDamageToolDiscard.test.ts:743:27
+    741|     // anchor. ⚠️ D427 named the mechanism: **every note counts the pi…
+    742|     // and never the one it is about to AUTHOR.** This line is the one…
+    743|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    744|   });
+    745| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[88/108]⎯
+
+ FAIL  packages/engine/src/precociousEvolution.test.ts > D306 §2 — what BUILT.attack would move by, keyed on the READER > 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two
+AssertionError: expected 1586 to be 1585 // Object.is equality
+
+- Expected
++ Received
+
+- 1585
++ 1586
+
+ ❯ packages/engine/src/precociousEvolution.test.ts:548:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[89/108]⎯
+
+ FAIL  packages/engine/src/prizeGateParalyze.test.ts > D517 §7 — the price, and both version constants > 🛑 the ENGINE version moved and `MATCH_RECORD_VERSION` did not, and both are argued
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/prizeGateParalyze.test.ts:667:27
+    665|
+    666|   it("🛑 the ENGINE version moved and `MATCH_RECORD_VERSION` did not, …
+    667|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    668|   });
+    669|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[90/108]⎯
+
+ FAIL  packages/engine/src/retreatCostBonus.test.ts > §6 — the fixture, the census this row moves, and the summands it does not > the NINE-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/retreatCostBonus.test.ts:800:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[91/108]⎯
+
+ FAIL  packages/engine/src/retreatCostPenalty.test.ts > §8 — the persisted question: `MATCH_RECORD_VERSION` STAYS 29 > 🛑 the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/retreatCostPenalty.test.ts:643:27
+    641|
+    642|   it("🛑 the engine version moved with the behaviour", () => {
+    643|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    644|   });
+    645|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[92/108]⎯
+
+ FAIL  packages/engine/src/sameEnergyBonus.test.ts > §7 — the census moves in exactly ONE summand, and the step is 2 and 2 > the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(544) ] to have a length of 545 but got 546
+
+- Expected
++ Received
+
+- 545
++ 546
+
+ ❯ packages/engine/src/sameEnergyBonus.test.ts:808:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[93/108]⎯
+
+ FAIL  packages/engine/src/sawkRequirementSplit.test.ts > §1 — D362's counts reproduce and its ATTRIBUTION does not > the census moves by exactly 2 printings on exactly 1 sentence
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(544) ] to have a length of 545 but got 546
+
+- Expected
++ Received
+
+- 545
++ 546
+
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts:249:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[94/108]⎯
+
+ FAIL  packages/engine/src/scaledAnySnipe.test.ts > §3 — a new optional rider on a PERSISTED op, and the record version does not move > the engine version moved and the two spellings agree
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/scaledAnySnipe.test.ts:519:27
+    517|
+    518|   it("the engine version moved and the two spellings agree", () => {
+    519|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    520|   });
+    521| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[95/108]⎯
+
+ FAIL  packages/engine/src/scaledBenchSpread.test.ts > D505 §8 — the residue, the surface, the version, and what stands still > 🛑 the RAW reader-only residue fell by exactly 1 sentence / 3 printings, and this row left it
+AssertionError: expected [ 94, 146 ] to deeply equal [ 95, 147 ]
+
+- Expected
++ Received
+
+  [
+-   95,
+-   147,
++   94,
++   146,
+  ]
+
+ ❯ packages/engine/src/scaledBenchSpread.test.ts:865:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[96/108]⎯
+
+ FAIL  packages/engine/src/scopedBoardHeal.test.ts > §7 — the record-shape derivation, made rather than inherited > engineVersion is 0.405.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/scopedBoardHeal.test.ts:713:27
+    711|     // board under the two sentences heals two DIFFERENT, NON-NESTED s…
+    712|     // (§3 and §4 share one board and disagree about two of its three).
+    713|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    714|   });
+    715| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[97/108]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §2 — the census moves in exactly ONE summand, and the step is 1 and 1 > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 546, 1586 ] to deeply equal [ 545, 1585 ]
+
+- Expected
++ Received
+
+  [
+-   545,
+-   1585,
++   546,
++   1586,
+  ]
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:185:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[98/108]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §6 — the span probe's tail repair, which is why this row was visible at all > the engine version moved and the two spellings agree
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:413:27
+    411|
+    412|   it("the engine version moved and the two spellings agree", () => {
+    413|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    414|   });
+    415| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[99/108]⎯
+
+ FAIL  packages/engine/src/selfEnergyScaling.test.ts > the record-shape derivation, made rather than inherited > engineVersion is 0.405.0 and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/selfEnergyScaling.test.ts:1249:27
+    1247|     // this series to be checked and found right. This rung is the 37t…
+    1248|     // so a successor inherits 37 / 41 (D427's mechanism as arithmetic…
+    1249|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    1250|   });
+    1251| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[100/108]⎯
+
+ FAIL  packages/engine/src/selfHealDealt.test.ts > §3 — the carrier is `EffectContext`, and `MATCH_RECORD_VERSION` stays 26 > the engine version moved and the two spellings agree
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/selfHealDealt.test.ts:455:27
+    453|
+    454|   it("the engine version moved and the two spellings agree", () => {
+    455|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    456|   });
+    457| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[101/108]⎯
+
+ FAIL  packages/engine/src/shuffleHandDraw.test.ts > D479 §7 — what this slice did NOT buy, measured > 🛑 the ENGINE version moved and `MATCH_RECORD_VERSION` did not, and both are argued
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/shuffleHandDraw.test.ts:618:27
+    616|     //     `rest` can hold it and no saved match can contain a shape a…
+    617|     //     could not read. `interpreter.ts`'s case returns `{ done: … …
+    618|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    619|   });
+    620| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[102/108]⎯
+
+ FAIL  packages/engine/src/specialConditionCount.test.ts > D518 §6 — `MATCH_RECORD_VERSION` HOLDS at 30: there is no carrier at all > the engine version moved with the behaviour, and `manifest.version` agrees
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/specialConditionCount.test.ts:755:27
+    753|
+    754|   it("the engine version moved with the behaviour, and `manifest.versi…
+    755|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    756|     expect(manifest.version).toBe("0.406.0");
+    757|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[103/108]⎯
+
+ FAIL  packages/engine/src/takePrizeAttack.test.ts > §3 — `MATCH_RECORD_VERSION` stays 26, and the prediction is DRIVEN > the engine version moved and the two spellings agree
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/takePrizeAttack.test.ts:361:27
+    359|
+    360|   it("the engine version moved and the two spellings agree", () => {
+    361|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    362|   });
+    363| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[104/108]⎯
+
+ FAIL  packages/engine/src/toolCountScaling.test.ts > §5 — the persisted question, asked and answered > 🛑 MATCH_RECORD_VERSION STAYS 25 — a DamageCountSource is never persisted
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/toolCountScaling.test.ts:465:27
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[105/108]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §7 — the persisted bytes, and why 29 does not move > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:914:27
+    912|
+    913|   it("the engine version moved with the behaviour", () => {
+    914|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    915|   });
+    916| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[106/108]⎯
+
+ FAIL  packages/engine/src/typedSelfSwitch.test.ts > §8 — the engine version > engineVersion is 0.405.0
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/typedSelfSwitch.test.ts:709:27
+    707| describe("§8 — the engine version", () => {
+    708|   it("engineVersion is 0.406.0", () => {
+    709|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    710|   });
+    711| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[107/108]⎯
+
+ FAIL  packages/engine/src/untilLeavesActiveBar.test.ts > §9 — a v26 record still means what it meant, and this one is readable too > the engine version moved with the behaviour
+AssertionError: expected '0.406.0' to be '0.405.0' // Object.is equality
+
+Expected: "0.405.0"
+Received: "0.406.0"
+
+ ❯ packages/engine/src/untilLeavesActiveBar.test.ts:951:27
+    949|
+    950|   it("the engine version moved with the behaviour", () => {
+    951|     expect(engineVersion).toBe("0.406.0");
+       |                           ^
+    952|   });
+    953| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[108/108]⎯
+
+
+ Test Files  91 failed | 411 passed (502)
+      Tests  108 failed | 11355 passed (11463)
+   Start at  05:09:46
+   Duration  238.83s (transform 53.47s, setup 0ms, import 407.67s, tests 96.34s, environment 58.06s)
+
+[0m[31merror[0m[2m:[0m script [1m"check"[0m exited with code 1[0m
+CHECK_EXIT=1
+CHECK_EXIT=1

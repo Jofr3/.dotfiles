@@ -1,0 +1,23 @@
+[0m[2m[35m$[0m [2m[1mbun scripts/typecheck-coverage.ts && tsc -b && bun scripts/lint-coverage.ts && biome lint . --error-on-warnings && vitest run[0m
+typecheck-coverage: OK — all 728 TypeScript files are in 6 project(s) of tsconfig.json (apps/api/tsconfig.json, packages/engine/tsconfig.json, packages/schema/tsconfig.json, tsconfig.app.json, tsconfig.node.json, tsconfig.scripts.json).
+lint-coverage: OK — all 730 source files are covered by Biome.
+./packages/engine/src/bareAttackLock.test.ts:461:7 lint/suspicious/noThenProperty ━━━━━━━━━━━━━━━━━━
+
+  × Do not add then to an object.
+  
+    459 │     // checkable claim since D134, and the reason the bare arm is this arm's control.
+    460 │     expect(deriveAttackEffect(PRINTED)?.[0]).toMatchObject({
+  > 461 │       then: deriveAttackEffect(DEFENDER_BARE),
+        │       ^^^^
+    462 │     });
+    463 │     // …and the TAILS spelling is still refused: the pool prints no such row, and the
+  
+
+Checked 766 files in 1392ms. No fixes applied.
+Found 1 error.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+
+[0m[31merror[0m[2m:[0m script [1m"check"[0m exited with code 1[0m

@@ -1,0 +1,29 @@
+
+Mutation harness (D211) — 8 mutant(s)
+
+⚠️  --allow-dirty: mutating 1 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+
+  D401-join-narrowed-to-the-period … KILLED           3.9s
+  D401-ops-in-the-wrong-order … KILLED           3.4s
+  D401-discard-count-becomes-all … KILLED           3.4s
+  D401-snipe-arity-back-to-the-literal … KILLED           3.5s
+  D401-snipe-targets-the-bench-only … KILLED           3.4s
+  D401-discard-positivity-guard-dropped … KILLED           3.4s
+  D401-amount-positivity-guard-dropped … KILLED           3.4s
+  D401-compound-anchor-loses-its-terminator … KILLED           3.8s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D401-join-narrowed-to-th… D401                  KILLED           3.9s    2
+D401-ops-in-the-wrong-or… D401                  KILLED           3.4s    1
+D401-discard-count-becom… D401                  KILLED           3.4s    1
+D401-snipe-arity-back-to… D401                  KILLED           3.5s    1
+D401-snipe-targets-the-b… D401                  KILLED           3.4s    1
+D401-discard-positivity-… D401                  KILLED           3.4s    1
+D401-amount-positivity-g… D401                  KILLED           3.4s    1
+D401-compound-anchor-los… D401                  KILLED           3.8s    2
+────────────────────────────────────────────────────────────────────────────────────
+8 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 35.5s total
+

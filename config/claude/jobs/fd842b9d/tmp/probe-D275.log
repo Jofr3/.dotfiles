@@ -1,0 +1,30 @@
+
+Mutation harness (D211) — 8 mutant(s)
+
+⚠️  --allow-dirty: mutating 2 file(s) with uncommitted changes:
+      packages/engine/src/index.ts
+      packages/engine/src/interpreter.ts
+
+  D275-first-turn-ignores-the-seat … KILLED           3.8s
+  D275-first-turn-swaps-the-seats … KILLED           3.5s
+  D275-first-turn-gate-always-holds … KILLED           3.4s
+  D275-typed-maxhp-never-narrows … KILLED           3.4s
+  D275-typed-maxhp-admits-a-null-hp … KILLED           3.6s
+  D275-typed-noun-drops-the-threshold … KILLED           3.4s
+  D275-fan-call-lock-is-per-body … KILLED           3.2s
+  D275-engine-version-drifts-again … KILLED           3.7s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D275-first-turn-ignores-… D275                  KILLED           3.8s    3
+D275-first-turn-swaps-th… D275                  KILLED           3.5s    2
+D275-first-turn-gate-alw… D275                  KILLED           3.4s    1
+D275-typed-maxhp-never-n… D275                  KILLED           3.4s    1
+D275-typed-maxhp-admits-… D275                  KILLED           3.6s    1
+D275-typed-noun-drops-th… D275                  KILLED           3.4s    1
+D275-fan-call-lock-is-pe… D275                  KILLED           3.2s    2
+D275-engine-version-drif… D275                  KILLED           3.7s    1
+────────────────────────────────────────────────────────────────────────────────────
+8 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 42.1s total
+

@@ -1,0 +1,5 @@
+checked 2391 mutants
+[0m[31m
+2 BROKEN ROW(S):[0m
+[0m[31m  D494-compound-anchor-loses-its-terminator: find occurs 0× in packages/engine/src/effects.ts[0m
+[0m[31m  D494-compound-anchor-loses-its-caret: find occurs 0× in packages/engine/src/effects.ts[0m

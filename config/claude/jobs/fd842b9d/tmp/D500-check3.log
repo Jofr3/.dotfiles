@@ -1,0 +1,207 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/censusAtHead.test.ts (50 tests | 2 failed) 220ms
+     × the headline arithmetic closes over all four columns 37ms
+     × the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it 28ms
+ ❯ packages/engine/src/retreatCostBonus.test.ts (27 tests | 1 failed) 99ms
+     × the NINE-reader instrument steps by exactly 1 sentence / 1 printing 30ms
+ ❯ packages/engine/src/precociousEvolution.test.ts (13 tests | 1 failed) 92ms
+     × 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two 45ms
+ ❯ packages/engine/src/opponentBenchCount.test.ts (25 tests | 1 failed) 99ms
+     × the TEN-reader instrument steps by exactly 1 sentence / 1 printing 30ms
+ ❯ packages/engine/src/exOnlyActive.test.ts (18 tests | 1 failed) 101ms
+     × 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM 61ms
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts (21 tests | 1 failed) 92ms
+     × the census moves by exactly 2 printings on exactly 1 sentence 57ms
+ ❯ packages/engine/src/benchNamedBonus.test.ts (24 tests | 1 failed) 87ms
+     × 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345 26ms
+ ❯ packages/engine/src/moreEnergyBonus.test.ts (22 tests | 1 failed) 91ms
+     × the resolving corpus gains ONE sentence and ONE printing 29ms
+ ❯ packages/engine/src/sameEnergyBonus.test.ts (25 tests | 1 failed) 87ms
+     × the resolving corpus gains TWO sentences and TWO printings 28ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/benchNamedBonus.test.ts > §7 — the census moves in exactly ONE summand, and the other three are measured > 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345
+AssertionError: expected 344 to be 343 // Object.is equality
+
+- Expected
++ Received
+
+- 343
++ 344
+
+ ❯ packages/engine/src/benchNamedBonus.test.ts:1095:7
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the headline arithmetic closes over all four columns
+AssertionError: expected 363 to be 364 // Object.is equality
+
+- Expected
++ Received
+
+- 364
++ 363
+
+ ❯ packages/engine/src/censusAtHead.test.ts:4361:27
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it
+AssertionError: expected 83 to be 84 // Object.is equality
+
+- Expected
++ Received
+
+- 84
++ 83
+
+ ❯ packages/engine/src/censusAtHead.test.ts:6353:37
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  packages/engine/src/exOnlyActive.test.ts > §1 — the population, re-derived LIVE rather than quoted > 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM
+AssertionError: expected [ [ 1, …(1) ], [ 1, …(1) ], …(107) ] to have a length of 110 but got 109
+
+- Expected
++ Received
+
+- 110
++ 109
+
+ ❯ packages/engine/src/exOnlyActive.test.ts:214:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  packages/engine/src/moreEnergyBonus.test.ts > §6 — the census moves in exactly ONE summand, and the step is 1 and 1 > the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 374, 1274 ] to deeply equal [ 373, 1273 ]
+
+- Expected
++ Received
+
+  [
+-   373,
+-   1273,
++   374,
++   1274,
+  ]
+
+ ❯ packages/engine/src/moreEnergyBonus.test.ts:805:8
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  packages/engine/src/opponentBenchCount.test.ts > §5 — the fixture, the census this row moves, and the summands it does not > the TEN-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 372, 1271 ] to deeply equal [ 371, 1270 ]
+
+- Expected
++ Received
+
+  [
+-   371,
+-   1270,
++   372,
++   1271,
+  ]
+
+ ❯ packages/engine/src/opponentBenchCount.test.ts:949:58427
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  packages/engine/src/precociousEvolution.test.ts > D306 §2 — what BUILT.attack would move by, keyed on the READER > 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two
+AssertionError: expected 1479 to be 1478 // Object.is equality
+
+- Expected
++ Received
+
+- 1478
++ 1479
+
+ ❯ packages/engine/src/precociousEvolution.test.ts:697:29087
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  packages/engine/src/retreatCostBonus.test.ts > §6 — the fixture, the census this row moves, and the summands it does not > the NINE-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 369, 1263 ] to deeply equal [ 368, 1262 ]
+
+- Expected
++ Received
+
+  [
+-   368,
+-   1262,
++   369,
++   1263,
+  ]
+
+ ❯ packages/engine/src/retreatCostBonus.test.ts:1061:58435
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  packages/engine/src/sameEnergyBonus.test.ts > §7 — the census moves in exactly ONE summand, and the step is 2 and 2 > the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected 357 to be 356 // Object.is equality
+
+- Expected
++ Received
+
+- 356
++ 357
+
+ ❯ packages/engine/src/sameEnergyBonus.test.ts:969:7
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  packages/engine/src/sawkRequirementSplit.test.ts > §1 — D362's counts reproduce and its ATTRIBUTION does not > the census moves by exactly 2 printings on exactly 1 sentence
+AssertionError: expected [ [ 1, …(1) ], [ 1, …(1) ], …(107) ] to have a length of 110 but got 109
+
+- Expected
++ Received
+
+- 110
++ 109
+
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts:269:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  9 failed | 474 passed (483)
+      Tests  10 failed | 11012 passed (11022)
+   Start at  17:38:16
+   Duration  187.61s (transform 26.96s, setup 0ms, import 205.75s, tests 53.50s, environment 32.49s)
+

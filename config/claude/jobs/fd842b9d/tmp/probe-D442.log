@@ -1,0 +1,52 @@
+[0m[2m[35m$[0m [2m[1mbun scripts/mutation/run.ts --decision "D442" --allow-dirty[0m
+
+Mutation harness (D211) — 16 mutant(s)
+
+⚠️  --allow-dirty: mutating 7 file(s) with uncommitted changes:
+      packages/engine/src/cardplay.ts
+      packages/engine/src/effects.ts
+      packages/engine/src/interpreter.ts
+      packages/engine/src/redact.ts
+      src/features/game/GameHud.tsx
+      src/features/game/projection.ts
+      src/features/online/components/OnlineHud.tsx
+
+  D442-spread-arm-drops-the-destination-rider … KILLED           3.3s
+  D442-spread-arm-emits-the-mirror-route … KILLED           3.2s
+  D442-free-arm-drops-the-source-rider … KILLED           3.3s
+  D442-free-arm-drops-the-destination-rider … KILLED           3.2s
+  D442-typed-arm-falls-back-to-any-energy … KILLED           3.2s
+  D442-typed-arm-reads-the-print-not-the-provision … KILLED           3.2s
+  D442-anchor-hand-spells-the-code-class … KILLED           3.2s
+  D442-park-drops-the-destination-rider … KILLED           3.2s
+  D442-redact-drops-the-destination-rider … KILLED           3.6s
+  D442-projection-drops-the-destination-rider … KILLED           3.3s
+  D442-validator-deletes-the-destination-coupling … KILLED           3.3s
+  D442-validator-asks-the-wrong-rider … KILLED           3.7s
+  D442-apply-pins-every-pick-to-the-first-destination … KILLED           3.4s
+  D442-apply-groups-events-by-source-alone … KILLED           3.5s
+  D442-local-hud-offers-a-picks-own-host … KILLED           6.5s
+  D442-online-hud-offers-a-picks-own-host … KILLED           4.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D442-spread-arm-drops-th… D442                  KILLED           3.3s    1
+D442-spread-arm-emits-th… D442                  KILLED           3.2s    1
+D442-free-arm-drops-the-… D442                  KILLED           3.3s    1
+D442-free-arm-drops-the-… D442                  KILLED           3.2s    1
+D442-typed-arm-falls-bac… D442                  KILLED           3.2s    1
+D442-typed-arm-reads-the… D442                  KILLED           3.2s    1
+D442-anchor-hand-spells-… D442                  KILLED           3.2s    1
+D442-park-drops-the-dest… D442                  KILLED           3.2s    1
+D442-redact-drops-the-de… D442                  KILLED           3.6s    1
+D442-projection-drops-th… D442                  KILLED           3.3s    1
+D442-validator-deletes-t… D442                  KILLED           3.3s    1
+D442-validator-asks-the-… D442                  KILLED           3.7s    1
+D442-apply-pins-every-pi… D442                  KILLED           3.4s    1
+D442-apply-groups-events… D442                  KILLED           3.5s    1
+D442-local-hud-offers-a-… D442                  KILLED           6.5s    1
+D442-online-hud-offers-a… D442                  KILLED           4.4s    1
+────────────────────────────────────────────────────────────────────────────────────
+16 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 75.5s total
+

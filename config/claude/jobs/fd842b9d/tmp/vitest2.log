@@ -1,0 +1,632 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+····················································································x········x···················································x······x···························································································································································x···········································x······································x···································································································x························································x············x·········································x····x·····································x······················x························x·······x···············································Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+·······························Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+·······stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the rejection pill (2b-iii-d)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the rejection pill (2b-iii-d) > re-shows a repeat rejection whose nonce restarts after an accepted action
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+······Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the rejection pill (2b-iii-d)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+······Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the game log (2b-iii-d-ii)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+···Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the opponent-away countdown (3c-v) > formats past a minute as M:SS
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+··Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the opponent-away countdown (3c-v) > hands over to the server once the deadline passes
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the opponent-away countdown (3c-v) > shows the notice without a clock when no forfeit is armed
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the opponent-away countdown (3c-v) > stays hidden while they're connected, and once the game is over
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+······Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the opponent-away countdown (3c-v)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the spectator board (3c-vii-b) > names both players instead of pretending one seat is yours
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+···Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the spectator board (3c-vii-b) > keeps the game log — following the match is the whole point
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+···Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the spectator board (3c-vii-b) > asks a leave question that costs nothing, unlike a player's
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+···Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the spectator board (3c-vii-b) > sends nothing when the board is dragged
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — the spectator board (3c-vii-b)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+····Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — concede (3c-iii) > is offered on the OPPONENT's turn — the case it matters most for
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+···Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — concede (3c-iii) > offers a Rematch on the finished board, and nothing before (3c-vi)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+··Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — concede (3c-iii) > warns that leaving forfeits, and stops warning once the game is over (3c-iv)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+··Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — concede (3c-iii) > disappears once the game is over (nothing left to concede)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+stderr | src/features/online/components/OnlineMatch.dom.test.tsx > OnlineMatch — concede (3c-iii)
+Pixi cards layer failed to initialise; falling back to static DOM cards. TypeError: Cannot read properties of null (reading 'imageSmoothingEnabled')
+    at CanvasContextSystem.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/canvas/CanvasContextSystem.mjs:41:27)
+    at CanvasRenderer.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/shared/system/AbstractRenderer.mjs:69:40)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at autoDetectRenderer (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/rendering/renderers/autoDetectRenderer.mjs:53:3)
+    at _Application.init (file:///home/jofre/projects/luminous_ui/node_modules/.bun/pixi.js@8.18.1/node_modules/pixi.js/lib/app/Application.mjs:52:21)
+    at createPixiApplication (/home/jofre/projects/luminous_ui/src/lib/pixi/createPixiApplication.ts:13:3)
+    at start (/home/jofre/projects/luminous_ui/src/features/playmat/components/AnimatedCardsLayer.tsx:1669:19)
+
+·································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································stderr | apps/api/src/catalog/routes.test.ts > catalog KV cache middleware > accepts repeated type/rarity params — hono hands them to zod as arrays
+TypeError: Cannot read properties of undefined (reading 'prepare')
+    at SQLiteD1Session.prepareQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:21:30)
+    at SQLiteD1Session.prepareOneTimeQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/session.js:141:17)
+    at SQLiteSelectBase._prepare (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/query-builders/select.js:615:88)
+    at SQLiteD1Session.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:39:35)
+    at DrizzleD1Database.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/driver.js:13:25)
+    at /home/jofre/projects/luminous_ui/apps/api/src/catalog/routes.ts:72:37
+    at dispatch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:23)
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:46
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/validator/validator.js:81:18
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+stderr | apps/api/src/catalog/routes.test.ts > catalog KV cache middleware > accepts the P2 params — repeated ids/kinds and the scalar filters
+TypeError: Cannot read properties of undefined (reading 'prepare')
+    at SQLiteD1Session.prepareQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:21:30)
+    at SQLiteD1Session.prepareOneTimeQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/session.js:141:17)
+    at SQLiteSelectBase._prepare (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/query-builders/select.js:615:88)
+    at SQLiteD1Session.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:39:35)
+    at DrizzleD1Database.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/driver.js:13:25)
+    at /home/jofre/projects/luminous_ui/apps/api/src/catalog/routes.ts:72:37
+    at dispatch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:23)
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:46
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/validator/validator.js:81:18
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+stderr | apps/api/src/catalog/routes.test.ts > catalog KV cache middleware > accepts the P2 params — repeated ids/kinds and the scalar filters
+TypeError: Cannot read properties of undefined (reading 'prepare')
+    at SQLiteD1Session.prepareQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:21:30)
+    at SQLiteD1Session.prepareOneTimeQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/session.js:141:17)
+    at SQLiteSelectBase._prepare (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/query-builders/select.js:615:88)
+    at SQLiteD1Session.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:39:35)
+    at DrizzleD1Database.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/driver.js:13:25)
+    at /home/jofre/projects/luminous_ui/apps/api/src/catalog/routes.ts:72:37
+    at dispatch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:23)
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:46
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/validator/validator.js:81:18
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+stderr | apps/api/src/catalog/routes.test.ts > catalog KV cache middleware > accepts the P2 params — repeated ids/kinds and the scalar filters
+TypeError: Cannot read properties of undefined (reading 'prepare')
+    at SQLiteD1Session.prepareQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:21:30)
+    at SQLiteD1Session.prepareOneTimeQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/session.js:141:17)
+    at SQLiteSelectBase._prepare (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/query-builders/select.js:615:88)
+    at SQLiteD1Session.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:39:35)
+    at DrizzleD1Database.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/driver.js:13:25)
+    at /home/jofre/projects/luminous_ui/apps/api/src/catalog/routes.ts:72:37
+    at dispatch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:23)
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:46
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/validator/validator.js:81:18
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+stderr | apps/api/src/catalog/routes.test.ts > catalog KV cache middleware > accepts the P2 params — repeated ids/kinds and the scalar filters
+TypeError: Cannot read properties of undefined (reading 'prepare')
+    at SQLiteD1Session.prepareQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:21:30)
+    at SQLiteD1Session.prepareOneTimeQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/session.js:141:17)
+    at SQLiteSelectBase._prepare (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/query-builders/select.js:615:88)
+    at SQLiteD1Session.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:39:35)
+    at DrizzleD1Database.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/driver.js:13:25)
+    at /home/jofre/projects/luminous_ui/apps/api/src/catalog/routes.ts:72:37
+    at dispatch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:23)
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:46
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/validator/validator.js:81:18
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+stderr | apps/api/src/catalog/routes.test.ts > catalog KV cache middleware > accepts the P2 params — repeated ids/kinds and the scalar filters
+TypeError: Cannot read properties of undefined (reading 'prepare')
+    at SQLiteD1Session.prepareQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:21:30)
+    at SQLiteD1Session.prepareOneTimeQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/session.js:141:17)
+    at SQLiteSelectBase._prepare (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/query-builders/select.js:615:88)
+    at SQLiteD1Session.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:39:35)
+    at DrizzleD1Database.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/driver.js:13:25)
+    at /home/jofre/projects/luminous_ui/apps/api/src/catalog/routes.ts:72:37
+    at dispatch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:23)
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:46
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/validator/validator.js:81:18
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+stderr | apps/api/src/catalog/routes.test.ts > catalog KV cache middleware > bypasses KV entirely when the normalized key exceeds the 512-byte cap
+TypeError: Cannot read properties of undefined (reading 'prepare')
+    at SQLiteD1Session.prepareQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:21:30)
+    at SQLiteD1Session.prepareOneTimeQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/session.js:141:17)
+    at SQLiteSelectBase._prepare (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/query-builders/select.js:615:88)
+    at SQLiteD1Session.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:39:35)
+    at DrizzleD1Database.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/driver.js:13:25)
+    at /home/jofre/projects/luminous_ui/apps/api/src/catalog/routes.ts:72:37
+    at dispatch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:23)
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:46
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/validator/validator.js:81:18
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+stderr | apps/api/src/catalog/routes.test.ts > catalog KV cache middleware > bypasses KV for id-hydration requests even when the key would fit
+TypeError: Cannot read properties of undefined (reading 'prepare')
+    at SQLiteD1Session.prepareQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:21:30)
+    at SQLiteD1Session.prepareOneTimeQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/session.js:141:17)
+    at SQLiteSelectBase._prepare (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/query-builders/select.js:615:88)
+    at SQLiteD1Session.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:39:35)
+    at DrizzleD1Database.batch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/driver.js:13:25)
+    at /home/jofre/projects/luminous_ui/apps/api/src/catalog/routes.ts:72:37
+    at dispatch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:23)
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:46
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/validator/validator.js:81:18
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+··································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································stderr | apps/api/src/auth/routes.test.ts > auth rate limiting > keys per IP: another address is not blocked by the exhausted one
+TypeError: Cannot read properties of undefined (reading 'prepare')
+    at SQLiteD1Session.prepareQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/d1/session.js:21:30)
+    at SQLiteD1Session.prepareOneTimeQuery (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/session.js:141:17)
+    at SQLiteSelectBase._prepare (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/query-builders/select.js:615:88)
+    at SQLiteSelectBase.get (file:///home/jofre/projects/luminous_ui/node_modules/.bun/drizzle-orm@0.45.2+7962b15f01f7975c/node_modules/drizzle-orm/sqlite-core/query-builders/select.js:644:17)
+    at /home/jofre/projects/luminous_ui/apps/api/src/auth/routes.ts:189:82
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at dispatch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:17)
+    at file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/validator/validator.js:81:12
+    at dispatch (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/compose.js:22:17)
+    at cors2 (file:///home/jofre/projects/luminous_ui/node_modules/.bun/hono@4.12.28/node_modules/hono/dist/middleware/cors/index.js:76:5)
+
+·······································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································································
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/benchNamedBonus.test.ts > §7 — the census moves in exactly ONE summand, and the other three are measured > 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345
+AssertionError: expected 1583 to be 1582 // Object.is equality
+
+- Expected
++ Received
+
+- 1582
++ 1583
+
+ ❯ packages/engine/src/benchNamedBonus.test.ts:854:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  packages/engine/src/cancelThenPrevent.test.ts > §8 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 543, 1581 ] to deeply equal [ 542, 1580 ]
+
+- Expected
++ Received
+
+  [
+-   542,
+-   1580,
++   543,
++   1581,
+  ]
+
+ ❯ packages/engine/src/cancelThenPrevent.test.ts:667:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 543, 1581 ] to deeply equal [ 542, 1580 ]
+
+- Expected
++ Received
+
+  [
+-   542,
+-   1580,
++   543,
++   1581,
+  ]
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:558:58
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  packages/engine/src/exOnlyActive.test.ts > §1 — the population, re-derived LIVE rather than quoted > 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM
+AssertionError: expected 1583 to be 1582 // Object.is equality
+
+- Expected
++ Received
+
+- 1582
++ 1583
+
+ ❯ packages/engine/src/exOnlyActive.test.ts:202:23
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  packages/engine/src/flipDefenderAttackLock.test.ts > §8 — the census moves in exactly ONE summand > the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 543, 1582 ] to deeply equal [ 542, 1581 ]
+
+- Expected
++ Received
+
+  [
+-   542,
+-   1581,
++   543,
++   1582,
+  ]
+
+ ❯ packages/engine/src/flipDefenderAttackLock.test.ts:709:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 543, 1581 ] to deeply equal [ 542, 1580 ]
+
+- Expected
++ Received
+
+  [
+-   542,
+-   1580,
++   543,
++   1581,
+  ]
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:575:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  packages/engine/src/flipStatusHeadsTails.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 543, 1581 ] to deeply equal [ 542, 1580 ]
+
+- Expected
++ Received
+
+  [
+-   542,
+-   1580,
++   543,
++   1581,
+  ]
+
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts:810:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  packages/engine/src/inPlayTypeBonus.test.ts > §6 — the fixture, the census this row moves, and the questions asked of it > 🛑 the TEN-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 383, 1283 ] to deeply equal [ 382, 1282 ]
+
+- Expected
++ Received
+
+  [
+-   382,
+-   1282,
++   383,
++   1283,
+  ]
+
+ ❯ packages/engine/src/inPlayTypeBonus.test.ts:810:8
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  packages/engine/src/moreEnergyBonus.test.ts > §6 — the census moves in exactly ONE summand, and the step is 1 and 1 > the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected 1583 to be 1582 // Object.is equality
+
+- Expected
++ Received
+
+- 1582
++ 1583
+
+ ❯ packages/engine/src/moreEnergyBonus.test.ts:630:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  packages/engine/src/opponentBenchCount.test.ts > §5 — the fixture, the census this row moves, and the summands it does not > the TEN-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 383, 1283 ] to deeply equal [ 382, 1282 ]
+
+- Expected
++ Received
+
+  [
+-   382,
+-   1282,
++   383,
++   1283,
+  ]
+
+ ❯ packages/engine/src/opponentBenchCount.test.ts:873:8
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+ FAIL  packages/engine/src/perHeadsEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ 542, 1581 ] to deeply equal [ 541, 1580 ]
+
+- Expected
++ Received
+
+  [
+-   541,
+-   1580,
++   542,
++   1581,
+  ]
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts:667:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯
+
+ FAIL  packages/engine/src/precociousEvolution.test.ts > D306 §2 — what BUILT.attack would move by, keyed on the READER > 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two
+AssertionError: expected 1633 to be 1632 // Object.is equality
+
+- Expected
++ Received
+
+- 1632
++ 1633
+
+ ❯ packages/engine/src/precociousEvolution.test.ts:635:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯
+
+ FAIL  packages/engine/src/retreatCostBonus.test.ts > §6 — the fixture, the census this row moves, and the summands it does not > the NINE-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 380, 1275 ] to deeply equal [ 379, 1274 ]
+
+- Expected
++ Received
+
+  [
+-   379,
+-   1274,
++   380,
++   1275,
+  ]
+
+ ❯ packages/engine/src/retreatCostBonus.test.ts:982:8
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/16]⎯
+
+ FAIL  packages/engine/src/sameEnergyBonus.test.ts > §7 — the census moves in exactly ONE summand, and the step is 2 and 2 > the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected 1583 to be 1582 // Object.is equality
+
+- Expected
++ Received
+
+- 1582
++ 1583
+
+ ❯ packages/engine/src/sameEnergyBonus.test.ts:820:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/16]⎯
+
+ FAIL  packages/engine/src/sawkRequirementSplit.test.ts > §1 — D362's counts reproduce and its ATTRIBUTION does not > the census moves by exactly 2 printings on exactly 1 sentence
+AssertionError: expected 1583 to be 1582 // Object.is equality
+
+- Expected
++ Received
+
+- 1582
++ 1583
+
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts:261:25
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/16]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §2 — the census moves in exactly ONE summand, and the step is 1 and 1 > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 543, 1582 ] to deeply equal [ 542, 1581 ]
+
+- Expected
++ Received
+
+  [
+-   542,
+-   1581,
++   543,
++   1582,
+  ]
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:190:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/16]⎯
+
+
+ Test Files  16 failed | 484 passed (500)
+      Tests  16 failed | 11385 passed (11401)
+   Start at  20:10:41
+   Duration  152.93s (transform 37.45s, setup 0ms, import 256.25s, tests 63.12s, environment 38.76s)
+

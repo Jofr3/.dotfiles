@@ -1,0 +1,4 @@
+[0m[31mCORPUS sentences: [0m[33m640[0m printings: [0m[33m1732[0m[0m
+[0m[31mrawUnbuilt sentences: [0m[33m194[0m printings: [0m[33m291[0m[0m
+[0m[31mresidue sentences: [0m[33m168[0m printings: [0m[33m241[0m[0m
+[0m[31mreader surface: [0m[33m13[0m deriveAttackBonusConsequent,deriveAttackCancelRequirement,deriveAttackCoinFlip,deriveAttackDamageBonus,deriveAttackDamageMultiplier,deriveAttackDamagePenalty,deriveAttackDamageSuppression,deriveAttackDiscardScaledBoost,deriveAttackEffect,deriveAttackOptionalBoost,deriveAttackOptionalCostBoost,deriveAttackPreDamage,deriveAttackRequirement[0m

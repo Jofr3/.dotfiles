@@ -1,0 +1,4 @@
+checked 2464 mutants
+[0m[31m
+1 BROKEN ROW(S):[0m
+[0m[31m  D495-census-built-attack-not-stepped: find occurs 0× in packages/engine/src/censusAtHead.test.ts[0m

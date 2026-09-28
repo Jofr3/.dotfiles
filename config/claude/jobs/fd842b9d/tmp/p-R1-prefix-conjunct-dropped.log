@@ -1,0 +1,47 @@
+### R1-prefix-conjunct-dropped: patched (72367 -> 72332 bytes)
+--- angeliteCancel: RED (exit 1)
+ FAIL  packages/engine/src/angeliteCancel.test.ts > D396 §1 — the corpus, the consequent it shares with Terapagos, and the split that buys zero > 🆕🆕 D419 — the hand-kept READERS list IS the module's reader surface
+AssertionError: expected [ Array(13) ] to deeply equal [ 'attackCancelHeadRows', …(24) ]
+
+- Expected
++ Received
+
+@@ -1,8 +1,6 @@
+  [
+-   "attackCancelHeadRows",
+-   "bonusConsequentProgram",
+    "deriveAttackBonusConsequent",
+    "deriveAttackCancelRequirement",
+    "deriveAttackCoinFlip",
+    "deriveAttackDamageBonus",
+--- installedRecoil: RED (exit 1)
+ FAIL  packages/engine/src/installedRecoil.test.ts > 🆕🆕 D456 §1 — the datum, and the family CLOSED over the corpus > 🛑 `Attacking Pokémon` over all 640 sentences returns THREE rows — and none is a ten
+AssertionError: expected [ 'attackCancelHeadRows', …(24) ] to have a length of 13 but got 25
+
+- Expected
++ Received
+
+- 13
++ 25
+
+ ❯ packages/engine/src/installedRecoil.test.ts:807:35
+    805|     // …and ALL THREE now resolve, so the ATTACK column's half of this…
+    806|     for (const [, t] of family) expect(resolvedByAnyReader(t), t).toBe…
+    807|     expect(attackReaderSurface()).toHaveLength(13); // no fourteenth r…
+       |                                   ^
+--- derivedAttackGate: RED (exit 1)
+ FAIL  packages/engine/src/derivedAttackGate.test.ts > D444 §5 — `timingGateFromAttackText` is NOT a whole-sentence reader > 🛑 the reader surface is 13 and this function is not in it
+AssertionError: expected [ 'attackCancelHeadRows', …(24) ] to have a length of 13 but got 25
+
+- Expected
++ Received
+
+- 13
++ 25
+
+ ❯ packages/engine/src/derivedAttackGate.test.ts:684:21
+    682|     // together (D417).
+    683|     const surface = attackReaderSurface();
+    684|     expect(surface).toHaveLength(13);
+       |                     ^
+### R1-prefix-conjunct-dropped: restored, 72367 bytes

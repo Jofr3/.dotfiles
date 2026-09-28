@@ -1,0 +1,394 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/censusAtHead.test.ts (50 tests | 4 failed) 277ms
+     × the headline arithmetic closes over all four columns 53ms
+     × the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it 2ms
+     × 🆕🆕 D420 — the TWELVE readers, RUN LIVE over the corpus, resolve 415 sentences / 1,368 printings 19ms
+     × RUNG (b) — none of the seventeen is in the unbuilt remainder, or in any backlog row 27ms
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts (27 tests | 1 failed) 162ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 34ms
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts (31 tests | 1 failed) 174ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 28ms
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts (26 tests | 1 failed) 174ms
+     × 🛑 the resolving corpus gains TWO sentences and TWO printings 31ms
+ ❯ packages/engine/src/defenderStatusTriple.test.ts (31 tests | 1 failed) 147ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 32ms
+ ❯ packages/engine/src/retreatCostBonus.test.ts (27 tests | 1 failed) 122ms
+     × the NINE-reader instrument steps by exactly 1 sentence / 1 printing 35ms
+ ❯ packages/engine/src/exOnlyActive.test.ts (18 tests | 1 failed) 166ms
+     × 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM 119ms
+ ❯ packages/engine/src/moreEnergyBonus.test.ts (22 tests | 1 failed) 98ms
+     × the resolving corpus gains ONE sentence and ONE printing 32ms
+ ❯ packages/engine/src/opponentBenchCount.test.ts (25 tests | 1 failed) 122ms
+     × the TEN-reader instrument steps by exactly 1 sentence / 1 printing 39ms
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts (21 tests | 1 failed) 112ms
+     × the census moves by exactly 2 printings on exactly 1 sentence 70ms
+ ❯ packages/engine/src/inPlayTypeBonus.test.ts (24 tests | 1 failed) 95ms
+     × 🛑 the TEN-reader instrument steps by exactly 1 sentence / 1 printing 31ms
+ ❯ packages/engine/src/sameEnergyBonus.test.ts (25 tests | 1 failed) 100ms
+     × the resolving corpus gains TWO sentences and TWO printings 33ms
+ ❯ packages/engine/src/benchNamedBonus.test.ts (24 tests | 1 failed) 99ms
+     × 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345 30ms
+ ❯ packages/engine/src/precociousEvolution.test.ts (13 tests | 1 failed) 82ms
+     × 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two 30ms
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts (22 tests | 1 failed) 88ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 32ms
+ ❯ packages/engine/src/discardScaledDamage.test.ts (21 tests | 2 failed) 96ms
+     × this anchor takes SIX of them, worth THIRTEEN printings — and only those 39ms
+     × the remaining 3 sentences / 4 printings are a different MECHANISM, and stay loud 2ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 20 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/benchNamedBonus.test.ts > §7 — the census moves in exactly ONE summand, and the other three are measured > 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(519) ] to have a length of 519 but got 521
+
+- Expected
++ Received
+
+- 519
++ 521
+
+ ❯ packages/engine/src/benchNamedBonus.test.ts:842:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/20]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the headline arithmetic closes over all four columns
+AssertionError: expected 2005 to be 2003 // Object.is equality
+
+- Expected
++ Received
+
+- 2003
++ 2005
+
+ ❯ packages/engine/src/censusAtHead.test.ts:4231:19
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/20]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it
+AssertionError: expected 132 to be 134 // Object.is equality
+
+- Expected
++ Received
+
+- 134
++ 132
+
+ ❯ packages/engine/src/censusAtHead.test.ts:6283:27
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/20]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > 🆕🆕 D420 — the TWELVE readers, RUN LIVE over the corpus, resolve 415 sentences / 1,368 printings
+AssertionError: expected 521 to be 519 // Object.is equality
+
+- Expected
++ Received
+
+- 519
++ 521
+
+ ❯ packages/engine/src/censusAtHead.test.ts:8304:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/20]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D301 — the opponent-energy scaling family: the backlog row measured PHANTOM > RUNG (b) — none of the seventeen is in the unbuilt remainder, or in any backlog row
+AssertionError: expected 182 to be 184 // Object.is equality
+
+- Expected
++ Received
+
+- 184
++ 182
+
+ ❯ packages/engine/src/censusAtHead.test.ts:8783:62
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/20]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 521, 1550 ] to deeply equal [ 519, 1548 ]
+
+- Expected
++ Received
+
+  [
+-   519,
+-   1548,
++   521,
++   1550,
+  ]
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:532:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/20]⎯
+
+ FAIL  packages/engine/src/discardScaledDamage.test.ts > D402 §1 — the family, split by its FOLD, measured live over the column > this anchor takes SIX of them, worth THIRTEEN printings — and only those
+AssertionError: expected [ [ 2, …(1) ], [ 1, …(1) ], …(6) ] to have a length of 6 but got 8
+
+- Expected
++ Received
+
+- 6
++ 8
+
+ ❯ packages/engine/src/discardScaledDamage.test.ts:168:19
+    166|       ([, s]) => deriveAttackEffect(s) !== null && s.includes("discard…
+    167|     );
+    168|     expect(taken).toHaveLength(6);
+       |                   ^
+    169|     expect(units(taken)).toBe(13);
+    170|     // …and they are exactly the six transcribed above, at exactly tho…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/20]⎯
+
+ FAIL  packages/engine/src/discardScaledDamage.test.ts > D402 §1 — the family, split by its FOLD, measured live over the column > the remaining 3 sentences / 4 printings are a different MECHANISM, and stay loud
+AssertionError: expected [ [ 2, …(1) ] ] to have a length of 3 but got 1
+
+- Expected
++ Received
+
+- 3
++ 1
+
+ ❯ packages/engine/src/discardScaledDamage.test.ts:244:18
+    242|         deriveAttackEffect(s) === null,
+    243|     );
+    244|     expect(rest).toHaveLength(3);
+       |                  ^
+    245|     expect(units(rest)).toBe(4);
+    246|     for (const [, s] of rest) expect(readByAny(s), s).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/20]⎯
+
+ FAIL  packages/engine/src/exOnlyActive.test.ts > §1 — the population, re-derived LIVE rather than quoted > 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(519) ] to have a length of 519 but got 521
+
+- Expected
++ Received
+
+- 519
++ 521
+
+ ❯ packages/engine/src/exOnlyActive.test.ts:190:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/20]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 521, 1550 ] to deeply equal [ 519, 1548 ]
+
+- Expected
++ Received
+
+  [
+-   519,
+-   1548,
++   521,
++   1550,
+  ]
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:559:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/20]⎯
+
+ FAIL  packages/engine/src/flipStatusHeadsTails.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 521, 1550 ] to deeply equal [ 519, 1548 ]
+
+- Expected
++ Received
+
+  [
+-   519,
+-   1548,
++   521,
++   1550,
+  ]
+
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts:731:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/20]⎯
+
+ FAIL  packages/engine/src/inPlayTypeBonus.test.ts > §6 — the fixture, the census this row moves, and the questions asked of it > 🛑 the TEN-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 521, 1550 ] to deeply equal [ 519, 1548 ]
+
+- Expected
++ Received
+
+  [
+-   519,
+-   1548,
++   521,
++   1550,
+  ]
+
+ ❯ packages/engine/src/inPlayTypeBonus.test.ts:628:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/20]⎯
+
+ FAIL  packages/engine/src/moreEnergyBonus.test.ts > §6 — the census moves in exactly ONE summand, and the step is 1 and 1 > the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(519) ] to have a length of 519 but got 521
+
+- Expected
++ Received
+
+- 519
++ 521
+
+ ❯ packages/engine/src/moreEnergyBonus.test.ts:618:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/20]⎯
+
+ FAIL  packages/engine/src/opponentBenchCount.test.ts > §5 — the fixture, the census this row moves, and the summands it does not > the TEN-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 521, 1550 ] to deeply equal [ 519, 1548 ]
+
+- Expected
++ Received
+
+  [
+-   519,
+-   1548,
++   521,
++   1550,
+  ]
+
+ ❯ packages/engine/src/opponentBenchCount.test.ts:691:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/20]⎯
+
+ FAIL  packages/engine/src/perHeadsEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ 521, 1550 ] to deeply equal [ 519, 1548 ]
+
+- Expected
++ Received
+
+  [
+-   519,
+-   1548,
++   521,
++   1550,
+  ]
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts:661:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/20]⎯
+
+ FAIL  packages/engine/src/precociousEvolution.test.ts > D306 §2 — what BUILT.attack would move by, keyed on the READER > 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two
+AssertionError: expected 1550 to be 1548 // Object.is equality
+
+- Expected
++ Received
+
+- 1548
++ 1550
+
+ ❯ packages/engine/src/precociousEvolution.test.ts:548:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/20]⎯
+
+ FAIL  packages/engine/src/retreatCostBonus.test.ts > §6 — the fixture, the census this row moves, and the summands it does not > the NINE-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 521, 1550 ] to deeply equal [ 519, 1548 ]
+
+- Expected
++ Received
+
+  [
+-   519,
+-   1548,
++   521,
++   1550,
+  ]
+
+ ❯ packages/engine/src/retreatCostBonus.test.ts:800:50
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/20]⎯
+
+ FAIL  packages/engine/src/sameEnergyBonus.test.ts > §7 — the census moves in exactly ONE summand, and the step is 2 and 2 > the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(519) ] to have a length of 519 but got 521
+
+- Expected
++ Received
+
+- 519
++ 521
+
+ ❯ packages/engine/src/sameEnergyBonus.test.ts:808:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/20]⎯
+
+ FAIL  packages/engine/src/sawkRequirementSplit.test.ts > §1 — D362's counts reproduce and its ATTRIBUTION does not > the census moves by exactly 2 printings on exactly 1 sentence
+AssertionError: expected [ [ 1, …(1) ], [ 3, …(1) ], …(519) ] to have a length of 519 but got 521
+
+- Expected
++ Received
+
+- 519
++ 521
+
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts:249:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/20]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §2 — the census moves in exactly ONE summand, and the step is 1 and 1 > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 521, 1550 ] to deeply equal [ 519, 1548 ]
+
+- Expected
++ Received
+
+  [
+-   519,
+-   1548,
++   521,
++   1550,
+  ]
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:185:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/20]⎯
+
+
+ Test Files  16 failed | 458 passed (474)
+      Tests  20 failed | 10736 passed (10756)
+   Start at  04:34:37
+   Duration  138.24s (transform 33.85s, setup 0ms, import 224.95s, tests 60.28s, environment 40.48s)
+

@@ -1,0 +1,30 @@
+
+Mutation harness (D211) — 8 mutant(s)
+
+⚠️  --allow-dirty: mutating 2 file(s) with uncommitted changes:
+      packages/engine/src/attack.ts
+      packages/engine/src/effects.ts
+
+  D409-shadow-refusal-narrowed-to-one-reader … KILLED           3.4s
+  D409-head-quantifier-narrowed-to-effect-reader … KILLED           3.9s
+  D409-tail-guard-widened-to-any-reader … KILLED           3.5s
+  D409-clause-break-loses-its-period … KILLED           3.8s
+  D409-reader-array-drops-the-bonus-reader … KILLED           3.9s
+  D409-attack-seam-keeps-the-whole-compound … KILLED           3.7s
+  D409-composition-reads-the-head-twice … KILLED           3.9s
+  D409-composition-order-reversed … KILLED           3.6s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D409-shadow-refusal-narr… D409                  KILLED           3.4s    1
+D409-head-quantifier-nar… D409                  KILLED           3.9s    2
+D409-tail-guard-widened-… D409                  KILLED           3.5s    1
+D409-clause-break-loses-… D409                  KILLED           3.8s    2
+D409-reader-array-drops-… D409                  KILLED           3.9s    2
+D409-attack-seam-keeps-t… D409                  KILLED           3.7s    1
+D409-composition-reads-t… D409                  KILLED           3.9s    1
+D409-composition-order-r… D409                  KILLED           3.6s    1
+────────────────────────────────────────────────────────────────────────────────────
+8 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 37.2s total
+

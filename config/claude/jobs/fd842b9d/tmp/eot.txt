@@ -1,0 +1,3 @@
+53:1 At the end of your opponent's next turn, discard the Defending Pokémon and all attached cards.
+54:3 At the end of your opponent's next turn, put 9 damage counters on the Defending Pokémon.
+113:2 Discard all Energy from this Pokémon. At the end of your opponent's next turn, the Defending Pokémon will be Knocked Out.

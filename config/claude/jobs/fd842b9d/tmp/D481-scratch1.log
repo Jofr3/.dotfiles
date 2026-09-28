@@ -1,0 +1,1105 @@
+[96mscripts/catalog-manifest.ts[0m:[93m58[0m:[93m26[0m - [91merror[0m[90m TS2307: [0mCannot find module 'bun:sqlite' or its corresponding type declarations.
+
+[7m58[0m import { Database } from "bun:sqlite";
+[7m  [0m [91m                         ~~~~~~~~~~~~[0m
+
+[96mscripts/catalog-manifest.ts[0m:[93m59[0m:[93m41[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m59[0m import { statSync, writeFileSync } from "node:fs";
+[7m  [0m [91m                                        ~~~~~~~~~[0m
+
+[96mscripts/catalog-manifest.ts[0m:[93m354[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m354[0m if (process.argv.includes("--check")) {
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/catalog-manifest.ts[0m:[93m355[0m:[93m25[0m - [91merror[0m[90m TS2868: [0mCannot find name 'Bun'. Do you need to install type definitions for Bun? Try `npm i --save-dev @types/bun` and then add 'bun' to the types field in your tsconfig.
+
+[7m355[0m   const current = await Bun.file(OUT)
+[7m   [0m [91m                        ~~~[0m
+
+[96mscripts/catalog-manifest.ts[0m:[93m361[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m361[0m     console.error(`${OUT} is STALE — run: bun run scripts/catalog-manifest.ts`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/catalog-manifest.ts[0m:[93m362[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m362[0m     process.exit(1);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/catalog-manifest.ts[0m:[93m364[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m364[0m   console.log(`${OUT} is current (${rows} rows, sqlite mtime ${stat.mtime.toISOString()}).`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/catalog-manifest.ts[0m:[93m367[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m367[0m   console.log(`${OUT} written — ${rows} rows, ${perSet.length} sets, ${Object.keys(printed).length} fixture rows, ${absent.length} absent.`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/lint-coverage.ts[0m:[93m61[0m:[93m27[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:child_process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m61[0m import { spawnSync } from "node:child_process";
+[7m  [0m [91m                          ~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mscripts/lint-coverage.ts[0m:[93m62[0m:[93m52[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m62[0m import { existsSync, readFileSync, statSync } from "node:fs";
+[7m  [0m [91m                                                   ~~~~~~~~~[0m
+
+[96mscripts/lint-coverage.ts[0m:[93m86[0m:[93m33[0m - [91merror[0m[90m TS2534: [0mA function returning 'never' cannot have a reachable end point.
+
+[7m86[0m function fail(message: string): never {
+[7m  [0m [91m                                ~~~~~[0m
+
+[96mscripts/lint-coverage.ts[0m:[93m87[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m87[0m   console.error(message);
+[7m  [0m [91m  ~~~~~~~[0m
+
+[96mscripts/lint-coverage.ts[0m:[93m88[0m:[93m3[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m88[0m   process.exit(1);
+[7m  [0m [91m  ~~~~~~~[0m
+
+[96mscripts/lint-coverage.ts[0m:[93m105[0m:[93m3[0m - [91merror[0m[90m TS2322: [0mType 'unknown[]' is not assignable to type 'string[]'.
+  Type 'unknown' is not assignable to type 'string'.
+
+[7m105[0m   return [...seen].filter((f) => existsSync(f)).sort();
+[7m   [0m [91m  ~~~~~~[0m
+
+[96mscripts/lint-coverage.ts[0m:[93m151[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m151[0m   console.log(`lint-coverage: OK — all ${files.length} source files are covered by Biome.`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/lint-coverage.ts[0m:[93m152[0m:[93m3[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m152[0m   process.exit(0);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m97[0m:[93m30[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m97[0m import { readFileSync } from "node:fs";
+[7m  [0m [91m                             ~~~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m100[0m:[93m22[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m100[0m const FANIN = Number(process.env.FANIN ?? 4);
+[7m   [0m [91m                     ~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m101[0m:[93m20[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m101[0m const LEV = Number(process.env.LEV ?? 2);
+[7m   [0m [91m                   ~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m400[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m400[0m console.log(
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m405[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m405[0m   console.log(`⚠ ${absent} row(s) whose \`find\` does not occur — run scripts/mutation/precheck.ts`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m414[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m414[0m console.log(`producer-side row·kind pairs: ${prodPairs}   implementation-side: ${implPairs}`);
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m444[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m444[0m console.log(`producer-ONLY: ${prodOnly.length} ${JSON.stringify(prodOnly)}`);
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m445[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m445[0m console.log(
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m449[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m449[0m console.log(`implementation-ONLY: ${implOnly.length} ${JSON.stringify(implOnly)}`);
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m450[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m450[0m console.log(`NEITHER seat: ${neither.length} ${JSON.stringify(neither)}`);
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m475[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m475[0m console.log("\n=== SEAT-LINE COVERAGE (the stopping rule) ===");
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m476[0m:[93m34[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m476[0m for (const r of seatRows.sort()) console.log(r);
+[7m   [0m [91m                                 ~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m477[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m477[0m console.log(`SEAT LINES: ${seatCovered}/${seatTotal} = ${(seatCovered / seatTotal).toFixed(3)}`);
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/opcoverage.ts[0m:[93m480[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m480[0m console.log(`DECISION POINTS: ${implPairs}/${dpTotal} = ${dpRatio}  (weaker — ${dpCaveat})`);
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/precheck.ts[0m:[93m20[0m:[93m30[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m20[0m import { readFileSync } from "node:fs";
+[7m  [0m [91m                             ~~~~~~~~~[0m
+
+[96mscripts/mutation/precheck.ts[0m:[93m79[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m79[0m console.log(`checked ${String(MUTANTS.length)} mutants`);
+[7m  [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/precheck.ts[0m:[93m81[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m81[0m   console.error(`\n${String(broken.length)} BROKEN ROW(S):`);
+[7m  [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/precheck.ts[0m:[93m82[0m:[93m29[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m82[0m   for (const row of broken) console.error(`  ${row}`);
+[7m  [0m [91m                            ~~~~~~~[0m
+
+[96mscripts/mutation/precheck.ts[0m:[93m84[0m:[93m50[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m84[0m if (!splice.ok) for (const line of splice.lines) console.error(line);
+[7m  [0m [91m                                                 ~~~~~~~[0m
+
+[96mscripts/mutation/precheck.ts[0m:[93m85[0m:[93m38[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m85[0m if (broken.length > 0 || !splice.ok) process.exit(1);
+[7m  [0m [91m                                     ~~~~~~~[0m
+
+[96mscripts/mutation/precheck.ts[0m:[93m86[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m86[0m console.log(
+[7m  [0m [91m~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m58[0m:[93m34[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:child_process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m58[0m import { spawn, spawnSync } from "node:child_process";
+[7m  [0m [91m                                 ~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m59[0m:[93m78[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m59[0m import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+[7m  [0m [91m                                                                             ~~~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m60[0m:[93m24[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:os'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m60[0m import { tmpdir } from "node:os";
+[7m  [0m [91m                       ~~~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m61[0m:[93m40[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:path'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m61[0m import { dirname, join, resolve } from "node:path";
+[7m  [0m [91m                                       ~~~~~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m62[0m:[93m31[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:url'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m62[0m import { fileURLToPath } from "node:url";
+[7m  [0m [91m                              ~~~~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m64[0m:[93m61[0m - [91merror[0m[90m TS2339: [0mProperty 'url' does not exist on type 'ImportMeta'.
+
+[7m64[0m const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+[7m  [0m [91m                                                            ~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m80[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m80[0m     console.log(`  ✓ ${label}`);
+[7m  [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m84[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m84[0m   console.log(`  ✗ ${line}`);
+[7m  [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m95[0m:[93m47[0m - [91merror[0m[90m TS2591: [0mCannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m95[0m         files: [{ path: subject, originalB64: Buffer.from(ORIGINAL).toString("base64") }],
+[7m  [0m [91m                                              ~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m111[0m:[93m15[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m111[0m     env: { ...process.env, MUTATION_JOURNAL_PATH: JOURNAL },
+[7m   [0m [91m              ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m123[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m123[0m     process.kill(1, 0);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m126[0m:[93m20[0m - [91merror[0m[90m TS2503: [0mCannot find namespace 'NodeJS'.
+
+[7m126[0m     return (err as NodeJS.ErrnoException).code === "EPERM" ? 1 : null;
+[7m   [0m [91m                   ~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m141[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m141[0m     console.log("\nD411 — journal liveness gate\n");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m144[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m144[0m     console.log("(1) journal names a LIVE pid — must refuse and write nothing");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m146[0m:[93m39[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m146[0m     writeJournalNaming(sleeper.pid ?? process.pid, subject);
+[7m   [0m [91m                                      ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m159[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m159[0m     console.log("\n(2) the same journal, pid now DEAD — must recover and clear");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m163[0m:[93m39[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m163[0m     writeJournalNaming(sleeper.pid ?? process.pid, subject);
+[7m   [0m [91m                                      ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m171[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m171[0m     console.log("\n(3) journal names a FOREIGN-OWNED pid — must refuse (the EPERM arm)");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m174[0m:[93m7[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m174[0m       console.log("  ⚠️ NOT RUN — no foreign-owned pid on this machine (running as uid 0?).");
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m175[0m:[93m7[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m175[0m       console.log("     The EPERM arm of `pidIsAlive` is unexercised here, and says so.");
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m193[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m193[0m     console.error(`\n🛑 recovery-gate: ${failures.length} check(s) FAILED`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m194[0m:[93m34[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m194[0m     for (const line of failures) console.error(`   ${line}`);
+[7m   [0m [91m                                 ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m195[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m195[0m     console.error("");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m196[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m196[0m     process.exit(1);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/recovery-gate.ts[0m:[93m198[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m198[0m   console.log("\nrecovery-gate: OK — refuses a live journal, still recovers a dead one.\n");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m109[0m:[93m34[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:child_process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m109[0m import { spawn, spawnSync } from "node:child_process";
+[7m   [0m [91m                                 ~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m110[0m:[93m65[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m110[0m import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+[7m   [0m [91m                                                                ~~~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m111[0m:[93m27[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m111[0m import { mkdirSync } from "node:fs";
+[7m   [0m [91m                          ~~~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m112[0m:[93m40[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:path'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m112[0m import { dirname, join, resolve } from "node:path";
+[7m   [0m [91m                                       ~~~~~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m113[0m:[93m31[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:url'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m113[0m import { fileURLToPath } from "node:url";
+[7m   [0m [91m                              ~~~~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m116[0m:[93m61[0m - [91merror[0m[90m TS2339: [0mProperty 'url' does not exist on type 'ImportMeta'.
+
+[7m116[0m const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+[7m   [0m [91m                                                            ~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m126[0m:[93m3[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m126[0m   process.env.MUTATION_JOURNAL_PATH ?? join(REPO_ROOT, "tmp", "mutation-journal.json");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m134[0m:[93m34[0m - [91merror[0m[90m TS2591: [0mCannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m134[0m const inFlight = new Map<string, Buffer>();
+[7m   [0m [91m                                 ~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m142[0m:[93m10[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m142[0m     pid: process.pid,
+[7m   [0m [91m         ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m161[0m:[93m7[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m161[0m       process.stderr.write(`\n!! FAILED TO RESTORE ${path}: ${String(err)}\n`);
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m162[0m:[93m7[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m162[0m       process.stderr.write(`!! original bytes are in ${JOURNAL}\n`);
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m184[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m184[0m     process.kill(pid, 0);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m187[0m:[93m20[0m - [91merror[0m[90m TS2503: [0mCannot find namespace 'NodeJS'.
+
+[7m187[0m     return (err as NodeJS.ErrnoException).code === "EPERM";
+[7m   [0m [91m                   ~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m233[0m:[93m23[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m233[0m   if (journal.pid !== process.pid && pidIsAlive(journal.pid)) {
+[7m   [0m [91m                      ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m234[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m234[0m     console.error(`\n🛑  A mutation run is ALREADY IN FLIGHT (pid ${journal.pid}, started ${journal.startedAt}).`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m235[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m235[0m     console.error("    Refusing to recover: its journal is not wreckage, it is that run's net.");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m236[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m236[0m     console.error("    Restoring from it would overwrite the mutant that run has on disk right");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m237[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m237[0m     console.error("    now, and its row would report CLOBBER against this process.\n");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m239[0m:[93m7[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m239[0m       console.error(`    in flight: ${entry.path}`);
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m241[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m241[0m     console.error("\n    Wait for it to finish, or stop it (a SIGINT/SIGTERM restores and clears).");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m242[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m242[0m     console.error("    If you are certain that pid is NOT this harness (pids are reused), delete");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m243[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m243[0m     console.error(`    ${JOURNAL} by hand — but read it first: it holds the only copy of the`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m244[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m244[0m     console.error("    original bytes.\n");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m248[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m248[0m   console.error(`\n⚠️  A previous mutation run (pid ${journal.pid}, started ${journal.startedAt})`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m249[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m249[0m   console.error("    did not restore its files. Restoring them now from the journal.\n");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m251[0m:[93m31[0m - [91merror[0m[90m TS2591: [0mCannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m251[0m     writeFileSync(entry.path, Buffer.from(entry.originalB64, "base64"));
+[7m   [0m [91m                              ~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m252[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m252[0m     console.error(`    restored ${entry.path}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m255[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m255[0m   console.error("\n    Done. Verify with `git diff --stat`, then re-run.\n");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m315[0m:[93m13[0m - [91merror[0m[90m TS7006: [0mParameter 'line' implicitly has an 'any' type.
+
+[7m315[0m       .map((line) => line.slice(3).trim())
+[7m   [0m [91m            ~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m317[0m:[93m13[0m - [91merror[0m[90m TS7006: [0mParameter 'path' implicitly has an 'any' type.
+
+[7m317[0m       .map((path) => (path.includes(" -> ") ? path.slice(path.indexOf(" -> ") + 4) : path))
+[7m   [0m [91m            ~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m318[0m:[93m13[0m - [91merror[0m[90m TS7006: [0mParameter 'path' implicitly has an 'any' type.
+
+[7m318[0m       .map((path) => path.replace(/^"|"$/g, ""))
+[7m   [0m [91m            ~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m325[0m:[93m3[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m325[0m   process.on("exit", restoreAll);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m327[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m327[0m     process.on(sig, () => {
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m328[0m:[93m7[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m328[0m       process.stderr.write(`\n[${sig}] restoring ${inFlight.size} file(s) before exit…\n`);
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m331[0m:[93m7[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m331[0m       process.exit(130);
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m334[0m:[93m3[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m334[0m   process.on("uncaughtException", (err) => {
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m334[0m:[93m36[0m - [91merror[0m[90m TS7006: [0mParameter 'err' implicitly has an 'any' type.
+
+[7m334[0m   process.on("uncaughtException", (err) => {
+[7m   [0m [91m                                   ~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m335[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m335[0m     process.stderr.write(`\n[uncaught] ${String(err)}\n`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m338[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m338[0m     process.exit(1);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m340[0m:[93m3[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m340[0m   process.on("unhandledRejection", (err) => {
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m340[0m:[93m37[0m - [91merror[0m[90m TS7006: [0mParameter 'err' implicitly has an 'any' type.
+
+[7m340[0m   process.on("unhandledRejection", (err) => {
+[7m   [0m [91m                                    ~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m341[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m341[0m     process.stderr.write(`\n[unhandled rejection] ${String(err)}\n`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m344[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m344[0m     process.exit(1);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m382[0m:[93m17[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m382[0m       env: { ...process.env, CI: "1", FORCE_COLOR: "0" },
+[7m   [0m [91m                ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m386[0m:[93m33[0m - [91merror[0m[90m TS2591: [0mCannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m386[0m     proc.stdout?.on("data", (d: Buffer) => {
+[7m   [0m [91m                                ~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m389[0m:[93m33[0m - [91merror[0m[90m TS2591: [0mCannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m389[0m     proc.stderr?.on("data", (d: Buffer) => {
+[7m   [0m [91m                                ~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m392[0m:[93m23[0m - [91merror[0m[90m TS7006: [0mParameter 'code' implicitly has an 'any' type.
+
+[7m392[0m     proc.on("close", (code) => {
+[7m   [0m [91m                      ~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m569[0m:[93m24[0m - [91merror[0m[90m TS2591: [0mCannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m569[0m     if (!onDisk.equals(Buffer.from(mutatedText))) {
+[7m   [0m [91m                       ~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m573[0m:[93m7[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m573[0m       process.stderr.write(
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m638[0m:[93m16[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m638[0m   const argv = process.argv.slice(2);
+[7m   [0m [91m               ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m658[0m:[93m7[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m658[0m       console.log(`${mutant.id.padEnd(22)} ${mutant.decision.padEnd(22)} ${mutant.what}${tag}`);
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m659[0m:[93m7[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m659[0m       console.log(`${" ".repeat(22)} ${mutant.file} → ${mutant.expectKilledBy.join(", ")}`);
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m670[0m:[93m37[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m670[0m   if (journalState === "in-flight") process.exit(3);
+[7m   [0m [91m                                    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m671[0m:[93m37[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m671[0m   if (journalState === "recovered") process.exit(2);
+[7m   [0m [91m                                    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m685[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m685[0m     console.error("No mutants selected.");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m686[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m686[0m     process.exit(2);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m691[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m691[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m700[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m700[0m     console.log(
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m710[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m710[0m     process.stdout.write(`  ${mutant.id.padEnd(26)} … `);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m713[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m713[0m     console.log(`${row.verdict.padEnd(16)} ${(row.ms / 1000).toFixed(1)}s`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m718[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m718[0m   console.log(`\n${"─".repeat(84)}`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m719[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m719[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m722[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m722[0m   console.log("─".repeat(84));
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m724[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m724[0m     console.log(
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m728[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m728[0m   console.log("─".repeat(84));
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m738[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m738[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m743[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m743[0m     console.log(`  known survivor  ${row.mutant.id} — ${row.mutant.survives?.kind}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m744[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m744[0m     console.log(`      ${row.mutant.survives?.reason}\n`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m747[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m747[0m     console.log(`\n⚠️  SURVIVED (undeclared) — ${row.mutant.id}  [${row.mutant.decision}]`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m748[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m748[0m     console.log(`    ${row.mutant.what}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m749[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m749[0m     console.log(`    ${row.mutant.file}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m750[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m750[0m     console.log(
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m755[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m755[0m     console.log(`\n⚠️  STALE-SURVIVOR — ${row.mutant.id}  [${row.mutant.decision}]`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m756[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m756[0m     console.log(`    Declared unkillable for: ${row.mutant.survives?.reason}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m757[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m757[0m     console.log("    It was KILLED. That reason has stopped being true — update the row.");
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m760[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m760[0m     console.log(`\n⏭  SKIPPED-DIRTY — ${row.mutant.id}  [${row.mutant.decision}]`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m761[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m761[0m     console.log(`    ${row.note}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m764[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m764[0m     console.log(`\n🛑 CLOBBER — ${row.mutant.id}  [${row.mutant.decision}]`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m765[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m765[0m     console.log(`    ${row.note}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m768[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m768[0m     console.log(`\n⚠️  ERROR — ${row.mutant.id}: ${row.note}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/run.ts[0m:[93m774[0m:[93m3[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m774[0m   process.exit(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/splice-gate.ts[0m:[93m52[0m:[93m30[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m52[0m import { readFileSync } from "node:fs";
+[7m  [0m [91m                             ~~~~~~~~~[0m
+
+[96mscripts/mutation/splice-gate.ts[0m:[93m126[0m:[93m38[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m126[0m     for (const line of report.lines) console.error(line);
+[7m   [0m [91m                                     ~~~~~~~[0m
+
+[96mscripts/mutation/splice-gate.ts[0m:[93m127[0m:[93m5[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m127[0m     process.exit(1);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/mutation/splice-gate.ts[0m:[93m129[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m129[0m   console.log(`splice-gate: OK — ${report.lines[0] ?? ""}.`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/mutation/splice-gate.ts[0m:[93m134[0m:[93m17[0m - [91merror[0m[90m TS2339: [0mProperty 'main' does not exist on type 'ImportMeta'.
+
+[7m134[0m if (import.meta.main) main();
+[7m   [0m [91m                ~~~~[0m
+
+[96mscripts/opaque-anatomy-gate.ts[0m:[93m87[0m:[93m23[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m87[0m const SUBMAX = Number(process.env.SUBMAX ?? 4);
+[7m  [0m [91m                      ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy-gate.ts[0m:[93m269[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m269[0m   console.error(`opaque-anatomy-gate: ${failures.length} claim(s) FAILED\n`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy-gate.ts[0m:[93m270[0m:[93m29[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m270[0m   for (const f of failures) console.error(`  🛑 ${f}\n`);
+[7m   [0m [91m                            ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy-gate.ts[0m:[93m271[0m:[93m3[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m271[0m   process.exit(1);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy-gate.ts[0m:[93m274[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m274[0m console.log(
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m116[0m:[93m23[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m116[0m const SUBMAX = Number(process.env.SUBMAX ?? 4);
+[7m   [0m [91m                      ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m427[0m:[93m17[0m - [91merror[0m[90m TS2339: [0mProperty 'main' does not exist on type 'ImportMeta'.
+
+[7m427[0m if (import.meta.main) {
+[7m   [0m [91m                ~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m428[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m428[0m   console.log("=== THE `OPAQUE` ANATOMY (D471) ===");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m429[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m429[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m432[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m432[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m436[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m436[0m   console.log("\n=== AXIS ① — THE k-REGION PROBE ===");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m437[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m437[0m   console.log("CLASS                    sentences  printings");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m445[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m445[0m     console.log(`${c.padEnd(24)} ${P(hits.length)}        ${P(hits.reduce((s, a) => s + a.units, 0))}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m449[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m449[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m452[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m452[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m456[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m456[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m460[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m460[0m   console.log("\n=== AXIS ② — THE MARKERS, WITH THEIR BUILT-SIDE CONTROL ===");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m461[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m461[0m   console.log("MARKER              VERDICT      OPAQUE       RESIDUE        BUILT");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m463[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m463[0m     console.log(
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m467[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m467[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m470[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m470[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m473[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m473[0m   console.log("   six were written as blockers and refuted by this very column.");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m475[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m475[0m   console.log("\n=== ROWS, BY CLASS ===");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m477[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m477[0m     console.log(`\n── ${c} ${"─".repeat(Math.max(0, 60 - c.length))}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m479[0m:[93m7[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m479[0m       console.log(`${P(a.units)}p  ${a.text}`);
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m481[0m:[93m9[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m481[0m         console.log(`     ${a.hit.k} region(s) → BUILT: ${a.hit.onto}`);
+[7m   [0m [91m        ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m482[0m:[93m9[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m482[0m         console.log(
+[7m   [0m [91m        ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m486[0m:[93m30[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m486[0m       if (a.marker !== null) console.log(`     NEEDS: ${a.marker.needs}`);
+[7m   [0m [91m                             ~~~~~~~[0m
+
+[96mscripts/opaque-anatomy.ts[0m:[93m488[0m:[93m9[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m488[0m         console.log("     no bounded multi-region edit reaches a built string, and no BLOCKER marker fires.");
+[7m   [0m [91m        ~~~~~~~[0m
+
+[96mscripts/residue-census-gate.ts[0m:[93m60[0m:[93m30[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m60[0m import { readFileSync } from "node:fs";
+[7m  [0m [91m                             ~~~~~~~~~[0m
+
+[96mscripts/residue-census-gate.ts[0m:[93m206[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m206[0m   console.error(`residue-census-gate: ${failures.length} claim(s) FAILED\n`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census-gate.ts[0m:[93m207[0m:[93m29[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m207[0m   for (const f of failures) console.error(`  🛑 ${f}\n`);
+[7m   [0m [91m                            ~~~~~~~[0m
+
+[96mscripts/residue-census-gate.ts[0m:[93m208[0m:[93m3[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m208[0m   process.exit(1);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census-gate.ts[0m:[93m210[0m:[93m1[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m210[0m console.log(
+[7m   [0m [91m~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m249[0m:[93m30[0m - [91merror[0m[90m TS2591: [0mCannot find name 'node:fs'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m249[0m import { readFileSync } from "node:fs";
+[7m   [0m [91m                             ~~~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m258[0m:[93m23[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m258[0m const SUBMAX = Number(process.env.SUBMAX ?? 4);
+[7m   [0m [91m                      ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m260[0m:[93m16[0m - [91merror[0m[90m TS2591: [0mCannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+
+[7m260[0m const NEEDLE = process.argv[2] ?? null;
+[7m   [0m [91m               ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m272[0m:[93m11[0m - [91merror[0m[90m TS7006: [0mParameter 'l' implicitly has an 'any' type.
+
+[7m272[0m     .map((l) => l.replace(/\s*\/\/.*$/, ""))
+[7m   [0m [91m          ~[0m
+
+[96mscripts/residue-census.ts[0m:[93m482[0m:[93m3[0m - [91merror[0m[90m TS2532: [0mObject is possibly 'undefined'.
+
+[7m482[0m   slot[0]++;
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m483[0m:[93m3[0m - [91merror[0m[90m TS2532: [0mObject is possibly 'undefined'.
+
+[7m483[0m   slot[1] += units;
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m514[0m:[93m17[0m - [91merror[0m[90m TS2339: [0mProperty 'main' does not exist on type 'ImportMeta'.
+
+[7m514[0m if (import.meta.main && NEEDLE === null) {
+[7m   [0m [91m                ~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m515[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m515[0m   console.log("=== THE BLOCKER CENSUS (D459) ===");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m516[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m516[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m519[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m519[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m524[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m524[0m     console.log(`  − ${k.padEnd(9)} ${P(s ?? 0)}            / ${P(u ?? 0)}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m526[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m526[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m537[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m537[0m   console.log("\n=== CLASS TABLE ===");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m538[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m538[0m   console.log("CLASS            sentences  printings");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m541[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m541[0m     console.log(
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m545[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m545[0m   console.log(
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m548[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m548[0m   console.log("\n=== ROWS, BY CLASS ===");
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m550[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m550[0m     console.log(`\n── ${c} ${"─".repeat(Math.max(0, 60 - c.length))}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m552[0m:[93m7[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m552[0m       console.log(`${P(r.units)}p  ${r.text}`);
+[7m   [0m [91m      ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m556[0m:[93m24[0m - [91merror[0m[90m TS2339: [0mProperty 'main' does not exist on type 'ImportMeta'.
+
+[7m556[0m } else if (import.meta.main) {
+[7m   [0m [91m                       ~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m558[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m558[0m   console.log(`=== ${hits.length} residue row(s) matching ${JSON.stringify(NEEDLE)} ===`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m560[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m560[0m     console.log(`\n[${r.cls}] ${r.units}p  ${r.text}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m564[0m:[93m3[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m564[0m   console.log(`\n(${nonResidue.length} corpus sentence(s) matching that needle are BUILT:)`);
+[7m   [0m [91m  ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m565[0m:[93m36[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m565[0m   for (const [u, t] of nonResidue) console.log(`  ${arm(t)?.padEnd(8)} ${u}p  ${t}`);
+[7m   [0m [91m                                   ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m570[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m570[0m     console.log(`${pad}SEGMENT ${r.seg.index + 1}/${r.seg.total} removed.`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m571[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m571[0m     console.log(`${pad}  KEPT  ✅ builds (${arm(r.seg.kept)}): ${r.seg.kept}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m572[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m572[0m     console.log(`${pad}        ${derivation(r.seg.kept)}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m573[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m573[0m     console.log(`${pad}  CUT   ${r.seg.cutBuilds ? `✅ builds (${arm(r.seg.cut)})` : "🛑 does NOT build"}: ${r.seg.cut}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m576[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m576[0m     console.log(`${pad}SUBST ${r.sub.size} token(s): «${r.sub.from}» → «${r.sub.to}»`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m577[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m577[0m     console.log(`${pad}  onto BUILT (${arm(r.sub.onto)}): ${r.sub.onto}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m578[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m578[0m     console.log(`${pad}        ${derivation(r.sub.onto)}`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m581[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m581[0m     console.log(
+[7m   [0m [91m    ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m586[0m:[93m26[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m586[0m     if (r.span.repaired) console.log(`${pad}      KEPT  ${r.span.kept}`);
+[7m   [0m [91m                         ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m587[0m:[93m25[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m587[0m     if (r.seg === null) console.log(`${pad}      ${derivation(r.span.kept)}`);
+[7m   [0m [91m                        ~~~~~~~[0m
+
+[96mscripts/residue-census.ts[0m:[93m590[0m:[93m5[0m - [91merror[0m[90m TS2584: [0mCannot find name 'console'. Do you need to change your target library? Try changing the 'lib' compiler option to include 'dom'.
+
+[7m590[0m     console.log(`${pad}no deletion and no substitution this instrument can make reaches a built string.`);
+[7m   [0m [91m    ~~~~~~~[0m
+
+
+Found 217 errors in 11 files.
+
+Errors  Files
+     8  scripts/catalog-manifest.ts[90m:58[0m
+     8  scripts/lint-coverage.ts[90m:61[0m
+    14  scripts/mutation/opcoverage.ts[90m:97[0m
+     7  scripts/mutation/precheck.ts[90m:20[0m
+    25  scripts/mutation/recovery-gate.ts[90m:58[0m
+    81  scripts/mutation/run.ts[90m:109[0m
+     5  scripts/mutation/splice-gate.ts[90m:52[0m
+     5  scripts/opaque-anatomy-gate.ts[90m:87[0m
+    24  scripts/opaque-anatomy.ts[90m:116[0m
+     5  scripts/residue-census-gate.ts[90m:60[0m
+    35  scripts/residue-census.ts[90m:249[0m
+
+real	0m3.738s
+user	0m7.885s
+sys	0m0.162s

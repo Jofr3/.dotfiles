@@ -1,0 +1,8 @@
+### S1-typeof-conjunct-dropped: patched (72367 -> 72336 bytes)
+--- precociousEvolution: GREEN (exit 0)
+    Test Files  1 passed (1)
+    Tests  13 passed (13)
+--- discardScaledDamage: GREEN (exit 0)
+    Test Files  1 passed (1)
+    Tests  21 passed (21)
+### S1-typeof-conjunct-dropped: restored, 72367 bytes

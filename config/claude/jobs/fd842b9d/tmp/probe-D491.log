@@ -1,0 +1,39 @@
+
+Mutation harness (D211) — 12 mutant(s)
+
+⚠️  --allow-dirty: mutating 3 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+      packages/engine/src/interpreter.ts
+      packages/engine/src/testFixtures.ts
+
+  D491-anchor-loses-its-caret … KILLED           3.3s
+  D491-anchor-loses-its-terminator … KILLED           3.3s
+  D491-anchor-admits-the-modal … KILLED           3.3s
+  D491-arm-drops-the-seat-key … KILLED           3.4s
+  D491-arm-invents-the-count … KILLED           3.3s
+  D491-arm-admits-a-printed-zero … KILLED           3.3s
+  D491-walk-drops-the-opponent … KILLED           3.4s
+  D491-walk-is-absolute-seats … KILLED           3.3s
+  D491-draw-uses-the-controllers-seat … KILLED           3.4s
+  D491-record-slices-the-controllers-deck … KILLED           3.3s
+  D491-record-files-only-the-last-seat … KILLED           3.3s
+  D491-loud-control-keeps-the-built-sentence … KILLED           3.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D491-anchor-loses-its-ca… D491                  KILLED           3.3s    1
+D491-anchor-loses-its-te… D491                  KILLED           3.3s    1
+D491-anchor-admits-the-m… D491                  KILLED           3.3s    1
+D491-arm-drops-the-seat-… D491                  KILLED           3.4s    1
+D491-arm-invents-the-cou… D491                  KILLED           3.3s    1
+D491-arm-admits-a-printe… D491                  KILLED           3.3s    1
+D491-walk-drops-the-oppo… D491                  KILLED           3.4s    1
+D491-walk-is-absolute-se… D491                  KILLED           3.3s    1
+D491-draw-uses-the-contr… D491                  KILLED           3.4s    1
+D491-record-slices-the-c… D491                  KILLED           3.3s    1
+D491-record-files-only-t… D491                  KILLED           3.3s    1
+D491-loud-control-keeps-… D491                  KILLED           3.4s    1
+────────────────────────────────────────────────────────────────────────────────────
+12 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 46.8s total
+

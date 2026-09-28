@@ -1,0 +1,57 @@
+import io
+p='docs/progress.md'
+lines=io.open(p,encoding='utf-8').read().split('\n')
+old6=lines[5]
+assert old6.startswith('**Last updated:** 2026-09-11 — build session #436')
+new6=('**Last updated:** 2026-09-11 — build session #437 (**P3-M5 — D497, *guarding the oracle the '
+ 'whole loop trusts — and MY CENTRAL CLAIM WAS FALSE IN THE DIRECTION THAT WOULD HAVE WASTED THE '
+ 'SLICE.*** Second consecutive COVERAGE slice. 🛑 **NO SENTENCE BUILT; residue **85/120**, '
+ '`BUILT.attack` **1612**, `OPAQUE` **63/92** and the engine version **0.390.0** ALL UNMOVED** — '
+ 'verified by `git diff --name-only` being **exactly one file**, `scripts/mutation/mutants.ts`, with '
+ '`git diff -U0` containing no `engineVersion`, no `MATCH_RECORD_VERSION` and no `0.390.0`. The '
+ 'target was **`surface()` in `censusAttackCorpus.ts`** — what `attackReaderSurface()` returns, and '
+ '**the oracle every slice since ~D480 has used to derive build state** — carrying **ZERO mutant '
+ 'rows** across all 2,418 (all of which resolved). 🛑 **MY LOAD-BEARING CLAIM WAS FALSE**: I wrote '
+ '*"I found NO assertion anywhere on sortedness or on the exact contents — only on length."* '
+ '**Measured: ~50 ORDER-SENSITIVE contents assertions**, spelled '
+ '`expect(<names>.sort()).toEqual(attackReaderSurface())` — and `toEqual` on arrays **is** '
+ 'order-sensitive, so a sorted left-hand side pins order AND membership. **Verified independently at '
+ 'ritual time: 49 files by exact pattern, plus exactly 2 sites that RE-SORT and are blind to order by '
+ 'construction.** ⚠️ **Had the builder obeyed the brief it would have "fixed" a witness that already '
+ 'existed and shipped a redundant rung.** **The correct diagnosis is D474\'s DRIVEN-BUT-UNPINNED: the '
+ 'witnesses existed and had never been measured, so the ROWS were the missing measurement, not the '
+ 'missing guard — and consistent with that, NO row survived for a suite-gap reason and there is NO '
+ 'GAP to report.** 🛑 **THE FINDING IS A LOADER-DEPENDENT NO-OP, AND I VERIFIED IT MYSELF**: '
+ '`Object.entries` on an ES module namespace is **SPEC-SORTED under Bun\'s native ESM** and '
+ '**DECLARATION-ORDERED under vite/vitest\'s SSR transform** — same bytes, different answer. Measured '
+ 'under Bun: `Object.keys(effects)` order **=== sorted**, so `found.sort(…)` is a **no-op there** '
+ 'while it is real behaviour under vitest — **and this repo reads the surface under BOTH** (suites '
+ 'under vitest, `scripts/residue-census.ts` under Bun). **THE DAMAGE IS NOT THE COUNT, AND IT WAS '
+ 'MEASURED**: dropping the prefix conjunct takes the oracle **13 → 25** and `resolvedByAnyReader` '
+ 'from **529 / 640 sentences claimed to 640 / 640 — the residue goes to ZERO** — and the sort is what '
+ 'makes it SILENT, because an enrolled export sorts first and answers non-null so `.some` '
+ 'short-circuits before reaching three enrolled exports that **throw**. **SIX rows, each with its '
+ 'killing assertion MEASURED by applying the mutation and reading the FIRST failure** — and the '
+ 'controls are the point: for the two ORDER rows the length-only suite is **GREEN** and the '
+ 're-sorting suite is **GREEN**, so **a killer set assembled from length-only suites would have let '
+ 'both order rows survive and reported a gap that does not exist.** ⚠️ **The brief\'s "check for a '
+ 'second consumer" hazard MATERIALISED**: `surface()` has exactly two, and one row\'s first kill '
+ 'arrives through `resolvedByAnyReader`, not through the length rung it was aimed at. **TWO DECLARED '
+ 'SURVIVORS, BOTH CONFIRMED GREEN UNDER `--full` (481 files / 10,969 tests) rather than under a probe, '
+ 'and both with their KIND NAMED** (D468): `unreachable-population` (zero non-function exports carry '
+ 'the name, so the `typeof` conjunct refuses nothing — **self-invalidating**, KILLED the day one '
+ 'does) and 🆕 **a THIRD kind of equivalence — PURITY**: a memo over an input fixed at load is '
+ 'neither structural nor guarded disjointness, **with its falsifier CHECKED rather than assumed** '
+ '(`grep` for `vi.mock`/`vi.spyOn` returns **0**, so nothing can stub the namespace mid-run). '
+ '**THE REGION IS THINNER THAN IT LOOKS, STATED WITH THE MEASUREMENT**: seven candidate mutations '
+ 'exist on 16 lines and **three are unobservable today**; the seventh was deliberately NOT shipped '
+ 'and the reasoning recorded so a successor need not re-derive it. ⚠️ **AND A GAP I NEVER MEASURED '
+ 'IS NAMED AS DEBT**: **`resolvedByAnyReader()` carries ZERO rows** — the predicate behind every '
+ 'residue and `BUILT.attack` figure in the repo — priced at one slice, with its interesting mutations '
+ 'named. Corpus **2,418 → 2,424**, declared survivors **44 → 46**, archive ratchet **167**. `bun run '
+ 'check` GREEN, **481 files / 10,969 tests — UNCHANGED**, correctly: zero new `it(` blocks.)')
+lines[5]=new6
+lines.insert(7,'**Last updated (was):** '+old6.split('**Last updated:** ',1)[1])
+lines.insert(8,'')
+io.open(p,'w',encoding='utf-8').write('\n'.join(lines))
+print('ok')

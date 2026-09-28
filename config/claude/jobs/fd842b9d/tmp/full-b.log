@@ -1,0 +1,13 @@
+[0m[31m
+===== FULL SUITE :: B1-narrow-anchor-loses-its-caret :: SURVIVED (178s)[0m
+[0m[31m
+===== FULL SUITE :: B2-narrow-anchor-loses-its-terminator :: SURVIVED (174s)[0m
+[0m[31m[restore] match=true[0m
+
+===== FULL SUITE :: B1-narrow-anchor-loses-its-caret :: SURVIVED (178s)
+Test Files  481 passed (481)
+Tests  10969 passed (10969)
+
+===== FULL SUITE :: B2-narrow-anchor-loses-its-terminator :: SURVIVED (174s)
+Test Files  481 passed (481)
+Tests  10969 passed (10969)

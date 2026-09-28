@@ -1,0 +1,41 @@
+
+Mutation harness (D211) — 12 mutant(s)
+
+⚠️  --allow-dirty: mutating 2 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+      packages/engine/src/interpreter.ts
+
+  D483-snipe-targets-ignores-the-class … KILLED           3.5s
+  D483-class-filter-reads-no-card … KILLED           3.5s
+  D483-snipe-note-drops-the-class … KILLED           3.4s
+  D483-class-noun-map-pair-collapses-to-ex … KILLED           3.4s
+  D483-class-noun-map-ex-widens-to-the-pair … KILLED           3.5s
+  D483-class-alternation-shortest-first … SURVIVES(known)  3.4s
+  D483-flat-arm-reads-the-group-behind-the-class … KILLED           3.4s
+  D483-both-riders-resolved-rather-than-refused … KILLED           3.4s
+  D483-selfdiscard-arm-drops-the-class … KILLED           3.6s
+  D483-gated-arm-drops-the-class … KILLED           3.4s
+  D483-payoff-honours-the-class-it-cannot-carry … KILLED           3.5s
+  D483-payoff-refusals-swap-their-groups … KILLED           3.5s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D483-snipe-targets-ignor… D483                  KILLED           3.5s    1
+D483-class-filter-reads-… D483                  KILLED           3.5s    1
+D483-snipe-note-drops-th… D483                  KILLED           3.4s    1
+D483-class-noun-map-pair… D483                  KILLED           3.4s    1
+D483-class-noun-map-ex-w… D483                  KILLED           3.5s    1
+D483-class-alternation-s… D483                  SURVIVES(known)  3.4s    1
+D483-flat-arm-reads-the-… D483                  KILLED           3.4s    1
+D483-both-riders-resolve… D483                  KILLED           3.4s    1
+D483-selfdiscard-arm-dro… D483                  KILLED           3.6s    2
+D483-gated-arm-drops-the… D483                  KILLED           3.4s    1
+D483-payoff-honours-the-… D483                  KILLED           3.5s    1
+D483-payoff-refusals-swa… D483                  KILLED           3.5s    1
+────────────────────────────────────────────────────────────────────────────────────
+11 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 48.5s total
+
+  known survivor  D483-class-alternation-shortest-first — equivalent
+      ⚠️ **THE CLAIM THIS ROW WAS WRITTEN FOR IS FALSE, AND THE ROW IS WHAT FOUND THAT OUT.** The author's reasoning — `ex` is a strict PREFIX of `ex or Benched Pokémon V`, so a shortest-first alternation matches the short key and strands ` or Benched Pokémon V` — is how a POSSESSIVE matcher would behave and is not how JavaScript regular expressions behave: alternation BACKTRACKS, so when the short branch leaves bytes the terminator cannot spend, the engine returns and tries the long one. **Both orders claim exactly the same 2 sentences / 2 printings over all 640 corpus rows** — MEASURED by this row surviving, and pinned as a rung in `classNarrowedBenchSnipe.test.ts` §3 rather than left as a verdict here. U0001f6d1 **IT IS KEPT AS A DECLARED SURVIVOR RATHER THAN DELETED** because deleting it deletes the measurement: the `.sort()` reads as load-bearing and a successor would re-derive the same wrong reason from the same prefix relation. The sort stays for LEGIBILITY (longest-first is how the catalog's nouns nest, and `TYPED_SELF_DISCARD` spells its own map the same way), and the corpus now records in one place that it buys nothing behavioural. This is D479's unkillable-as-written class caught BY a probe instead of by a sweep, and D482's arithmetic-coincidence lesson at a regex instead of at a damage box.
+

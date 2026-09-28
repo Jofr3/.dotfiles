@@ -1,0 +1,34 @@
+[0m[2m[35m$[0m [2m[1mbun scripts/mutation/run.ts --decision "D458" --allow-dirty[0m
+
+Mutation harness (D211) — 10 mutant(s)
+
+⚠️  --allow-dirty: mutating 1 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+
+  D458-second-noun-summed-into-one-op … KILLED           3.4s
+  D458-second-search-copies-the-first-type … KILLED           3.3s
+  D458-second-search-drops-the-destination … KILLED           3.3s
+  D458-shuffle-between-the-two-searches … KILLED           3.4s
+  D458-second-noun-ignores-the-batch-rule … KILLED           3.3s
+  D458-second-noun-ignores-the-poison-tail … KILLED           3.3s
+  D458-second-cap-loses-its-range-guard … KILLED           3.3s
+  D458-second-noun-group-becomes-repeatable … KILLED           3.3s
+  D458-destination-read-off-the-old-group-index … KILLED           3.4s
+  D458-record-gate-read-off-the-old-group-index … KILLED           3.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D458-second-noun-summed-… D458                  KILLED           3.4s    1
+D458-second-search-copie… D458                  KILLED           3.3s    1
+D458-second-search-drops… D458                  KILLED           3.3s    1
+D458-shuffle-between-the… D458                  KILLED           3.4s    1
+D458-second-noun-ignores… D458                  KILLED           3.3s    1
+D458-second-noun-ignores… D458                  KILLED           3.3s    1
+D458-second-cap-loses-it… D458                  KILLED           3.3s    1
+D458-second-noun-group-b… D458                  KILLED           3.3s    1
+D458-destination-read-of… D458                  KILLED           3.4s    1
+D458-record-gate-read-of… D458                  KILLED           3.4s    1
+────────────────────────────────────────────────────────────────────────────────────
+10 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 36.8s total
+

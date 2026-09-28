@@ -1,0 +1,23 @@
+### R4-sort-dropped: patched (72367 -> 72339 bytes)
+--- angeliteCancel: RED (exit 1)
+ FAIL  packages/engine/src/angeliteCancel.test.ts > D396 §1 — the corpus, the consequent it shares with Terapagos, and the split that buys zero > 🆕🆕 D419 — the hand-kept READERS list IS the module's reader surface
+AssertionError: expected [ Array(13) ] to deeply equal [ 'deriveAttackRequirement', …(12) ]
+
+- Expected
++ Received
+
+  [
+-   "deriveAttackRequirement",
++   "deriveAttackBonusConsequent",
+    "deriveAttackCancelRequirement",
+    "deriveAttackCoinFlip",
+-   "deriveAttackEffect",
+    "deriveAttackDamageBonus",
++   "deriveAttackDamageMultiplier",
+--- installedRecoil: GREEN (exit 0)
+    Test Files  1 passed (1)
+    Tests  36 passed (36)
+--- derivedAttackGate: GREEN (exit 0)
+    Test Files  1 passed (1)
+    Tests  22 passed (22)
+### R4-sort-dropped: restored, 72367 bytes

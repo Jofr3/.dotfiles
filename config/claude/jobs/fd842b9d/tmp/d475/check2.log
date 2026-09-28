@@ -1,0 +1,167 @@
+[0m[2m[35m$[0m [2m[1mtsc -b && bun scripts/lint-coverage.ts && biome lint . --error-on-warnings && vitest run[0m
+lint-coverage: OK — all 708 source files are covered by Biome.
+Checked 744 files in 1427ms. No fixes applied.
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/censusAtHead.test.ts (50 tests | 2 failed) 240ms
+     × the headline arithmetic closes over all four columns 42ms
+     × the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it 39ms
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts (26 tests | 1 failed) 152ms
+     × 🛑 the resolving corpus gains TWO sentences and TWO printings 30ms
+ ❯ packages/engine/src/compoundCompose.test.ts (30 tests | 1 failed) 166ms
+     × 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused 20ms
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts (27 tests | 1 failed) 155ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 33ms
+ ❯ packages/engine/src/defenderStatusTriple.test.ts (31 tests | 1 failed) 133ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 32ms
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts (22 tests | 1 failed) 89ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 34ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the headline arithmetic closes over all four columns
+AssertionError: expected 1988 to be 1987 // Object.is equality
+
+- Expected
++ Received
+
+- 1987
++ 1988
+
+ ❯ packages/engine/src/censusAtHead.test.ts:4231:19
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it
+AssertionError: expected 107 to be 108 // Object.is equality
+
+- Expected
++ Received
+
+- 108
++ 107
+
+ ❯ packages/engine/src/censusAtHead.test.ts:6353:37
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  packages/engine/src/compoundCompose.test.ts > §4 — the SHADOW REFUSAL: the anchor wins, the splitter is the fallback > 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused
+AssertionError: expected 473 to be 472 // Object.is equality
+
+- Expected
++ Received
+
+- 472
++ 473
+
+ ❯ packages/engine/src/compoundCompose.test.ts:622:33
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 506, 1531 ] to deeply equal [ 505, 1530 ]
+
+- Expected
++ Received
+
+  [
+-   505,
+-   1530,
++   506,
++   1531,
+  ]
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:546:58
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 506, 1531 ] to deeply equal [ 505, 1530 ]
+
+- Expected
++ Received
+
+  [
+-   505,
+-   1530,
++   506,
++   1531,
+  ]
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:565:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  packages/engine/src/perHeadsEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ 505, 1531 ] to deeply equal [ 504, 1530 ]
+
+- Expected
++ Received
+
+  [
+-   504,
+-   1530,
++   505,
++   1531,
+  ]
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts:654:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §2 — the census moves in exactly ONE summand, and the step is 1 and 1 > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 506, 1532 ] to deeply equal [ 505, 1531 ]
+
+- Expected
++ Received
+
+  [
+-   505,
+-   1531,
++   506,
++   1532,
+  ]
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:190:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  6 failed | 457 passed (463)
+      Tests  7 failed | 10433 passed (10440)
+   Start at  01:20:31
+   Duration  134.06s (transform 33.00s, setup 0ms, import 216.93s, tests 58.37s, environment 39.29s)
+
+[0m[31merror[0m[2m:[0m script [1m"check"[0m exited with code 1[0m

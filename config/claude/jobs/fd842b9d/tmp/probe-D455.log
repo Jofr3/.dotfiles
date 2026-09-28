@@ -1,0 +1,58 @@
+
+Mutation harness (D211) — 21 mutant(s)
+
+⚠️  --allow-dirty: mutating 1 file(s) with uncommitted changes:
+      packages/engine/src/interpreter.ts
+
+  D455-hand-cost-offers-the-opponents-hand … KILLED           3.8s
+  D455-hand-cost-collapses-every-copy-to-one … KILLED           3.6s
+  D455-hand-cost-counts-the-card-being-played … KILLED           3.5s
+  D455-hand-cost-pays-into-the-wrong-zone … KILLED           3.5s
+  D455-deck-bottom-payment-lands-on-top … KILLED           3.3s
+  D455-hand-cost-announces-a-payment-of-nothing … KILLED           3.5s
+  D455-hand-cost-apply-reads-the-opponents-hand … KILLED           3.6s
+  D455-a-forced-payment-still-asks … KILLED           3.5s
+  D455-attack-lock-crosses-the-table … KILLED           4.1s
+  D455-attack-lock-window-swaps-the-two-turns … KILLED           4.3s
+  D455-attack-lock-skips-the-section-11-gate … KILLED           4.0s
+  D455-the-mill-crosses-the-table … KILLED           3.9s
+  D455-the-mill-credits-the-victim-as-the-actor … KILLED           3.2s
+  D455-the-mill-announces-an-empty-deck … KILLED           3.8s
+  D455-the-shuffle-lands-on-the-opponents-deck … KILLED           3.3s
+  D455-the-shuffle-never-advances-the-rng … KILLED           3.4s
+  D455-the-printed-you-may-is-answered-by-the-opponent … KILLED           4.4s
+  D455-optional-apply-arm-deleted … SURVIVES(known)  3.4s
+  D455-condition-gate-arms-are-swapped … KILLED           4.4s
+  D455-condition-gate-asks-about-the-opponent … KILLED           4.1s
+  D455-record-gate-arms-are-swapped … KILLED           4.1s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D455-hand-cost-offers-th… D455                  KILLED           3.8s    3
+D455-hand-cost-collapses… D455                  KILLED           3.6s    3
+D455-hand-cost-counts-th… D455                  KILLED           3.5s    3
+D455-hand-cost-pays-into… D455                  KILLED           3.5s    3
+D455-deck-bottom-payment… D455                  KILLED           3.3s    2
+D455-hand-cost-announces… D455                  KILLED           3.5s    3
+D455-hand-cost-apply-rea… D455                  KILLED           3.6s    3
+D455-a-forced-payment-st… D455                  KILLED           3.5s    3
+D455-attack-lock-crosses… D455                  KILLED           4.1s    4
+D455-attack-lock-window-… D455                  KILLED           4.3s    5
+D455-attack-lock-skips-t… D455                  KILLED           4.0s    4
+D455-the-mill-crosses-th… D455                  KILLED           3.9s    4
+D455-the-mill-credits-th… D455                  KILLED           3.2s    3
+D455-the-mill-announces-… D455                  KILLED           3.8s    4
+D455-the-shuffle-lands-o… D455                  KILLED           3.3s    2
+D455-the-shuffle-never-a… D455                  KILLED           3.4s    1
+D455-the-printed-you-may… D455                  KILLED           4.4s    4
+D455-optional-apply-arm-… D455                  SURVIVES(known)  3.4s    3
+D455-condition-gate-arms… D455                  KILLED           4.4s    5
+D455-condition-gate-asks… D455                  KILLED           4.1s    5
+D455-record-gate-arms-ar… D455                  KILLED           4.1s    5
+────────────────────────────────────────────────────────────────────────────────────
+20 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 148.3s total
+
+  known survivor  D455-optional-apply-arm-deleted — equivalent
+      The `default` arm of the same switch returns `state` unchanged, so removing this case changes no reachable behaviour — which is what the shipped comment on the arm claims and what no row had ever recorded. It stops being true the moment either half moves: an `optional` apply that must do work, or a `default` that stops returning the state. Both would KILL this row and fail the run as STALE-SURVIVOR.
+

@@ -1,0 +1,130 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/censusAtHead.test.ts (50 tests | 1 failed) 230ms
+     × the headline arithmetic closes over all four columns 46ms
+ ❯ packages/engine/src/retreatCostBonus.test.ts (27 tests | 1 failed) 102ms
+     × the NINE-reader instrument steps by exactly 1 sentence / 1 printing 30ms
+ ❯ packages/engine/src/exOnlyActive.test.ts (18 tests | 1 failed) 99ms
+     × 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM 61ms
+ ❯ packages/engine/src/opponentBenchCount.test.ts (25 tests | 1 failed) 98ms
+     × the TEN-reader instrument steps by exactly 1 sentence / 1 printing 28ms
+ ❯ packages/engine/src/sameEnergyBonus.test.ts (25 tests | 1 failed) 91ms
+     × the resolving corpus gains TWO sentences and TWO printings 29ms
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts (21 tests | 1 failed) 93ms
+     × the census moves by exactly 2 printings on exactly 1 sentence 59ms
+ ❯ packages/engine/src/benchNamedBonus.test.ts (24 tests | 1 failed) 94ms
+     × 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345 27ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/benchNamedBonus.test.ts > §7 — the census moves in exactly ONE summand, and the other three are measured > 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345
+AssertionError: expected 1220 to be 1219 // Object.is equality
+
+- Expected
++ Received
+
+- 1219
++ 1220
+
+ ❯ packages/engine/src/benchNamedBonus.test.ts:1230:7
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the headline arithmetic closes over all four columns
+AssertionError: expected 271 to be 270 // Object.is equality
+
+- Expected
++ Received
+
+- 270
++ 271
+
+ ❯ packages/engine/src/censusAtHead.test.ts:6228:33439
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  packages/engine/src/exOnlyActive.test.ts > §1 — the population, re-derived LIVE rather than quoted > 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM
+AssertionError: expected 154 to be 155 // Object.is equality
+
+- Expected
++ Received
+
+- 155
++ 154
+
+ ❯ packages/engine/src/exOnlyActive.test.ts:222:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  packages/engine/src/opponentBenchCount.test.ts > §5 — the fixture, the census this row moves, and the summands it does not > the TEN-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 371, 1271 ] to deeply equal [ 371, 1270 ]
+
+- Expected
++ Received
+
+  [
+    371,
+-   1270,
++   1271,
+  ]
+
+ ❯ packages/engine/src/opponentBenchCount.test.ts:949:67707
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  packages/engine/src/retreatCostBonus.test.ts > §6 — the fixture, the census this row moves, and the summands it does not > the NINE-reader instrument steps by exactly 1 sentence / 1 printing
+AssertionError: expected [ 368, 1263 ] to deeply equal [ 368, 1262 ]
+
+- Expected
++ Received
+
+  [
+    368,
+-   1262,
++   1263,
+  ]
+
+ ❯ packages/engine/src/retreatCostBonus.test.ts:1061:67715
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  packages/engine/src/sameEnergyBonus.test.ts > §7 — the census moves in exactly ONE summand, and the step is 2 and 2 > the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected 1242 to be 1241 // Object.is equality
+
+- Expected
++ Received
+
+- 1241
++ 1242
+
+ ❯ packages/engine/src/sameEnergyBonus.test.ts:1027:7
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  packages/engine/src/sawkRequirementSplit.test.ts > §1 — D362's counts reproduce and its ATTRIBUTION does not > the census moves by exactly 2 printings on exactly 1 sentence
+AssertionError: expected 154 to be 155 // Object.is equality
+
+- Expected
++ Received
+
+- 155
++ 154
+
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts:277:24
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  7 failed | 376 passed (383)
+      Tests  7 failed | 10036 passed (10043)
+   Start at  01:33:51
+   Duration  129.55s (transform 19.20s, setup 0ms, import 168.29s, tests 29.03s, environment 54ms)
+

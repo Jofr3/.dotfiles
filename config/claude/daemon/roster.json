@@ -1,0 +1,83 @@
+{
+  "proto": 1,
+  "supervisorPid": 5540,
+  "updatedAt": 1790155069197,
+  "workers": {
+    "742814a5": {
+      "pid": 5565,
+      "procStart": "50008",
+      "sessionId": "742814a5-e0f6-4c20-b2ac-ab5f0057829a",
+      "rendezvousSock": "/tmp/cc-daemon-1000/1ea4607d/rv/742814a5.sock",
+      "ptySock": "/tmp/cc-daemon-1000/1ea4607d/pty/742814a5.sock",
+      "cliVersion": "2.1.280",
+      "startedAt": 1790151469101,
+      "attempt": 1,
+      "cwd": "/home/jofre/projects/luminous_ui",
+      "dispatch": {
+        "proto": 1,
+        "short": "742814a5",
+        "nonce": "4892f693",
+        "sessionId": "742814a5-e0f6-4c20-b2ac-ab5f0057829a",
+        "createdAt": 1790151468720,
+        "source": "slash",
+        "cwd": "/home/jofre/projects/luminous_ui",
+        "launch": {
+          "mode": "resume",
+          "sessionId": "/home/jofre/.claude/projects/-home-jofre-projects-luminous-ui/902d665e-9691-43bc-b2dc-e93fcf9698da.jsonl",
+          "fork": true,
+          "flagArgs": [
+            "--model",
+            "opus[1m]",
+            "--effort",
+            "high",
+            "--permission-mode",
+            "auto"
+          ],
+          "restoresTranscript": true
+        },
+        "env": {
+          "CLAUDE_BG_ISOLATION": "none"
+        },
+        "isolation": "none",
+        "respawnFlags": [
+          "--model",
+          "opus[1m]",
+          "--effort",
+          "high",
+          "--permission-mode",
+          "auto"
+        ],
+        "seed": {
+          "intent": "continue with development where we left of. Use /workflows and delegate all of the work so the main agent does not get bloated with context. Report to the user just the esential information. Simplify ",
+          "name": "Workflow delegation architecture"
+        },
+        "cols": 206,
+        "rows": 71
+      },
+      "decModes": [
+        1000,
+        1002,
+        1003,
+        1006,
+        2004,
+        2031,
+        1004
+      ],
+      "firedInteractiveMarks": [
+        {
+          "kind": "content_paint",
+          "msgsLoaded": 69,
+          "msgsInJsonl": 69,
+          "msgsRenderedAtFirstPaint": 69
+        },
+        {
+          "kind": "prompt_idle"
+        }
+      ],
+      "rvAuth": "1d56559ba1cabc24fb6ebe98819c471d",
+      "ptyAuth": "b37603462463f9b2eb1e62f079b88bd4",
+      "replPid": 5581,
+      "replProcStart": "50022"
+    }
+  }
+}

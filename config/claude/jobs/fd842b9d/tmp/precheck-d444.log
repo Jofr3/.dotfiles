@@ -1,0 +1,2 @@
+checked 1787 mutants
+every `find` occurs exactly once in its target — corpus is runnable

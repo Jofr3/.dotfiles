@@ -1,0 +1,34 @@
+
+Mutation harness (D211) — 7 mutant(s)
+
+⚠️  --allow-dirty: mutating 3 file(s) with uncommitted changes:
+      packages/engine/src/continuous.ts
+      packages/engine/src/effects.ts
+      packages/engine/src/interpreter.ts
+
+  D500-vocabulary-row-takes-the-neighbours-value … KILLED           3.5s
+  D500-map-key-is-lowercased … KILLED           3.9s
+  D500-category-arm-reads-provision … KILLED           3.7s
+  D500-category-filter-widens-to-any-energy … KILLED           3.8s
+  D500-board-arm-forgets-its-continue … SURVIVED         3.4s
+  D500-clause-arm-tests-the-special-list … KILLED           4.0s
+  D500-describer-falls-through-to-the-template … KILLED           3.5s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D500-vocabulary-row-take… D500                  KILLED           3.5s    2
+D500-map-key-is-lowercas… D500                  KILLED           3.9s    2
+D500-category-arm-reads-… D500                  KILLED           3.7s    1
+D500-category-filter-wid… D500                  KILLED           3.8s    1
+D500-board-arm-forgets-i… D500                  SURVIVED         3.4s    1
+D500-clause-arm-tests-th… D500                  KILLED           4.0s    1
+D500-describer-falls-thr… D500                  KILLED           3.5s    1
+────────────────────────────────────────────────────────────────────────────────────
+6 killed · 0 known survivor(s) · 1 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 36.3s total
+
+
+⚠️  SURVIVED (undeclared) — D500-board-arm-forgets-its-continue  [D500]
+    ⚠️ C5 — **THE BOARD-WIDE ARM ADDS ITS COUNT AND FALLS THROUGH INTO THE TERNARY BELOW**, so every holder is counted twice — once as a category and once by provision. It is the slip a `continue`-shaped insertion invites, and it is invisible on any board where no attached card provides a basic type (the second term is 0 there). `basicEnergyScaling.test.ts` §2's board has three Water-providers across two bodies, so `countEnergyInPlay(state, "p1", "basic")` answers 12 rather than 7. **SILENT IN EVERY CENSUS** — no reader's return value moves.
+    packages/engine/src/continuous.ts
+    Either the suite has a real gap, or the decision row's tally was wrong. Both are findings — write one down.

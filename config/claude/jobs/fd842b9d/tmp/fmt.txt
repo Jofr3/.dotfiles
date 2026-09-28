@@ -1,0 +1,2 @@
+Checked 10 files in 172ms. No fixes applied.
+Found 9 errors.

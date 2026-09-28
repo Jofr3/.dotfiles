@@ -1,0 +1,34 @@
+
+Mutation harness (D211) — 10 mutant(s)
+
+⚠️  --allow-dirty: mutating 2 file(s) with uncommitted changes:
+      packages/engine/src/censusAtHead.test.ts
+      packages/engine/src/effects.ts
+
+  D495-gate-dropped-lock-lands-unconditionally … KILLED           4.4s
+  D495-gated-lock-loses-its-seat … KILLED           3.4s
+  D495-gate-gains-ontails    … KILLED           3.4s
+  D495-arm-emits-the-neighbours-op … KILLED           3.4s
+  D495-anchor-loses-its-caret … KILLED           3.4s
+  D495-anchor-loses-its-terminator … KILLED           3.4s
+  D495-anchor-widens-the-verb … KILLED           3.4s
+  D495-anchor-drops-the-possessive-apostrophe-class … KILLED           3.3s
+  D495-anchor-drops-the-contraction-apostrophe-class … KILLED           3.3s
+  D495-census-built-attack-not-stepped … KILLED           2.3s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D495-gate-dropped-lock-l… D495                  KILLED           4.4s    1
+D495-gated-lock-loses-it… D495                  KILLED           3.4s    2
+D495-gate-gains-ontails   D495                  KILLED           3.4s    1
+D495-arm-emits-the-neigh… D495                  KILLED           3.4s    1
+D495-anchor-loses-its-ca… D495                  KILLED           3.4s    1
+D495-anchor-loses-its-te… D495                  KILLED           3.4s    1
+D495-anchor-widens-the-v… D495                  KILLED           3.4s    1
+D495-anchor-drops-the-po… D495                  KILLED           3.3s    1
+D495-anchor-drops-the-co… D495                  KILLED           3.3s    1
+D495-census-built-attack… D495                  KILLED           2.3s    1
+────────────────────────────────────────────────────────────────────────────────────
+10 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 43.2s total
+

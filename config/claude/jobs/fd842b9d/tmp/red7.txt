@@ -1,0 +1,30 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/handCostOpponentDiscard.test.ts (24 tests | 1 failed) 88ms
+     × engineVersion is 0.402.0 and the bump is owed for BEHAVIOUR 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/handCostOpponentDiscard.test.ts > D515 §6 — `MATCH_RECORD_VERSION` stays 30, and the argument is DRIVEN > engineVersion is 0.402.0 and the bump is owed for BEHAVIOUR
+AssertionError: expected '0.401.0' to be '0.402.0' // Object.is equality
+
+Expected: "0.402.0"
+Received: "0.401.0"
+
+ ❯ packages/engine/src/handCostOpponentDiscard.test.ts:829:27
+    827|     // D471's rule: the bump is owed because `packages/engine` changed…
+    828|     // anchor, an arm and a `describeBranch` case — and not because a …
+    829|     expect(engineVersion).toBe("0.402.0");
+       |                           ^
+    830|   });
+    831| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 384 passed (385)
+      Tests  1 failed | 10087 passed (10088)
+   Start at  11:13:58
+   Duration  96.27s (transform 23.49s, setup 0ms, import 188.99s, tests 31.85s, environment 55ms)
+

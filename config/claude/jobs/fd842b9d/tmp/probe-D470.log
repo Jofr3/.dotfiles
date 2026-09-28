@@ -1,0 +1,57 @@
+
+Mutation harness (D211) — 17 mutant(s)
+
+⚠️  --allow-dirty: mutating 5 file(s) with uncommitted changes:
+      packages/engine/src/attack.ts
+      packages/engine/src/continuous.ts
+      packages/engine/src/effects.ts
+      scripts/mutation/run.ts
+      scripts/mutation/splice-gate.ts
+
+  D470-owner-board-anchor-loses-the-opponent-lookahead … KILLED           3.5s
+  D470-owner-board-anchor-drops-the-trailing-dollar … KILLED           3.4s
+  D470-owner-board-anchor-loses-the-more … KILLED           3.3s
+  D470-owner-board-arm-drops-the-filter-from-the-value … KILLED           3.5s
+  D470-owner-board-arm-drops-the-board-zone … KILLED           3.3s
+  D470-owner-board-arm-spells-the-filter-instead-of-delegating … KILLED           3.4s
+  D470-owner-board-arm-drops-the-printed-zero-guard … KILLED           3.3s
+  D470-owner-board-arm-confuses-null-with-undefined-in-the-energy-guard … KILLED           3.4s
+  D470-owner-board-evaluator-drops-the-filter … KILLED           3.5s
+  D470-owner-board-evaluator-inverts-the-seat … KILLED           3.4s
+  D470-owner-board-evaluator-reads-the-declaring-body … KILLED           3.4s
+  D470-board-energy-filter-reads-the-bottom-of-the-stack … KILLED           3.3s
+  D470-board-energy-filter-is-inverted … KILLED           3.4s
+  D470-board-energy-filter-asks-the-energy-not-the-body … KILLED           3.4s
+  D470-owner-board-arm-moves-ahead-of-the-shipped-one … SURVIVES(known)  3.3s
+  D470-harness-splices-the-replacement … KILLED           2.9s
+  D470-precheck-splice-guard-goes-vacuous … SURVIVES(known)  3.0s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D470-owner-board-anchor-… D470                  KILLED           3.5s    2
+D470-owner-board-anchor-… D470                  KILLED           3.4s    1
+D470-owner-board-anchor-… D470                  KILLED           3.3s    1
+D470-owner-board-arm-dro… D470                  KILLED           3.5s    2
+D470-owner-board-arm-dro… D470                  KILLED           3.3s    1
+D470-owner-board-arm-spe… D470                  KILLED           3.4s    1
+D470-owner-board-arm-dro… D470                  KILLED           3.3s    1
+D470-owner-board-arm-con… D470                  KILLED           3.4s    1
+D470-owner-board-evaluat… D470                  KILLED           3.5s    1
+D470-owner-board-evaluat… D470                  KILLED           3.4s    1
+D470-owner-board-evaluat… D470                  KILLED           3.4s    1
+D470-board-energy-filter… D470                  KILLED           3.3s    1
+D470-board-energy-filter… D470                  KILLED           3.4s    1
+D470-board-energy-filter… D470                  KILLED           3.4s    1
+D470-owner-board-arm-mov… D470                  SURVIVES(known)  3.3s    1
+D470-harness-splices-the… D470                  KILLED           2.9s    cmd
+D470-precheck-splice-gua… D470                  SURVIVES(known)  3.0s    cmd
+────────────────────────────────────────────────────────────────────────────────────
+15 killed · 2 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 66.6s total
+
+  known survivor  D470-owner-board-arm-moves-ahead-of-the-shipped-one — equivalent
+      🛑 STRUCTURAL DISJOINTNESS, NOT GUARDED — and D468's conventions entry requires the row to say WHICH, because the two kinds print the same verdict and carry OPPOSITE maintenance obligations. Both anchors are `^…$` over the whole sentence and disagree on a MANDATORY run of bytes AT THE SAME POSITION: `SELF_ENERGY_SCALE` spells the two LITERAL tails `this Pokémon` / `all of your Pokémon`, while `SELF_ENERGY_FILTERED_SCALE` demands `all of your ` followed by `[^.]+ Pokémon` — a run that must END IN A SPACE, which the shipped literal spends nowhere and which `this Pokémon` cannot even reach. No string matches both, so NO LOOKAHEAD SEPARATES THEM and correctly none does — a guard nothing could turn red is D205/D208's vacuous guard, unkillable by construction. ⚠️ **THE `(?!opponent)` LOOKAHEAD THAT DOES EXIST IS NOT THAT GUARD AND MUST NOT BE READ AS ONE**: it separates this anchor from an UNCLAIMED seat spelling, not from its sibling, and it IS killable — `D470-owner-board-anchor-loses-the-opponent-lookahead` is KILLED. So this row is D468's kind and that row is D467's kind, in one slice, at one address. THE TRIGGER THAT WOULD MAKE THIS ROW OBSERVABLE, i.e. the edit a successor is actually likely to make: folding the two anchors into one with an OPTIONAL `(?:[^.]+ )?` before `Pokémon`. The moment that noun slot becomes optional the two patterns overlap, the order starts deciding answers, this mutation becomes killable and the row reports STALE-SURVIVOR. `ownerBoardEnergyScaling.test.ts` §2's whole-column rung — every legal additive Energy sentence is claimed by exactly one of the two readings, and carries a filter IFF it names a subgroup — is the standing check on the premise.
+
+  known survivor  D470-precheck-splice-guard-goes-vacuous — unreachable-shape
+      🛑 **UNREACHABLE BY CONSTRUCTION AT A GREEN HEAD, AND THE KIND IS `unreachable-shape` RATHER THAN `equivalent` — the distinction D467/D468 require.** The mutant hard-wires a premise that is ALREADY TRUE here: `run.ts` does patch literally at this head, so `patchesLiterally` is `true` either way and `precheck` exits 0 either way. It is NOT an equivalence — the two programs disagree on every head where `run.ts` has been reverted — so there is no deletable byte to guard and no companion deletion row is owed. ⚠️ **THE STATE THAT MAKES IT KILLABLE IS THE ONE F1 CREATES**: apply `D470-harness-splices-the-replacement` first and this row goes red immediately, which is how the pair was verified by hand rather than argued. The harness applies one mutant at a time by design (a two-file mutant would make the verdict unattributable), so the corpus can state the composition but cannot run it — this row records that limit instead of pretending the guard is self-checking. The day `run.ts` regresses, F1's row goes STALE and this one starts reporting KILLED, and either is a loud signal.
+

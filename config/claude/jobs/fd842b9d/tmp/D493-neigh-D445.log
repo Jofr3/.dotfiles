@@ -1,0 +1,42 @@
+
+Mutation harness (D211) — 14 mutant(s)
+
+⚠️  --allow-dirty: mutating 2 file(s) with uncommitted changes:
+      packages/engine/src/attack.ts
+      packages/engine/src/effects.ts
+
+  D445-reveal-arm-drops-the-vocabulary-guard … KILLED           3.4s
+  D445-reveal-compound-derives-no-effect … KILLED           3.5s
+  D445-trainer-noun-maps-to-item … KILLED           3.4s
+  D445-noun-map-loses-the-bare-card … KILLED           3.4s
+  D445-fold-arm-hardcodes-the-widest-filter … KILLED           3.4s
+  D445-discard-anchor-derives-the-bottom … KILLED           3.4s
+  D445-hand-arm-delegates-to-the-pile-walk … KILLED           3.4s
+  D445-discard-arm-lands-in-the-actors-pile … KILLED           3.4s
+  D445-discard-row-swaps-seat-and-actor … KILLED           3.4s
+  D445-note-falls-through-to-the-bottom-form … KILLED           3.4s
+  D445-log-row-derives-the-actor … KILLED           3.8s
+  D445-log-row-drops-the-word-chose … KILLED           3.7s
+  D445-fold-reads-the-attackers-hand … KILLED           3.6s
+  D445-fold-reads-the-discard-pile … KILLED           3.7s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D445-reveal-arm-drops-th… D445                  KILLED           3.4s    1
+D445-reveal-compound-der… D445                  KILLED           3.5s    1
+D445-trainer-noun-maps-t… D445                  KILLED           3.4s    1
+D445-noun-map-loses-the-… D445                  KILLED           3.4s    1
+D445-fold-arm-hardcodes-… D445                  KILLED           3.4s    1
+D445-discard-anchor-deri… D445                  KILLED           3.4s    1
+D445-hand-arm-delegates-… D445                  KILLED           3.4s    1
+D445-discard-arm-lands-i… D445                  KILLED           3.4s    1
+D445-discard-row-swaps-s… D445                  KILLED           3.4s    1
+D445-note-falls-through-… D445                  KILLED           3.4s    1
+D445-log-row-derives-the… D445                  KILLED           3.8s    1
+D445-log-row-drops-the-w… D445                  KILLED           3.7s    1
+D445-fold-reads-the-atta… D445                  KILLED           3.6s    1
+D445-fold-reads-the-disc… D445                  KILLED           3.7s    1
+────────────────────────────────────────────────────────────────────────────────────
+14 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 56.1s total
+

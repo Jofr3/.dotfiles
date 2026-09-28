@@ -11,6 +11,12 @@
     openFirewall = true; # UDP 41641, for direct peer connections instead of relaying
   };
 
+  # MagicDNS names (`nixos-remote.<tailnet>.ts.net`, which `tailscale serve`
+  # answers on) resolve only if tailscaled can register its resolver. Without
+  # resolved it rewrites /etc/resolv.conf itself and loses to whatever else
+  # manages that file; with it, only tailnet names go to 100.100.100.100.
+  flake.modules.nixos.base.services.resolved.enable = true;
+
   # Only the server accepts connections *over* the tailnet. Anything arriving
   # there is already authenticated by WireGuard, so it skips the firewall
   # entirely -- that is what makes a dev server on 5173/3000/whatever reachable

@@ -1,0 +1,118 @@
+packages/engine/package.json:4:  "version": "0.403.0",
+packages/engine/src/bodiesInPlayScaling.test.ts:1579:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/handRefreshOpponentHand.test.ts:33:// 0.402.0 → 0.403.0 — 🆕🆕 D516: THE DRAW COUNT THAT READS THE OPPONENT'S HAND.
+packages/engine/src/handRefreshOpponentHand.test.ts:591:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/retreatCostPenalty.test.ts:643:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/prizeGateParalyze.test.ts:34:// 0.403.0 → 0.404.0 — 🆕🆕 D517: THE PRIZE-GATED PARALYSIS, AND THE FIRST
+packages/engine/src/ownerBoardEnergyScaling.test.ts:904:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/benchNounScaling.test.ts:334:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/benchCounterSuppressed.test.ts:655:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/benchCounterSuppressed.test.ts:658:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/scopedBoardHeal.test.ts:707:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/scopedBoardHeal.test.ts:713:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/derivedDeckSearchAttach.test.ts:1736:  it("engineVersion is 0.403.0 and `manifest.version` agrees", () => {
+packages/engine/src/derivedDeckSearchAttach.test.ts:1746:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/scaledAnySnipe.test.ts:519:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/typedSelfSwitch.test.ts:708:  it("engineVersion is 0.403.0", () => {
+packages/engine/src/typedSelfSwitch.test.ts:709:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/counterFold.test.ts:521:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/perTailsSelfDiscard.test.ts:806:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/perTailsSelfDiscard.test.ts:810:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/defenderStatusTriple.test.ts:651:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/defenderStatusTriple.test.ts:655:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/cancelThenPrevent.test.ts:703:  it("the engine version is 0.403.0 and `manifest.version` agrees", () => {
+packages/engine/src/cancelThenPrevent.test.ts:704:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/distinctEnergyTypes.test.ts:782:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/counterUntilHp.test.ts:551:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/flipStatusHeadsTails.test.ts:826:  it("engineVersion is 0.403.0", () => {
+packages/engine/src/flipStatusHeadsTails.test.ts:827:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/shuffleHandDraw.test.ts:618:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/optionalSelfSwitch.test.ts:1018:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/preDamageRefusal.test.ts:679:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/discardPileScaling.test.ts:911:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/confusionDamage.test.ts:823:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/confusionDamage.test.ts:824:    expect(manifest.version).toBe("0.403.0");
+packages/engine/src/handDiscardScaledSnipe.test.ts:1043:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/handDiscardScaledSnipe.test.ts:1047:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/ownBenchSpread.test.ts:532:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/energyInPlaySuppressed.test.ts:745:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/energyInPlaySuppressed.test.ts:748:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/evolvedDiscardCompound.test.ts:1025:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/evolvedDiscardCompound.test.ts:1031:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/extraEnergyBonus.test.ts:468:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/devolveEach.test.ts:1063:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/typedActiveStatusGate.test.ts:914:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/legacyEnergy.test.ts:1084:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/legacyEnergy.test.ts:1085:    expect(manifest.version).toBe("0.403.0");
+packages/engine/src/toolCountScaling.test.ts:465:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/flipDefenderAttackLock.test.ts:714:  it("engineVersion is 0.403.0", () => {
+packages/engine/src/flipDefenderAttackLock.test.ts:715:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/untilLeavesActiveBar.test.ts:951:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/opponentBoardCounterScaling.test.ts:667:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/flipStatusEnergyDiscard.test.ts:702:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/flipStatusEnergyDiscard.test.ts:706:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/pileByNameFragment.test.ts:700:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/classNarrowedBenchSnipe.test.ts:1004:  it("engineVersion is 0.403.0 and `manifest.version` agrees", () => {
+packages/engine/src/classNarrowedBenchSnipe.test.ts:1007:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/filteredBenchSnipe.test.ts:764:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/coinThreshold.test.ts:700:  it("engineVersion is 0.403.0 and `manifest.version` agrees", () => {
+packages/engine/src/coinThreshold.test.ts:708:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/derivedBenchSearchMove.test.ts:171:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/eachDeckMillBoost.test.ts:1221:  it("engineVersion is 0.403.0 and `manifest.version` agrees — the bump is for BEHAVIOUR", () => {
+packages/engine/src/eachDeckMillBoost.test.ts:1234:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/opponentHandDiscard.test.ts:1091:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/opponentCounterMultiply.test.ts:816:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/costBenchSnipe.test.ts:963:  it("engineVersion is 0.403.0 and `manifest.version` agrees", () => {
+packages/engine/src/costBenchSnipe.test.ts:974:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/inPlayFlipCount.test.ts:893:  it("engineVersion is 0.403.0 and `manifest.version` agrees", () => {
+packages/engine/src/inPlayFlipCount.test.ts:898:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/inPlayFlipCount.test.ts:899:    expect(manifest.version).toBe("0.403.0");
+packages/engine/src/bareAttackLock.test.ts:565:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/noWeaknessBar.test.ts:684:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/selfEnergyScaling.test.ts:1235:  it("engineVersion is 0.403.0 and `manifest.version` agrees", () => {
+packages/engine/src/selfEnergyScaling.test.ts:1249:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/perHeadsEnergyDiscard.test.ts:772:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/perHeadsEnergyDiscard.test.ts:777:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/perHeadsConsequent.test.ts:572:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/handCostOpponentDiscard.test.ts:826:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/handCostOpponentDiscard.test.ts:829:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/boardWideSpread.test.ts:767:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/boardWideSpread.test.ts:774:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/eachPlayerDraw.test.ts:868:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/classedBoardSpread.test.ts:990:  it("engineVersion is 0.403.0 and `manifest.version` agrees", () => {
+packages/engine/src/classedBoardSpread.test.ts:991:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/classedBoardSpread.test.ts:992:    expect(manifest.version).toBe("0.403.0");
+packages/engine/src/counterPutChosen.test.ts:575:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/defenderStatusPair.test.ts:1024:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/derivedOpponentEnergyMove.test.ts:665:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/basicEnergyScaling.test.ts:734:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/index.ts:19987:    🆕🆕🆕 engineVersion 0.402.0 → **0.403.0** (D516 — THE DRAW COUNT THAT READS THE OPPONENT'S
+packages/engine/src/index.ts:20085:    whoever writes `| **D516** | … engine 0.402.0 → 0.403.0 … |` should rewrite this heading's
+packages/engine/src/index.ts:20098:    `handRefreshOpponentHand.test.ts`'s header arrow, which reads `0.402.0 → 0.403.0` and is
+packages/engine/src/index.ts:21283:export const engineVersion = "0.403.0";
+packages/engine/src/boardWideEnergyScaling.test.ts:600:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/derivedMoveAllEnergy.test.ts:447:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/preDamageToolDiscard.test.ts:743:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/delayedCounters.test.ts:1122:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/bothSidesNameFragment.test.ts:679:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/preDamageFamily.test.ts:1012:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/takePrizeAttack.test.ts:361:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/opponentHandSweep.test.ts:696:  it("engineVersion is 0.403.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/opponentHandSweep.test.ts:699:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/handCostDraw.test.ts:788:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/pileByAttackName.test.ts:468:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/namedDeckSearch.test.ts:797:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/selfHealDealt.test.ts:455:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/compoundCompose.test.ts:1084:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/ownBenchSnipe.test.ts:384:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/selfDamagePerCounter.test.ts:413:    expect(engineVersion).toBe("0.403.0");
+scripts/mutation/mutants.ts:5254:    // ⚠️ RE-POINTED AT D516 (0.402.0 → 0.403.0), at D515 (0.401.0 → 0.402.0), at D514 (0.400.0 → 0.401.0), at D513 (0.399.0 → 0.400.0), at D512 (0.398.0 → 0.399.0), at D510 (0.397.0 → 0.398.0), at D508 (0.396.0 → 0.397.0), at D507 (0.395.0 → 0.396.0), at D505 (0.394.0 → 0.395.0), at D490 (0.384.0 → 0.385.0), at D489 (0.383.0 → 0.384.0), at D488 (0.382.0 → 0.383.0), at D487 (0.381.0 → 0.382.0), at D486 (0.380.0 → 0.381.0), at D485 (0.379.0 → 0.380.0), at D450 (0.351.0 → 0.352.0), at D449 (0.350.0 → 0.351.0), at D448 (0.349.0 → 0.350.0), at D447 (0.348.0 → 0.349.0), at D446 (0.347.0 → 0.348.0), at D445 (0.346.0 → 0.347.0), at D444 (0.345.0 → 0.346.0), at D443 (0.344.0 → 0.345.0), at D442 (0.343.0 → 0.344.0), at D441 (0.342.0 → 0.343.0), at D440 (0.341.0 → 0.342.0), at D439 (0.340.0 → 0.341.0), at D438 (0.339.0 → 0.340.0), at D437 (0.338.0 → 0.339.0), at D436 (0.337.0 → 0.338.0), at D435 (0.336.0 → 0.337.0), at D434 (0.335.0 → 0.336.0), at D433 (0.334.0 → 0.335.0), at D432 (0.333.0 → 0.334.0), at D431 (0.332.0 → 0.333.0), at D430 (0.331.0 → 0.332.0), at D429 (0.330.0 → 0.331.0), at D428 (0.329.0 → 0.330.0), at D427 (0.328.0 → 0.329.0), at D426 (0.327.0 → 0.328.0), at D425 (0.326.0 → 0.327.0), at D424 (0.325.0 → 0.326.0), at D423 (0.324.0 → 0.325.0), at D422 (0.323.0 → 0.324.0), at D421 (0.322.0 → 0.323.0), at D420 (0.321.0 → 0.322.0), at D417 (0.320.0 → 0.321.0), at D416 (0.319.0 → 0.320.0), at D415 (0.318.0 → 0.319.0), at D414 (0.317.0 → 0.318.0), at D413 (0.316.0 → 0.317.0), at D412 (0.315.0 → 0.316.0), at D410 (0.314.0 → 0.315.0), at D409 (0.313.0 → 0.314.0), at D408 (0.312.0 → 0.313.0), at D407 (0.311.0 → 0.312.0), at D402 (0.306.0 → 0.307.0), at D401 (0.305.0 → 0.306.0), at D400 (0.304.0 → 0.305.0), at D399 (0.303.0 → 0.304.0), at D398 (0.302.0 → 0.303.0), at D397 (0.301.0 → 0.302.0), at D396 (0.300.0 → 0.301.0), at D395 (0.299.0 → 0.300.0), at D394 (0.298.0 → 0.299.0), at D393 (0.297.0 → 0.298.0), at D392 (0.296.0 → 0.297.0), at D391 (0.295.0 → 0.296.0), at D390 (0.294.0 → 0.295.0), at D389 (0.293.0 → 0.294.0), at D388 (0.292.0 → 0.293.0), at D387 (0.291.0 → 0.292.0), at D386 (0.290.0 → 0.291.0),
+scripts/mutation/mutants.ts:5801:    find: 'export const engineVersion = "0.403.0";',
+scripts/mutation/mutants.ts:29073:    what: "🛑 C1 — THE DEFECT D502 AND D505 BOTH SHIPPED: a version goes out and NO HEADING CLAIMS IT. The edit un-bolds the NEWEST heading's target, so the parser stops seeing it and the chain's head falls back a release while `package.json` says otherwise — which is byte-for-byte the state of this file at D505's head, twice over. ⚠️ IT IS THE CHEAPEST WAY FOR THIS RECORD TO GO WRONG AND WAS INVISIBLE TO EVERY OTHER INSTRUMENT IN THE REPO: `tsc`, `biome`, every test, `precheck` and all five gates are green on both sides of it, because until D506 nothing read the headings at all. Killed by the HEAD case alone, which is the point — one tripwire, named (D453/D498). 🛑 RE-POINTED AT D507 ONTO THE 0.395.0 → 0.396.0 HEADING, AND THE RE-POINT WAS OWED RATHER THAN TIDY (D444): left on D505's heading it would have gone INERT ON THE VERDICT the moment a newer heading existed — un-bolding a heading that is no longer the head leaves NEWEST equal to HEAD, so the HEAD case stays green and the kill arrives, if at all, through the CHAIN case instead. The row's own stated reason (killed by the HEAD case alone) is exactly the sentence that would have quietly become false. THIS ROW IS PART OF THE VERSION TAX: every bump owes its re-point, in the same edit as the heading. \U0001f195 RE-POINTED AGAIN AT D508 ONTO THE 0.396.0 → 0.397.0 HEADING, and this one is UNLABELLED — the `find` quotes the heading's first prose words instead of a `(D<nnn> —`, which is strictly more durable: the label is the byte the close-out ritual inserts, and quoting it is exactly what broke this row at D507. \u26a0\ufe0f The heading is the CHAIN HEAD again, so the HEAD case is the killer again — the re-point is what keeps that sentence true rather than quietly false. \U0001f195 RE-POINTED AGAIN AT D510 ONTO THE 0.397.0 \u2192 0.398.0 HEADING, also UNLABELLED, and the `find` is kept in D508's TRIMMED form \u2014 it stops before the `(` where the close-out ritual inserts the label, which is the shape D508 proved survives that edit (precheck clean, label inserted, clean again). A `find` that spanned the paren would re-open the coupling that broke this row at D507. \U0001f195 RE-POINTED AGAIN AT D512 ONTO THE 0.398.0 \u2192 0.399.0 HEADING, also UNLABELLED and kept in the same TRIMMED form. \u26a0\ufe0f The re-point is what keeps this row's own stated reason (killed by the HEAD case ALONE) true rather than quietly false: left on D510's heading it would go INERT ON THE VERDICT the moment a newer heading exists, because un-bolding a heading that is no longer the head leaves NEWEST equal to HEAD and the kill arrives, if at all, through the CHAIN case instead. \U0001f195 RE-POINTED AGAIN AT D513 ONTO THE 0.399.0 \u2192 0.400.0 HEADING, also UNLABELLED and kept in the same TRIMMED form that stops before the `(`. \u26a0\ufe0f **AND THE TRIM WAS PROVEN AGAIN RATHER THAN ASSUMED**: `precheck` clean before the heading exists, the heading written, `precheck` clean after \u2014 the third consecutive slice to demonstrate that a `find` ending at `**<new>**` survives the close-out label insertion, and the fourth to state that a `find` spanning the paren re-opens the coupling that broke this row at D507. \U0001f195 RE-POINTED AGAIN AT D515 ONTO THE 0.401.0 \u2192 0.402.0 HEADING, also UNLABELLED and kept in the same TRIMMED form that stops before the `(`. \u26a0\ufe0f **THE RE-POINT IS THE PART OF THE VERSION TAX THAT HAS NO AUTOMATIC DETECTOR**: left on D514's heading this row would go INERT ON THE VERDICT the moment a newer heading exists \u2014 un-bolding a heading that is no longer the head leaves NEWEST equal to HEAD, the HEAD case stays green, and the kill arrives (if at all) through the CHAIN case instead, so the row would report KILLED while its own stated reason (killed by the HEAD case ALONE) had quietly become false. \u26a0\ufe0f **AND THE TRIM WAS PROVEN A FIFTH TIME RATHER THAN ASSUMED**: `precheck` clean before the heading exists, the heading written, `precheck` clean after. \U0001f195 RE-POINTED AGAIN AT D516 ONTO THE 0.402.0 \u2192 0.403.0 HEADING, also UNLABELLED and kept in the same TRIMMED form that stops before the `(`. \u26a0\ufe0f **THE TRIM WAS PROVEN A SIXTH TIME RATHER THAN ASSUMED**: `precheck` clean before the heading exists, the heading written, `precheck` clean after \u2014 and the re-point remains the part of the version tax with no automatic detector, because left on D515\u2019s heading this row would report KILLED while its own stated reason (killed by the HEAD case ALONE) had quietly become false.",
+scripts/mutation/mutants.ts:29075:    find: "engineVersion 0.402.0 → **0.403.0**",
+scripts/mutation/mutants.ts:29076:    replace: "engineVersion 0.402.0 → 0.403.0",
+packages/engine/src/derivedAttackGate.test.ts:775:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/derivedSpreadEnergyMove.test.ts:731:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/bothActivesFlipCount.test.ts:1017:  it("engineVersion is 0.403.0 and `manifest.version` agrees", () => {
+packages/engine/src/bothActivesFlipCount.test.ts:1022:    expect(engineVersion).toBe("0.403.0");
+packages/engine/src/bothActivesFlipCount.test.ts:1023:    expect(manifest.version).toBe("0.403.0");

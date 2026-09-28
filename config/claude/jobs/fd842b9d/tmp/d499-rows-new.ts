@@ -1,0 +1,145 @@
+// D499 rows, staged here first so `find`/`replace`/`what` can be read against each
+// other before they enter the corpus (D451/D477/D479).
+export const NEW_ROWS = `  {
+    id: "D499-anchor-loses-its-caret",
+    decision: "D499",
+    what: "⚠️ A1 — the \`^\` goes from D499's anchor, so any sentence ENDING in this one is claimed and its leading matter is silently dropped. 🛑 **NO CENSUS CAN SEE THIS ROW** (D496): measured over all 640 rows of \`legalAttackCorpus()\`, the un-caretted form claims exactly the same 1 sentence / 2 printings as the anchored one, so \`BUILT.attack\`, the residue and \`resolvedByAnyReader\` are byte-identical under it. A CONSTRUCTED prefix is the only instrument that exists for it — § 3's \`This attack does 30 damage. …\` probe, whose lead ENDS A SENTENCE and is capitalised normally so the refusal is the \`^\` and not the family's case-sensitivity (D452)",
+    file: "packages/engine/src/effects.ts",
+    find: "const ATTACK_COIN_CANCEL_THEN_PREVENT =\\n  /^Flip a coin\\\\. If tails, this attack does nothing\\\\. If heads, during your opponent['’]s next turn, prevent all damage from and effects of attacks done to this Pokémon\\\\.$/;",
+    replace: "const ATTACK_COIN_CANCEL_THEN_PREVENT =\\n  /Flip a coin\\\\. If tails, this attack does nothing\\\\. If heads, during your opponent['’]s next turn, prevent all damage from and effects of attacks done to this Pokémon\\\\.$/;",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+    ],
+  },
+  {
+    id: "D499-anchor-loses-its-terminator",
+    decision: "D499",
+    what: "⚠️ A2 — the \`$\` goes, so the anchor claims the sentence with ANY trailing clause appended and throws that clause away. 🛑 **THE TWO ENDS FAIL DIFFERENTLY AND THE KILLER IS NOT THE SAME KIND OF RUNG (D464).** A \`^\`-end near miss stays on the loud path, but once this sentence derives, D409's trailing splitter composes \`⟨it⟩. ⟨claimed tail⟩\` through a path that is neither the anchor nor the arm — so \`resolvedByAnyReader\` is TRUE for the compound under BOTH builds and cannot see this. § 3 asserts the READER's refusal and the SPLIT separately, and that pair is what dies here",
+    file: "packages/engine/src/effects.ts",
+    find: "const ATTACK_COIN_CANCEL_THEN_PREVENT =\\n  /^Flip a coin\\\\. If tails, this attack does nothing\\\\. If heads, during your opponent['’]s next turn, prevent all damage from and effects of attacks done to this Pokémon\\\\.$/;",
+    replace: "const ATTACK_COIN_CANCEL_THEN_PREVENT =\\n  /^Flip a coin\\\\. If tails, this attack does nothing\\\\. If heads, during your opponent['’]s next turn, prevent all damage from and effects of attacks done to this Pokémon\\\\./;",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+    ],
+  },
+  {
+    id: "D499-anchor-drops-the-apostrophe-class",
+    decision: "D499",
+    what: "⚠️ A3 — the \`['’]\` class on the possessive collapses to a bare \`'\`, so 2 printings fall silently off the built set under a punctuation-normalising re-ingest (D136/D137/D440). ⚠️ **\`clauseApostrophe.test.ts\`'s FILE-WIDE SWEEP CANNOT SEE THIS ONE**, and the difference from its D496 sibling is the reason: that slice's demonstrator is a real \`FIXTURE_POOL\` member, where D499's board surgery is a per-board \`cardPool\` clone (D414), which the sweep does not walk. The killer is § 3's own U+2019 equality and nothing else — a killer set assembled by analogy with the sibling would have named a suite that never loads the line (D494)",
+    file: "packages/engine/src/effects.ts",
+    find: "const ATTACK_COIN_CANCEL_THEN_PREVENT =\\n  /^Flip a coin\\\\. If tails, this attack does nothing\\\\. If heads, during your opponent['’]s next turn, prevent all damage from and effects of attacks done to this Pokémon\\\\.$/;",
+    replace: "const ATTACK_COIN_CANCEL_THEN_PREVENT =\\n  /^Flip a coin\\\\. If tails, this attack does nothing\\\\. If heads, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon\\\\.$/;",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+    ],
+  },
+  {
+    id: "D499-arm-drops-the-effects-field",
+    decision: "D499",
+    what: "🛑 B1 — **THE NEAREST WRONG SIBLING, AND THE ATTRIBUTION CONTROL FOR THE WHOLE SLICE (D469).** The field that splits the family's two printed readings is dropped, so this arm emits \`FLIP_PREVENT_DAMAGE\`'s op instead of \`FLIP_PREVENT_DAMAGE_AND_EFFECTS\`'s — a neighbouring arm's REAL code, six lines apart in the same file (D190b). The attack still cancels on tails, still installs on heads, and stops refusing Special Conditions, placed counters, Energy discards and the §11 retreat lock while still nulling damage. ⚠️ **SILENT IN EVERY CENSUS**: the sentence still resolves, \`resolvedByAnyReader\` is still true, the residue still falls by one and \`BUILT.attack\` still steps by two, so \`censusAtHead\` and both instrument gates stay GREEN. § 2's value equality (the READER layer) and § 8's explicit not-the-narrow-sibling rung are what die",
+    file: "packages/engine/src/effects.ts",
+    find: "  if (ATTACK_COIN_CANCEL_THEN_PREVENT.test(effect)) {\\n    return {\\n      kind: \\"cancelOnTailsElseProgram\\",\\n      ops: [{ op: \\"preventDamage\\", effects: true }],\\n    };\\n  }",
+    replace: "  if (ATTACK_COIN_CANCEL_THEN_PREVENT.test(effect)) {\\n    return {\\n      kind: \\"cancelOnTailsElseProgram\\",\\n      ops: [{ op: \\"preventDamage\\" }],\\n    };\\n  }",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+    ],
+  },
+  {
+    id: "D499-arm-loses-its-heads-program",
+    decision: "D499",
+    what: "🛑 B2 — **THE LOST PAYLOAD, AND IT IS THE DEFECT THE REQUIRED FIELD EXISTS TO MAKE IMPOSSIBLE.** The arm returns the BARE \`cancelOnTails\` the 16 sibling printings derive to, so the flip still happens, tails still cancels the attack, heads still deals the printed damage — and the printed protection SILENTLY never installs. That is D124's benign soft landing on a board that looks entirely normal, which is exactly the degradation an optional \`ops?\` rider on the shipped member would have produced for free (§ 9's LOSS rung states it). ⚠️ Every census figure is unmoved: \`resolvedByAnyReader\` is TRUE under this mutant too, because \`cancelOnTails\` is not null. § 5's HEADS board is the killer",
+    file: "packages/engine/src/effects.ts",
+    find: "  if (ATTACK_COIN_CANCEL_THEN_PREVENT.test(effect)) {\\n    return {\\n      kind: \\"cancelOnTailsElseProgram\\",\\n      ops: [{ op: \\"preventDamage\\", effects: true }],\\n    };\\n  }",
+    replace: "  if (ATTACK_COIN_CANCEL_THEN_PREVENT.test(effect)) {\\n    return { kind: \\"cancelOnTails\\" };\\n  }",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+    ],
+  },
+  {
+    id: "D499-arm-emits-the-neighbours-op",
+    decision: "D499",
+    what: "⚠️ B3 — the arm emits the op of the OTHER durated consequent printed behind the same gate prefix: corpus FILE LINE 250, *\\"Flip a coin. If heads, during your opponent's next turn, the Defending Pokémon can't attack.\\"*, whose arm sits in the same \`deriveAttackEffect\` block. Both are §11 durated installs stamped \`turn + 1\` on the flip's winning face, so nothing structural separates them and the log row still reads as a durated protection — it simply protects the wrong thing on the wrong body. A neighbouring arm's REAL code, verbatim (D190b)",
+    file: "packages/engine/src/effects.ts",
+    find: "  if (ATTACK_COIN_CANCEL_THEN_PREVENT.test(effect)) {\\n    return {\\n      kind: \\"cancelOnTailsElseProgram\\",\\n      ops: [{ op: \\"preventDamage\\", effects: true }],\\n    };\\n  }",
+    replace: "  if (ATTACK_COIN_CANCEL_THEN_PREVENT.test(effect)) {\\n    return {\\n      kind: \\"cancelOnTailsElseProgram\\",\\n      ops: [{ op: \\"preventAttack\\", target: \\"defender\\" }],\\n    };\\n  }",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+    ],
+  },
+  {
+    id: "D499-debt-bare-cancel-anchor-loses-its-terminator",
+    decision: "D499",
+    what: "🛑 C1 — **THE DEBT ROW, AND THE ABSENCE IT PAYS IS THE FINDING.** D126's two anchors (\`ATTACK_COIN_BONUS\` and \`ATTACK_COIN_CANCEL\`) had **ZERO mutant rows intersecting them by SPAN for 373 decisions** — measured by resolving every one of the corpus's 2,427 \`find\` strings to a line span and intersecting, not by grepping for the constant's name (D453: the name is metadata, the span is the fact). Every green whole-corpus sweep since 0.88.0 said nothing whatever about the line that decides 16 printings. ⚠️ **THIS ROW IS ALSO WHAT MAKES D499's DISPATCH ORDER BEHAVIOUR RATHER THAN LEGIBILITY (D467).** With the \`\\\\.$\` gone this anchor becomes a PREFIX matcher, and because it is read FIRST it claims D499's compound too and answers a bare \`cancelOnTails\` — so the printed protection is silently dropped. Read SECOND, the mutation would have been unobservable and this row would have SURVIVED for a reason indistinguishable from equivalence",
+    file: "packages/engine/src/effects.ts",
+    find: "const ATTACK_COIN_CANCEL = /^Flip a coin\\\\. If tails, this attack does nothing\\\\.$/;",
+    replace: "const ATTACK_COIN_CANCEL = /^Flip a coin\\\\. If tails, this attack does nothing\\\\./;",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+      "packages/engine/src/coinFlipDamage.test.ts",
+    ],
+  },
+  {
+    id: "D499-debt-bare-cancel-anchor-loses-its-caret",
+    decision: "D499",
+    what: "⚠️ C2 — the other half of the same debt: D126's cancel anchor loses its \`^\`, so any sentence ENDING in *\\"Flip a coin. If tails, this attack does nothing.\\"* is claimed and everything in front of it is silently thrown away. 16 printings' worth of line, unpinned for 373 decisions. ⚠️ **THE KILLER IS A CONSTRUCTED PREFIX AND NOTHING ELSE** — no census can see an anchor-shape defect (D496), and this anchor's own suite drove both faces and both spellings for 373 decisions without ever varying the \`^\`",
+    file: "packages/engine/src/effects.ts",
+    find: "const ATTACK_COIN_CANCEL = /^Flip a coin\\\\. If tails, this attack does nothing\\\\.$/;",
+    replace: "const ATTACK_COIN_CANCEL = /Flip a coin\\\\. If tails, this attack does nothing\\\\.$/;",
+    expectKilledBy: [
+      "packages/engine/src/coinFlipDamage.test.ts",
+      "packages/engine/src/cancelThenPrevent.test.ts",
+    ],
+  },
+  {
+    id: "D499-flip-site-drops-the-heads-program",
+    decision: "D499",
+    what: "🛑 D1 — **THE EXECUTOR HALF, AND THE READER LAYER IS BLIND TO IT (D490/D491).** \`attack.ts\` stops appending the member's \`ops\`, so the reader still answers the right value, § 2's equality still passes, \`resolvedByAnyReader\` is still true and every census figure is unmoved — and on a HEADS board the printed damage lands and no block is installed. This is the layer map's bottom row: only a BEHAVIOURAL suite covers the executor, and § 5's \`ATTACK_BLOCK_APPLIED\` + \`attackBlock\` assertions are the only things in the repo that can go red",
+    file: "packages/engine/src/attack.ts",
+    find: "      if (coinFlip.kind === \\"cancelOnTailsElseProgram\\") {\\n        program = [...(program ?? []), ...coinFlip.ops];\\n      }",
+    replace: "      // D499 mutant: the heads program is never appended.",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+    ],
+  },
+  {
+    id: "D499-flip-site-inverts-the-cancelling-face",
+    decision: "D499",
+    what: "\u{1f6d1} D2 \u2014 **THE FACE IS INVERTED AT THE SEAM RATHER THAN IN THE ANCHOR**: the attack cancels on HEADS and resolves on TAILS, so the printed protection installs on the face the card says cancels. \u26a0\ufe0f **THIS LINE IS SHARED WITH THE BARE `cancelOnTails`'s 16 PRINTINGS AND THAT IS THE POINT** \u2014 it is the one seam the whole cancel family funnels through, and it had ZERO rows intersecting it by span before D499. \u00a7 5 drives BOTH faces on searched seeds and asserts the damage, the `ATTACK_FAILED` row and the `attackBlock` on each, so the inversion cannot pass by satisfying one of them",
+    file: "packages/engine/src/attack.ts",
+    find: "      if (heads === 0) {",
+    replace: "      if (heads > 0) {",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+      "packages/engine/src/coinFlipDamage.test.ts",
+    ],
+  },
+  {
+    id: "D499-printed-flips-spends-two-coins",
+    decision: "D499",
+    what: "🛑 D3 — **THE RNG ROW, AND IT IS THE ONE THE WHOLE MEMBER EXISTS FOR.** \`printedFlips\` hands the two CANCEL members a count of TWO, so one printed flip spends two \`rngState\` steps and emits two \`ATTACK_EFFECT_COIN_FLIP\` rows — which is precisely the defect the TWO-READER idiom (D493/D494) would have shipped here, arrived at from the count side instead of the reader side. ⚠️ **A ROW COUNT ALONE WOULD NOT BE ENOUGH**: a spent generator is observable only on its SECOND use (D455), so § 6 pins the count AND compares the post-swing \`rngState\` against the bare cancel's on the same seed, with a control asserting the generator MOVED at all. ⚠️ The mutation also changes \`cancelOnTails\`'s 16 printings, so it dies in several older suites too",
+    file: "packages/engine/src/attack.ts",
+    find: "    case \\"cancelOnTails\\":\\n    case \\"cancelOnTailsElseProgram\\":\\n      return ONE_FLIP;",
+    replace: "    case \\"cancelOnTails\\":\\n    case \\"cancelOnTailsElseProgram\\":\\n      return { kind: \\"printed\\", count: 2 };",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+      "packages/engine/src/coinFlipDamage.test.ts",
+    ],
+  },
+  {
+    id: "D499-arm-order-permuted",
+    decision: "D499",
+    what: "⚠️ E1 — the two cancel arms are read in the opposite order. **DECLARED EQUIVALENT, and the declaration is the CLAIM (D467/D468's pair).** Under the shipped build the anchors are STRUCTURALLY disjoint — one ends \`does nothing\\\\.$\` and the other does not end there — so no string can match both and no board separates the orders. What makes the row worth having is its partner: \`D499-debt-bare-cancel-anchor-loses-its-terminator\` is KILLED, and it is killed ONLY because the bare anchor is read first. The pair says the two things a later reader needs — *the ORDER is what makes the \`$\` observable* and *the \`$\` is what makes the ORDER inert*",
+    file: "packages/engine/src/effects.ts",
+    find: "  if (ATTACK_COIN_CANCEL.test(effect)) return { kind: \\"cancelOnTails\\" };",
+    replace: "  if (ATTACK_COIN_CANCEL_THEN_PREVENT.test(effect)) return { kind: \\"cancelOnTailsElseProgram\\", ops: [{ op: \\"preventDamage\\", effects: true }] };\\n  if (ATTACK_COIN_CANCEL.test(effect)) return { kind: \\"cancelOnTails\\" };",
+    expectKilledBy: [
+      "packages/engine/src/cancelThenPrevent.test.ts",
+      "packages/engine/src/coinFlipDamage.test.ts",
+    ],
+    survives: {
+      kind: "equivalent",
+      reason: "STRUCTURAL disjointness (D468's kind, not D467's guarded kind, and the distinction decides the maintenance obligation). Both anchors are `^...$` and disagree on a mandatory run of bytes at the same position: ATTACK_COIN_CANCEL demands the string END at `does nothing.` and ATTACK_COIN_CANCEL_THEN_PREVENT demands ` If heads, ` there, so NO string can match both and the dispatch order cannot decide an answer. Measured over all 640 legalAttackCorpus() rows: the two anchors claim disjoint sets of 1 sentence / 16 printings and 1 sentence / 2 printings. ⚠️ SELF-INVALIDATING, and its falsifier is a SIBLING ROW rather than an argument: the equivalence is contingent on ATTACK_COIN_CANCEL keeping its `\\.$`, and `D499-debt-bare-cancel-anchor-loses-its-terminator` is the row that deletes exactly that byte and is KILLED. The day anyone loosens either anchor so the two overlap, this row reports STALE-SURVIVOR and the corpus names the commit.",
+    },
+  },
+];
+`;

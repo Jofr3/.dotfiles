@@ -1,0 +1,55 @@
+
+Mutation harness (D211) — 18 mutant(s)
+
+⚠️  --allow-dirty: mutating 7 file(s) with uncommitted changes:
+      apps/api/src/lobby/match.ts
+      packages/engine/src/attack.ts
+      packages/engine/src/effects.ts
+      packages/engine/src/interpreter.ts
+      packages/engine/src/log.ts
+      packages/engine/src/redact.ts
+      packages/engine/src/types.ts
+
+  D501-flip-reads-the-rule-default-not-the-body … KILLED           3.4s
+  D501-counters-placed-row-keeps-the-old-literal … KILLED           3.6s
+  D501-flip-reads-the-defenders-body … KILLED           3.4s
+  D501-apply-arm-drops-the-rider … KILLED           3.4s
+  D501-apply-arm-writes-the-rider-only-when-present … KILLED           3.4s
+  D501-apply-arm-forgets-the-rotation … KILLED           4.2s
+  D501-arm-drops-the-counters-to-hp-conversion … KILLED           3.5s
+  D501-arm-emits-the-poison-rider … KILLED           3.4s
+  D501-arm-hardcodes-the-printed-amount … KILLED           3.4s
+  D501-arm-drops-the-positive-guard … KILLED           3.4s
+  D501-anchor-captures-the-printed-default … KILLED           3.4s
+  D501-anchor-loses-its-terminator … KILLED           3.4s
+  D501-anchor-loses-its-caret … KILLED           3.4s
+  D501-fresh-conditions-seed-a-zero … KILLED           3.4s
+  D501-default-confusion-damage-in-counters … KILLED           3.4s
+  D501-redact-drops-the-new-condition … KILLED           3.5s
+  D501-status-row-warns-on-every-confusion … KILLED           3.9s
+  D501-record-version-not-bumped … KILLED           3.2s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D501-flip-reads-the-rule… D501                  KILLED           3.4s    1
+D501-counters-placed-row… D501                  KILLED           3.6s    1
+D501-flip-reads-the-defe… D501                  KILLED           3.4s    1
+D501-apply-arm-drops-the… D501                  KILLED           3.4s    1
+D501-apply-arm-writes-th… D501                  KILLED           3.4s    1
+D501-apply-arm-forgets-t… D501                  KILLED           4.2s    1
+D501-arm-drops-the-count… D501                  KILLED           3.5s    1
+D501-arm-emits-the-poiso… D501                  KILLED           3.4s    1
+D501-arm-hardcodes-the-p… D501                  KILLED           3.4s    1
+D501-arm-drops-the-posit… D501                  KILLED           3.4s    1
+D501-anchor-captures-the… D501                  KILLED           3.4s    1
+D501-anchor-loses-its-te… D501                  KILLED           3.4s    1
+D501-anchor-loses-its-ca… D501                  KILLED           3.4s    1
+D501-fresh-conditions-se… D501                  KILLED           3.4s    1
+D501-default-confusion-d… D501                  KILLED           3.4s    1
+D501-redact-drops-the-ne… D501                  KILLED           3.5s    1
+D501-status-row-warns-on… D501                  KILLED           3.9s    1
+D501-record-version-not-… D501                  KILLED           3.2s    1
+────────────────────────────────────────────────────────────────────────────────────
+18 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 69.2s total
+

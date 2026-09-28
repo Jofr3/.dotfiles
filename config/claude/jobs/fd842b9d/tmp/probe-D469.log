@@ -1,0 +1,46 @@
+
+Mutation harness (D211) — 14 mutant(s)
+
+⚠️  --allow-dirty: mutating 3 file(s) with uncommitted changes:
+      packages/engine/src/attack.ts
+      packages/engine/src/continuous.ts
+      packages/engine/src/effects.ts
+
+  D469-board-counter-anchor-loses-the-more … KILLED           3.4s
+  D469-board-counter-anchor-drops-the-all-of … KILLED           3.4s
+  D469-board-counter-anchor-loses-its-head … KILLED           3.3s
+  D469-board-counter-anchor-loses-the-trailing-dollar … KILLED           3.3s
+  D469-board-counter-anchor-hardcodes-the-amount … KILLED           3.4s
+  D469-board-counter-anchor-loses-the-possessive-class … KILLED           3.3s
+  D469-board-counter-arm-drops-the-printed-zero-guard … KILLED           3.3s
+  D469-board-counter-arm-emits-the-active-member … KILLED           3.4s
+  D469-board-counter-arm-moves-behind-the-active-one … SURVIVES(known)  3.3s
+  D469-board-counter-reads-the-attacker-seat … KILLED           3.4s
+  D469-board-counter-drops-the-per-multiplier … KILLED           3.4s
+  D469-board-walk-skips-the-active … KILLED           3.4s
+  D469-board-walk-sums-before-flooring … KILLED           3.3s
+  D469-board-walk-counts-bodies-not-counters … KILLED           3.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D469-board-counter-ancho… D469                  KILLED           3.4s    1
+D469-board-counter-ancho… D469                  KILLED           3.4s    1
+D469-board-counter-ancho… D469                  KILLED           3.3s    1
+D469-board-counter-ancho… D469                  KILLED           3.3s    1
+D469-board-counter-ancho… D469                  KILLED           3.4s    1
+D469-board-counter-ancho… D469                  KILLED           3.3s    1
+D469-board-counter-arm-d… D469                  KILLED           3.3s    1
+D469-board-counter-arm-e… D469                  KILLED           3.4s    2
+D469-board-counter-arm-m… D469                  SURVIVES(known)  3.3s    1
+D469-board-counter-reads… D469                  KILLED           3.4s    1
+D469-board-counter-drops… D469                  KILLED           3.4s    1
+D469-board-walk-skips-th… D469                  KILLED           3.4s    1
+D469-board-walk-sums-bef… D469                  KILLED           3.3s    1
+D469-board-walk-counts-b… D469                  KILLED           3.4s    1
+────────────────────────────────────────────────────────────────────────────────────
+13 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 53.8s total
+
+  known survivor  D469-board-counter-arm-moves-behind-the-active-one — equivalent
+      🛑 STRUCTURAL DISJOINTNESS, NOT GUARDED — and D468's conventions entry requires the row to say WHICH, because the two kinds print the same verdict and carry OPPOSITE maintenance obligations. Both anchors are `^…$` over the whole sentence and disagree on a MANDATORY run of bytes AT THE SAME POSITION: `OPPONENT_COUNTER_SCALE` spells `on your opponent['’]s Active Pokémon\.` and `OPPONENT_BOARD_COUNTER_SCALE` spells `on all of your opponent['’]s Pokémon\.`, and no string can both begin that run with `all of ` and not. So NO LOOKAHEAD EXISTS ON EITHER SIDE and correctly none does — a guard nothing could turn red is D205/D208's vacuous guard, unkillable by construction — and therefore, unlike D467's GUARDED pair, THERE IS NO COMPANION GUARD-DELETION ROW TO BE KILLED, and its absence is not an omission. The equivalence is not contingent on any deletable byte; it can only be broken by changing the SENTENCE an anchor spells. ⚠️ THE TRIGGER THAT WOULD MAKE THIS ROW OBSERVABLE, i.e. the edit a successor is actually likely to make: folding the two into one anchor with an OPTIONAL `(?:all of )?` or an optional `Active `. The moment either scope token becomes optional the two patterns overlap, the order starts deciding answers, this mutation becomes killable and the row reports STALE-SURVIVOR. §2's whole-column rung (no legal sentence derives to BOTH members) is the standing check on the premise.
+

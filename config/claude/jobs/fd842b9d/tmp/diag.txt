@@ -1,0 +1,450 @@
+
+##### F-IN-PLAY :: 13 sentences / 21 printings
+[2p] Flip a coin for each {D} Pokémon you have in play. This attack does 60 damage for each heads.
+      flags: SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Flip a coin for each {D} Pokémon you have in play."
+              tail="This attack does 60 damage for each heads."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] If a Stadium is in play, this attack also does 30 damage to each of your opponent's Benched Pokémon, and discard that Stadium. (Don't apply Weakness and Resistance for Benched Pokémon.)
+      flags: ENDS-PAREN HAS-PAREN APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="If a Stadium is in play, this attack also does 30 damage to each of your opponent's Benched Pokémon, and discard that Stadium."
+              tail="(Don't apply Weakness and Resistance for Benched Pokémon.)"  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] If you have 3 or more Energy in play, this attack does 70 more damage. This attack's damage isn't affected by Weakness.
+      flags: APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="If you have 3 or more Energy in play, this attack does 70 more damage."
+              tail="This attack's damage isn't affected by Weakness."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] If your opponent has any Future Pokémon in play, this attack does 120 more damage.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 20 damage for each of your Pokémon in play that has the Round attack.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 30 damage for each of your Ancient Pokémon in play.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=true  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 40 damage for each Pokémon in play that has "Koffing" or "Weezing" in its name (both yours and your opponent's).
+      flags: HAS-PAREN HAS-DQUOTE APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 40 damage for each of your Pokémon in play that has the Round attack.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This attack does 40 damage for each of your Stage 1 Pokémon in play.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=true  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 50 damage for each of your Drifloon and Drifblim in play. This attack also does 30 damage to each of your Drifloon and Drifblim. (Don't apply Weakness and Resistance for Benched Pokémon.)
+      flags: ENDS-PAREN HAS-PAREN APOSTROPHE SPLITS-3
+      gate=null
+      trailing=null
+      break-> head="This attack does 50 damage for each of your Drifloon and Drifblim in play. This attack also does 30 damage to each of your Drifloon and Drifblim."
+              tail="(Don't apply Weakness and Resistance for Benched Pokémon.)"  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This attack does 60 damage for each of your opponent's Pokémon ex and Pokémon V in play.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 60 damage for each of your opponent's Pokémon ex in play.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 70 damage for each of your Pokémon in play that has the Round attack.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+
+##### F-DISCARD-COUNT :: 8 sentences / 16 printings
+[3p] Put 2 damage counters on 1 of your opponent's Pokémon for each Basic {G} Energy card in your discard pile. Then, shuffle those Energy cards into your deck.
+      flags: APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Put 2 damage counters on 1 of your opponent's Pokémon for each Basic {G} Energy card in your discard pile."
+              tail="Then, shuffle those Energy cards into your deck."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 10 more damage for each Ancient card in your discard pile.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This attack does 20 damage for each Pokémon in your discard pile that has the United Wings attack.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 20 damage for each Supporter card that has "Team Rocket" in its name in your discard pile.
+      flags: HAS-DQUOTE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 20 more damage for each Energy card in your discard pile.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 30 damage for each Basic Energy card in your opponent's discard pile.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 30 damage for each Item card in your opponent's discard pile.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 60 more damage for each Ethan's Adventure card in your discard pile.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+
+##### F-COPY-ATTACK :: 6 sentences / 13 printings
+[4p] Choose 1 of your Benched N's Pokémon's attacks and use it as this attack.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[3p] Choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] Choose 1 of your opponent's Active Tera Pokémon's attacks and use it as this attack.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] Discard the top card of your deck, and if that card is a Pokémon that doesn't have a Rule Box, choose 1 of its attacks and use it as this attack. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
+      flags: ENDS-PAREN HAS-PAREN APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Discard the top card of your deck, and if that card is a Pokémon that doesn't have a Rule Box, choose 1 of its attacks and use it as this attack."
+              tail="(Pokémon ex, Pokémon V, etc. have Rule Boxes.)"  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] Flip a coin. If heads, choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+      flags: APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Flip a coin."
+              tail="If heads, choose 1 of your opponent's Active Pokémon's attacks and use it as this attack."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[3p] Reveal the top 10 cards of your opponent's deck. You may choose an attack from a Pokémon you find there and use it as this attack. Shuffle the revealed cards into your opponent's deck.
+      flags: APOSTROPHE SPLITS-3
+      gate=null
+      trailing=null
+      break-> head="Reveal the top 10 cards of your opponent's deck. You may choose an attack from a Pokémon you find there and use it as this attack."
+              tail="Shuffle the revealed cards into your opponent's deck."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+
+##### F-MOVE-ENERGY :: 7 sentences / 11 printings
+[2p] Move all Energy from this Pokémon to 1 of your Benched Pokémon.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] Move all Energy from this Pokémon to your Benched Pokémon in any way you like.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] Move an Energy from 1 of your opponent's Pokémon to another of their Pokémon.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] Search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck. If you put any Pokémon onto your Bench in this way, move an Energy from this Pokémon to the new Benched Pokémon.
+      flags: SPLITS-3
+      gate=null
+      trailing=null
+      break-> head="Search your deck for a Basic Pokémon and put it onto your Bench. Then, shuffle your deck."
+              tail="If you put any Pokémon onto your Bench in this way, move an Energy from this Pokémon to the new Benched Pokémon."  effectReadsTail=false  anyReaderHead=true
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[3p] You may move an Energy from your opponent's Active Pokémon to 1 of their Benched Pokémon.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] You may move any amount of Energy from your Pokémon to your other Pokémon in any way you like.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] You may move any amount of {M} Energy from your Pokémon to your other Pokémon in any way you like.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+
+##### F-SEARCH-ATTACH :: 5 sentences / 8 printings
+[2p] Search your deck for up to 2 Basic Energy cards and attach them to 1 of your Pokémon. Then, shuffle your deck.
+      flags: SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Search your deck for up to 2 Basic Energy cards and attach them to 1 of your Pokémon."
+              tail="Then, shuffle your deck."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=["Search your deck for up to 2 Basic Energy cards and attach them to 1 of your Pokémon. Then, shuffle your deck.",null,"2",null,"1 of your Pokémon"]
+[2p] Search your deck for up to 2 Basic Energy cards and attach them to your Future Pokémon in any way you like. Then, shuffle your deck.
+      flags: SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Search your deck for up to 2 Basic Energy cards and attach them to your Future Pokémon in any way you like."
+              tail="Then, shuffle your deck."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=["Search your deck for up to 2 Basic Energy cards and attach them to your Future Pokémon in any way you like. Then, shuffle your deck.",null,"2",null,"your Future Pokémon in any way you like"]
+[2p] Search your deck for up to 2 Basic {G} Energy cards and up to 2 Basic {L} Energy cards and attach them to your Pokémon in any way you like. Then, shuffle your deck.
+      flags: SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Search your deck for up to 2 Basic {G} Energy cards and up to 2 Basic {L} Energy cards and attach them to your Pokémon in any way you like."
+              tail="Then, shuffle your deck."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] Search your deck for up to 2 Basic {P} Energy cards and attach them to 1 of your Benched Pokémon. Then, shuffle your deck.
+      flags: SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Search your deck for up to 2 Basic {P} Energy cards and attach them to 1 of your Benched Pokémon."
+              tail="Then, shuffle your deck."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=["Search your deck for up to 2 Basic {P} Energy cards and attach them to 1 of your Benched Pokémon. Then, shuffle your deck.",null,"2","P","1 of your Benched Pokémon"]
+[1p] Search your deck for up to 3 Basic Energy cards of different types and attach them to your Tera Pokémon in any way you like. Then, shuffle your deck.
+      flags: SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Search your deck for up to 3 Basic Energy cards of different types and attach them to your Tera Pokémon in any way you like."
+              tail="Then, shuffle your deck."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+
+##### F-ENERGY-ATTACHED :: 7 sentences / 9 printings
+[1p] Flip a coin for each Energy attached to both Active Pokémon. This attack does 60 damage for each heads.
+      flags: SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Flip a coin for each Energy attached to both Active Pokémon."
+              tail="This attack does 60 damage for each heads."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 20 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+      flags: ENDS-PAREN HAS-PAREN APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="This attack does 20 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon."
+              tail="(Don't apply Weakness and Resistance for Benched Pokémon.)"  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This attack does 20 more damage for each {L} Energy attached to all of your Iono's Pokémon.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This attack does 30 damage for each {W} Energy attached to this Pokémon. Before doing damage, you may attach any number of Basic {W} Energy cards from your hand to this Pokémon.
+      flags: SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="This attack does 30 damage for each {W} Energy attached to this Pokémon."
+              tail="Before doing damage, you may attach any number of Basic {W} Energy cards from your hand to this Pokémon."  effectReadsTail=false  anyReaderHead=true
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This attack does 30 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+      flags: ENDS-PAREN HAS-PAREN APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="This attack does 30 damage to 1 of your opponent's Pokémon for each Energy attached to this Pokémon."
+              tail="(Don't apply Weakness and Resistance for Benched Pokémon.)"  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This attack does 40 damage for each Basic Energy attached to this Pokémon.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 70 damage for each Special Energy card attached to this Pokémon.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+
+##### F-REMAINING-HP :: 3 sentences / 5 printings
+[2p] Put damage counters on each of your opponent's Benched Pokémon until its remaining HP is 100.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] Put damage counters on your opponent's Active Pokémon until its remaining HP is 10.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] Put damage counters on your opponent's Active Pokémon until its remaining HP is 50.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+
+##### F-HEAL :: 3 sentences / 5 printings
+[1p] Heal 100 damage from 1 of your Benched Ancient Pokémon.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] Heal 100 damage from each of your Basic Pokémon.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] Heal 100 damage from each of your Benched Pokémon.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+
+##### F-DISCARD-SNIPE :: 5 sentences / 9 printings
+[2p] Discard 2 Energy from this Pokémon. This attack also does 120 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+      flags: ENDS-PAREN HAS-PAREN APOSTROPHE SPLITS-3
+      gate=null
+      trailing=null
+      break-> head="Discard 2 Energy from this Pokémon. This attack also does 120 damage to 1 of your opponent's Benched Pokémon."
+              tail="(Don't apply Weakness and Resistance for Benched Pokémon.)"  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[3p] Discard a Team Rocket's Energy from this Pokémon. If you do, discard your opponent's Active Pokémon and all attached cards.
+      flags: APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Discard a Team Rocket's Energy from this Pokémon."
+              tail="If you do, discard your opponent's Active Pokémon and all attached cards."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] Discard all Energy from this Pokémon, and this attack also does 90 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+      flags: ENDS-PAREN HAS-PAREN APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Discard all Energy from this Pokémon, and this attack also does 90 damage to 1 of your opponent's Benched Pokémon."
+              tail="(Don't apply Weakness and Resistance for Benched Pokémon.)"  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] Discard all Energy from this Pokémon, and this attack does 210 damage to 1 of your opponent's Benched Pokémon ex. (Don't apply Weakness and Resistance for Benched Pokémon.)
+      flags: ENDS-PAREN HAS-PAREN APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Discard all Energy from this Pokémon, and this attack does 210 damage to 1 of your opponent's Benched Pokémon ex."
+              tail="(Don't apply Weakness and Resistance for Benched Pokémon.)"  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] Discard all {R} Energy from this Pokémon, and this attack does 180 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+      flags: ENDS-PAREN HAS-PAREN APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Discard all {R} Energy from this Pokémon, and this attack does 180 damage to 1 of your opponent's Benched Pokémon."
+              tail="(Don't apply Weakness and Resistance for Benched Pokémon.)"  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+
+##### F-DAMAGE-COUNTER :: 6 sentences / 7 printings
+[1p] Put up to 9 damage counters on this Pokémon. This attack does 20 damage for each damage counter you placed in this way.
+      flags: SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="Put up to 9 damage counters on this Pokémon."
+              tail="This attack does 20 damage for each damage counter you placed in this way."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This Pokémon also does 10 damage to itself for each damage counter on it.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This attack does 10 damage for each damage counter on all of your Benched Cynthia's Pokémon. This attack's damage isn't affected by Weakness.
+      flags: APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="This attack does 10 damage for each damage counter on all of your Benched Cynthia's Pokémon."
+              tail="This attack's damage isn't affected by Weakness."  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This attack does 10 more damage for each damage counter on all of your opponent's Pokémon.
+      flags: APOSTROPHE
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[2p] This attack does 20 damage for each damage counter on all of your Benched {F} Pokémon.
+      flags: none
+      gate=null
+      trailing=null
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null
+[1p] This attack does 20 damage to 1 of your opponent's Benched Pokémon for each damage counter on that Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+      flags: ENDS-PAREN HAS-PAREN APOSTROPHE SPLITS-2
+      gate=null
+      trailing=null
+      break-> head="This attack does 20 damage to 1 of your opponent's Benched Pokémon for each damage counter on that Pokémon."
+              tail="(Don't apply Weakness and Resistance for Benched Pokémon.)"  effectReadsTail=false  anyReaderHead=false
+      requirement=null  cancel=null
+      IN_PLAY_BODY_MULTIPLY=false  DECK_SEARCH_ATTACH_SHAPE=null

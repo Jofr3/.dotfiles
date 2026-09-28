@@ -1,0 +1,11 @@
+[0m[31mresidue-census-gate: 3 claim(s) FAILED
+[0m
+[0m[31m  🛑 §A raw unbuilt sentences: the instrument and packages/engine/src/censusAtHead.test.ts disagree
+      residue-census.ts says 110, the suite pins 111
+[0m
+[0m[31m  🛑 §A residue sentences: the instrument and packages/engine/src/censusAtHead.test.ts disagree
+      residue-census.ts says 84, the suite pins 85
+[0m
+[0m[31m  🛑 §A residue printings: the instrument and packages/engine/src/censusAtHead.test.ts disagree
+      residue-census.ts says 118, the suite pins 120
+[0m

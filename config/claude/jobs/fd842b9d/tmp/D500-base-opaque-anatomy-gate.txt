@@ -1,0 +1,1 @@
+opaque-anatomy-gate: OK — §A no k=1 row over 63 OPAQUE sentences, §B 6 region-reduction claims hold, §C 4 blocker(s) with an empty built side and 6 co-marker(s) with a live one, §D 9 classes covering 63 sentences / 92 printings exactly once, §E 163 admitted of 35028 grid pairs and 21 reached / 42 far, re-derived in agreement.

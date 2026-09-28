@@ -1,0 +1,28 @@
+
+Mutation harness (D211) — 6 mutant(s)
+
+⚠️  --allow-dirty: mutating 1 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+
+  D468-typed-switch-anchor-loses-its-caret … KILLED           3.4s
+  D468-typed-switch-anchor-loses-its-dollar … KILLED           3.4s
+  D468-typed-switch-anchor-folds-the-case … KILLED           3.3s
+  D468-typed-switch-arm-drops-the-printed-narrowing … KILLED           3.4s
+  D468-typed-switch-arm-defaults-an-unreadable-code … KILLED           3.4s
+  D468-typed-switch-arm-moves-behind-the-bare-one … SURVIVES(known)  3.3s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D468-typed-switch-anchor… D468                  KILLED           3.4s    1
+D468-typed-switch-anchor… D468                  KILLED           3.4s    1
+D468-typed-switch-anchor… D468                  KILLED           3.3s    1
+D468-typed-switch-arm-dr… D468                  KILLED           3.4s    2
+D468-typed-switch-arm-de… D468                  KILLED           3.4s    1
+D468-typed-switch-arm-mo… D468                  SURVIVES(known)  3.3s    2
+────────────────────────────────────────────────────────────────────────────────────
+5 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 30.3s total
+
+  known survivor  D468-typed-switch-arm-moves-behind-the-bare-one — equivalent
+      The two anchors are STRUCTURALLY disjoint, so either order computes the identical function and no string can tell them apart: both are `^…$` over the whole sentence and they disagree on a MANDATORY run of bytes — `ATTACK_SELF_SWITCH` spells the literal `Benched Pokémon\.` and `ATTACK_SELF_SWITCH_TYPED` demands `Benched \{([A-Z])\} Pokémon\.` at the same position — and a string cannot both have and not have `{X} ` there. ⚠️ THE DECLARATION IS PREFERRED OVER DELETING THE ROW FOR D427's REASON, AND ITS TRIGGER IS THE EDIT A SUCCESSOR IS ACTUALLY LIKELY TO MAKE: the moment either pattern's `{X}` group becomes OPTIONAL — the `(?:\{([A-Z])\} )?` widening this slice deliberately refused, because it would put a dead capture into all five spellings of `SELF_SWITCH_CLAUSE` and rot every mutant row that quotes them (D441) — the two overlap, this mutation becomes observable and the row reports STALE-SURVIVOR. 🛑 IT IS ALSO THE HALF THAT MAKES D467's RULE CHECKABLE HERE: D467 earned *a disjointness guard is only killable where the pattern that needs it runs FIRST*, and this pair is the OTHER case that rule distinguishes — structural disjointness, so there is no guard to be vacuous and the placement is legibility. A slice that copied D467's placement rule without asking WHICH mechanism supplied the disjointness would have moved this arm for no reason.
+

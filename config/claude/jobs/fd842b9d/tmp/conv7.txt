@@ -1,0 +1,901 @@
+sentence carries 1 printing and had since the corpus column was committed. **The claim was
+wrong on the day it was written, on the population that matters — and it then stood as the
+stated reason not to build, for 106 decisions.**
+
+This is D413's two-populations failure (*"a refusal measured on the local pool while the
+engine runs on the legal column"*) reaching a **doc block at a source site** rather than a
+`toBeNull` in a suite. The two forms need the same audit and only one of them is grep-able
+by its assertion. ⚠️ **A refusal phrased as an explanation — *"which is why we did not"*, *"so
+there is no"*, *"this is the ONLY form"* — is the hardest kind to find**, because it reads as
+a description of the code rather than as a claim about the catalog.
+
+**Corollary, and it is the cheap half:** when you correct such a claim, DATE it (D423) —
+"wrong when written" and "true then, rotted since" are different faults — and say which
+population each half was measured on.
+
+## A `toBeNull` on a sentence the catalog PRINTS is a liability (D449)
+
+**A near-miss rung that asserts a REAL printed sentence derives to `null` goes red the day
+somebody builds it, and its replacement is not "delete it".** D449 flipped four at once
+(`attackLock.test.ts`, `counterPut.test.ts`, `counterBenchPut.test.ts`,
+`scaledAnySnipe.test.ts`). Every one of them was really making a claim about DISJOINTNESS —
+*"the zone word is what tells these two anchors apart"*, *"the anchor is not a prefix"* — and
+nullity was only the cheapest way to spell it while nothing read the other sentence.
+
+**Re-point onto an INEQUALITY of derived programs.** `expect(deriveAttackEffect(a)).not.toEqual(deriveAttackEffect(b))`
+plus the two positive programs is strictly stronger than `toBeNull`: it still goes red on the
+defect the old rung was about, and it cannot go green by accident when a sibling anchor
+lands. That is D418's second half applied before the re-point rather than after it.
+
+⚠️ **AND FIND THEM BEFORE YOU WRITE A LINE.** Run the new anchor over every string literal in
+the package — twenty lines of script, and it names every rung that will flip, with its file
+and line. State what the scan cannot see (template literals, strings built by `.replace`).
+
+## Stepping a census: grep the chain heads FIRST (D449, re-earning D431)
+
+Three `check` rounds went on sibling chains again. The shapes that hid:
+
+- **A PAIR EXPRESSION whose two halves sit on ONE line** — `[resolving.length - …, units(resolving) - …]`.
+  Patching "the first occurrence of the head" fixes half of it and the assertion still reddens.
+- **An ELEVEN-DEEP LADDER** (`opponentResistanceBonus.test.ts`), where fixing rung one just
+  moves the failure to rung two, once per `check`.
+- 🛑 **`BUILT.attack` IS A RECORDED CONSTANT, and `censusAtHead`'s chains SUBTRACT FROM IT.**
+  Adding your front term before bumping the constant OVER-subtracts, and the rung reddens
+  with a number that looks like the opposite defect. **Bump the constant first, then step the
+  chains.**
+
+The procedure that works: `grep -n "<head> -"` for every head spelling in every file the
+delta touches, list the sites, patch them in one pass, then run.
+
+## The catalog-scope guard reads ONE line (D449)
+
+`catalogManifest.test.ts` matches `\b(\d{3,4}) cards(?: \/ (\d+) sets)?` — a single regex over
+the source text — so **wrapping "978 cards / 6 sets" across two comment lines makes it an
+offender**. It fired twice on the author in one slice, which is the guard doing its job; know
+it before it costs a `check` round, and keep the phrase on one line.
+
+## A "permanent boundary of the vocabulary" is a claim about ONE CARRIER (D450)
+
+D450's brief refused a printed sentence because *"`matchesFilter` takes a catalog card,
+never an `InPlayPokemon` — this is a permanent boundary of the filter vocabulary rather
+than a missing member."* **The premise was true and measured** (the function's own
+`basicPokemon` arm states it as the reason the *"HP or less REMAINING"* printings are
+unreachable) **and the conclusion was false**, because a board fact does not have to
+travel through `CardFilter` at all. `damageChosen.damagedOnly` (D437) had been reading
+the sentence's exact eight printed words — *"that has any damage counters on it"* — off
+an `InPlayPokemon` for eleven decisions. The rider was reused verbatim on the other op
+and the sentence was built.
+
+🛑 **THE PROCEDURE IS TO GREP THE PRINTED PHRASE, NOT THE VOCABULARY THAT WOULD EXPRESS
+IT.** "Which union member would say this?" finds nothing when the shipped answer is a
+rider on an op. `grep -rn "any damage counters" packages/engine/src` costs seconds and
+names the surface that already reads the fact.
+
+**A boundary is a property of a FUNCTION; a refusal is a claim about the ENGINE.** The
+two are only the same when that function is the engine's only door to the fact — which
+is exactly the thing to check, and exactly the thing a brief that names the function
+will not have checked.
+
+## A doc block that refuses a SHAPE has refused that shape, not the axis (D450)
+
+`counterEachAll`'s declaration has said since D340 that *"modelling this as a seat-scoped
+op with a **'both' boolean** would put the printed subject of the sentence into a
+modifier"*. That is correct, and it does not reach a two-member **ENUM** whose values ARE
+the printed subjects (`"both"` is *"(both yours and your opponent's)"*, `"opponent"` is
+*"each of your opponent's Pokémon"*) — the shape `disableAbilities.side` and
+`handRefresh.who` already ship. **Read the refusal's NOUN before inheriting it.**
+
+⚠️ And it had a POPULATION as well as a noun (D449): D340 measured on the one sentence in
+reach, and the `legal_standard = 1` column prints two more that are one-seat. Both halves
+had to be checked, and only one of them is grep-able.
+
+## A mutant row can be INERT, and the harness reports it as a survivor (D450)
+
+⚠️ The runner's own message on an undeclared survivor is *"either the suite has a real gap,
+or the decision row's tally was wrong. Both are findings."* **There is a third.** D450
+authored a row whose `replace` prepended a comment to the line ABOVE the field it meant to
+delete: the harness compiled byte-equivalent behaviour, every suite passed, and the verdict
+was `SURVIVED(undeclared)` — which reads as a suite hole and is not one.
+
+**Before believing a GAP, diff `find` against `replace` and name the SEMANTIC token that
+moved.** If the only difference is inside a comment or a string that nothing reads, the row
+never mutated anything. `precheck` cannot see this either: the `find` occurs exactly once
+and the row is perfectly runnable — it just does nothing.
+
+## The consumer's stated REASON can narrow while its behaviour stays right (D450)
+
+D425 says: when you add a producer to a shipped event, grep every consumer for facts it
+DERIVES rather than reads. **The twin is: grep every consumer for the REASONS it
+asserts.** `log.ts`'s `COUNTERS_PLACED` `"attack"` arm justifies its system voice with
+*"`seat` owns the DAMAGED Pokémon, which for an attack is the attacker's OPPONENT"*. A
+both-seats placement makes that sentence false and leaves the ROW correct — for a wider
+reason than the one written (a system row names no actor, so it cannot credit the wrong
+one). Nothing goes red; a successor reads a justification that its own board contradicts,
+and "fixes" the row.
+
+**Correct the reason at the site in the same commit that falsifies it**, and say which
+half of it survived.
+
+## `MATCH_RECORD_VERSION` for a NON-PARKING op: the question is REACHABILITY (D450)
+
+An `EffectOp` reaches storage by exactly one route — `EffectContinuation` carries
+`{pendingOp, rest, ctx, record}` and lives at `GameState.phase.cont`, which
+`MatchRecord.state` persists. **`rest` is the second door and it is the one that gets
+forgotten**: a program that parks writes every op AFTER the parking one into `rest`, so an
+op that never parks is still persisted if any shipped program places it behind one.
+
+So "does this op park?" is not the question. The question is **"can any producer put this
+op into a written continuation?"**, and it is answered off the PRODUCERS — walk
+`registryCardIds()`' four program-bearing keys plus the deriver's arms — not off the op.
+D450 added TWO REQUIRED fields to a shipped op for free on exactly this argument, and the
+argument is a measurement rather than a shape claim.
+
+## A bare integer operand in an arithmetic census expression, for the third slice (D450)
+
+D365 wrote it and D423 re-earned it; D450 paid it again. `censusAtHead.test.ts` carries the
+unbuilt-printings figure at THREE sites, and one of them is a bare `250` inside
+`expect(250 - REGISTRY_ATTACKS.length - SPLIT_ATTACK_UNITS - COMPOUND_ATTACK_UNITS)`. A
+line-targeted grep for `toBe(250)` steps the other two and leaves this one, and the failure
+that follows quotes a number that looks like an unrelated defect.
+
+**The comment at that site already said so.** Reading it was not enough; running the suite
+was. **Step the census, then run — and expect the run to find a site the grep could not.**
+
+## A refusal names TWO things and only one of them may be true (D451)
+
+D450 found a refusal whose BOUNDARY was real and whose CONCLUSION did not follow. D451
+found the same shape one slice later, in a sentence that has stood since 0.88.0: these
+rows *"read their amount off the TARGET rather than off the text … which is a different
+mechanism and **no capture can express it**"*.
+
+Both halves were checked and they answer differently. **The AMOUNT is genuinely
+unprintable** — the sentence carries no count. **The DESTINATION is printed, is a bare
+integer, and a capture expresses it exactly.** The refusal named the quantity the reader
+must PRODUCE and concluded something about the quantity the reader must READ, and the two
+are not the same quantity.
+
+**When a doc block refuses on "X cannot be expressed", write down which X**: the thing the
+sentence prints, or the thing the op needs. A sentence that prints a destination and needs
+an amount is expressible the moment something computes between them.
+
+## The floor for a PER-BODY computed amount is `healEachAll`'s, not the whole-op guard (D451)
+
+This engine has THREE shipped shapes for "refuse a non-positive amount" and they are not
+interchangeable:
+
+- **above the walk** (`counterEachAll`, `damageActive`: `if (amount <= 0) return state;`) —
+  correct when the amount is a CONSTANT the producer handed in;
+- **before the park is built** (D449's `damageChosen` arms) — same case, one seam earlier;
+- **inside the per-body closure** (`healEach`, `healEachAll`: `if (healed <= 0) return
+  pokemon;`) — the only correct one when the amount is COMPUTED PER BODY.
+
+A whole-op guard on a per-body amount lets ONE body already at the target cancel the fold
+for every other body. **Ask where the amount is computed, not what the neighbouring op
+does**, and drive a board where one body's answer is zero and its neighbour's is not.
+
+## A "cannot kill" property is worth a guard, not a coincidence (D451)
+
+`counterUntilRemainingHp` fills a body to `damage = max − remainingHp`, which is lethal
+exactly when `remainingHp <= 0`. Every printed destination is positive, so the property
+holds for free on today's catalog — which is precisely D324's situation with
+`effectiveMaxHp`'s floor, and D324's answer applies: **write the guard anyway, because the
+alternative is an invariant stated in three doc blocks and asserted by no line of code.**
+
+The guard is what lets the op ship with **no `KNOCKED_OUT`, no `takePrizes`, no
+`koByEffect` marker and no Prize argument at all** — and it is the single line a future
+*"until its remaining HP is 0"* has to delete, which makes the cost of that printing
+visible at the site instead of discovered by a board.
+
+## Two printed tokens that CO-VARY need two anchors, not two optional groups (D451)
+
+`COUNTER_SPREAD_ON_OPPONENT` gets away with one optional `(Benched )?` because exactly one
+token varies. When TWO vary **together** — *"each of … Benched"* or neither and *"Active"*
+— a single regex with two optional groups additionally accepts the CROSS PRODUCT, which is
+two sentences the catalog does not print and whose readings nobody has decided.
+
+**Count the varying tokens before reaching for an optional group, and if there is more than
+one, ask whether they are independent.** Two anchors say the two printed things and refuse
+the crossings; the crossings are then a driven refusal rather than an accident.
+
+## A census delta has TWO cardinalities and they can move by different amounts (D451)
+
+Three consecutive slices (D448, D449, D450) claimed sentences that each carried exactly ONE
+printing, so "+N sentences" and "+N printings" were the same number and every ladder took
+the same front term. D451's three sentences carry 2, 1 and 2.
+
+**Read both figures off the corpus before stepping anything**, and expect the front terms
+to come in at least two sizes in one pass: `censusAtHead.test.ts`'s chains count PRINTINGS
+(this slice: `- 5`), the sentence-keyed ladders count SENTENCES (`- 3`), and
+`opponentResistanceBonus.test.ts`'s eleven-deep ladder counts FIXTURE IDS (`- 1`). Three
+sizes, one commit — and a slice that assumed one number would have been wrong in two of
+the three places.
+
+## A coverage predicate is an INSTRUMENT, and an uncommitted one is a number nobody can re-run (D454)
+
+D453 published **`758 producer-side · 358 implementation-side · 24 producer-ONLY · ZERO
+implementation-ONLY`** over the `EffectOp` union and shipped **no script**. `tmp/` held its
+four pass scripts and not its op audit, so the numbers on the page were unfalsifiable by
+construction — which is D211's whole complaint about mutant tallies, arriving one level up
+at the tallies' own measuring device.
+
+Re-derived at D454, the structural conclusion **does not survive**. D453 measured PRODUCER
+regions wide (two brace levels out from each `op: "K"` literal) and IMPLEMENTATION regions
+narrow (the `case "K":` arm body only). Following the CALL GRAPH out of the arm — every
+top-level `interpreter.ts` function transitively reachable from it whose fan-in over the 74
+kinds is ≤ 4 — returns **665 producer / 811 implementation** and **6 implementation-ONLY
+kinds, not zero**. And the NON-transitive variant that attributes only EXCLUSIVE helpers,
+which reproduces D453's own totals to ~2% (**744 / 337** against its 758 / 358 on the same
+corpus), returns **5**. **Two predicates, one conclusion: zero was never the number.**
+
+🛑 **AN ASYMMETRIC PREDICATE MANUFACTURES A DIRECTIONAL LAW.** Wide on one side and narrow
+on the other, "coverage is a strict chain from producer to implementation" is what you get
+whatever the corpus looks like. **State the region definition for BOTH sides in the same
+sentence, and if the two are not the same shape, say why before you draw a conclusion from
+the asymmetry.**
+
+⚠️ **AND THE SLICE THAT STATED THE LAW BROKE IT.** D453's own 18 rows are **17
+implementation-side and 1 producer-side**, so "zero implementation-only" was false in its
+own commit and its resume point did not say so. **Re-run your structural claim against the
+corpus you are about to write, not the one you measured.**
+
+## A shared helper is the implementation of EVERY op that calls it (D454)
+
+Attributing only EXCLUSIVE helpers reported `scheduleCounters`, `scheduleDiscard` and
+`scheduleKnockOut` as having **zero implementation rows** when they have **six** — five D434
+rows on `scheduleDelayed`, the one function the three arms delegate to, and one D435 row on
+`sameSchedule`, the private helper `scheduleDelayed` itself calls.
+D453's recommendation named all three as the next slice's targets on exactly that blindness.
+
+⚠️ **THE SIXTH ROW IS ONE CALL FURTHER OUT THAN THE FIFTH**, which is why "attribute the
+shared helper" is not enough on its own: the attribution has to be **transitive**, and what
+stops it swallowing the whole file is a FAN-IN cap (`withActive` and `topUid` are reachable
+from nearly every arm; `sameSchedule` from three). **Cap on fan-in, not on call depth.**
+
+**Any op-level coverage claim owes an answer to "what does this do with a helper called by
+three arms".** The two honest answers are *attribute it to all three* (what D454 does) and
+*exclude it and say the figure is a floor*; silently dropping it is the third, and it
+produces a work order for work that is already done.
+
+## Measure the op's LIVE POPULATION before choosing which line to pin (D454)
+
+Every op D454 touched had its printings counted first — by walking `deriveAttackEffect`
+(plus both composing splitters) over `legalAttackCorpus()` and every `programFor(id)` in
+`registryCardIds()`, and counting sentences, printings and registry cards separately. That
+is what makes `unreachable-population` a **declaration** instead of a sweep verdict ninety
+minutes later, and it is cheap: one script, one run, all 74 kinds at once.
+
+⚠️ **AND IT CATCHES DOC ROT ON THE WAY PAST.** `installRecoil`'s header in `interpreter.ts`
+quotes *"put 10 damage counters on the Attacking Pokémon."* at *"2 printings"*; the live
+family is corpus line 178 at **8 counters / 5 printings**, and `Attacking Pokémon` returns
+exactly **3** corpus rows, none of them a ten.
+
+## Needle EVENT and FIELD names, not only op names (D454)
+
+`STATUS_PREVENTED` had **zero rows in the whole corpus** before D454. So did
+`statusImmunities`, `HAND_DISCARDED` and `installedRecoil`. D172's entire §12 immunity gate
+— four printings, `passivesOf`, three source classes, a whole slice — was executable by
+nothing, and every op-name search said `applyStatus` was well covered (eleven rows, all on
+the producer side).
+
+**An op NAME is metadata; an EVENT name is what the implementation writes.** The semantic
+pass's needle list should carry the event types and the state field names an op touches,
+because those are the strings a row about the implementation will actually quote.
+
+## A stopping rule you can re-run beats an adjective (D454)
+
+*"358 implementation-side rows over 53 kinds"* is not obviously enough or short. D454's
+proposal, stated so it can be re-computed and argued with:
+
+> **An op's implementation is COVERED when every code line in its implementation region that
+> RESOLVES A SEAT — `ctx.seat`, `otherSeat(`, `state.players[` — is quoted by at least one
+> mutant row's `find` span.**
+
+Measured at D454: the corpus moved **178/470 = 0.379 → 190/470 = 0.404**, and the five ops
+pinned went from **0/n** to 3/3, 3/3, 3/3, 2/2 and 1/2. The rule is chosen because the two
+worst defects of this run were both seat crossings that no test caught (D447), and because
+it is **per line, so a `find` spanning a whole function cannot inflate it** — the weaker
+rows-per-decision-point ratio (0.628 → 0.637) can.
+
+🛑 **AND DO NOT WIDEN A `find` TO BUY A DIGIT.** `applyStatus`'s uncovered second seat line
+reads an ALREADY-RESOLVED seat; extending the row by one line would have scored 2/2 and
+added no guard. **A metric you can move without adding a defect is a metric you have started
+gaming.**
+
+## When a comment tells you there are TWO of something, go and look at the other one (D454)
+
+`preventAttackUse`'s doc block says *"the bare ternary occurs TWICE in this file (an
+unrelated op shares the expression)"* — written so a mutant would be anchored on the comment
+rather than the line. D412 pinned its own copy. **The unrelated op is `applyStatus`, and its
+copy sat with eleven producer rows and zero implementation rows for 42 decisions.**
+
+A comment that names a duplicate is a free survey result somebody already paid for. This is
+D414's *"grep the vocabulary the invariant is phrased in"* with the grep already written into
+the source.
+
+## A committed instrument is a convention, not a courtesy (D455)
+
+D454 made "commit the instrument" a rule after D453's audit script went missing. D455 is the
+first slice to pay it, and it cost **one lint fix and one comment block** —
+`scripts/mutation/opcoverage.ts`, `bun scripts/mutation/opcoverage.ts`, no arguments, which
+reproduces D454's headline figures EXACTLY at the base commit (74 kinds · 666 producer / 841
+implementation · seat lines **190/470 = 0.404** · decision points **841/1321 = 0.637**).
+That exact reproduction is the point: **a successor can now falsify the number in one
+command instead of rebuilding the predicate**, which is what D454 spent most of a slice on.
+
+Three requirements make it an instrument rather than a script:
+
+- **It states its own predicate in a comment, including WHAT IT CANNOT SEE** (D419). Here:
+  implementations outside `interpreter.ts`; the three `runProgram`-spliced gates; anything
+  reachable only from the RESUME side; producers outside `effects.ts`/`registry.ts`; and
+  that it counts incidences, never whether a row is any good.
+- **It answers the default question with no arguments.** Env knobs are for the variants,
+  not for the headline.
+- ⚠️ **A NEW FILE UNDER `scripts/` IS INSIDE `bun run check` AND OUTSIDE `tsc -b`, AND BOTH
+  HALVES MATTER.** `tsconfig.node.json` includes `vite.config.ts` and nothing else, so the
+  script is not in the app's build graph (`mutants.ts`'s reason: a harness that measures the
+  suite has no business inside it). But `biome.json`'s `files.include` carries `scripts/**`
+  and `bun run lint:coverage` requires every source file to be countable — so the file is
+  held to `noExplicitAny`, `noNonNullAssertion` and `--error-on-warnings` from the moment it
+  lands, untracked or not. D455's first `bun run check` went RED on `lint/style/useTemplate`.
+  **Write it to the repo's lint rules, not to a throwaway's.**
+
+## An instrument that scans a type union must strip COMMENTS first (D455)
+
+Scanning `effects.ts`'s `EffectOp` union for `op: "…"` returns **76** kinds. Two of them do
+not exist: `{ op: "knockOut"; target: … }` at **6248** and `{ op: "takePrizes"; count: number }`
+at **6379** are PROSE inside doc blocks — shapes that were considered and refused — and they
+report with rows on neither seat, which reads exactly like a coverage gap. Stripping block
+and line comments returns the **74** that are declared.
+
+D454's script got 74 by taking only the FIRST `op:` per union member, which is correct here
+by accident and would break on any member whose discriminator is not its first field.
+**When you scan source text for a declaration, say whether comments are in or out** — a doc
+block that DISCUSSES a shape is indistinguishable from one that declares it, to a regex.
+
+## "Predicate artefact" is a claim about ONE op, and it does not distribute (D455)
+
+D454 excluded four ops from its own target set as *"a predicate artefact — `runProgram`
+splices them"*. Three of them are: `coinFlipGate`, `conditionGate` and `recordGate` have
+dead `case` arms marked *"never reach here"*, and their real work is the queue loop.
+
+**`optional` is not**, and grouping it with them hid a real gap. It has a live park arm
+(`{ kind: "confirm" }`), a live apply arm, and its yes/no splice is `continuationOps` —
+invisible to an arm-rooted predicate for a **different reason** (that function is reachable
+from no `case` arm at all), and pinned the whole time by `D316-decline-buys-nothing`.
+
+⚠️ **AN EXCLUSION LIST IS AS DANGEROUS AS AN ENUMERATION AND ROTS THE SAME WAY.** A set of
+things you have decided not to look at is exactly where a real gap survives, because nothing
+downstream re-checks it. **Name the mechanism per member, not per group** — if the sentence
+that justifies the exclusion is not true of every member individually, the group is wrong.
+
+## The two survivor diagnoses need DIFFERENT commands, so run both (D455)
+
+Two `shuffleDeck` rows survived their first probe and they were different faults:
+
+- **Over-narrow `expectKilledBy`** (D453's fourth cause) — `--full` KILLED it in 119s. The
+  repair is a killer set, not a test.
+- **A real suite hole** — `--full` SURVIVED it across 449 files / 9,975 tests. The repair is
+  a test.
+
+⚠️ **`--full` IS THE DISCRIMINATOR AND IT IS THE FIRST THING TO RUN**, before writing either
+repair. Guessing wrong in one direction ships a test nobody needed; guessing wrong in the
+other ships a killer set that hides a hole.
+
+⚠️ **AND WHEN `--full` KILLS IT, HUNT THE KILLER ONE SUITE AT A TIME.** D455 ran the row
+against twelve candidates individually: only **two** kill it, and the ten that do not are the
+finding — **the entire derived-search family drives `shuffleDeck` and none of it checks whose
+deck was shuffled.** A killer set assembled by plausibility would have named four suites,
+been green, and said nothing true.
+
+## A thread that is only observable on the SECOND use (D455)
+
+`shuffleDeck`'s last line threads the advanced `rngState` back onto the state. Dropping it
+leaves the deck genuinely shuffled and **every board assertion in this repo green** — the
+cards move, the SHUFFLE row is filed, the zones balance — while the generator never advances,
+so the next shuffle replays the same permutation and the next coin flip repeats a face. The
+whole suite could not tell the two builds apart, on the op that nearly every search program
+in the engine ENDS with.
+
+**A resource that is CONSUMED and written back is invisible to any assertion about one use.**
+The rung has to compare two states across the consumption, and it owes a control on the same
+axis (D424): D455 asserts the generator MOVED on the yes and STOOD STILL on the no, same
+board, same seed — because *"rngState moved"* alone is satisfied by any action that touches
+the generator for any reason.
+
+⚠️ `D335-shuffle-is-spent-and-thrown-away` had recorded this exact defect on a DIFFERENT
+function since D335. **A row on one function is not coverage of the rule** — grep for the
+other consumers of the same resource the day you write it.
+
+## "Recorded as X" in a doc block, for the SECOND slice running (D453, D455)
+
+D453 found `interpreter.ts`'s `moveCountersChosen` arm claiming *"recorded as an equivalent
+mutant"* with **zero** rows in the corpus for that op — false for 237 decisions. D455 found
+the identical sentence on the `optional` APPLY arm, in the same file, also with zero rows
+intersecting it by character span.
+
+**Two instances in three slices is a pattern, not an accident.** The mechanism: a slice
+writes a claim about `scripts/mutation/mutants.ts` into `packages/engine/src/*.ts`, and
+nothing anywhere reads the two together. ⚠️ **GREP `"recorded as"` / `"as an equivalent
+mutant"` / `"pinned by"` ACROSS `packages/` WHENEVER YOU TOUCH THE CORPUS**, and check each
+hit against the module. It is one command and it has paid twice.
+
+The repair is a DECLARED row, not a deleted claim: `survives: { kind: "equivalent" }` with a
+self-invalidating reason (D427) makes the sentence true *and* makes it go loud the day it
+stops being true.
+
+## A refusal is scoped to whatever its LAST clause names (D456)
+
+D451 refused *"…put damage counters on the Attacking Pokémon equal to the damage done to this
+Pokémon."* with this reason: *"D451's quantity is a fact about the BODY STANDING THERE,
+readable at the instant the op runs, where this one is a HISTORY of what happened during the
+opponent's turn — **it needs a durated watcher and a recorded figure, neither of which this op
+has**."*
+
+Every word of that is true **of `counterUntilRemainingHp`**, and the last clause says so. The
+sentence still read as a statement about the family, and it was quoted forward that way into
+three more files. The durated watcher had existed since **D152** (`InstalledRecoil`), and the
+figure never becomes a history at all: both §9 read sites hold it as a local named `dealt` —
+the same local their own `dealt > 0` gate reads — two lines above the call. The whole channel
+was one **required** parameter.
+
+- **A refusal's scope is the op it was measured on, and its GENERALITY is a separate claim
+  that nobody checks.** Write *"this op cannot"*, never *"the engine cannot"*, unless you have
+  grepped the engine.
+- ⚠️ **Before inheriting a refusal, ask where the sentence would be READ, not where it was
+  refused.** D451 refused it at a `^Put` anchor whose read site runs inside the attacker's own
+  program; the sentence's read site is the §9 recoil, a turn later, in a different file. Two
+  addresses, two answers — and only one of them was ever measured.
+- **Three shipped refusals have now fallen in seven slices, and every one named its own
+  trigger.** D413's (a population), D428's (an executable rung), and this one (an op scope).
+
+## A refusal that names the varying token IS a work order (D456)
+
+`counterPutChosen.test.ts`'s bullet (g) said, in full: *"179 is the SHIPPED sentence at line
+178 with 'even if IT is Knocked Out' re-spelled 'even if THIS POKÉMON is' — a near miss on a
+parenthetical — and 180 reads its amount off the damage just taken."* It named the family, the
+read site, the exact varying token and the exact channel. **It cost one regex alternation to
+collect, and it sat unread for five slices** while the residue was ranked by printing count.
+
+D413 made this point about a doc block. It is truer of a test bullet, which nobody greps.
+⚠️ **When you write a refusal that names ONE token, say so in its first line** — *"one
+alternation away"* is a price, and a price is the only part of a refusal a successor acts on.
+
+## The specimen in a refusal rung must be the PRINTED bytes (D456)
+
+Four test files pinned the retaliation sentence as still-unread using a string spelling *"(even
+if **it** is Knocked Out)"*. The catalog prints *"(even if **this Pokémon** is)"* and nothing
+else on that sentence. So four rungs were green about a byte string no card carries — D183's
+paraphrase defect (*"an arm written from a paraphrased sentence passes a test written against
+the same paraphrase"*) arriving at a **refusal**, where it is harder to see because nothing
+downstream consumes the specimen.
+
+**Derive the specimen from `legalAttackCorpus()` where you can**, and where you keep a
+historical string, assert the printed one BESIDE it so the difference is visible rather than
+quietly corrected. This is D423's rule (*pin an absence on the POPULATION, not on a specimen*)
+with the specimen shown to be wrong rather than merely narrow.
+
+## "Corrected in place" is a claim with a population (D456)
+
+D455 found a doc block quoting a printed sentence the catalog does not carry, corrected it in
+`interpreter.ts`, and closed out with ✅ *"`installRecoil`'s PHANTOM SENTENCE, CORRECTED IN
+PLACE"*. The identical quote was live in **six** more places at that commit — `effects.ts`
+(twice), `types.ts`, `index.ts`, `installedRecoil.test.ts` and `apps/api/src/lobby/match.ts`.
+
+D415's rule (*before correcting a comment, grep for its first distinctive clause; if it appears
+more than once, the correction is a SWEEP and its cost is the sweep*) is written in this file,
+**by the run that then did not run the grep.** ⚠️ **A close-out that says "in place" owes the
+count of places**, and the count costs one `grep`.
+
+## When a persisted record gains a second field, both reads need the same gate (D456)
+
+`InstalledRecoil` went from `{turn, amount}` to `{turn, amount, ofDamageTaken?}`. The `amount`
+read has been gated on `stacking` (*"is this record's window the one I am writing"*) since
+D152, because D124's expiry is by **arithmetic** — a spent record is still sitting on the body
+and nothing sweeps it. The first draft of the FLAG read was ungated, so a spent stamp would
+have turned a fresh FLAT install into a scaled one two turns later.
+
+This is D412's *"one fact gains a second field, find every read site"* pointed inward: the two
+reads are four lines apart in one function, and the asymmetry is exactly what a reader skims
+past. ⚠️ **Write the gate on the new read by COPYING the old read's line, not by re-deriving
+it** — and drive it across a real turn boundary so the staleness is produced by the clock
+rather than written by hand.
+
+## A log row cannot print a number it does not have (D456)
+
+When an amount becomes a CHANNEL rather than a literal, the row that announces the
+installation has nothing to say. `RECOIL_ARMED` rendered *"will counterattack for **0 damage**
+during your opponent's next turn"* — a claim that nothing will happen, printed at the instant
+a real trap is armed. The fix is a flag on the event and a second `log.ts` arm that names the
+RULE instead of a figure.
+
+**This site is invisible from the engine.** Nothing about the board, the record, the census or
+the mutants points at it; only rendering the row does. ⚠️ **When you widen an amount to a
+source, render the row before you call the slice done** (D421's rule, and the second time it
+has caught a row that was false rather than stilted).
+
+## A mutant with nowhere to die is a coverage finding (D456)
+
+*"The interpreter's §9 funnel passes 0 for the hit"* would have survived 449 files. The funnel
+(D328's re-homed main hit) reaches `installedRecoilOf` exactly as `attack.ts` does, and every
+board that drives it used the CATALOG half of the recoil — Rocky Helmet's flat 20 — which is
+indifferent to the new argument. The header of the very suite that drives it LISTS the
+installed half among the reactions it is about, and no board there drove it.
+
+**When you thread a new argument through two call sites, write the mutant for BOTH before you
+write either killer set.** The site with no board is the finding; D455 said the same thing
+about `shuffleDeck` one slice earlier, and the two together are the rule: **a row on one call
+site is not coverage of the function.**
+
+## Census chains: two more ways to get the term wrong (D456)
+
+D428 said *step every nested chain, not the one that reddened*. Two new failure modes, both
+found by the suite after a pass that looked complete:
+
+- ⚠️ **TWO CHAINS CAN SHARE ONE PHYSICAL LINE.** `opponentBenchCount.test.ts` and
+  `retreatCostBonus.test.ts` spell `expect([resolving.length - … , units(resolving) - …])` on a
+  single line, and a per-line pass steps only the first of them. **A chain is a chain whether
+  or not it starts a line.**
+- ⚠️ **A CHAIN'S UNIT IS NOT ALWAYS READABLE OFF ITS HEAD EXPRESSION.**
+  `precociousEvolution.test.ts`'s chain is headed `head`, which counts **printings** despite
+  not being spelled `units(...)`. A pass that classified chains by their head text gave it the
+  sentence term and was off by one.
+
+And the bare `240` operand inside `censusAtHead.test.ts`'s arithmetic — the one
+`grep 'toBe(N)'` cannot see — **bit for the sixth consecutive slice, inside a comment block
+that has warned about it each time**. That is D418's shape reaching a COMMENT: the note is read
+only by someone already standing there, and nobody stands there until the assertion has failed.
+
+## Two surfaces, two spellings, and the reason written down (D456)
+
+D421's rule is *same fact, same spelling, every surface*. D456 breaks it once, deliberately, and
+that is the interesting case:
+
+- the **op** carries `amount: number | "damageTaken"` — parse-time, reaches storage only behind
+  a park, and this op never parks;
+- the **persisted record** keeps `amount: number` and carries a separate `ofDamageTaken?: true`.
+
+A persisted `amount: "damageTaken"` would put a STRING in the numeric field `attack.ts` SUMS
+with `passivesOf().damageAttacker`, so a deploy that did not know the inhabitant would compute
+`20 + "damageTaken"` → `"20damageTaken"` → `> 0` false, and would silently drop the ALWAYS-ON
+share as well as the installed one. **When you split a spelling, write the failure the unified
+spelling would have produced** — otherwise the next reader "unifies" them.
+
+⚠️ **And the sibling spelling was refused for a second reason worth keeping.** `heal.amount`
+already uses `"dealt"` for a §8.5 figure, and reusing that word here would have invited the
+`case "heal"` arm's own resolution (`ctx.dealt ?? 0`, five lines away) to be copied onto this
+op — a real answer about the wrong hit. **A name that invites the neighbouring arm's code is a
+worse name than an inconsistent one.**
+
+## `MATCH_RECORD_VERSION`: the reachability argument has a precondition (D456)
+
+D453, D454 and D455 all held 29 partly on *"an `EffectOp` reaches storage only through a
+continuation's `pendingOp` and its `rest`, written only on a park"*. That argument is about
+**`EffectOp`s** and says nothing about a `GameState` field. `InPlayPokemon.installedRecoil` is
+persisted directly, every save, park or no park.
+
+⚠️ **Before reusing the reachability argument, name the ADDRESS the shape changed at.** If it is
+a `GameState` field, the only argument available is `match.ts`'s own discriminator — *does the
+OLD byte string still mean what it meant* — and the optional-vs-required question has to be
+asked with D421's criterion **applied**, not copied. The sequence of refusals now reads: D432
+*no rest*, D434 *rest not old*, D435 *rest old but the loss is `NaN` corruption*, and D456
+*rest old, loss inert, and the residue is a byte string the surviving path cannot author*.
+
+**"Detectable" can live in the BYTES rather than on the board.** D456's dropped rider leaves
+`{turn, amount: 0}`, and the deriver's `counters >= 1` guard is the only producer of a flat
+`installRecoil` in the engine — measured over the whole corpus and the whole registry, in the
+suite, rather than asserted.
+
+## A refusal names a CARRIER, and the carrier can be wrong (D457)
+
+D235 refused *"attach them to **1 of** your Pokémon"* at count > 1 with: *"`attachFromDeck` has
+`max` but no `attachEnergyFrom.count`, so the phrase is UNREPRESENTABLE here and it is
+representable one op over."* Every clause of that is true, and the conclusion is false. `count`
+pins a batch to the ONE body `attachEnergyFrom` always picks; this op's park answers with a MAP
+from card to target, so the same printed rule is a constraint **on the map** — how many TARGETS
+the answer may name — and needs a flag, not a count. It cost **one optional field** and it sat
+refused for 222 decisions.
+
+⚠️ **When a refusal says "unrepresentable", ask *in what*:** in the OP, in a FIELD, or in the
+shape of the ANSWER the park collects? A price written in a sibling op's vocabulary is a price
+for the sibling. And the reason this one survived so long is that it was RIGHT in its own terms:
+the successor greps for a missing field, finds the field genuinely missing, and re-derives the
+refusal instead of the mechanism.
+
+**Its dual is worth stating too:** when you add a per-X cap, ask whether the print also spells a
+cap on the number of Xs. `maxPerTarget` (cards per body) and `oneTarget` (bodies per answer)
+bound opposite ends of one map, and neither can be recovered from the other.
+
+## "Unread by every reader" is not "unbuilt" — measure the registry BEFORE pricing (D457)
+
+D457's brief handed over a measured family: 13 sentences / 18 printings that no
+`deriveAttack*` reader resolves. **Four of the thirteen (6 printings) are BUILT**, through the
+registry summand — and `censusAtHead.test.ts` requires the two summands to be DISJOINT
+(`registryUnits` asserts `resolvedByAnyReader(text) === false` for every registry sentence). So
+for those four, writing a reader arm does not *add* a build: it **redens the census until the
+registry row is retired**, and the honest delta is zero printings for two files of churn.
+
+⚠️ **Run `programFor`/`registryCardIds` over a family's sentences before ranking it by
+printings.** `resolvedByAnyReader` is a reader instrument and answers a reader question; D314
+said "refused by the deriver" and "unbuilt" are different claims, and at family scale they can
+differ by a third.
+
+## A demonstrator can run out of unread sentences (D457)
+
+`fix-trainerops` fields one attack per family so refusals have a live subject on a real board
+(D181's `Strafe` precedent). `optionalSelfSwitch.test.ts` drives the loud `ATTACK_EFFECT_SKIPPED`
+row off it as an ATTRIBUTION control (D214) — without one, a suite that only asserts
+`toHaveLength(0)` on that row is green on a build that stopped emitting it. D457 built index 42,
+which was **the last unread index of 71** (measured with `resolvedByAnyReader`, not assumed).
+
+- **The control must be re-pointed at a sentence a successor cannot casually build.** Index 71 is
+  the Future-banner attach: DATA-BLOCKED, because no ingested column classifies the banner
+  (`packages/schema/src/catalog/card.ts` `cardSchema` carries `stage`/`types`/`trainerType`/
+  `energyType` and no subtype column). A merely-unbuilt sentence would disarm the control the
+  next time somebody writes an anchor.
+- **The fixture is APPENDED and the length pin steps in every suite that carries it** — thirteen
+  of them at D457 — in one pass (D431: a green run after fixing the one that reddened is evidence
+  the runner stopped early).
+
+## A PROMPT field costs five mirrors; an OP field costs none (D457)
+
+D235 priced `redact.ts`, `projection.ts`, both HUDs and `log.ts` at **ZERO** because it added no
+prompt field — the park was an existing shape. D457 adds one, and the same list is non-zero:
+`packages/schema/src/match/redacted.ts`, `packages/engine/src/redact.ts`,
+`src/features/game/projection.ts`, `GameHud.tsx` and `OnlineHud.tsx`, plus the prompt KEY that
+decides remounting. Find them by grepping the SIBLING FIELD (`maxPerTarget`), never by trusting
+a list a previous slice wrote for a different shape.
+
+⚠️ **And a shared UI predicate needs unshared WORDS.** Both rules close a target row, so they
+ride one predicate — but `maxPerTarget` closes a body that *already has its share* and
+`oneTarget` closes a body *the Energy are not going to*. Rendering "already has one" over a
+Pokémon holding nothing is the dialog stating a false fact about the board, and no engine test
+can see it.
+
+## The park IS the road to storage (D457, refining D456)
+
+D453–D455 held `MATCH_RECORD_VERSION` partly on *"an `EffectOp` reaches storage only through a
+park"*; D456 found that argument inapplicable to a `GameState` field. D457 is the case where the
+op **does** park — and the lesson is that this is a reason to ASK the question, not to skip it:
+`attachFromDeck.oneTarget` rides `EffectContinuation.pendingOp` and `attachCards.oneTarget` rides
+the persisted `effect:choose` phase, so both are in a saved record.
+
+**The detectability argument came from the REST of the record again, and this time from a
+caption.** `attachFromDeckNote` builds the prompt's `note` from the same field, so a park whose
+note says *"attach them to 1 of your Pokémon"* while carrying no rider is a byte string this
+deploy cannot write: the two halves would have to disagree at the moment of writing. **When a
+field also decides a string, that string is the witness that the field was there.**
+
+## A CITED rule is a claim, and it rots faster than a count (D458)
+
+**Two consecutive slices in one family spent a blocker whose stated reason named the wrong
+carrier, and both reasons read as facts about the SENTENCE.** D457's was *"UNREPRESENTABLE
+here"* — true of `attachEnergyFrom.count`, false of the op. D458's was *"a different sentence
+SHAPE, so its own arm **by D232's rule**"* — and D232's rule, opened and read, says the
+opposite: *a family collapses to ONE arm when its sentences differ in a NOUN and splits when
+they differ in a VERB*, and it splits only where an alternation would have to loosen the
+punctuation, the conjunction, the pronoun AND the verb form together. The sentence differed in
+the NOUN COUNT. The build was one optional group and zero new anchors.
+
+⚠️ **A citation is the cheapest thing in a doc block to write and the most expensive to check,
+because it looks already-checked.** *"By D-NNN's rule"* is not a warrant; it is a pointer, and
+the pointer is what rots. **Open the rule. `grep` for the decision id and read the paragraph the
+rule actually lives in** — it costs one command, and in this family it was worth two slices.
+
+## Decomposing one printed sentence into N ops (D458)
+
+*"Search your deck for up to 2 Basic {G} Energy cards **and up to 2 Basic {L} Energy cards** and
+attach them to your Pokémon in any way you like."* is TWO `attachFromDeck` ops and ONE trailing
+shuffle. The decomposition is sound — and **only under preconditions the estimate did not
+name**, which is D420's rule (*when you write a "just do X" note, write the condition under
+which X is enough*) arriving at a program shape.
+
+**Name what would COUPLE the pieces, then refuse the couplings you cannot honour.** Two
+sequential searches carry two answer MAPS and two §9.2 FILINGS, so:
+- a `batch: false` destination (*"attach them to **1 of** your Pokémon"*) would let one batch
+  land on one body and the other on another — a split the card does not print;
+- the §9.2 tail's `recordAs` slot would be OVERWRITTEN by the second op, so a board where the
+  first search attached and the second whiffed files `[]` and the printed gate answers NO about
+  an attach that happened.
+
+Both are **0 printings**. Both are refused rather than mis-built (D190b/D199), **both are read
+off the MODEL** — the destination table's own flag, the tail's own capture group — rather than
+listed as bad pairs (D424), and each ships beside the admission that differs from it on ONE axis
+(D427).
+
+**And the equivalence argument is worth writing down, because it is what a successor will want:**
+N ops reach the same end boards as one N-quota question exactly when the pools are DISJOINT,
+every target stays eligible after each step, and nothing constrains the answer map. Drive both
+extremes — everything on one body, and the batches apart.
+
+## A recurring miss is a missing NAME, not a missing warning (D458)
+
+`censusAtHead.test.ts` pinned its raw-unbuilt figure twice: once as a greppable `toBe(N)` and
+once as a **bare operand inside an arithmetic expression**. **SEVEN CONSECUTIVE SLICES (D449,
+D450, D451, D452, D456, D457, D458) stepped the first, missed the second, and were told by the
+suite** — with a comment warning them about it sitting directly above the operand every time,
+each slice adding a new paragraph to that comment saying the streak had grown.
+
+That is D418's shape reaching a COMMENT: **the note is read only by someone already standing
+there, and nobody stands there until the assertion has already failed.** The repair is not a
+louder warning; it is `const RAW_UNBUILT_ATTACK_UNITS = N`, so one `grep` finds both sites.
+**When the same figure is missed N times, stop describing it and name it.**
+
+## Inserting a capture group is a re-transcription event (D458)
+
+Adding ONE optional group to a shipped regex shifted its later groups by two — the destination
+from `match[4]` to `match[6]`, the §9.2 tail from `match[5]` to `match[7]` — and broke **four**
+mutant `find`s that quoted the old indices. **Every off-by-two spelling COMPILES**, and two of
+them still derive a plausible-looking program: reading the destination from the wrong group is
+loud (the whole family stops deriving), reading the tail from the wrong group is silent (one
+sentence quietly loses its gate). **Write a mutant for each direction; the quiet one is the
+reason the pair exists.**
+
+⚠️ **And then the lint fix broke a fifth (D414 again, at authoring time for once).** The new
+group left a template literal with no interpolation, `bun run check` flagged
+`noUnusedTemplateLiteral`, and merging that fragment moved the anchor's tail line.
+**`precheck` reported it in seconds; a sweep would have reported it after ninety minutes.**
+
+## When "is the loss detectable?" answers NO (D458)
+
+D421/D425 say: choose the shape so that losing the new information is detectable. D457 satisfied
+it with a caption built from the same field. **D458 satisfies it by having nothing to lose** —
+zero new op fields, zero new prompt fields, so a saved record gains only a LONGER
+`EffectContinuation.rest`, not a wider one. Driven honestly, the LOSS direction answers **NO**:
+a truncated `rest` degrades into a sentence the catalog does print and nothing else in the frame
+contradicts it (the truncated park's PROMPT is byte-identical to the whole one).
+
+**That is an argument FOR the shape, not a defect in it** — a truncated required list is data
+corruption, which no `MATCH_RECORD_VERSION` protects against and which the slice does not make
+newly possible. **Report the NO rather than hiding it: a slice that cannot answer the
+detectability question is different from one for which the question does not arise.**
+
+## A flat coverage reading can be predicted from the file list (D458)
+
+`opcoverage`'s SEAT-LINE denominator lives in `interpreter.ts` alone. A slice that touches no
+`interpreter.ts` bytes and whose mutants are all producer-side on `effects.ts` **cannot** move
+it — so the flat reading is forced, and saying so BEFORE running the instrument is stronger than
+explaining it after. D457 found the same op reading `0/7` through a slice that rewrote its arm,
+park, caption, validator, wire key and both HUDs; D458 is the second receipt. **Read a flat
+figure as "this slice moved no seat lines", never as "this slice added no safety" — and if you
+can name why from the diff alone, say it in the resume point.**
+
+## Print the VALUE, not only the verdict (D459)
+
+`scripts/residue-census.ts` classifies every unbuilt residue sentence by the single
+deletion or substitution that reaches a built string. **Ten of the 130 residue rows at
+D459's head were ONE-TOKEN deletions**, and a verdict-only instrument would have called
+all ten equally cheap. Nine of them lose the deleted token's meaning: delete `Basic`,
+`Benched`, `Ancient`, `Future`, `{L}`, `{F}` or `Iono's` and the remainder derives with
+the filter GONE. The tenth — `card` in *"…for each Special Energy **card** attached to
+this Pokémon."* — derives to `{per: 70, count: {kind: "energyOnSelf", energyType:
+"special"}}`, filter INTACT.
+
+**That one difference is the whole targeting decision, and no count can carry it.** So
+every probe reports what the remainder derives TO, beside the string. The instrument does
+not classify SPELLING vs SEMANTIC for you; it puts the two derived values side by side so
+the judgement takes one look instead of a doc block. This is D454's "a stopping rule you
+can re-run beats an adjective" one level down: **a re-runnable rule beats an adjective,
+and a re-runnable rule that shows its working beats a re-runnable rule.**
+
+## A one-axis deletion is a LOWER BOUND on the work, never an estimate (D459)
+
+The census's classes are assigned by the CHEAPEST probe that fires, so a sentence with a
+compound structure AND an unrepresentable filter lands on the structure. Measured at
+D459's head, with the recorded refusals beside them:
+
+| class | sentences | printings | what it means |
+|---|---:|---:|---|
+| `COMPOSE` | 1 | 2 | both halves build; only the JOIN is missing |
+| `COMPOUND-*` | 16 | 22 | one half builds, the other does not |
+| `SUBST-n` | 10 | 12 | differs from a BUILT corpus sentence in one contiguous region |
+| `PHRASE-n` | 15 | 20 | one contiguous deletion builds, and no built sibling exists |
+| `OPAQUE` | 88 | 126 | no single deletion or substitution reaches a built string |
+
+⚠️ **`SUBST-2` contains *"This attack does 30 damage to each of your opponent's Pokémon."*,
+one token (`each` → `1`) from a sentence this engine builds — and D447 priced that row as a
+THIRD `spreadDamage.target` plus a §8.5 asymmetry between the Active and the Bench.** Both
+are true. **Read the class as "at least this much is missing", never as a price.**
+
+## A deletion that derives can point at the WRONG HALF (D459)
+
+Two residue rows (*"This attack does {60|100} damage to each of your opponent's Pokémon ex
+[and Pokémon V]. This attack's damage isn't affected by Weakness or Resistance."*) drop
+their FIRST segment and the remainder builds — because the remainder is the W/R-immunity
+RIDER, which every reader already claims, while the head is a filtered spread that no
+mechanism exists for. A classifier that reported "one deletion away" would have pointed at
+the cheap half of a row D447 priced at three mechanisms. **So the probe re-asks the build
+predicate on the REMOVED half too, and the class name says which half survived
+(`COMPOUND-head` / `COMPOUND-tail` / `COMPOSE`).** `COMPOSE` — both halves build — is the
+only class whose price is actually known, and there is exactly **one** such row in the
+whole residue, 2 printings. ⚠️ **That reproduces D447's own price for a mirror compound
+splitter — *"unlocks 1 sentence / 2 printings, which does not pay"* — mechanically and from
+the other end, which is the strongest kind of agreement between an instrument and a
+record.**
+
+## A corpus row number: the convention was broken TWICE after it was written (D459, about D448)
+
+D448 wrote *"a corpus row number is a FILE LINE"* after D447's resume point cited array
+indices. **D446, D457 and D458 all cite ARRAY INDICES anyway** — `fileLine − 53` at this
+head. Every number in D457's and D458's blocker tables (`387 401 403 404 410 412 419 420
+430`) resolves to a different, unrelated sentence when read as the file line the convention
+mandates.
+
+🛑 **AND D448's OWN TIE-BREAKER DOES NOT WORK.** It says *"cross-check the PRINTING COUNT
+before acting on a cited row — the count is what tells the two conventions apart in one
+look."* Measured over those nine citations, the printing count is **the same under both
+readings for four of them** (401: 1p/1p, 403: 2p/2p, 404: 2p/2p, 420: 1p/1p). A check that
+passes 44% of the time on wrong data is not a check. **Cite the file line AND quote the
+sentence text; the text is the only discriminator that always works** — which is D456's
+"the specimen in a rung must be the PRINTED bytes" arriving at a citation instead of a test.
+
+## A mutant with nowhere to die can ACQUIRE one (D459, refining D456)
+
+`D459-multiply-fold-drops-its-type-filter` replaces the `×` fold's captured `energyType`
+with `null`. **Before this slice it was equivalent on the legal pool**: all NINE legal
+`×`-fold printings were untyped, so the captured filter was `null` on every one of them
+and no board could tell the two apart. D459's two printings are the first that discriminate
+it. D456 said a mutant with nowhere to die is a coverage finding; the converse is a
+BUILDING finding — **when a slice adds the first printing that inhabits an existing field,
+go back and ask which old mutations it has just made killable.** Look for them at the arm
+you widened, not at the bytes you wrote.
+
+## A probe that patches a source file must restore it in a `finally` (D459)
+
+A throwaway script that wrote a mutation into `effects.ts`, imported the module and crashed
+on a bad import left the mutation in the tree. **The next script read that file as its
+baseline and "restored" the mutated version** — so a build that had been verified minutes
+earlier was silently gone, and the only thing that caught it was a follow-up probe printing
+`FIND OCCURS 0x`. `git diff --stat` did NOT catch it: the file was still dirty by the right
+number of lines, because the slice's own comment blocks were still there. **Wrap the patch
+in `try/finally`, and re-assert the built behaviour (not the line count) after any probe
+that writes to the tree.**
+
+## A union rule can cut both ways inside one slice (D460)
+
+D440's rule — *nullary or asymmetric payload ⇒ two members; identical payload ⇒ one member
+with the discriminator as a field* — was applied twice in D460 and gave **opposite** answers
+one type apart:
+
+- the three printed threshold predicates (*either … is heads*, *both … are tails*, *at least 2
+  … are heads*) carry the identical payload (a face and a count) ⇒ **ONE shape, `face` as a
+  field**;
+- `perHeads` and `perHeadsThenThreshold` carry asymmetric payloads ⇒ **TWO members**.
+
+**The tell is the PAYLOAD, never "which one looks like a widening".** The second question is
+the one that reads like a widening and is not: adding optional `threshold?`/`ops?` to
+`perHeads` would have saved four lines in `attack.ts` and made every `perHeads` value carry
+two keys it must ignore.
+
+## A normalisation that is sound at the EVALUATOR can be wrong at the DERIVER (D460)
+
+*"If both of them are tails"* over two coins is exactly *"zero heads"*, and at the flip site
+the rewrite is total — `faces.length` is in scope. **At derive time it is not.** The rewrite
+needs `flips` to know its own cardinality, which `AttackFlipCount`'s `printed` member does and
+its `attachedEnergy` and `untilTails` members do not, so the normalisation would be a rule that
+fires on one of three members and couples two axes the union's own doc block calls independent.
+
+**Ask WHERE the arithmetic is available, not whether it is correct.** A rewrite that is only
+expressible for one inhabitant of a field is a coupling, not a simplification.
+
+## The version tax has a FOURTH class of site and no prescribed grep sees it (D460)
+
+D459 measured the tax as 37 assertions / 41 sites and named the greps: `engineVersion` and
+`manifest.version`. **Both miss the `it()` TITLE.** Three test files name the version in the
+test's own name (`it("engineVersion is 0.359.0 and \`manifest.version\` agrees")`), and at
+D460's head **two of the three were stale** — one of them since D459, because the assertion
+inside it had been stepped by a targeted replacement and the title had not.
+
+A stale title is not green-by-construction the way a stale doc block is; it is worse, because
+the test REPORTS under that name and a run log then says a version the suite does not assert.
+**Step the titles in the same pass, and count them: 38 assertions / 3 titles / 4 other sites.**
+
+## The mutation corpus is a source file and Biome refuses it above `files.maxSize` (D460)
+
+`scripts/mutation/mutants.ts` crossed **2,097,152 bytes** during D460 (2,112,246 after its
+rows). Biome answers a file over `files.maxSize` with an `internalError/io` diagnostic **and
+still counts it as checked**, so every lint step exits 0 while the repo's largest source file
+is linted by nothing.
+
+**The first symptom was `bun run check` failing on D212's `lint-coverage` guard**, 248 slices
+after that guard was written — the guard reads the limit out of `biome.json` rather than
+hard-coding it, so raising the limit raises the check with it. Raised 2 MiB → 4 MiB, and the

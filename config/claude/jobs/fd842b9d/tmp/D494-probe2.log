@@ -1,0 +1,41 @@
+
+Mutation harness (D211) — 12 mutant(s)
+
+⚠️  --allow-dirty: mutating 2 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+      packages/engine/src/interpreter.ts
+
+  D494-compound-anchor-loses-its-terminator … KILLED           3.4s
+  D494-compound-anchor-loses-its-caret … KILLED           3.4s
+  D494-bonus-arm-never-reaches-the-compound … KILLED           3.4s
+  D494-bonus-arms-swapped    … SURVIVES(known)  3.4s
+  D494-suppression-arm-drops-the-bonus-gate … KILLED           3.4s
+  D494-suppression-arm-emits-the-neighbouring-pair … KILLED           3.4s
+  D494-suppression-arm-sets-the-wrong-boolean … KILLED           3.4s
+  D494-clause-row-narrows-to-the-neighbours-type … KILLED           3.4s
+  D494-clause-row-key-takes-the-siblings-quantifier … KILLED           3.4s
+  D494-energy-threshold-reads-the-opponents-side … KILLED           3.4s
+  D494-energy-threshold-is-strict … KILLED           3.4s
+  D494-condition-note-loses-the-untyped-branch … KILLED           3.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D494-compound-anchor-los… D494                  KILLED           3.4s    1
+D494-compound-anchor-los… D494                  KILLED           3.4s    1
+D494-bonus-arm-never-rea… D494                  KILLED           3.4s    1
+D494-bonus-arms-swapped   D494                  SURVIVES(known)  3.4s    1
+D494-suppression-arm-dro… D494                  KILLED           3.4s    1
+D494-suppression-arm-emi… D494                  KILLED           3.4s    1
+D494-suppression-arm-set… D494                  KILLED           3.4s    1
+D494-clause-row-narrows-… D494                  KILLED           3.4s    1
+D494-clause-row-key-take… D494                  KILLED           3.4s    1
+D494-energy-threshold-re… D494                  KILLED           3.4s    3
+D494-energy-threshold-is… D494                  KILLED           3.4s    3
+D494-condition-note-lose… D494                  KILLED           3.4s    1
+────────────────────────────────────────────────────────────────────────────────────
+11 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 47.6s total
+
+  known survivor  D494-bonus-arms-swapped — equivalent
+      STRUCTURAL disjointness (D468's SECOND kind, the one that carries no guard). `CONDITIONAL_DAMAGE_BONUS` is `^If (.+), this attack does (\d+) more damage\.$` and `CONDITIONAL_BONUS_SUPPRESSED` is the same head followed by a SPACE and a further whole sentence before its own `\.$`. Both are `^…$`; they disagree on a mandatory run of bytes at the same position, so NO string can match both and the `??` returns the same match object under either order. Asserted over all 640 corpus rows in `energyInPlaySuppressed.test.ts` §4 rather than argued. ⚠️ SELF-INVALIDATING (D427): the day either pattern loses an end anchor — which is exactly what C1 and C2 mutate — the two overlap and this row reports STALE-SURVIVOR.
+

@@ -1,0 +1,203 @@
+READER SURFACE: [0m[33m13[0m ["deriveAttackBonusConsequent","deriveAttackCancelRequirement","deriveAttackCoinFlip","deriveAttackDamageBonus","deriveAttackDamageMultiplier","deriveAttackDamagePenalty","deriveAttackDamageSuppression","deriveAttackDiscardScaledBoost","deriveAttackEffect","deriveAttackOptionalBoost","deriveAttackOptionalCostBoost","deriveAttackPreDamage","deriveAttackRequirement"]
+
+=== TARGET (the print)
+  TEXT: "Flip a coin. If heads, during your opponent's next turn, the Defending Pokémon can't attack."
+  READERS CLAIMING: 0/13
+  splitAttackGateClause: null
+  splitAttackTrailingClause: null
+  splitAttackRequirementClause: null
+  splitAttackCancelClause: null
+  resolvedByAnyReader: false
+
+=== BARE LOCK
+  TEXT: "During your opponent's next turn, the Defending Pokémon can't attack."
+  READERS CLAIMING: 1/13
+    deriveAttackEffect -> [{"op":"preventAttack","target":"defender"}]
+  splitAttackGateClause: null
+  splitAttackTrailingClause: null
+  splitAttackRequirementClause: null
+  splitAttackCancelClause: null
+  resolvedByAnyReader: true
+
+=== COIN + PARALYZED (builds per brief)
+  TEXT: "Flip a coin. If heads, your opponent's Active Pokémon is now Paralyzed."
+  READERS CLAIMING: 1/13
+    deriveAttackEffect -> [{"op":"coinFlipGate","then":[{"op":"applyStatus","target":"defender","status":"paralyzed"}]}]
+  splitAttackGateClause: null
+  splitAttackTrailingClause: null
+  splitAttackRequirementClause: null
+  splitAttackCancelClause: null
+  resolvedByAnyReader: true
+
+
+########## DURATION FAMILY (corpus rows) ##########
+corpus rows: [0m[33m640[0m
+family size: [0m[33m42[0m printings: [0m[33m151[0m
+
+[arrIdx 26] units=3 claimed=1/13 deriveAttackEffect
+   "Choose 1 of your opponent's Active Pokémon's attacks. During your opponent's next turn, that Pokémon can't use that attack."
+   gate=null trailing=null
+
+[arrIdx 38] units=1 claimed=0/13 
+   "Discard 2 Energy from this Pokémon. During your opponent's next turn, this Pokémon takes 100 less damage from attacks (after applying Weakness and Resistance)."
+   gate=null trailing={"head":"Discard 2 Energy from this Pokémon.","tail":"During your opponent's next turn, this Pokémon takes 100 less damage from attacks (after applying Weakness and Resistance)."}
+
+[arrIdx 61] units=3 claimed=1/13 deriveAttackEffect
+   "Discard all Energy from this Pokémon. During your opponent's next turn, they can't play any Item cards from their hand."
+   gate=null trailing=null
+
+[arrIdx 117] units=1 claimed=0/13 
+   "During your opponent's next turn, Pokémon that have 2 or less Energy attached can't attack. (This includes new Pokémon that come into play.)"
+   gate=null trailing=null
+
+[arrIdx 118] units=1 claimed=0/13 
+   "During your opponent's next turn, attacks used by the Defending Pokémon cost {C} more, and its Retreat Cost is {C} more."
+   gate=null trailing=null
+
+[arrIdx 119] units=5 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, attacks used by the Defending Pokémon do 100 less damage (before applying Weakness and Resistance)."
+   gate=null trailing=null
+
+[arrIdx 120] units=1 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, attacks used by the Defending Pokémon do 20 less damage (before applying Weakness and Resistance)."
+   gate=null trailing=null
+
+[arrIdx 121] units=1 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, attacks used by the Defending Pokémon do 30 less damage (before applying Weakness and Resistance)."
+   gate=null trailing=null
+
+[arrIdx 122] units=1 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, attacks used by the Defending Pokémon do 40 less damage (before applying Weakness and Resistance)."
+   gate=null trailing=null
+
+[arrIdx 123] units=2 claimed=0/13 
+   "During your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails, that attack doesn't happen."
+   gate=null trailing=null
+
+[arrIdx 124] units=1 claimed=0/13 
+   "During your opponent's next turn, if they attach an Energy card from their hand to the Defending Pokémon, their turn ends."
+   gate=null trailing=null
+
+[arrIdx 125] units=5 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, if this Pokémon is damaged by an attack (even if it is Knocked Out), put 8 damage counters on the Attacking Pokémon."
+   gate=null trailing=null
+
+[arrIdx 126] units=1 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, if this Pokémon is damaged by an attack (even if this Pokémon is Knocked Out), put 6 damage counters on the Attacking Pokémon."
+   gate=null trailing=null
+
+[arrIdx 127] units=2 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, if this Pokémon is damaged by an attack (even if this Pokémon is Knocked Out), put damage counters on the Attacking Pokémon equal to the damage done to this Pokémon."
+   gate=null trailing=null
+
+[arrIdx 128] units=1 claimed=0/13 
+   "During your opponent's next turn, prevent all damage done to each of your Future Pokémon by attacks from Pokémon ex. If this Pokémon is no longer your Active Pokémon, this effect ends."
+   gate=null trailing=null
+
+[arrIdx 129] units=1 claimed=0/13 
+   "During your opponent's next turn, prevent all damage done to this Pokémon by attacks from Ancient Pokémon."
+   gate=null trailing=null
+
+[arrIdx 130] units=1 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, prevent all damage done to this Pokémon by attacks from Basic Pokémon."
+   gate=null trailing=null
+
+[arrIdx 131] units=7 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, prevent all damage done to this Pokémon by attacks from Basic non-{C} Pokémon."
+   gate=null trailing=null
+
+[arrIdx 132] units=2 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, prevent all damage done to this Pokémon by attacks if that damage is 40 or less."
+   gate=null trailing=null
+
+[arrIdx 133] units=1 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, prevent all damage done to this Pokémon by attacks if that damage is 60 or less."
+   gate=null trailing=null
+
+[arrIdx 134] units=3 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, the Defending Pokémon can't attack."
+   gate=null trailing=null
+
+[arrIdx 135] units=35 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, the Defending Pokémon can't retreat."
+   gate=null trailing=null
+
+[arrIdx 136] units=4 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, the Defending Pokémon can't use attacks."
+   gate=null trailing=null
+
+[arrIdx 137] units=3 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, they can't play any Item cards from their hand."
+   gate=null trailing=null
+
+[arrIdx 138] units=1 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, they can't play any Pokémon from their hand to evolve their Pokémon."
+   gate=null trailing=null
+
+[arrIdx 139] units=3 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, this Pokémon has no Weakness."
+   gate=null trailing=null
+
+[arrIdx 140] units=5 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, this Pokémon takes 10 less damage from attacks (after applying Weakness and Resistance)."
+   gate=null trailing=null
+
+[arrIdx 141] units=4 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, this Pokémon takes 20 less damage from attacks (after applying Weakness and Resistance)."
+   gate=null trailing=null
+
+[arrIdx 142] units=10 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, this Pokémon takes 30 less damage from attacks (after applying Weakness and Resistance)."
+   gate=null trailing=null
+
+[arrIdx 143] units=2 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, this Pokémon takes 40 less damage from attacks (after applying Weakness and Resistance)."
+   gate=null trailing=null
+
+[arrIdx 144] units=7 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, this Pokémon takes 50 less damage from attacks (after applying Weakness and Resistance)."
+   gate=null trailing=null
+
+[arrIdx 145] units=1 claimed=1/13 deriveAttackEffect
+   "During your opponent's next turn, this Pokémon takes 60 less damage from attacks (after applying Weakness and Resistance)."
+   gate=null trailing=null
+
+[arrIdx 195] units=4 claimed=1/13 deriveAttackEffect
+   "Flip a coin. If heads, during your opponent's next turn, prevent all damage done to this Pokémon by attacks."
+   gate=null trailing=null
+
+[arrIdx 196] units=15 claimed=1/13 deriveAttackEffect
+   "Flip a coin. If heads, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon."
+   gate=null trailing=null
+
+[arrIdx 197] units=1 claimed=0/13 
+   "Flip a coin. If heads, during your opponent's next turn, the Defending Pokémon can't attack."
+   gate=null trailing=null
+
+[arrIdx 215] units=2 claimed=0/13 
+   "Flip a coin. If tails, this attack does nothing. If heads, during your opponent's next turn, prevent all damage from and effects of attacks done to this Pokémon."
+   gate=null trailing=null
+
+[arrIdx 250] units=1 claimed=1/13 deriveAttackEffect
+   "If the Defending Pokémon is a Basic Pokémon, it can't attack during your opponent's next turn."
+   gate=null trailing=null
+
+[arrIdx 628] units=2 claimed=0/13 
+   "Your opponent's Active Pokémon is now Burned. During your opponent's next turn, that Pokémon can't retreat."
+   gate=null trailing={"head":"Your opponent's Active Pokémon is now Burned.","tail":"During your opponent's next turn, that Pokémon can't retreat."}
+
+[arrIdx 631] units=2 claimed=0/13 
+   "Your opponent's Active Pokémon is now Confused. During your opponent's next turn, that Pokémon can't retreat."
+   gate=null trailing={"head":"Your opponent's Active Pokémon is now Confused.","tail":"During your opponent's next turn, that Pokémon can't retreat."}
+
+[arrIdx 637] units=1 claimed=0/13 
+   "Your opponent's Active Pokémon is now Poisoned. During your opponent's next turn, Energy cards can't be attached from your opponent's hand to that Pokémon."
+   gate=null trailing=null
+
+[arrIdx 638] units=3 claimed=1/13 deriveAttackEffect
+   "Your opponent's Active Pokémon is now Poisoned. During your opponent's next turn, that Pokémon can't retreat."
+   gate=null trailing=null
+
+[arrIdx 639] units=1 claimed=0/13 
+   "Your opponent's Active Pokémon is now Poisoned. During your opponent's next turn, the Defending Pokémon can't retreat."
+   gate=null trailing={"head":"Your opponent's Active Pokémon is now Poisoned.","tail":"During your opponent's next turn, the Defending Pokémon can't retreat."}

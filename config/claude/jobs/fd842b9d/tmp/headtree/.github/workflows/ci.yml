@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel superseded runs on the same ref so a fast follow-up push doesn't queue.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # No bun-version pin here: setup-bun@v2 reads .bun-version for a
+      # reproducible toolchain (matches the packageManager field too).
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      # Cache Bun's global install cache (keyed on the lockfile) so unchanged
+      # deps don't re-download each run. Not node_modules — bun links from cache.
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Lint
+        run: bun run lint:ci
+
+      - name: Test
+        run: bun run test:run
+
+      - name: Build
+        run: bun run build

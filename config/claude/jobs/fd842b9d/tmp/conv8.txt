@@ -1,0 +1,760 @@
+hard-coding it, so raising the limit raises the check with it. Raised 2 MiB → 4 MiB, and the
+raise now carries its own mutation row (`D460-maxsize-refuses-the-corpus`, killed by
+`bun scripts/lint-coverage.ts`), which is D212's `include` pair applied to the other field of
+the same object. **Expect this again around 4 MiB; a corpus that grows ~20 KB a slice reaches
+it in roughly a hundred.**
+
+## A new fixture is a census delta in FOUR places, not one (D460)
+
+D425's rule says a fixture moves `clauseApostrophe`'s sweep. D460 measured the full set for one
+fixture card carrying three printed sentences:
+
+| rung | move | why |
+|---|---|---|
+| `clauseApostrophe` derivable | 185 → 188 | three sentences, each with a possessive, all now derivable |
+| `opponentResistanceBonus` id floor | 554 → 555 | one new `FIXTURE_POOL` id |
+| that file's ELEVEN-deep `ids.length - N` ladder | +1 at the front of all eleven | same id, eleven rungs |
+| the 21 frozen-tail chains in 8 files | `- 3` / `- 4` at the FRONT | the READER; ⚠️ `grep -n` reports 18 — three share a physical line |
+| the reader/residue chains in 12 files | +3 / +4 | the READER, not the fixture |
+
+**The first three are invisible to any forecast made from the reader side**, and the fourth
+wave arrived only after the first three were green. Four full suite runs to converge, which is
+D428/D431's "a clean run after one round of fixes is not evidence the round was complete"
+holding for the fourth consecutive slice.
+
+## Refuse a consequent that can never fire, and say which end you are refusing (D460)
+
+The threshold family owes TWO guards and they are the same argument from opposite ends:
+`atLeast >= 1` (a threshold of zero is met by every outcome, so the printed `if` decides
+nothing) and `atLeast <= flips` (a threshold above the flip count is met by no outcome, so the
+printed consequent never lands). **The second is the dangerous one**: admitting it silences
+`ATTACK_EFFECT_SKIPPED` — the only thing that would tell a reader the sentence is unread —
+while shipping a status that can never be applied. Two mutation rows, not one, because a slice
+that kept only one guard leaves the other end open and nothing says so.
+
+## A `PHRASE-1` row is a LOWER BOUND on the work and often a bad estimate of it (D461)
+
+`scripts/residue-census.ts` classifies a residue sentence `PHRASE-1` when deleting ONE token
+reaches a string some reader builds. **That is a statement about WHERE the blocker is. It says
+nothing about what the derived value LOSES**, and D459 already measured that nine of ten
+one-token deletions lose the token's meaning.
+
+D461 is the priced case. Both its rows derived to `[{op:"healEach", amount:100}]` after the
+deletion — and dropping `Basic` heals every EVOLVED body on the side, while dropping `Benched`
+heals the ATTACKER. The slice cost one anchor, one noun map, one deriver arm, two op fields, two
+fixtures, a deck, an interpreter diff and a 30-test suite.
+
+**Before pricing a `PHRASE-1` row, print the derived value beside the printed sentence and say
+what the deletion lost.** If the answer is "which objects the sentence is about", the class name
+is measuring the wrong thing.
+
+⚠️ **And the mis-reading direction is usually QUIET.** Deleting a narrowing yields a SUPERSET, so
+the engine does MORE than the card says: more log rows, never fewer, no `ATTACK_EFFECT_SKIPPED`,
+and no count that goes down. Every assertion written against the built rows stays green.
+
+## One printed adjective slot can hold two different KINDS of fact (D461)
+
+*"each of your **Basic** Pokémon"* narrows by a CARD property. *"each of your **Benched**
+Pokémon"* narrows by a BOARD position. They occupy the same slot in the same template and they
+are not the same axis.
+
+**The decisive test is `matchesFilter`'s signature**, not intuition: it is
+`(card: Card | undefined, filter: CardFilter)` and is never handed an `InPlayPokemon`, so a board
+position is inexpressible as a `CardFilter` **at any width**, while a printed stage is exactly
+`{kind: "basicPokemon"}`. Verified at D204, D264, D265, D331, D450 and again here.
+
+The shape then follows from the union's own rule with no judgement left over:
+
+| the printed rows differ in | the shape |
+|---|---|
+| PAYLOAD (nullary vs carrying, or different fields) | two MEMBERS |
+| a discriminator only, identical payload | ONE member, discriminator as a FIELD |
+| a discriminator on TWO axes, identical payload | ONE member, **TWO fields** — never one enum |
+
+A single `scope: "basic" \| "bench"` enum fails twice: it puts two axes in one slot
+(`attachFromTop.restTo`'s standing refusal — *"two keys on one axis can be set to contradict each
+other"*, pointed the other way) and it cannot spell the CROSSING. The catalog need not print the
+crossing today; **the vocabulary must not be the reason it could never be read.**
+
+**`AttachTargetRiders` (D204) is the shipped precedent and the names are ITS names** — `basicOnly`,
+`benchOnly`, `targetType`, `ownerPokemon`, `notIfKO`, two card facts and two board facts as flat
+riders on one op. Reach for it before inventing a field name.
+
+## A frozen tail and a live head look identical and are edited in OPPOSITE places (D461)
+
+D426/D437: a census chain is edited at the FRONT, never at the END, because a tail that moves with
+the head asserts `head === head`. D461 stepped SEVEN tails at the end before re-reading the rule.
+
+**The tell is the left-hand side of the assertion:**
+
+| left-hand side | what it is | how to step it |
+|---|---|---|
+| `expect(live)` — a bare live expression | a LIVE HEAD | change the literal |
+| `expect(live - 3 /* … */ - 2 - 1 - … - 922)` | a CHAIN with a FROZEN TAIL | add a term at the FRONT |
+
+`precociousEvolution.test.ts` carries **one of each within sixty lines**, so the file is not the
+unit and neither is the number. ⚠️ Reverting the tails is what exposed the live head — it went red
+on its own, which is the cheapest possible way to be told the difference.
+
+## A fixture's census delta depends on what it PRINTS, not on the fact that it exists (D461)
+
+D460's table lists `clauseApostrophe` first among the rungs a new fixture moves. D461 added two
+fixtures and **that rung did not move**: neither sentence carries a possessive. What did move was
+the `FIXTURE_POOL` id floor (555 → 557), its eleven-deep `ids.length - N` ladder, and
+`stage1Bonus`'s Stage-1 count (83 → 84, because one fixture is a Stage 1).
+
+**Read the fixture's own fields against each rung's predicate rather than stepping the whole
+table.** ⚠️ And a synthetic Stage 1 must carry a NON-NULL `evolveFrom` — `stage1Bonus`'s chainless
+rung is a singleton finding that a careless fixture turns into an artefact (D390, honoured at
+D391/D393/D421/D424/D432/D439 and now here).
+
+## "Every printing site moves by the same delta" is false (D461)
+
+`compoundCompose.test.ts` §4's `claimedWhole` is a PRINTINGS figure that did not move when four
+claimed printings arrived, because it carries a SECOND predicate: it counts printings that are
+MULTI-CLAUSE **and** claimed whole, and both new sentences hold zero `. ` joiners.
+
+**A census site is its predicate, not its unit.** Step by analogy and a site with a second
+conjunct goes red; the cheap disproof is running the suite rather than reasoning about it.
+
+## A refusal list is a claim with an expiry date, and re-pointing it is owed twice over (D461)
+
+D461 built a sentence that **two** shipped `toBeNull` lists held as live witnesses
+(`boardHeal.test.ts`'s `REAL_NEAR_MISSES[4]`, `selfHeal.test.ts`'s `UNMAPPED_NEAR_MISSES[0]`), and
+one of them carried the comment *"nothing in the pool prints this spread form at all today"* while
+the pool printed it twice.
+
+Two rules, and the second is new:
+1. **Grep every refusal list for the sentence before you build it** — the STANDING NOTE in those
+   files already says re-point rather than delete.
+2. 🆕 **Prefer a witness whose blocker is DATA over one whose blocker is a mechanism.** A sentence
+   unbuilt because a column does not exist cannot be built by any reader at any width, so the slot
+   stops needing re-pointing every few slices — and if it ever goes green, the thing that changed
+   is the ingest, which is exactly what a witness should be able to tell you.
+
+## The `Ancient` banner is the residue's largest non-mechanism blocker: 7 sentences / 10 printings (D461)
+
+Measured over all 640 rows of `legalAttackCorpus()`, not sampled. The persisted `Card`
+(`packages/schema/src/catalog/card.ts`) carries **no** banner column — `id, setId, localId, name,
+category, image, illustrator, rarity, regulationMark, hp, stage, evolveFrom, types, retreat,
+abilities, attacks, weaknesses, resistances, trainerType, energyType, effect, legal, variants` —
+and the banner is a per-PRINTING fact, so a name-keyed species table is refused forever (Great Tusk
+ex `sv01-123`/`-230`/`-246` is the same species with and without it).
+
+**The falsifier is an INGEST change** (a per-printing column plus a `CardFilter` member). Nothing in
+`packages/engine` can be it. Priced here so successors stop re-deriving it: `Future` is the same
+shape one banner over and blocks two more `PHRASE-1` rows.
+
+## A refusal that names a SENTENCE is usually a claim about a WARRANT, not about a carrier (D462)
+
+D424 measured *"Your opponent's Active Pokémon is now Burned, Confused, and Poisoned."* (corpus
+FILE LINE 679, 1 sentence / 2 legal printings), named it, and left it LOUD:
+
+> the ONLY 3-status row in the column, so a 3-list template would be D121's literal over a pool of
+> one
+
+Every word of the measurement is true and the conclusion does not follow. **D121 prices a NEW
+parameter.** The third slot is `STATUS_WORDS` — D424's own vocabulary, warranted in the same doc
+block on three distinct printed pairs with both slots varying — at one more position. The pool of
+one was the SENTENCE's and never the parameter's, and the sentence cost ONE anchor and ONE arm over
+a helper that already existed.
+
+**When a refusal cites a warrant rule, ask which THING the rule is about.** "Two printings before a
+parameter" is about the parameter. A sentence that reuses an existing parameter at a new position
+introduces none, so the rule has nothing to say about it. D462 is the second slice in four to find
+a shipped refusal that priced the wrong noun (D457's was "unrepresentable here" about the wrong
+op's vocabulary).
+
+## Choose a TEMPLATE over a LITERAL when the captures are what keep a refusal REACHABLE (D462)
+
+The usual argument for a template is generality and the usual argument against it is D121. D462
+found a third axis that beats both when they tie on cost.
+
+`DEFENDER_STATUS_TRIPLE` could have been a literal — `Burned, Confused, and Poisoned` — for the
+same one regex and the same one arm. It is a template because those three words are **provably
+slot-disjoint**, so `defenderStatusOps`' collision refusal would be UNREACHABLE from the literal
+arm: dead code that can only rot, and exactly the "declared but not live" defect D424 avoided by
+driving its own refusal synthetically. With the slots open, a constructed *"…is now Asleep,
+Confused, and Poisoned."* reaches the refusal the way the pair's six collisions do.
+
+**A template that can never be WRONG and keeps a guard reachable beats a literal that cannot be
+wrong and makes the guard dead.** Check the second half explicitly: enumerate what the open slots
+admit (here 18 sentences, one printed, every one deriving a correct program) before claiming it.
+
+## A red test run reports the ENDPOINT; D426/D437 says to edit the HEAD (D462)
+
+D461 wrote down that a frozen tail and a live head are edited in opposite places. D462 broke that
+rule anyway, six times in one pass, and the reason is worth more than the rule:
+
+**The assertion that throws is the endpoint, so the endpoint is what the tool names.** A vitest
+failure reads `expected [372, 1271] to deeply equal [373, 1273]` and the obvious edit — the one at
+the reported line — is precisely the forbidden one. A tail that moves with the head asserts
+`head === head` and no sweep can tell.
+
+**When a subtraction chain reddens, do not edit the line the runner named.** Find the chain's HEAD
+(`resolving.length - N /* …`, `units(resolving) - N /* …`, `ids.length - N /* …`) by a string count
+over the file, put the new term there, and leave the endpoint alone. D462 reverted all six and
+stepped 22 heads instead.
+
+## Vitest stops an `it` at its first throw, so COUNT THE FILE — do not re-run the suite (D462)
+
+D462 needed **three** rounds of `bun run check` to make eleven files green, and no round was wrong
+about what it reported. Round 1 named 12 files / 16 tests. Round 2 found **11 sites that had been
+quiet behind them**, two in files that had not been red at all. Round 3 found **8 more**.
+
+A census `it` in this repo routinely carries three or four assertions over the same corpus — a
+sentence count, a printing count, a residue count and a chain. **Fixing the reported one makes the
+next one reportable and nothing more.** The instrument that sees all of them at once is a string
+count over the file:
+
+- `s.split(pattern).length - 1` sees every occurrence, including several on one line;
+- `grep -c` counts LINES and under-reports (D462's version tax: 52 occurrences in 43 files, so
+  seven files were under-reported by nine);
+- a line-anchored regex under-reports too — D462's first head scan required the head to start the
+  line and found **15 of 22**.
+
+## `String.replace(find, replacementString)` interprets `$` in the REPLACEMENT (D462)
+
+`$&`, `` $` ``, `$'`, `$n` and `$$` are directives inside a replacement STRING. D462's new anchor
+ends `\\.$` immediately before a backtick, so `` $` `` — "everything before the match" — spliced
+19,000 lines of `effects.ts` into itself on the very first patch. The file went from 25,970 to
+45,031 lines and nothing but a line count noticed.
+
+**Always pass a function: `s.replace(find, () => replace)`.** A throwaway patch script must also
+(a) assert the `find` occurs exactly the MEASURED number of times, (b) refuse `find === replace`,
+and (c) restore every touched file from an in-memory backup in a `finally`. D462's did all three
+and still needed the line count, because a `$`-splice is a successful replacement.
+
+## `opcoverage.ts` cannot see a reader ARM, and that is its universe rather than a gap (D462)
+
+D462 moved `residue-census.ts` (residue 124/172 → 123/170) and left `opcoverage.ts`
+**byte-identical in every column** except the corpus size — seat lines 206/470 = 0.438, decision
+points 878/1326 = 0.662, `applyStatus` 1/2 = 0.50 before and after.
+
+That is correct by construction. The instrument's universe is `EffectOp` KINDS and the producer /
+implementation regions that mention them; a slice whose whole subject is a new ANCHOR and a new
+deriver ARM producing an **already-produced** op adds no kind, no arm in the interpreter, and no
+row whose `find` span lands within `FANIN`/`LEV` of a literal `"applyStatus"`.
+
+**Say which instrument is blind to your subject BEFORE you run it**, so a flat column reads as a
+prediction met rather than as a slice that did nothing.
+
+## The `Ancient`/`Future` banner is 12 sentences / 16 printings, and it is FOUR carriers (D462)
+
+D461's entry above says 7 / 10 for `Ancient` alone. Re-measured over the census output at HEAD, the
+residue holds **12 sentences / 16 printings** mentioning `Ancient` or `Future` — 8 non-`OPAQUE`
+(`COMPOUND-head` ×1, `SUBST-2` ×3, `SUBST-3` ×1, `PHRASE-1` ×3) and 4 `OPAQUE`.
+
+**The data refusal stands** (`effects.ts`, `PREVENT_DAMAGE_FROM_CLASS`'s doc block): the banner is a
+per-PRINTING fact and no ingested column carries it. **But it is not one mechanism even if the data
+arrives.** The eight non-`OPAQUE` rows want the predicate in at least four different carriers — a
+`CardFilter` kind, `preventDamage.fromClass` (a one-member union), an op FIELD in the
+`moveCountersToDefender.ownerPokemon` shape, and a SUPPORTER-CARD predicate for *"If you played an
+Ancient Supporter card…"*, which is not about a Pokémon at all. **Price the CARRIERS, not the
+token.**
+
+## The `?suffix=` filter fails CLOSED, and the ingest MAPPER is not what is missing (D462)
+
+Answered from the code, as far as a checkout with no database allows:
+
+- **`?suffix=` returns an EMPTY page, not the unfiltered one.** `apps/api/src/catalog/query.ts`
+  pushes `inArray(cards.suffix, query.suffix)` and SQL `NULL IN (…)` is never true. Failing closed
+  is the better of the two modes and is worth recording as a property rather than an accident.
+- **`/facets` `suffixes` serves `[]`** while the column is empty (`selectDistinct` under
+  `isNotNull`), so the rail renders no chip and the filter is unreachable from the UI.
+- 🛑 **The bigger fact is already recorded and is worse than "vacuous":** migration `0006`, which
+  ADDS the column, **has never been applied to the remote database**, so production has no `suffix`
+  column at all — and `/facets` selects it inside a shared `db.batch`, so deploying ahead of the
+  migration fails the WHOLE endpoint (`apps/api/src/db/catalog.ts`; runbook
+  `docs/workstreams/backend-data.md §3.7`).
+- ⚠️ **The ingest CODE is not missing.** `apps/api/src/ingest/map.ts` maps
+  `suffix: normalizeSentinel(card.suffix)` on the Pokémon arm and `apps/api/src/ingest/upserts.ts`
+  writes the column. "The fix is an INGEST change" is imprecise wherever it appears: what is
+  missing is a MIGRATION on the remote and an ingest RUN.
+- ⚠️ **And it would not classify `Ancient` anyway** — `suffix` is the rule-box marker
+  (`ex`/`V`/`VMAX`). `packages/schema/src/tcgdex/card.ts` declares no banner field. 🛑 **The limit of
+  that check, said out loud: the schema is NOT strict** (no `.strict()`, no `.passthrough()`, no
+  catchall), so zod strips unknown upstream keys silently — this repo's transcription having no
+  banner field is not evidence that tcgdex has none.
+
+## `OPAQUE` in `residue-census.ts` means UNCLASSIFIED, never EXPENSIVE (D463)
+
+`OPAQUE` is the classifier's *no-verdict* bucket: **no single deletion and no single substitution
+this instrument can make reaches a string some reader already builds.** That is a statement about
+**how far the instrument can edit a sentence**, and it says nothing whatever about how much the
+sentence costs.
+
+D463's proof, measured: corpus file line **234** (*"Flip a coin until you get tails. For each heads,
+discard an Energy from your opponent's Active Pokémon."*) sat in `OPAQUE`, and its twin at line
+**200** (*"Flip 2 coins. …"*, byte-identical consequent) sat in `SUBST-7`. **They are ONE shape**,
+reached by two `AttackFlipCount` members that shipped at D127 and D129. Line 234 cost one regex and
+one arm — the same as the row the instrument had classified as cheap. It is `OPAQUE` only because
+the edit that would reach a built string is seven tokens and lands on a *different* flip count.
+
+Three rules follow:
+
+1. **A row in `OPAQUE` is not out of reach; it is out of the INSTRUMENT's reach.** Three slices in a
+   row read `OPAQUE 88/126, unmoved` as *"the cheap work is gone"*. It moved on the fourth, to a
+   pair that cost two regexes.
+2. **When a cheap class names a sentence, grep the corpus for its SHAPE, not for its class.** The
+   pair here was findable only because `SUBST-7` named the twin: the instrument pointed at an
+   `OPAQUE` row it could not classify.
+3. **The class table SPLITS one shape across classes and has no way to join it.** Two rows in
+   different classes may be one slice; the table cannot say so, and nothing in the output hints at
+   it.
+
+## A refusal that groups N rows under ONE reason is N refusals until each is priced (D463)
+
+D452's `OUT_OF_SCOPE` held four corpus rows and refused three of them (lines 200, 217, 234) with a
+single shared count — *"`discardEnergy` PARKS on a genuine choice"*. D463 built two of the three,
+and the third was **never refused for that reason at all**: line 217 is *"For each TAILS"*, a FACE
+axis `programPerHeads` does not have, which no amount of parking work would have touched. It is
+still unbuilt now that the park is shipped.
+
+**A grouped refusal takes its REASON from its cheapest member and its COST from its dearest**, and
+both numbers are wrong for every member in between. Split it before quoting it. The executable form
+of the split is worth writing: D463's §1 re-enumerates the whole per-face family off the corpus and
+asserts exactly ONE row is unbuilt, so the distinction reddens if it stops holding.
+
+## A refusal is only as retired as its most CONFIDENT test (D463)
+
+D130 wrote that N sequential parks are *"the one thing D130's expansion cannot express"*. The code
+contradicted it from the first day — `resumeProgram` ends in `runProgram(applied, rest, …)`, so an
+op in `rest` that parks parks again. D423 corrected it in prose. **D452 disproved it EXECUTABLY**,
+building the two-op program by hand and asserting the second copy sits in `cont.rest`.
+
+And for eleven more decisions, four separate files went on asserting the sentence was unreadable —
+because the correction and the assertion lived in different files. **A prose correction does not
+retire a refusal; the arrays do.** When a refusal is overturned, grep the whole repo for its
+SENTENCE, not for its decision number.
+
+## Check the negative-control cost FIRST, then pay it — it is not a reason to refuse (D463)
+
+Before building a residue row, grep the suites for its sentence. D462 found one (`"Each player draws
+3 cards."`) whose construction would have silently un-armed two attribution rungs; D463 found
+another — Krookodile `sv01-117`, the FIELDED *"stays LOUD"* end-to-end witness in five suites.
+
+**The two cases end differently and the difference is the point.** D462's row had a SEMANTIC reason
+to stay refused as well (`drawCards` is seat-fixed). D463's did not: refusing it would have left a
+PRINTED sentence unbuilt for no reason but a test's convenience — **a refusal about a SUITE wearing
+a claim about a SENTENCE**, which is the exact failure mode this file already warns about one
+section up.
+
+The cheap way to price it: **make the engine change alone and read the runner.** D463's negative-
+control cost measured 22 failing assertions across 17 files in one run, before a line of test work
+was written. And when the witness is re-pointed, D418's question is owed: *what did the OLD claim
+catch that the new one cannot?* Here — that `deriveAttackEffect` still refuses the sentence, which
+is kept in all four files, **because the trap it guards got WORSE when the sentence got built**: a
+float now puts TWO readers on ONE printing at TWO sites instead of turning a loud skip into one
+silent discard.
+
+## ENCODE FIRST, WRITE SECOND — `open(p, "w")` truncates before `.write()` runs (D463)
+
+D463 emptied `scripts/mutation/mutants.ts` (23,514 lines → 0 bytes) with
+
+```python
+open(p, "w", encoding="utf-8").write(text)   # text held lone surrogates
+```
+
+`open(p, "w")` **truncates the file when it opens it**. The `UnicodeEncodeError` was raised inside
+`.write()`, so the file was already empty and nothing was written. The repo's standing rule —
+*"assert its own file's size after writing, wrapped in try/finally"* — **would not have caught it**:
+the `finally` did run, and it reported the damage rather than preventing it.
+
+The rule that does:
+
+```python
+payload = text.encode("utf-8")     # fails here, with the file untouched
+with open(p, "wb") as fh:
+    fh.write(payload)
+```
+
+Repair, when it happens: `git show HEAD:<path> > <path>` and re-apply the slice's own edits. That is
+not `git checkout --` / `reset --hard` / `stash` and stays inside the standing prohibition.
+
+⚠️ **And the cause is worth naming separately: lone surrogates.** `"🛡"` in a Python
+string is two unpaired surrogates and is NOT encodable; the emoji is `"\U0001f6e1"`. Text copied out
+of a JS/TS source (where `🛡` is a valid pair) does not survive the trip.
+
+## A FRONT-INSERT must append to the head and leave the tail byte-for-byte (D463)
+
+Adding a term to the front of a census subtraction chain, D426/D437's rule, has a mechanical trap.
+This ate eighteen minus signs in one pass:
+
+```python
+l.replace(head + "- ", head + FRONT_TERM)      # FRONT_TERM ends "*/ "
+# result:  units(x) - 2 /*D463*/ 2 /*D462*/ …   ← D462's own "- " is gone
+```
+
+Splice by **appending to the head and keeping the whole tail**: `l[:at] + head + FRONT_TERM +
+l[at + len(head):]`. Any offset computed from the marker's length is where the sign goes.
+
+⚠️ **And the marker is not unique on the line.** `BUILT.attack - ` occurs twice on one
+`censusAtHead.test.ts` line — once as code, once inside a comment quoting the count. Take the FIRST
+occurrence and assert its column is inside the code region (`0 <= at < 80`), never `count(…) == 1`.
+
+## A PAIR of anchors needs a PAIR of probes (D463)
+
+D463's new suite had one mid-sentence refusal loop:
+
+```ts
+for (const text of [`This attack does 30 damage. ${PRINTED_TWO}`, …]) expect(…).toBeNull();
+```
+
+It varied the SENTENCE across its cases while holding the DEFECT fixed, which **looks** symmetric
+and left the twin anchor's `^` with nothing driving it — reported by the probe as a GAP on
+`D463-until-tails-anchor-loses-its-caret`. When a slice ships two anchors, the negative loop must
+run every probe against BOTH; the four pre-probe passes will not find this, because each row is
+individually well-formed and each sits in a region the slice really changed.
+
+## Two claims stronger than the code accumulated on ONE unpinned line (D463)
+
+`attack.ts`'s D130 expansion had **zero mutant rows for 333 decisions** (needled at D463:
+`repeated.push`, `coinFlip.ops`, `expanded.length > 0`, `i < heads` — 0 hits each), and it collected
+two comments that overstate what the code does:
+
+- *"the one thing D130's expansion cannot express"* — false from the first day, and the whole of
+  D463.
+- *"an empty `EffectOp[]` would route the attack through `settleProgram` … a different ending with
+  the same result … how a no-op grows a KO sweep it did not have"* — **measured false at this head**:
+  the mutation was applied and the WHOLE engine suite run against it (341 files / 8,888 tests,
+  green). With no damaged-trigger and no KO-Tool stage, `epilogue` is `[attackEpilogue]` alone,
+  `advance` pops it and calls `finishAttack` itself, and draining an empty program reaches the same
+  call — which a comment ten lines BELOW the guard already calls *"byte-identical to the pre-slice
+  tail"*, contradicting the one above it. Declared `equivalent` and kept, not deleted: it is written
+  from the rule, and it is self-invalidating (D427).
+
+**An unpinned line is where prose goes to stop being checked.** Needling `mutants.ts` for the
+identifiers in a region you are about to build on costs one grep and is the cheapest audit here.
+
+## `MATCH_RECORD_VERSION`: pick the argument SHAPE that is true, not the one you used last (D463)
+
+Three shapes are on record and they are not interchangeable:
+
+- **REACHABILITY (D461)** — *the op never parks, so it can never reach `phase.cont.rest`.*
+- **SERIALIZED ALPHABET (D462)** — *no new op, op FIELD or op VALUE, so no byte a v29 record can
+  hold after the slice that it could not hold before it.*
+- **NOTHING OPTIONAL ADDED (D458)** — *the widening is on a field that was already optional.*
+
+D463 is the alphabet, and **reachability is FALSE for it**: its op parks, so the continuation is
+written and persisted. Reusing the previous slice's sentence would have been a confident false
+claim about the one structure the version guards. **The COUNT of copies is not a byte in the
+alphabet** — an array that already accepts N members does not gain a shape by holding two.
+
+⚠️ And when the slice DOES park, the LOSS direction stops being a formality: empty `rest` in the
+persisted bytes and the resumed board must take a **different, observable** ending. That is what
+turns "N parks" into a claim about a BOARD rather than about a log.
+## An instrument that produces a COMMITTED figure needs a KILLER, not a doc block (D465)
+
+`scripts/residue-census.ts` shipped at D459 as *"the instrument that produces a coverage figure is
+committed beside the corpus it measures"*. It then ran for six slices with **nothing behind it**,
+and the bill arrived twice:
+
+- The three literals it transcribes from `censusAtHead.test.ts` **rotted by exactly one slice, four
+  separate times**, and its own doc block says so — *"the rot is one slice deep every time and
+  nothing reddens."*
+- Its span probe had a **mechanical blind spot** that over-populated `OPAQUE` by six rows for six
+  slices. A wrong classifier does not go red. It just points at the wrong target.
+
+`scripts/residue-census-gate.ts` is the repair, on D212's precedent (`lint-coverage.ts`) and D411's
+(`recovery-gate.ts`): a `killedByCommand` killer, not a `bun run check` step. ⚠️ **A `*.test.ts`
+CANNOT do this job** — `scripts/**` is outside vitest's include globs *and* outside `tsc -b`'s
+project references, so importing the probe from a suite breaks the typecheck instead of guarding
+anything. The gate needs the module importable, which means guarding the printing with
+`if (import.meta.main)` — a two-line change that costs nothing and is the whole difference between
+a script and a library.
+
+⚠️ **THE GATE HOLDS NO NUMBER OF ITS OWN.** Its §A reads the pinned literals out of the suite's
+SOURCE and compares them with the instrument's own computation. A figure copied into a second file
+is the exact thing that rotted four times; a gate that copies it rots the same way and takes the
+alarm with it.
+
+## A tokeniser that splits and rejoins on `" "` cannot delete the LAST token (D465)
+
+`spanProbe` did `text.split(" ")`, dropped a span, and `join(" ")`. Every corpus sentence ends with
+its terminator, so a deletion reaching the last token took the period with it and the remainder
+**could never build** — not "rarely", never. Six residue rows / 9 printings sat in `OPAQUE` for that
+reason alone.
+
+The repair is not one `if`, which is what the guess said:
+
+1. re-attach the sentence terminator when the span reaches the last token, **and**
+2. drop a dangling clause separator (`,` `;` `:`) first — two of the five rows leave `…of your
+   deck,` and a period alone yields `deck,.`, and
+3. do **not** re-terminate a remainder that already ends in `.` — that is a NARROWING dressed as a
+   widening, and it silently costs hits the probe already had.
+
+⚠️ **KEEP THE UNREPAIRED CANDIDATE AND ASK BOTH.** Replacing the plain join with the repaired one
+makes the fix a change; asking both makes it a widening, and "no span this probe used to reach can
+be lost" becomes a property rather than a hope. It is checkable in one diff: every pre-existing
+`SPAN` evidence line must come out byte-identical.
+
+## D464's MEASUREMENTS survived the slice; its ESTIMATE of the fix did not (D465)
+
+D464 wrote three things about the blind spot. Two were measurements and reproduced exactly a slice
+later (`18 − 1 = 17` sentences, `24 − 2 = 22` printings once its own row was built; the six named
+FILE LINES were the six, to the row). The third — *"the fix is one `if` in `spanProbe`"* — was a
+guess and was wrong in the cheap direction. **A measurement survives a slice. A size estimate does
+not, and the two sit in the same paragraph looking alike.**
+
+## A CLASS TABLE is a statement about the INSTRUMENT, so fixing the probe moves it with no build (D465)
+
+D465 moved `OPAQUE` **86/123 → 81/116 before building anything**, and then built a row and `OPAQUE`
+**did not move at all** — the reverse of the previous two slices, which both reported an `OPAQUE`
+step as the receipt for their build. Both facts are correct and neither is about the work:
+
+- the fix moved five rows out of `OPAQUE` because the probe could suddenly reach them;
+- the build then took one of those five, so it left `PHRASE-6` and not `OPAQUE`.
+
+**Never read a class-table delta as a measure of what a slice did unless the instrument stood
+still.** Say which of the two moved.
+
+## A FIXTURE_POOL id is a CENSUS entry, and adding one has a tax of its own (D465)
+
+D464 could write *"NO NEW FIXTURE ID"* because its sentence already sat on a shipped fixture. D465
+could not, and the id cost twelve assertions in one file that has nothing to do with the slice's
+subject: `opponentResistanceBonus.test.ts` pins the pool SIZE (558 → 559) and carries **eleven
+nested `ids.length - N` chains** that all take a front term. Check `Card.resistances` and the
+weakness column in the same pass and say they stood still — a fixture added for a damage-number
+claim has no business moving a Resistance census (D427).
+
+## A chain head can sit MID-LINE, and an anchored grep cannot see it (D465)
+
+The census tax is paid by stepping chain heads at the FRONT. A sweep for
+`^\s*<subject> - [0-9]+ /\*` found sixteen and missed three, because those three sit inside a
+two-operand `toEqual([…, …])` on one line. The runner then showed **two of the three** — the third
+was behind a passing assertion in the same `it`. Re-grepped without the `^` anchor it reads
+nineteen. **Grep the loosest plausible shape and state what the pattern cannot see (D419), and never
+treat the runner's list as the population.**
+
+## An `expect(...).toHaveLength(N)` over a FILTERED corpus is a negative control (D465)
+
+`scaledAnySnipe.test.ts` §1 builds its population with
+`/for each/i.test(t) && t.includes("damage to ")` and pins `unbuilt` at 8. An exact-sentence grep of
+every `*.test.ts` for the row D465 built returned **ZERO hits** — and the rung still reddened,
+because the row was never named: it was *counted*. ⚠️ **GREPPING FOR THE SENTENCE DOES NOT FIND
+EVERY CONTROL THAT HOLDS IT.** A filter-built population holds sentences nobody typed.
+
+Re-pointed rather than decremented (D418): the count now says 7, and two new assertions name the row
+that left and pin the ONE fact that makes it a non-member — its op is `damageSelf`, not
+`damageChosen`. A count that steps 8 → 7 records that something left and says nothing about what;
+the pair goes red on *"a reader widened past the count clause"* and green only on *"D465 built the
+self-hit"*, which the old count could not distinguish.
+
+⚠️ **AND THE SAME LOOSE PATTERN OVER-INCLUDES IN BOTH DIRECTIONS.** `t.includes("damage to ")`
+matches *"damage to ITSELF"* — a recoil on the attacker's own body has been sitting in a
+"chosen-target hit" population since that rung was written. Its own block already recorded that the
+pattern MISSES a member (a counter-spelled snipe); it took a slice to notice it also holds one that
+was never a member.
+
+## `damageCountersOnSelf` ships and is NOT usable from an `EffectOp` (D465)
+
+`DamageCountSource` has seventeen members including `damageCountersOnSelf`, and reaching for it is
+the obvious move. It is a **PARSE-TIME type** — its own doc block says *"no `EffectOp` carries
+one"* — consumed in the same tick by `attack.ts`'s module-private `scaledAttackDamage`, which needs
+a defender seat and an effective cost array that `EffectContext` does not have. The shipped way to
+scale an OP's own amount is a boolean rider folded by an `(op, state, ctx)` function
+(`snipeAmount`'s `perTakenPrize`, `perEnergyOnSelf`, now `recoilAmount`'s
+`perDamageCounterOnSelf`). **The general collapse into `scale?: DamageCountSource` was PRICED at
+D448/D449 — 24 sites across 10 files plus a `MATCH_RECORD_VERSION` bump for zero extra printings —
+so a third rider is that refusal re-applied, not a new decision.**
+
+## The REACHABILITY argument has a FIRST-position form as well as a LAST-position one (D465)
+
+D464's op reached `phase.cont.rest` and was safe because its `rest` was **EMPTY BY POSITION** — the
+op was last. D465's is unreachable for the mirror reason: the only producer returns a program of
+**LENGTH ONE**, so there is no earlier op at all, let alone a parking one. Both are D461's shape and
+both must be **DRIVEN**, not asserted: pin `program.length`, and pin that `phase.cont` is absent
+after the swing — **on a board where the op WHIFFS as well as one where it fires**, because a whiff
+is not a park and the two are easy to confuse in a `stepOp` arm.
+
+
+## A REFUSAL IS NOT AN ASSERTION, so its REASON can be false for years and nothing goes red (D466)
+
+D466 built the row D446 had refused, and found D446's stated reason false in every clause:
+
+> *"a stage ORDINAL is not a persisted field either — `Card.stage` is a free-text column and the
+> engine's own `isBasicPokemon` / `evolveFromOf` read it as a BINARY. Spelling 'Stage 1' would mean a
+> third reading of that column, and the row is ONE printing."*
+
+`Card.stage` is a **persisted column with a CLOSED vocabulary** (`Basic | Stage1 | Stage2 | VSTAR |
+VMAX`, queried against the remote D1 at **D262**), and `cards.ts` had been reading it as the **ORDINAL**
+for 59 decisions — `isStage2Pokemon` since D262, `isStage1Pokemon` since D387, both cited by name in
+`interpreter.ts`'s own `opponentActiveIsStage1` / `opponentActiveIsStage2` arms. The new member was
+therefore **not a third reading of anything**; it was the FIRST reading reused at a second address.
+
+🛑 **THE MEASUREMENT BESIDE IT WAS RIGHT.** *"The row is ONE printing"* is a fact about the pool and is
+still true — and it was the real reason not to take the slice at D446. **A measurement and a
+conclusion are two separate claims and each needs its own check.** This is the third slice in a row
+where the measurement was right and the conclusion was not (D457 and D458 each mis-priced their own
+blocker by reading a doc block instead of asking the code).
+
+⚠️ **WHY THIS CLASS OF ERROR SURVIVES SO LONG: A REFUSAL IS NOT AN ASSERTION.** A `toBeNull` rung goes
+red when the refusal STOPS being true; nothing anywhere goes red when the REASON stops being true, or
+was never true. So the reason accumulates rot at the exact rate nobody re-reads it.
+
+**THE RULE.** Before inheriting a refusal:
+1. **grep for the thing the reason says does not exist.** D466's whole disproof was
+   `grep -n "isStage1Pokemon\|isStage2Pokemon" packages/engine/src/cards.ts` — one command.
+2. **Separate the reason from the price**, and record them separately at the site, so the next reader
+   can see which one is load-bearing.
+3. When you falsify a reason, **correct it where it lives and say which slice corrected it and how it
+   was measured** (D442) — do not simply delete it. D466 kept D446's bullet as the record of a
+   prediction that came true, with the false clauses marked as history.
+
+## A `COMPOUND-*` class names the EDIT that reaches a built string, NOT a composition path (D466)
+
+`residue-census.ts` classifies a residue row `COMPOUND-tail` when removing segment 1 leaves a segment
+some reader claims. **That does NOT mean "build the head and the row leaves the residue."**
+
+Measured at D466, with a head that ALREADY builds:
+
+```
+"This attack does 50 damage to each of your opponent's Benched Pokémon."          → spreadDamage ✅
+"This attack's damage isn't affected by Weakness or Resistance."                  → suppression  ✅
+both, joined by ". "                                                             → splitter: null
+```
+
+`splitAttackTrailingClause` requires the TAIL to be a **`deriveAttackEffect`** clause specifically
+(it is the half the caller appends to the program), and a W/R suppression tail is a DAMAGE reader's.
+So the two `COMPOUND-tail` rows in the residue (corpus file lines 539 and 616, 4 printings) need the
+head **and** a composition path, and the `SUBST-2` row beside them (line 572) needs the head too.
+
+**THE RULE: before pricing any `COMPOUND-*` row, drive `splitAttackTrailingClause` on the printed
+string with a head you know builds.** It costs one probe. D466 nearly took that family as its target
+on the strength of the class name and a 5-printing count.
+
+⚠️ The general form: **a classifier class is a lower bound on the work stated in the classifier's own
+vocabulary, and its vocabulary is DELETIONS AND SUBSTITUTIONS — not seams, not carriers, not
+composition.** `PHRASE-2` and `OPAQUE` were equally misleading at D466 in OPPOSITE directions: the
+`PHRASE-2` row's "two tokens" were a whole `CardFilter` member, and the `OPAQUE` row cost that same
+member plus ONE anchor. **`OPAQUE` is UNCLASSIFIED, never EXPENSIVE.**
+
+## A declared survivor's `reason` is a DOC FIGURE and rots like one (D466)
+
+`D439-vocabulary-order-loses-the-owner` is a declared `equivalent` survivor whose reason reads *"the
+vocabulary is 25 nouns — the **3 exact keys** of `IN_PLAY_BODY_NOUNS`, the 11 `POKEMON_TYPES` names and
+the 11 `{X}` codes"*. D446 added two exact keys and did not update it; D466 added two more. The map
+holds **7**, and the vocabulary is **29**.
+
+🛑 **THE HARNESS CANNOT SEE THIS.** A `survives` declaration is checked in exactly one direction — the
+run FAILS if the row is KILLED (`STALE-SURVIVOR`). A row that still survives passes with any reason at
+all, including a wrong one, including one whose arithmetic contradicts the file it describes.
+
+**THE RULE: when you edit the structure a declared survivor's reason DESCRIBES, re-derive the reason in
+the same commit**, even when the row still survives. The pre-probe semantic pass is where to catch it —
+needle the corpus for the STRUCTURE name (`IN_PLAY_BODY_NOUNS` returned 2 hits at D466, both inside
+this row's prose), not only for the code lines you are editing.
+
+⚠️ **AND THE PROPERTY IS RE-CHECKED KEY BY KEY, NOT BY DISTANCE.** The row sits 4 lines from a D466
+hunk; the mechanical region-overlap pass flagged nothing (the `find` is outside the hunk) and would
+have said "safe". What actually settles it is reading the mutation: the exact-map lookup sits AHEAD of
+both permuted branches in the `find` AND in the `replace`, and neither new key carries an apostrophe,
+so neither can reach `IN_PLAY_OWNER_NOUN` in either world.
+
+## Run every repo script FROM THE REPO ROOT — a `cd` into the package breaks `tsc` and `bun` alike (D466)
+
+`bunx tsc -b` from `packages/engine/src` fails with `TS5083: Cannot read file
+'…/packages/engine/src/tsconfig.json'`, and `bun scripts/mutation/precheck.ts` from the same directory
+fails with `Module not found "scripts/mutation/precheck.ts"`. **Both look like a broken config and
+neither is.** Every path in this repo's tooling — `tsconfig` project references, `vitest`'s `include`
+globs, `lint-coverage.ts`'s file list, every mutant row's `file` — is repo-root-relative. D466 lost two
+rounds to this. Use absolute paths in `sed`/`grep`, and invoke tools from the root.
+
+## A disjointness GUARD is only killable where the pattern that needs it runs FIRST (D467)
+
+D467 added two anchors that narrow a shipped one by a printed noun, and they are disjoint from their
+siblings for two DIFFERENT reasons:
+
+- `BENCH_COUNTER_FILTERED_MULTIPLY` captures `([^.]+ Pokémon)` — at least one character, a SPACE, then
+  the head noun — so the shipped `…on all of your Benched Pokémon.` **cannot match it at all**. That is
+  STRUCTURAL disjointness and it carries no guard.
+- `YOUR_BENCHED_NOUN_SCALE` captures a BARE token (`…for each of your Benched Charjabug.`), so nothing
+  in its shape excludes `Pokémon`. Its only defence is a `(?!Pokémon\.)` lookahead.
+
+**The second kind has a trap.** Place the narrowed arm at the house position — BEHIND the arm it
+narrows — and deleting the lookahead changes NOTHING the reader can observe: the shipped arm claims the
+sentence first, so the mutation is INERT (D450). And these regexes are **module-private `const`s**, so
+no suite can assert the pattern directly either. **The guard becomes unkillable, which is D205/D208's
+vacuous guard by construction** — a `(?!…)` nobody can turn red is a comment with syntax.
+
+**THE RULE, in order of preference:**
+
+1. **Prefer STRUCTURAL disjointness.** A string cannot end two ways; a capture that demands a space
+   cannot match a noun without one. No guard, nothing to rot.
+2. **Where only a guard will do, place the guarded arm FIRST** and say why in the block. The deletion
+   then breaks the SHIPPED printings, and the row that proves it is killed by the suites that own the
+   OLD member — not by your own suite.
+3. **Then pin the order from the other side** with an ORDER-PERMUTATION mutant declared `equivalent`
+   (D439's shape). The pair is the claim: *the ORDER is legibility and the GUARD is behaviour*, and the
+   day the guard weakens, the survivor reports `STALE-SURVIVOR`.
+
+⚠️ **AND SAY WHICH KIND YOU HAVE.** "Disjoint, so the order is legibility" is true of both and useful
+about neither — the placement decision follows from WHICH mechanism supplies the disjointness.
+
+## A `toBeNull` negative control is a claim with an EXPIRY DATE, and its suite may not be yours (D467)
+
+D467 read two sentences and turned two unrelated suites red. Both pinned *"This attack does 20 more
+damage for each of your Benched {L} Pokémon."* → `toBeNull` as the **"count source with no reader at
+all"** witness — `scaledDamage.test.ts` (re-homed there off Entei at D196) and
+`selfEnergyScaling.test.ts` (as one of three independent reasons a printing stays unread).
+
+Neither was found by grep. Both were found by `bun run check` going red, which is the good outcome —
+but the repair is not "delete the assertion":
+
+- **Re-point it to the OTHER side and say so** (D444/D447): assert the value it derives to NOW, with a
+  note naming the decision that moved it. A rung that quietly shrinks loses the transition.
+- **Find the witness a NEW HOME.** A suite that says "no member answers this count" is asserting a
+  property of the UNION, and the property is still worth pinning — it just needs a different sentence.
+  D467's third home is corpus **file line 534** (the opponent's whole board of damage counters), chosen
+  because it is ONE sentence on ONE fold, so the count source is the only ground.
+- **Note in the resume point that the new witness is load-bearing**, or the next slice builds it
+  without knowing it owes a fourth home.
+
+⚠️ **AND A WITNESS WRITTEN AS *N INDEPENDENT REASONS* IS THE ONE THAT SURVIVES THIS.**
+`selfEnergyScaling.test.ts` wrote its refusal as three facts and said out loud that *"any one of them
+alone would keep it standing"*. D467 is the first time that construction had to pay out: reason 2 died
+and the witness stands on 1 and 3.
+
+## A doc figure can rot in TWO files at once, and fixing one copy makes it worse (D467)
+
+D466 followed the rule above and re-derived `D439-vocabulary-order-loses-the-owner`'s `reason` from
+*"25 nouns — the 3 exact keys"* to 7/29. It did **not** touch `inPlayBodyFilter`'s own doc block, which
+is where that sentence was transcribed FROM and which still said 25/3. For a whole slice the mutant row
+and the comment disagreed by four keys, and nothing anywhere went red.
+
+**THE RULE: when you correct a transcribed figure, correct the SOURCE in the same commit — and prefer
+to DELETE the figure and derive it.** D467 does both: the two prose copies now agree at 8/30, and
+`benchNounScaling.test.ts` §5 computes the vocabulary through the READER (every exact key must resolve,
+every one of the 22 type tokens must resolve, none may match `IN_PLAY_OWNER_NOUN`, and the three sizes
+must sum to 30). The next key to land reddens a rung instead of quietly disagreeing with two comments.
+
+⚠️ The same slice found the same rot in a `what` string: `D439-vocabulary-defaults-instead-of-staying-loud`
+said the defaulting mutation *"steps `BUILT.attack` by 3"*, which was true until D466 built the Stage
+member. Re-MEASURED to **2** by enumerating every unbuilt corpus row that reaches any `inPlayBodyFilter`
+anchor. **A `what` is a doc figure too.**
+
+## `grep -oP` with a negated class can MERGE two printed forms into one key (D467)
+
+D467 measured the corpus slot after *"Benched "* with `grep -oP "Benched [^ .]+\."` and got ONE
+sentence-final value at **89**. The truth is two: `Benched Pokémon.` at **46** and `Benched Pokémon.)`
+at **43** — the negated class stops before the period, so the *"(Don't apply Weakness and Resistance for
+Benched Pokémon.)"* rider's prefix matched as well and the two forms summed into one count.
+
+The wrong figure was already written into an `effects.ts` doc block before the suite caught it.
+**`grep -c` counts TEXT, not structure, and `grep -oP` with a negated class counts a PREFIX, not a
+token.** When a count is going into a doc block or a refusal, enumerate it with a tokeniser over the
+committed corpus and assert the WHOLE multiset — D467's §1 asserts all thirteen keys with their
+multiplicities, so a new printed Bench noun reddens a rung instead of joining a total.
+
+## Three small harness facts D467 paid for
+
+- **A mutant row with `survives` STILL needs `expectKilledBy`.** Omitting it crashes the runner with
+  `TypeError: undefined is not an object (evaluating 'files.join')`. The field is optional in `Mutant`,
+  so `tsc` is silent; the row is the suites the survivor is RUN against to confirm it survives.
+- **Never start a second `bun scripts/mutation/run.ts` while one is in flight.** D411's journal-liveness
+  gate refuses correctly (exit 3, "its journal is not wreckage, it is that run's net"), but both
+  processes write the same redirect and the transcript interleaves into nonsense.
+- **`echo "X=$?"` after a PIPE reports the pipe's last stage, not the script.**
+  `bun scripts/residue-census-gate.ts 2>&1 | tail` printed three §A disagreements while the transcript
+  said `GATE_EXIT=0`. Redirect to a file and read the exit there.

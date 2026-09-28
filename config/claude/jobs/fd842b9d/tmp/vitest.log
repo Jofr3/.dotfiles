@@ -1,0 +1,55 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/cancelThenPrevent.test.ts (33 tests | 1 failed) 212ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 34ms
+ ❯ packages/engine/src/bothBenchSpread.test.ts (38 tests | 1 failed) 212ms
+     × 🛑 the RAW reader-only residue fell by exactly 2 sentences / 2 printings, and both rows left it 30ms
+ ❯ packages/engine/src/derivedBenchSearchMove.test.ts (41 tests | 1 failed) 162ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 29ms
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts (26 tests | 1 failed) 178ms
+     × 🛑 the resolving corpus gains TWO sentences and TWO printings 38ms
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts (27 tests | 1 failed) 147ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 29ms
+ ❯ packages/engine/src/basicEnergyScaling.test.ts (22 tests | 1 failed) 134ms
+     × 🛑 EXACTLY ONE sentence moved, and it is the one this slice names 32ms
+ ❯ packages/engine/src/classedBoardSpread.test.ts (33 tests | 1 failed) 119ms
+     × 🛑 the RAW residue fell by exactly 2 sentences / 4 printings 25ms
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts (31 tests | 1 failed) 118ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 24ms
+ ❯ packages/engine/src/confusionDamage.test.ts (40 tests | 1 failed) 109ms
+     × 🛑 the hazard a bare-tail arm would open, counted over the whole column 25ms
+ ❯ packages/engine/src/flipDefenderAttackLock.test.ts (25 tests | 1 failed) 111ms
+     × the resolving corpus gains ONE sentence and ONE printing 27ms
+ ❯ packages/engine/src/defenderStatusTriple.test.ts (31 tests | 1 failed) 108ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 23ms
+ ❯ packages/engine/src/retreatCostBonus.test.ts (27 tests | 1 failed) 105ms
+     × the NINE-reader instrument steps by exactly 1 sentence / 1 printing 32ms
+ ❯ packages/engine/src/scaledBenchSpread.test.ts (32 tests | 1 failed) 114ms
+     × 🛑 the RAW reader-only residue fell by exactly 1 sentence / 3 printings, and this row left it 27ms
+ ❯ packages/engine/src/benchNamedBonus.test.ts (24 tests | 1 failed) 89ms
+     × 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345 28ms
+ ❯ packages/engine/src/opponentBenchCount.test.ts (25 tests | 1 failed) 101ms
+     × the TEN-reader instrument steps by exactly 1 sentence / 1 printing 34ms
+ ❯ packages/engine/src/exOnlyActive.test.ts (18 tests | 1 failed) 97ms
+     × 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM 59ms
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts (21 tests | 1 failed) 97ms
+     × the census moves by exactly 2 printings on exactly 1 sentence 62ms
+ ❯ packages/engine/src/sameEnergyBonus.test.ts (25 tests | 1 failed) 91ms
+     × the resolving corpus gains TWO sentences and TWO printings 29ms
+ ❯ packages/engine/src/inPlayTypeBonus.test.ts (24 tests | 1 failed) 91ms
+     × 🛑 the TEN-reader instrument steps by exactly 1 sentence / 1 printing 28ms
+ ❯ packages/engine/src/moreEnergyBonus.test.ts (22 tests | 1 failed) 83ms
+     × the resolving corpus gains ONE sentence and ONE printing 27ms
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts (22 tests | 1 failed) 81ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 31ms
+ ❯ packages/engine/src/opponentResistanceBonus.test.ts (29 tests | 1 failed) 71ms
+     × ⚠️ the population is a FLOOR on a BIASED SAMPLE and is not promoted to a census 12ms
+ ❯ packages/engine/src/precociousEvolution.test.ts (13 tests | 1 failed) 88ms
+     × 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two 43ms
+
+ Test Files  23 failed | 468 passed (491)
+      Tests  23 failed | 11198 passed (11221)
+   Start at  03:47:31
+   Duration  180.98s (transform 27.17s, setup 0ms, import 199.36s, tests 51.10s, environment 31.31s)
+

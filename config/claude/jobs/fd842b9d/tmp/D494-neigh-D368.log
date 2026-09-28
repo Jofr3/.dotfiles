@@ -1,0 +1,26 @@
+
+Mutation harness (D211) — 6 mutant(s)
+
+⚠️  --allow-dirty: mutating 2 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+      packages/engine/src/interpreter.ts
+
+  D368-undamaged-satisfied-by-an-empty-spot … KILLED           3.3s
+  D368-undamaged-becomes-its-own-complement … KILLED           3.3s
+  D368-undamaged-tolerates-one-counter … KILLED           3.3s
+  D368-undamaged-row-keys-on-the-near-miss … KILLED           3.3s
+  D368-undamaged-note-becomes-the-complements … KILLED           3.3s
+  D368-declaration-clause-gets-a-board-row … KILLED           3.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D368-undamaged-satisfied… D368                  KILLED           3.3s    1
+D368-undamaged-becomes-i… D368                  KILLED           3.3s    1
+D368-undamaged-tolerates… D368                  KILLED           3.3s    1
+D368-undamaged-row-keys-… D368                  KILLED           3.3s    1
+D368-undamaged-note-beco… D368                  KILLED           3.3s    1
+D368-declaration-clause-… D368                  KILLED           3.4s    2
+────────────────────────────────────────────────────────────────────────────────────
+6 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 26.9s total
+

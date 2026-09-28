@@ -1,0 +1,29 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts (35 tests | 1 failed) 117ms
+     × the same family read from p2 gives the same two numbers 37ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §6 — one board family, eight readings, eight different numbers > the same family read from p2 gives the same two numbers
+Error: p1 deck has no fix-d472-dualfoe
+ ❯ setActiveFromDeck packages/engine/src/testFixtures.ts:21596:32
+    21594|   const side = state.players[seat];
+    21595|   const uid = side.deck.find((u) => state.cardIdByUid[u] === cardId);
+    21596|   if (uid === undefined) throw new Error(`${seat} deck has no ${cardId…
+       |                                ^
+    21597|   const benched = side.active === null ? side.bench : [...side.bench, …
+    21598|   if (benched.length > 5) throw new Error("no bench room to displace t…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:343:11
+ ❯ signature packages/engine/src/typedActiveStatusGate.test.ts:402:29
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:801:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 34 passed (35)
+   Start at  13:28:19
+   Duration  2.81s (transform 2.15s, setup 0ms, import 2.51s, tests 117ms, environment 0ms)
+

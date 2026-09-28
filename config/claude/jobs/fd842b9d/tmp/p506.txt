@@ -1,0 +1,22 @@
+
+Mutation harness (D211) — 2541 mutant(s)
+
+⚠️  --allow-dirty: mutating 10 file(s) with uncommitted changes:
+      docs/conventions.md
+      docs/progress.md
+      packages/engine/src/cards.ts
+      packages/engine/src/censusAtHead.test.ts
+      packages/engine/src/effects.ts
+      packages/engine/src/index.ts
+      packages/engine/src/interpreter.ts
+      packages/engine/src/testFixtures.ts
+      scripts/mutation/mutants.ts
+      scripts/opaque-anatomy.ts
+
+  D192-weakness              … KILLED           3.5s
+  D192-resistance            … KILLED           3.5s
+  D192-predebuff             … KILLED           3.4s
+  D192-othersOnly            … KILLED           3.5s
+  D192-ontarget-trio         … KILLED           3.5s
+  D196-seat-zone             … KILLED           3.5s
+  D196-live-active           … 

@@ -1,0 +1,901 @@
+§9.4 settles the same question outright, in one grep:
+
+> *"Almost every printed effect is decided by the player resolving it, even when
+> it reaches across the table … the target is theirs, the choice is yours. A small
+> family inverts that, and the wording is the tell: **"your opponent may …"**."*
+
+**Ask the rules doc for the rule before generalising from the engine's cases.**
+The doc names the discriminator (a printed chooser) where the cases only exhibit
+one.
+
+## Widen a parameter's MEANING at the call sites, not in the body (D443)
+
+`moveEndpoints` had to start answering about the OPPONENT's board. Rewriting its
+body — five `seat`s → `board` — would have rotted **five** shipped mutant rows
+(`D229-source-scope-is-the-whole-board`, `D229-destinations-include-the-active`,
+`D229-destinations-are-the-other-seat`, `D229-needed-is-two`,
+`D244-othersToSelf-is-benchToActive`), every one of which quotes those lines.
+
+Every route in that function already read its endpoints off whatever seat it was
+handed, so the widening was **two call sites** passing `moveBoardSeat(op, seat)`
+and a doc paragraph. Body byte-identical, zero rows re-transcribed.
+
+**Before rewriting a function to take a new fact, check whether it already takes
+it and the CALLERS are the ones deciding wrongly.** This is D441's *a new anchor
+breaks no existing row* one layer up — D414's lesson avoided rather than paid, on
+a parameter instead of a regex.
+
+## Price the NAME when the name is a persisted byte (D443)
+
+D438's rule is *rename when the second inhabitant arrives*. `selfToBench` gained
+one: with `side: "opponent"` it reads *the board's Active → that board's Bench*,
+which is what its code always computed, and only the word "self" is now wrong.
+
+**It is refused, and the reason is the address.** A `route` VALUE lives inside
+`phase.cont.pendingOp`, which is inside `state`, which is inside `MatchRecord` —
+so renaming it is D359's case and bumps `MATCH_RECORD_VERSION`, retiring every
+live match for a word. The refusal carries an executable falsifier: **the day the
+constant bumps for any other reason, rename it in the same edit.**
+
+D438's rule still holds for names that are not persisted. **Check the address
+before you apply it.**
+
+## A shield has no valence — do not invent one (D443)
+
+`moveEnergy` reaching the opponent's board asks §11 for the first time, at BOTH
+endpoints: a body that would LOSE Energy and a body that would GAIN it are both
+filtered. Every printing in the family says *"prevent all … effects of attacks
+done to this Pokémon"*; **none says "harmful effects"**, and the engine's own
+model (`effectRefusedOn` takes a body, not a valence) has no place to put the
+distinction.
+
+**A harm/benefit split would have been a rule invented at the call site** — D424's
+*prefer the refusal the model re-derives over the one listed against it*, arriving
+at a gate instead of at a blocklist.
+
+## Three shape changes, one persisted address (D443)
+
+D443 changed an op field, a `GameEvent` field and (not) a prompt. Only the op
+lands in `MatchRecord` bytes:
+
+- **`moveEnergy.side`** — inside `phase.cont.pendingOp`. **PERSISTED.** Optional,
+  and ABSENT means what every v29 writer meant (v29 had no opponent-board move to
+  write) → D334, no bump.
+- **`ENERGY_MOVED.actor`** — a `GameEvent`, and **no `GameEvent` is in a
+  `MatchRecord` at all** (`{version, seed, startedAt, names, state, log}`; `state`
+  is a `GameState`, which holds no events; `log` is rendered). Not persisted, so
+  **REQUIRED was free** — D425's call, and the next producer is a compile error.
+- **the prompt** — unmoved. Every `PokemonRef` already carries an ABSOLUTE seat,
+  so `side` rides the OP alone where `anySource` and `anyDest` ride both. Those
+  two are COUPLINGS, invisible in the candidate lists; this one is spelled by
+  every candidate.
+
+**Enumerate your slice's shape changes and give each its own address.** D442's
+rule (*not every shape change is at a persisted address*) generalises: on a slice
+with several, the answer differs per change and "the version question" is not one
+question.
+
+## A one-sided marker rung is green under BOTH defects (D443)
+
+*"The opponent's rows say `opponent`"* passes on a build that says it on **every**
+row. *"My rows say nothing"* passes on a build that says it on **none**. The
+killing case is the same-render **pair**: two identically-named bodies, two rows,
+exactly one marker — and one mutant per direction, each the other's control.
+
+⚠️ **And check the control is reachable.** D443's first online control asserted
+that no unmarked row rendered — vacuously true, because on a sole-source prompt
+the viewer's own bodies are never offered as buttons at all. The fix was a
+constructed mixed-board prompt, **labelled as constructed** (D440: a rung over a
+prompt the engine never emits is a claim about the READER, not about the pool).
+
+## An indentation-prefixed mutant anchor is ambiguous (D443)
+
+`find` is a SUBSTRING search, so a needle beginning with 18 spaces **matches
+inside a line indented 20**. Two JSX badges at different depths are not
+disambiguated by their indentation, and `precheck` reported `find occurs 2×` for
+both HUD rows on the first try.
+
+**Include a neighbouring line when the line you want is a repeated idiom.** This
+is D416/D437's copied-line trap reached through whitespace rather than through a
+copied function.
+
+## The version tax appears in PROSE as well as in assertions (D443)
+
+A blanket replace of `0.344.0` → `0.345.0` across 30 files stepped 27 assertions
+correctly **and corrupted two historical claims**: a suite header recording
+`0.343.0 → 0.344.0` became `0.343.0 → 0.345.0`, and the new suite's own header
+became `0.345.0 → 0.345.0`.
+
+D435 already said *grep the assertion, not the string*. This is the failure that
+rule predicts, arriving from the WRITE side rather than the count side: **a
+mechanical version bump must exclude the prose that records what a PREVIOUS bump
+was.** Re-grep the old version string afterwards; the hits that remain should be
+exactly the historical ones.
+
+### `--decision` takes ONE value, and passing more fails silently (D443)
+
+Repeating the flag does not union the selections — the last one wins and the
+earlier ones are discarded without a warning. D443's "six-decision neighbour
+re-probe" was quietly a one-decision re-probe until it was re-run per decision.
+
+**The output looks like a pass either way**, which is what makes it worth a rule:
+a green line naming a smaller row count than you expected is the only tell, so
+**check the row count against the number of rows you meant to probe**. Run the
+decisions separately and report each.
+
+This is the same family as the `--allow-dirty` trap (`0 killed · N
+skipped(dirty)`, exit 1) and the `--precheck` non-flag (which silently starts a
+full sweep): **the harness's argv handling is not forgiving, and its failures are
+verdict-shaped.** Read the count, not the colour.
+
+### The strongest `+0` is the one on a slice that changed a MEANING (D443)
+
+A whole-corpus sweep's `+0 declared` is worth stating in proportion to what could
+have flipped under it. D442 earned one by renaming a shipped wire member. D443
+earned a stronger one: it changed **three shipped meanings** — a `GameEvent`
+field (`ENERGY_MOVED.seat` had meant controller *and* board, true for all four
+producers by accident), a helper's parameter (`moveEndpoints`' `seat`), and a
+`route` value (`selfToBench`). None of those is a type error anywhere; every
+reader still compiled and still ran.
+
+**That is precisely when a pre-existing row flips without anyone noticing**, and
+1,752 rows that knew nothing about the slice still died for the same reasons they
+always had. When a slice redefines what a shipped name MEANS rather than what it
+holds, say so beside the zero — the zero is the measurement that the redefinition
+did not leak.
+
+## A NAME can enrol a function in a mechanism (D444)
+
+🛑 **`censusAttackCorpus.ts` derives the whole-sentence reader surface off
+`effects.ts` by NAME PREFIX (`deriveAttack…`) plus `typeof === "function"`. That
+makes `deriveAttack` a RESERVED NAMESPACE with nothing but a string behind the
+decision.** D444 added a new export called `deriveAttackTimingGate`, which
+enrolled itself as a reader — and because `resolvedByAnyReader` tests
+`read(text) !== null` while that function answers `undefined`, the predicate
+claimed **every sentence in the corpus**. 22 rungs across 5 files went red in one
+run.
+
+That is the exact failure `resolvedByAnyReader`'s own doc block predicts for a
+mis-named reader, and it fired for a function that was never meant to be one.
+**Before naming a new `effects.ts` export, ask whether the name puts it inside a
+surface that is derived by pattern.** The membership test is the name; there is no
+type, no registration, and no compile error. It is also the good news: the surface
+guard caught it in one run, loudly, which is exactly what D417 built it for.
+
+⚠️ **A derived surface is a two-sided contract, and only one side is usually
+tested.** The rungs everyone writes say *"every reader is in the surface"*. The
+one that catches this says *"every member of the surface is a reader"* — and the
+cheapest form is to assert the two SETS are equal, which reddens on an accidental
+member as well as on a missing one.
+
+## Re-pointing a rung whose PREMISE your slice removes (D444)
+
+D418's rule — *after re-pointing, ask what the OLD claim could catch that the new
+one cannot* — has a second shape, and D444 hit it twice in one slice.
+
+`benchBodySelfScaling.test.ts` §4 and `rolloutGate.test.ts` §5 both pinned *"a
+body printing the clause with NO registry row keeps its whole string and stays
+LOUD"*. D444 made every table clause represented BY CONSTRUCTION, so those bodies
+stopped being unrepresented. **Re-pointing the rungs onto the same bodies would
+have produced two TRUE assertions that nothing can falsify** — the split fires
+either way now.
+
+**The move is to find the body that STILL has the old property**, not to relax the
+claim. Here that is a NEAR-MISS: the same printed shape with one token changed, so
+it is genuinely outside the table, genuinely ungated, and genuinely loud. The old
+discrimination survives intact on a new subject, and the mutant that depended on it
+(`D282-split-fires-without-a-gate` at the split; the polarity rows at the map) still
+dies. ⚠️ **And the near-miss must differ on exactly ONE axis (D427)**, or it says
+nothing about which feature did the refusing.
+
+## Half a sentence can fail loudly while the other half fails in silence (D444)
+
+🛑 **This engine's coverage strategy is "flag loudly rather than guess", and it has
+one hole: a printed RULE that nobody authored is simply absent.** A body printing
+Terapagos ex's *"If you go second, you can't use this attack during your first
+turn. This attack does 30 damage for each of your Benched Pokémon."* with no
+registry row was — measured on a board — **loud about the damage and silent about
+the restriction**: `ATTACK_EFFECT_SKIPPED` fired naming the whole sentence and the
+fold was withheld, while `attackGateOf` answered `undefined` and the attack
+declared successfully on exactly the turn the card forbids.
+
+A rung had pinned that body since D282, and it pinned the LOUD half. **When a
+printed sentence carries a rule AND an effect, a guard about the effect is not a
+guard about the rule** — they resolve at different seams (the §8 declaration gate
+versus the §8.5 pipeline) and they fail in opposite directions. Ask what happens to
+each half separately, and drive each on its own board.
+
+## A refusal can be right about its measurement and wrong about its QUESTION (D444)
+
+D395 refused a derived `attackGate` on two measured grounds, and D444 reversed it
+without either ground turning out to be false:
+
+- *"a deriver buys ZERO additional legal printings"* — **still true at D444's
+  head.** ⚠️ And scoped to `legal_standard = 1`, while the app ships an
+  **`expanded`** format keyed on `legal_expanded` (`src/features/builder/cards.ts`
+  `legalFlag`). effects.ts's own block already recorded that the pool-wide query
+  returns 15 where the legal one returns 13. **D413's two populations, two answers
+  — biting a refusal one level above a census.**
+- *"a deriver makes `attack.ts`'s two-key check a tautology"* — **also true, and it
+  is a price rather than a blocker.** It was paid: the check is kept as defence in
+  depth with the argument written at the line, and the mutant that check earned is
+  re-declared `survives: equivalent` with a reason that self-invalidates.
+
+**What the refusal never asked was what happens to the RULE on an unrepresented
+body.** It reasoned entirely about the SPLIT. ⚠️ **So the check on a refusal is not
+only "are its numbers still true" (D413/D422) — it is "did it ask the whole
+question".** A refusal can be arithmetically perfect and still be about the wrong
+half of the mechanism, and re-running its query will never tell you.
+
+## Registry ?? derived: keep the row, and assert the two against each other (D444)
+
+D402's finding, re-earned one field over. When a hand-authored registry row gains a
+DERIVATION behind it, the honest move is `authored ?? derived` and **keeping every
+row**: the row still wins, no board moves, and the two producers become assertable
+against each other — which is a stronger rung than either had alone.
+
+D444's form: every DISTINCT `attackGate` value in the live registry must be either
+a value the printed clause derives, or a named exception (the one trailing-clause
+family). That single rung is what ties the clause table to 17 hand-authored rows,
+and it reddens by VALUE the day a row is authored at the wrong polarity — the
+failure D281's own doc block calls the easiest thing there to get wrong.
+
+⚠️ **And be honest when the PRECEDENCE itself is unobservable.** If the two
+producers agree everywhere, no board can tell `a ?? b` from `b ?? a`; that mutant
+is `equivalent` and should be DECLARED as such, with the agreement rung named as
+the thing that would make it killable again.
+
+### Prefer the NON-MONOTONE sweep prediction (D444)
+
+D440-D443 each committed to a sweep delta before the sweep ran, and each was of
+the form `+N killed, +0 declared` — which follows from counting the rows you
+added. That arithmetic survives being sloppy: a slice that only ADDS rows can
+hardly land anywhere else, so hitting it confirms the practice more than it
+confirms the slice.
+
+D444's prediction was **non-monotone in both columns at once**: 8 new rows (7
+killed, 1 declared) *and* one pre-existing killed row converting to a declared
+survivor, giving `1752 + 7 − 1 = 1758` and `27 + 1 + 1 = 29`. That number could
+only be produced by knowing **which** existing row was about to change class and
+why. It tests comprehension rather than addition.
+
+**So when a slice changes the class of an existing row, say which row and write
+the subtraction out** — do not fold it into a net figure. A slice that turns a
+killed row into a declared survivor is exactly the shape that gets read as a
+regression by whoever diffs the two totals, and the only defence is having named
+it in advance.
+
+### `!resolvedByAnyReader` is not the unbuilt set (D444, re-earned)
+
+The reader surface is one of four ways a printed sentence gets simulated; the
+others are a registry row, the gate splitter and the trailing splitter. Measuring
+"what is left" with `!resolvedByAnyReader` alone therefore over-counts, and
+`censusAtHead.test.ts` has a canonical residue predicate precisely so nobody has
+to re-derive the subtraction.
+
+**This was already a convention and a work order broke it anyway**, calling three
+sentences unbuilt that had been simulated since D282/D307 — because the loose
+predicate is one call and the right one is four. ⚠️ **The tell is cheap**: before
+claiming a sentence is unbuilt, run `splitAttackGateClause` and
+`splitAttackTrailingClause` on it and check the registry. If any of the three
+answers, the sentence is built and the census already knows.
+
+## A count over a HIDDEN zone is an information channel (D445)
+
+`DamageCountSource` had a standing invariant nobody had written as a rule: every one
+of its sixteen members counts something both seats can see. D440 stated it for the
+discard pile — *"ordered and public (§2), so the opponent-side read leaks nothing"*.
+**D445's member counts the opponent's HAND, and the damage number it produces is
+public**, so the fold itself is a channel: a public number reporting a private fact.
+
+The engine does not get to decide that. **The PRINT does**, and the two printed rows
+keep the invariant by two different routes:
+
+- *"…for each **card** in your opponent's hand."* counts hand SIZE, which the board
+  already shows (`cardplay.ts` greys a Trainer-path reveal on an empty opponent hand
+  for exactly that reason);
+- *"Your opponent **reveals their hand**. …for each **Trainer card** you find there."*
+  counts a narrower set, and the printed reveal is what makes it public.
+
+**So the rule is not "the zone is public" but "the sentence makes the COUNTED FACT
+public"** — and it is pinned on the POPULATION (no corpus sentence carries a filtered
+hand count without a printed reveal), never on a specimen (D423). ⚠️ **Build only the
+filtered row and the claim is unfalsifiable**; the unfiltered row is the control that
+makes the reveal's role provable rather than asserted.
+
+## Two readers may own one sentence, and `attack.ts` said otherwise (D445)
+
+`attack.ts` carried *"a card carries at most one scaling clause OR a program: the
+whole-sentence anchor means a scaling sentence never also derives an op."* **Measured
+across all 640 corpus sentences at D444's head: ZERO were claimed by more than one
+reader — a HABIT, not a property** (D431's test), and the locals were already separate
+(`program` runs at the TAIL, `scaling` folds before §8.5), so the code was fine and
+only the sentence was wrong.
+
+A compound whose halves land at two different SEAMS needs both readers. Claiming only
+one is D444's half-a-sentence defect with the census green: `resolvedByAnyReader`,
+`effectSimulated` and `BUILT.attack` are all satisfied by whichever half you took.
+**When a printed sentence carries an effect AND a fold, count the seams, not the
+anchors** — and pin "this is the only dual-claimed sentence" as a population rung, so
+the next one arrives on purpose.
+
+## The trailing splitter's mirror image is not the trailing splitter (D445)
+
+`splitAttackTrailingClause` composes HEAD-claimed-by-any-reader + TAIL-claimed-by
+-`deriveAttackEffect`, and says so at the guard: *"a tail claimed only by a damage
+reader would be a fold the caller has no place to put."* D445's compound is exactly
+that predicate reflected — an EFFECT head and a DAMAGE tail — so it is refused by
+construction and would need the splitter INVERTED, not reused.
+
+**Two whole-sentence anchors over the same string cost two arms; a second composition
+path costs a mechanism.** Check which way round the compound runs before reaching for
+D409.
+
+## `.test()` where the sibling does `.exec()` ships half a sentence (D445)
+
+D445's first draft claimed the reveal with a bare `ATTACK_REVEAL_AND_TRAINER_SCALE
+.test(effect)` while the damage arm over the SAME anchor carried `per >= 1 && filter
+!== null`. The anchor's noun group is `[^.]+`, so *"…for each Ancient card you find
+there."* matched: the reveal resolved, the sentence was marked SIMULATED, and the
+damage was silently dropped. **D190b's exact-map-or-flag rule, in the direction that
+looks like it works** — a board changes, a log row prints, and the loud channel never
+fires for a card the engine cannot score.
+
+**When two arms share an anchor, they share its GUARDS.** A `.test()` beside an
+`.exec()` on one regex is the tell.
+
+## A deferral that names a MECHANISM has a trigger too (D445)
+
+D413's rule is about refusals; this is the same shape at a helper. `countCardsInDiscard
+Pile` recorded *"the `hand` twin one arm down is DELIBERATELY LEFT INLINE … folding it
+in would mean a `zone` parameter and a rewrite of a shipped arm **for a family this
+slice does not print**"*. D445 prints that family, so the deferral expired exactly
+where it said it would, and D440's own move (generalise in place, make the old arm a
+delegation, re-transcribe the rows) was the whole implementation.
+
+**Grep your own source comments for deferrals, not only `decisions.md` for refusals.**
+A note that states its trigger is a note somebody can act on; one that states a
+preference is not.
+
+## D437's converse trap, hit through a WHOLE FUNCTION (D445)
+
+Extracting an inline loop into a top-level function re-indents it — and at two spaces
+`for (const uid of state.players[seat].hand) {` became byte-identical to
+`handCostCandidates`' first loop. The re-transcribed row reported `find occurs 2×`,
+**a row broken by a function it does not describe**. The fix is D443's: include the
+line the new function uniquely owns (`let held = 0;`, where the sibling counts into
+`kept`/`out`).
+
+⚠️ **`precheck` caught both the 0× and the 2× in seconds, on consecutive attempts.**
+Run it after every edit round, not once at the end.
+
+## A mirror board is not a seat inversion (D445)
+
+A `board(by)` helper that assigns "the attacker's hand" and "the defender's hand"
+gives the SAME numbers from either chair — which is a real claim (the fold is
+seat-relative, not hard-wired to p2) and is NOT the claim that reading the wrong seat
+is visible. The inversion evidence has to come off ONE board: *on this table, the
+attacker's own hand answers 1 and 4 where the defender's answers 5 and 7.*
+
+**Two rungs, two claims.** A suite with only the mirror passes on a build that reads
+`attackerSeat` on a symmetric fixture.
+
+## A brief's printing count is a FLOOR (D445)
+
+D445's work order named four sentences / seven printings, measured with the canonical
+subtraction and correct as far as it went. The buildable family was **three sentences
+/ six printings** — two of the four were refused, and a FIFTH sentence the brief's own
+family pattern could not see (*"This attack does 30 damage for each card in your
+opponent's hand."*, no reveal, corpus row 564) joined it and turned out to be the
+control the whole information argument rests on.
+
+**A family enumerated by one literal is as narrow as that literal** (D310 at a
+catalog, D419 at an instrument, here at a work order). Re-sweep with the MECHANISM's
+vocabulary — *hand* × *does N damage* — not with the sentence's opening words.
+
+### A monotone prediction arrived at by CHECKING is not the same object (D445)
+
+D444 established: prefer the non-monotone sweep prediction, because it tests
+comprehension rather than addition. D445's was monotone — `+14 killed, +0
+declared` — and the honest version of that claim required saying *why*.
+
+The builder enumerated every pre-existing row that could plausibly have changed
+class (a re-transcribed row whose killer set had been widened, a tripwire the
+slice had to check, both rows of a neighbouring decision, a shared-walk row, and
+five more) and read each one, establishing that **no non-monotone prediction was
+available**. That is different from noticing nothing obvious had moved.
+
+**So when the prediction comes out monotone, say which rows you checked to
+establish that.** Otherwise "monotone" is indistinguishable from "did not look",
+and the two produce the same number right up until the sweep disagrees.
+
+## An amortization argument is a claim about MARGINAL sites (D446)
+
+D439 refused a `CardFilter` widening *for its consumers* — "the cost is measured in
+files, not in the member" — and D446's work order reopened it on the ground that
+**the consumer cost is largely FIXED, so paying it once for two members changes the
+arithmetic.** That premise did not survive.
+
+Measured at D446's head, **8 of the first member's 9 marginal SITE KINDS recurred
+for the second**: its own union member and doc block, its own `matchesFilter` arm,
+its own `retrieveNoun` arm, its own `BENCHABLE_RETRIEVAL_KINDS` entry, its own
+anchor, its own reader arm, its own deck slots and its own board with its own rungs.
+The one kind that did NOT recur is a new FIXTURE. ⚠️ **And the second member cost
+MORE than the first, not less** — it alone forced a rename of a shipped
+`DamageCountSource` member plus a required field (16 executable sites, 5 mutant rows
+re-transcribed), which the first needed none of. What is genuinely shared is the
+**FILE set** (three), the audit, and the single census step. **The cost is linear in ARMS and fixed only in
+FILES**, so a "pay it once" argument is only true of whatever the union's consumers
+happen to do per-file rather than per-member.
+
+Both members were built anyway, because each pays on its own — which is the point:
+**the arithmetic that justified the slice was not the arithmetic the brief named,
+and saying so is worth more than the slice.** D424's rule (*cheapness is marginal
+sites, not mechanisms*) is the same test; this is its converse — **when a brief
+argues that a cost AMORTIZES, count the marginal sites of the SECOND item, not the
+files of the first.**
+
+## Enumerate a union's consumers by what they DO, not by what breaks (D446)
+
+D439 and D440 both name *"the two other consumers of that union"* (`retrieveNoun`
+and `BENCHABLE_RETRIEVAL_KINDS`). Re-derived at D446, `CardFilter` has **four**
+non-test consumers plus the predicate itself, and the two nobody counts are the safe
+ones:
+
+| consumer | shape | omission is |
+|---|---|---|
+| `cards.ts matchesFilter` | exhaustive `switch`, declared return type | a TYPE ERROR |
+| `interpreter.ts retrieveNoun` | exhaustive `switch`, declared return type | a TYPE ERROR |
+| `effects.ts BENCHABLE_RETRIEVAL_KINDS` | a `Set<CardFilter["kind"]>` | **SILENT** |
+| `interpreter.ts energyNoun` | if-chain with a `return "Energy"` fall-through | silent and CORRECT |
+| `interpreter.ts matchesAttached` | one member by name, then delegates | nothing |
+
+**A list of "the consumers" that only names the ones that break is a list of
+hazards, not a census** — and a successor pricing a widening off it will
+under-count the surface and over-count the risk. Derive it by grepping every read
+of the discriminant (`grep -n "filter\.kind\|Filter\[.kind.\]"`), then classify
+each hit by what an omission DOES.
+
+## A silent consumer can be unreachable, and that is a THIRD answer (D446)
+
+`BENCHABLE_RETRIEVAL_KINDS` is the `Set` D439 refused a widening over, and its
+hazard is real in general. For D446's two members it is **unreachable in both
+directions**: the Set has ONE call site, whose `filter` can only come from
+`HAND_SEARCH_NOUNS` / `typedNounFilter` / a bare `byName`, and none of those can
+produce either new member. Omitting them refuses nothing; admitting them benches
+nothing.
+
+So the answer to *"what breaks if the Set is wrong"* was **neither direction is
+observable today** — which is not "it does not matter". The lines are still owed
+(the day `HAND_SEARCH_NOUNS` gains a row for either noun, the Set is what decides),
+and the decision is recorded **at the site** with its unobservability stated.
+⚠️ **AND NO MUTANT ROW IS WRITTEN FOR IT** — D420's rule (*a row that survives
+because it changes nothing reports a suite gap that does not exist*) plus D442's
+(*write the row for the observable direction and record the other at the guard*).
+Here there is no observable direction, so the record is the comment.
+
+## A caption arm can be owed and unrenderable (D446)
+
+`retrieveNoun`'s exhaustive switch means a new `CardFilter` member owes a
+singular/plural noun phrase, and the natural question is whether a wrong one is a
+test failure or invisible. **Measured: invisible.** Every caller reads an
+`op.filter`; D446's two members are produced only into a parse-time
+`DamageCountSource` and never into an op, so no board can render either phrase.
+`abilityPokemon` has been in exactly that state since D285 and says so.
+
+The arms are still owed, for two reasons worth separating: the switch is exhaustive
+(so the member cannot be added without answering the question), and a **registry
+author can hand-write the filter into an op tomorrow**. What can be driven is the
+property that makes them unreachable — a sweep of every op the derived attack column
+produces, asserting neither member appears — and that is what the suite pins instead
+of a caption nothing emits.
+
+## A predicted SHAPE is not the measurement that predicted it (D446)
+
+D428's rule is *a refusal's falsifier should be executable*, and D439 wrote a good
+one: a census rung that reddens *"the day a `CardFilter` member reads
+`pokemonSuffixOf`"*. D446 was that day and the rung fired exactly as designed.
+
+**But the same sentence also predicted the SHAPE of the fix** — *"this member gains
+an `opponentPokemonInPlay` sibling"* — and that half was wrong, because D440
+re-derived the union's rule **one slice after the prediction was written** and found
+the seat-in-the-name convention was a habit: *nullary or asymmetric payload ⇒ two
+members; identical payload ⇒ one member with the discriminator as a field.*
+
+**A falsifier should name the CONDITION that reverses the refusal, not the build
+that will follow it.** The condition is checkable and ages well; the build is a
+forecast (D427) and ages like one. When you fire an inherited falsifier, re-derive
+the shape from today's rules rather than implementing the prediction.
+
+## A guard can graduate from prospective to live, and its witness must move (D446)
+
+D439's `(?!opponent)` lookahead was defended with *"today the vocabulary would refuse
+that noun anyway; the lookahead is what stops the refusal turning into a WRONG CARD
+the day an ex/V filter member lands."* Correct, and its witness was
+`"…for each of your opponent's Pokémon in play." → null`.
+
+D446 landed that member **and added the opponent-side anchor**, which claims that
+very string — correctly. Re-pointing the witness to `.not.toBeNull()` would have
+produced an assertion that is **true under the lookahead-free build as well**
+(D418's disarmed tripwire, D438's polarity rule). The repair is D444's: find the
+subject that still HAS the old property. Here it is the **doubled owner** —
+*"your opponent's Team Rocket's Pokémon"* — which the attacker's anchor would
+resolve to `ownerPokemon { owner: "opponent's Team Rocket" }` and the foe anchor
+resolves to the opponent's `Team Rocket` subgroup. Two builds, two answers, one axis.
+
+## A CAPTURE is safe when the datum is a COLUMN (D446)
+
+D440 refused `^(.+) card$` → `byName` because it would claim *"Ancient card"* — a
+banner in **no** column of the persisted catalog — so the filter would count 0 on
+every board forever while `BUILT.attack` stepped for it (D190b/D199 at the
+instrument layer). That refusal reads as *"prefer a closed map to a capture"*, and
+it is narrower than that.
+
+D446 captures a printed **attack name** and the capture is safe, for one reason: an
+attack name is `attacks_json[].name`, a persisted column this engine already reads
+at every declaration. **Any printed attack noun is answerable by construction, and a
+name that matches nothing is a genuine zero rather than a data gap.**
+
+**Classify the DATUM before choosing between a map and a capture.** The question is
+not "how open is the token set" but "does a column answer it" — and the two
+questions give different answers on the same-looking pattern.
+
+## Re-transcribe by SHORTENING onto the line the row is about (D446)
+
+Five shipped mutant rows broke when D446 renamed a union member and gave an arm a
+new local. Four of them quoted six-line blocks that included the very `return`
+statement the rename touched.
+
+The repair that keeps D416's guarantee — *confine the mutation so the original
+killer keeps the kill* — is to **shorten the `find` onto the line the row is
+actually about** and leave the rest of the block out of it. `D439-*-arm-drops-the-
+filter` is about the vocabulary lookup, not about the `return`; re-anchored on the
+lookup it survives every future edit to the arm's tail, and its mutation is
+byte-identical in meaning. ⚠️ **A row whose `find` is longer than its claim rots on
+every neighbouring edit** — length is not strictness, it is surface area.
+
+## Name a new local so it is not its neighbour's twin (D446)
+
+D446's evaluator arm needed `const <x>Seat = bonus.count.seat === "you" ? attackerSeat
+: defenderSeat;` — a line the sibling arm four `case`s down already owns verbatim as
+`pileSeat`. Naming it `bodySeat` (and saying at the site why) is what keeps
+`D440-evaluator-crosses-the-seat` at `1×`. This is D442's rule applied *before*
+`precheck` reports the `2×` rather than after — the cheaper order, and the comment is
+what stops the next author "tidying" the two into one helper.
+
+### A docs file can be a mutation target, so a late edit can void a sweep (D446)
+
+`docs/progress.md` is the target of eight `D318-*` rows that guard the
+end-of-session ritual. A prose correction landed in it **after** a whole-corpus
+sweep had launched, which under D215's dirty-file refusal would have made all
+eight report `SKIPPED-DIRTY` — and **skips take the exit code with them**, so the
+run would have printed a plausible table and meant nothing.
+
+**The repair is to commit that path alone, early**, while the sweep is far from
+the rows in question. Check how far along it is first: the row order is by id, so
+you can see whether the guarded rows have already run.
+
+⚠️ **And classify every dirty path before staging any of them.** At that moment a
+second file was also dirty — and it was a **mutant in flight**, which re-reading
+its diff seconds later confirmed by coming back empty. **During a sweep,
+`git status` reports the harness as often as it reports you.** Staging a file the
+harness owns is how a mutant gets committed as source.
+
+## A marker that co-occurs with a family is not its blocker (D447)
+
+🛑 **A surface token shared by every member of a refused family looks like the
+gate and usually is not. The test is one line: STRIP THE TOKEN AND RE-ASK THE
+READERS.** D446's resume point named the trailing *"(Don't apply Weakness and
+Resistance for Benched Pokémon.)"* as *"the whole family's gatekeeper"* and said
+it *"should be priced once"*. Priced:
+
+- it sits on **19 residue sentences / 26 printings** — the largest trailing
+  marker in the residue, which is what made the claim plausible;
+- **stripping it and re-asking `resolvedByAnyReader` unlocks 0 / 0.** Every one
+  of the 19 bodies is refused on its own merits;
+- adding a *mirror* trailing splitter on top of the strip unlocks **1 sentence /
+  2 printings** across the whole residue, which does not pay for a splitter.
+
+⚠️ **AND THE DECISIVE MEASUREMENT NEEDED NO EXPERIMENT AT ALL. Count the marker
+on BOTH sides of the predicate before you count it on one.** That parenthetical
+is on **43 corpus sentences / 88 printings**, and **24 sentences / 62 printings
+of them already RESOLVE** — every shipped anchor in the family spells it as an
+optional trailing group. A token that appears on the built side in the majority
+of its printings cannot be what refuses the rest. The reminder appears on 26
+residue printings *because* bench damage is unbuilt, not the other way round.
+
+⚠️ The corollary bites REFUSAL PROSE too, and it did here: D446 §5 explained a
+refusal as *"the sentence ENDS IN `)` against an `^…$` anchor"*, which is false
+for every anchor in that family. **A refusal reason is a claim; a co-occurring
+token is the easiest wrong one to write down**, because it is visible in the
+sentence and the true reason usually is not.
+
+## Sibling anchors drift apart in the direction of MORE specificity (D447)
+
+⚠️ **When two anchors read the same shape on two seats or two zones, the
+generalisations one of them gains do NOT propagate — and the gap shows up as
+printings nobody has priced.** `SPREAD_EACH_BENCH` has spelled `(?:also )?` since
+it was written and took a possessive CAPTURE at D425. Its snipe sibling
+`ALSO_BENCHED_SNIPE_BODY`, twenty lines away in the same file and sharing the same
+printed noun, demanded the literal word `also` and the literal owner *"your
+opponent's"* until D447. Cost of the gap: **3 sentences / 3 printings** refused
+for two tokens, one of them (row 587, the only bare benched snipe in the column)
+refused **by a single word**.
+
+**So: when you generalise an anchor, list its siblings over the same noun and say
+for each whether the generalisation applies.** A "no" is a finding worth a line;
+silence is how a one-word refusal survives twenty slices. The doc block over the
+snipe fragment had even ARGUED that "also" was not load-bearing — *"the
+LOAD-BEARING separator from Covetous Ivy is the whole-sentence `\.$`, not the word
+also"* — and the word stayed in the regex anyway. **A comment saying a token is
+not load-bearing is a candidate for deletion, not a justification for keeping it.**
+
+## A group index shifts when the capture must sit where the print puts it (D447)
+
+⚠️ D437 widened a shared regex fragment and kept every caller's indices stable by
+**appending** its new group after the existing ones. That trick is available only
+for a group at the END of the pattern. A POSSESSIVE capture sits where the
+possessive is printed — before the narrowing — so D447's widening shifted
+`damagedOnly` from `[3]` to `[4]` at all three callers and in two mutant rows.
+
+**Neither the compiler nor a type sees a `match[3]`, so an index shift is a silent
+defect at every caller you forget.** What caught it here was: (1) each caller
+re-read and re-indexed by hand as part of the edit, and (2) `precheck`, which
+reported both mutant rows as `0×` immediately. **After changing a shared regex's
+group count, grep the fragment's name and re-index every caller in the same edit
+— and expect the mutation corpus to name the ones you missed.**
+
+## A total `switch` is the only thing that sees a new union member (D447)
+
+🛑 `snipeTargets` chose its candidate scope with `op.target === "opponentAny" ? … :
+…`. Adding a THIRD member to `damageChosen.target` compiled cleanly and fell out
+of the `else`, aiming the own-side snipe across the table. **`tsc` reported
+nothing, and no test existed yet to fail.** D222's rule and D425's line in
+`spreadDamage` — *"a `switch` rather than a negated test, so a third member stops
+compiling here instead of falling silently out of the wrong side of a `!==`"* —
+were both already written down, one file apart, and this site had neither.
+
+⚠️ **The second half is worse and is the part to generalise: a funnel BELOW the
+switch can be written in terms of the old members' shared property.** `placeSnipe`
+filtered its bench refs on `ref.seat === opponent` — true of both pre-existing
+members and of neither new one — so the widened op would have parked a real
+prompt, taken a real answer and **dealt nothing**. **When you widen a union, walk
+every function the widened value flows INTO and ask what each one assumed about
+the members that existed before**, not just the ones that dispatch on it.
+
+## Adding a fixture makes an existing mutant row occur twice (D447)
+
+⚠️ D437's converse trap has a third face: it fires when you REMOVE a comment.
+`placeSnipe`'s `DAMAGE_DEALT` literal carried a distinguishing comment line above
+`by: ctx.seat`; rewriting that comment made the literal BYTE-IDENTICAL to
+`spreadDamage`'s from `by:` down, and `D425-damage-row-names-the-victim-as-the-dealer`
+— whose `find` is exactly that run of lines — started occurring **2×**.
+
+**The repair is a trailing comment that says why it is there**, so the next editor
+does not "tidy" the two sites back into twins. `precheck` is what found it, in
+seconds, and it is the reason to run `precheck` after every edit to a file the
+corpus targets rather than only before the sweep.
+
+### The region-overlap audit and `precheck` answer different questions (D447)
+
+The mechanical audit — for every file you will edit, find every mutant row whose
+`find` lies in a region you change — has been the strongest pre-build instrument
+in this run (51 in-region rows at D443, 19 at D444, 15 at D446). **It has a
+structural blind spot**, and D447 hit it: a row broke in a region the slice did
+**not** touch, because an edit elsewhere made one event literal a **byte-twin** of
+another, so the row's `find` began occurring twice.
+
+The audit examined 1,055 rows, flagged 27, and this was not among them —
+correctly, because by its own question it was not near the edit.
+
+- **The region audit answers**: *did I edit near this row?*
+- **`precheck` answers**: *does this row's `find` still occur exactly once?*
+
+**The second question is the one the corpus actually rests on, and the first is
+not a substitute for it.** Run the audit to know what you are about to disturb
+and to plan repairs; run `precheck` to know whether the corpus is runnable. It
+costs seconds and it is the only one that catches a collision you created at a
+distance.
+
+## The parallel fold may already exist — ask the CONSUMER, not the type (D448)
+
+🛑 **A work order that says "today only X can do this" is a claim about a CONSUMER, and
+the type is the wrong place to check it.** D448's brief said a `DamageCountSource`
+"folds into the attack's own damage in `attack.ts`'s §8.5 pipeline" and that a snipe's
+amount cannot carry a count today, so the slice would be either *"a fold reaching a new
+consumer"* or *"a second, parallel fold"* — and priced the second as much bigger.
+
+**Both were wrong, and one grep settled it.** `snipeAmount` (interpreter.ts) has
+multiplied `damageChosen.amount` by a board fact since Wo-Chien "Covetous Ivy", at both
+call sites — the inline run and the resumed pick. The second parallel fold was already
+there; the slice gave it a second inhabitant and cost one optional field and four lines.
+
+⚠️ **THE REASON THE DOCS POINTED THE WRONG WAY IS WORTH KNOWING**: the shipped rider is
+a BOOLEAN (`perTakenPrize?: true`), so it does not mention `DamageCountSource` anywhere
+and no grep for the union's name reaches it. **Grep the VERB, not the vocabulary** —
+`grep -n "op.amount \*"` finds a fold whatever it is spelled in.
+
+⚠️ **AND THE TWO FOLDS GENUINELY CANNOT BE MERGED HERE**, which is a cost worth
+recording rather than a preference: `scaledAttackDamage` lives in `attack.ts`, which
+imports `interpreter.ts` (so the reverse import is a cycle), and its signature takes the
+attack's printed `cost` for `extraEnergyUnitsBeyondCost`, which `EffectContext` does not
+carry. A "just reuse the evaluator" note would have been a recipe that ships a defect —
+D420's rule, one module over.
+
+## A boolean rider is a union member with the discriminator erased (D448)
+
+**When a second boolean rider answers the same question as the first, say so, price the
+collapse, and name the trigger** — but then **check that the trigger's row is not
+blocked upstream of the thing you are pricing.**
+
+D448 added `perEnergyOnSelf?: true` beside `perTakenPrize?: true` rather than replacing
+both with `scale?: DamageCountSource`. The collapse was measured at **24 sites across 10
+files** plus a `MATCH_RECORD_VERSION` bump — the rider is persisted, so dropping its name
+is D359's RENAME, not D125's widening — which is D362/D369's arithmetic exactly.
+
+🛑 **THE FIRST DRAFT OF THE TRIGGER WAS WRONG AND IS THE POINT OF THIS ENTRY.** It named
+a printed row whose count needs a PAYLOAD (a filtered discard-pile count, 3 printings) as
+the case that would force the collapse. Then its CONTROL was checked — the *unscaled*
+twin one corpus line below it — and that is unbuilt too: **no anchor claims the verb at
+all**, so the payload is not the blocker and collecting the row is a different slice.
+**A refusal's reason must be the FIRST one in the chain, and the way to find it is to
+strip the thing you are pricing and re-ask** (D399's one-axis rule, applied to a price).
+
+## A family grep over a VERB misses the family's biggest member (D448)
+
+⚠️ D310's census rule — *a census is as narrow as BOTH the columns its query names and the
+literal it matches* — bites a FAMILY the same way. D448 enumerated "a chosen-target hit
+whose amount scales" as *every sentence carrying `for each` and `damage to `*: ten rows,
+and it wrote *"what this pattern cannot see"* beside them **from memory**. Re-running the
+shortened query found an eleventh — *"**Put 2 damage counters on** 1 of your opponent's
+Pokémon for each Basic {G} Energy card in your discard pile…"*, **3 printings**, the
+LARGEST single count in the class — because the same mechanism is printed with a
+different verb.
+
+**So: write the "cannot see" sentence as a QUERY YOU RAN, never as a list you thought
+of.** Two of the three negatives in that comment were true; the one that was not was
+about the family's biggest row. (The case-sensitivity half is the same lesson at one
+character: `t.includes("for each")` reports NINE where `/for each/i` reports TEN, because
+one member opens the sentence with *"For each…"*.)
+
+## A one-print fixture makes a filter unfalsifiable (D448)
+
+🛑 **When the thing under test is "count X regardless of Y", the board must contain a Y
+that differs — otherwise the narrowed and un-narrowed answers are the same number and
+the mutant survives against a suite that looks thorough.** D448's fold counts Energy
+CARDS with no type filter; the neighbouring reader (`SELF_ENERGY_MULTIPLY`, one file
+over, same printed noun) counts them WITH one, so passing a type is the nearest wrong
+edit there is. On an all-{L} deck it is invisible. One Colorless card on the attacker is
+the whole difference between a green mutant table and a meaningless one — and the row
+that needs it says so in its own `what`, so the fixture cannot be "simplified" later.
+
+## A NEW local can be a DISTANT neighbour's byte-twin (D448)
+
+⚠️ D437's converse trap and D447's blind spot have a third face, and it fires on code you
+are **writing** rather than editing. D448 wrote `const attacker = activeTop(state,
+ctx.seat);` into a new nine-line function; that is `snipeActive`'s line **verbatim**,
+three hundred lines up in the same file, and the mutant row authored against it reported
+`find occurs 2×` immediately.
+
+- The region-overlap audit cannot see it: the twin is nowhere near the edit.
+- `precheck` sees it in seconds, which is the whole argument for running it **after
+  writing new code**, not only after editing quoted code.
+- **The repair is the NAME, not a wider anchor** (D446): the local became `thisPokemon`,
+  which is what the sentence prints, and a comment says why so the two are not tidied
+  back into twins. A wider anchor would have left the collision in the source for the
+  next author to re-create.
+
+## A corpus row number is a FILE LINE, and one handoff used array indices (D448)
+
+⚠️ `censusAtHead.test.ts`, `decisions.md` and every slice note cite *"corpus row N"*
+meaning **line N of `censusAttackCorpus.ts`**. D447's resume point §5 cited the same
+sentences by their **1-based index into the parsed 640-entry array**, which is
+`fileLine - 52` at that head — and mixed the two conventions **inside one section**
+(*"(535/row 587)"*). D448's work order inherited the array numbers and they resolved to
+entirely different sentences.
+
+**Cite the line number, and cross-check the PRINTING COUNT before acting on a cited
+row** — the count is what tells the two conventions apart in one look. This is D432's
+*"line numbers in a brief are claims"* arriving at a data file instead of a source file.
+
+### `--decision` matches by SUBSTRING, so D443's row-count check is wrong (D448)
+
+⚠️ D443 wrote the probe discipline as *"check the row count against
+`MUTANTS.filter(m => m.decision === d).length` read off the module"*, and five slices
+have followed it. **The runner does not use equality.** `scripts/mutation/run.ts` filters
+with `m.decision.includes(decision)`, so:
+
+- a row whose `decision` is a COMPOUND like `"D204/D205"` is run by `--decision D205`
+  **and** by `--decision D204`, while the equality count sees neither. D448 hit exactly
+  this: the module says D205 has **2** rows, the runner ran **3**, and by the equality
+  check that reads as an unexplained extra row;
+- and the match is a plain substring, so **`--decision D44` would run every row from
+  D440 to D449 at once** — a probe that looks narrow and is not.
+
+**The correct counter is `MUTANTS.filter(m => m.decision.includes(d)).length`**, and it
+differs from the equality count on exactly the compound rows. Report the `includes`
+figure; if the two disagree, say so — the disagreement names a compound row and is worth
+a line.
+
+### A mutant row can be INERT, and `precheck` cannot see it (D450)
+
+`precheck` answers exactly one question: does each row's `find` occur exactly
+once in its target file? It says nothing about whether the `replace` expresses a
+**different program**. D450 wrote a row whose `replace` prepended a comment
+instead of deleting the field it named — so the harness applied it, compiled
+**byte-equivalent behaviour**, and reported `SURVIVED (undeclared)`.
+
+**That is a third distinct blind spot, and the three instruments do not cover
+each other:**
+
+- the **region-overlap audit** cannot see a collision you create at a distance
+  (D447) — it asks *did I edit near this row?*
+- **`precheck`** cannot see an inert row (D450) — it asks *does this `find` occur
+  exactly once?*
+- only a **probe or the sweep** asks *does this row express a defect the suite
+  catches?*
+
+**So read an undeclared survivor as a question about the ROW first, not only
+about the suite.** The reflex is to hunt for the missing assertion; check that
+the `replace` actually changes behaviour before writing one, because a test
+written to kill an inert mutant is a vacuous guard by construction (D205/D208).
+
+### Diff every row's `find` against its `replace` before probing (D451)
+
+D450 discovered that a mutant row can be **inert** — its `replace` compiles
+byte-equivalent behaviour, so the harness reports `SURVIVED (undeclared)` for a
+row that expresses no defect. D451 re-entered the same trap **one slice later**,
+with two of its nineteen rows inert on the first draft (one prepended a comment
+instead of changing the field; one returned a value-equal object).
+
+The difference is that D451 caught them **before the probe**, with a mechanical
+diff of each row's `find` against its `replace`. That is the missing instrument:
+
+- the **semantic audit** finds rows that mention what you are changing;
+- the **mechanical region audit** finds rows whose `find` sits in an edited span;
+- **`precheck`** finds rows whose `find` no longer occurs exactly once;
+- **a `find`-vs-`replace` diff** finds rows that change nothing at all.
+
+Only the fourth catches an inert row at authoring time, and it costs one pass
+over the rows you just wrote. Run it as the last step before probing — an
+undeclared survivor found later is the same defect discovered at ten times the
+cost, and it invites the wrong repair (writing a test to kill a mutant that
+cannot be killed, which is a vacuous guard by construction).
+
+## The consequent may not be a fold at all — ask the SITE what it spends (D452)
+
+🛑 **D448 taught "the parallel fold may already exist — ask the CONSUMER, not the type".
+D452 is the next question: ask whether there is a fold.** The work order priced
+*"For each heads, ⟨do something⟩"* as *"a count that multiplies an op's amount"* and asked
+only whether the fold was D448's or a second one. **Neither.** `programPerHeads` has spent
+the heads count into a LONGER PROGRAM since D130 — `heads` copies of the member's ops,
+appended at the flip site, run by the existing tail — so nothing multiplies, `op.amount *`
+reaches the family nowhere, and **no op ever sees the coin result**. The value that crosses
+the gap is program LENGTH.
+
+**So the grep discipline needs a third question.** D448's rule says grep the VERB and the
+state mutation, not the vocabulary; that is necessary and it is not sufficient, because a
+grep for `op.amount *` returning nothing reads as *"the fold is missing"* when the truth
+may be *"there is no fold and never was"*. **Read the SITE that produces the count and ask
+what it spends the count INTO** — a number, a program, or a park. Three answers, and only
+the first is a fold.
+
+⚠️ **AND REPETITION IS OFTEN THE CORRECT READING RATHER THAN THE CHEAP ONE.** *"For each
+heads, discard a random card"* is N INDEPENDENT picks over a hand that SHRINKS between them;
+an op carrying a count could only get that right by re-deriving the shrink internally. The
+testable difference is DISTINCTNESS: N repeats can never name one card twice, where a
+snapshot-then-index build repeats one most of the time.
+
+## A refusal that names a FIRST is a refusal with an expiry date (D452, re-earning D413)
+
+D130 refused a printing because its op *"would be the FIRST EffectOp in the engine to consume
+`state.rngState`"*. **D232 built exactly that op** and the refusal stood for 220 decisions
+anyway. D413's rule already covers it — *a refusal that says what it is waiting for carries
+its own expiry date, so go back and check the trigger* — and this is the shape that makes the
+trigger hardest to notice: **an ordinal**. *"The first X"*, *"the only Y"*, *"nothing else
+does Z"* are all claims that a later slice can falsify without ever reading the refusal.
+
+⚠️ **`grep -rn "would be the first\|the ONLY\|nothing (else )?in this engine" packages/engine/src`**
+and re-read each hit against today's module. An ordinal in a refusal is a countdown.
+
+## "Cannot express" is a claim about the MACHINERY; check the machinery (D452)

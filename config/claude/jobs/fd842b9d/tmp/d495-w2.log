@@ -1,0 +1,352 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/censusAtHead.test.ts (0 test)
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts (26 tests | 1 failed) 132ms
+     × 🛑 the resolving corpus gains TWO sentences and TWO printings 26ms
+ ❯ packages/engine/src/compoundCompose.test.ts (30 tests | 1 failed) 141ms
+     × 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused 16ms
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts (27 tests | 1 failed) 122ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 24ms
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts (31 tests | 1 failed) 119ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 25ms
+ ❯ packages/engine/src/retreatCostBonus.test.ts (0 test)
+ ❯ packages/engine/src/defenderStatusTriple.test.ts (31 tests | 1 failed) 107ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 23ms
+ ❯ packages/engine/src/opponentBenchCount.test.ts (0 test)
+ ❯ packages/engine/src/benchNamedBonus.test.ts (0 test)
+ ❯ packages/engine/src/sameEnergyBonus.test.ts (0 test)
+ ❯ packages/engine/src/moreEnergyBonus.test.ts (0 test)
+ ❯ packages/engine/src/inPlayTypeBonus.test.ts (0 test)
+ ❯ packages/engine/src/precociousEvolution.test.ts (0 test)
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts (22 tests | 1 failed) 80ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 30ms
+ ❯ packages/engine/src/bareAttackLock.test.ts (26 tests | 1 failed) 77ms
+     × refuses the COIN-GATED defender lock, which this slice measured and left out 11ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/benchNamedBonus.test.ts [ packages/engine/src/benchNamedBonus.test.ts ]
+Error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] Error:[0m Expected `,` or `)` but found `decimal`
+ - `,` or `)` expected in packages/engine/src/benchNamedBonus.test.ts at 232603..232604
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m packages/engine/src/benchNamedBonus.test.ts:891:11 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m891 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249me[0m[38;5;249mx[0m[38;5;249mp[0m[38;5;249me[0m[38;5;249mc[0m[38;5;249mt[0m(
+ [38;5;240m    │[0m           ┬  
+ [38;5;240m    │[0m           ╰── Opened here
+[38;5;246m─────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/jofre/projects/luminous_ui/packages/engine/src/benchNamedBonus.test.ts
+ ❯ transformWithOxc node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3343:19
+ ❯ TransformPluginContext.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3411:26
+ ❯ EnvironmentPluginContainer.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:30164:51
+ ❯ loadAndTransform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:24512:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  packages/engine/src/censusAtHead.test.ts [ packages/engine/src/censusAtHead.test.ts ]
+Error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] Error:[0m Expected `,` or `)` but found `decimal`
+ - `,` or `)` expected in packages/engine/src/censusAtHead.test.ts at 761850..761851
+ - Opened here in packages/engine/src/censusAtHead.test.ts at 761267..761268
+
+  Plugin: vite:oxc
+  File: /home/jofre/projects/luminous_ui/packages/engine/src/censusAtHead.test.ts
+ ❯ transformWithOxc node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3343:19
+ ❯ TransformPluginContext.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3411:26
+ ❯ EnvironmentPluginContainer.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:30164:51
+ ❯ loadAndTransform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:24512:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  packages/engine/src/inPlayTypeBonus.test.ts [ packages/engine/src/inPlayTypeBonus.test.ts ]
+Error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] Error:[0m Expected `,` or `]` but found `decimal`
+ - `,` or `]` expected in packages/engine/src/inPlayTypeBonus.test.ts at 141023..141024
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m packages/engine/src/inPlayTypeBonus.test.ts:659:12 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m659 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249me[0m[38;5;249mx[0m[38;5;249mp[0m[38;5;249me[0m[38;5;249mc[0m[38;5;249mt[0m[38;5;249m([0m[
+ [38;5;240m    │[0m            ┬  
+ [38;5;240m    │[0m            ╰── Opened here
+[38;5;246m─────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/jofre/projects/luminous_ui/packages/engine/src/inPlayTypeBonus.test.ts
+ ❯ transformWithOxc node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3343:19
+ ❯ TransformPluginContext.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3411:26
+ ❯ EnvironmentPluginContainer.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:30164:51
+ ❯ loadAndTransform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:24512:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  packages/engine/src/moreEnergyBonus.test.ts [ packages/engine/src/moreEnergyBonus.test.ts ]
+Error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] Error:[0m Expected `,` or `]` but found `decimal`
+ - `,` or `]` expected in packages/engine/src/moreEnergyBonus.test.ts at 221027..221028
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m packages/engine/src/moreEnergyBonus.test.ts:661:12 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m661 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249me[0m[38;5;249mx[0m[38;5;249mp[0m[38;5;249me[0m[38;5;249mc[0m[38;5;249mt[0m[38;5;249m([0m[
+ [38;5;240m    │[0m            ┬  
+ [38;5;240m    │[0m            ╰── Opened here
+[38;5;246m─────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/jofre/projects/luminous_ui/packages/engine/src/moreEnergyBonus.test.ts
+ ❯ transformWithOxc node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3343:19
+ ❯ TransformPluginContext.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3411:26
+ ❯ EnvironmentPluginContainer.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:30164:51
+ ❯ loadAndTransform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:24512:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  packages/engine/src/opponentBenchCount.test.ts [ packages/engine/src/opponentBenchCount.test.ts ]
+Error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] Error:[0m Expected `,` or `]` but found `decimal`
+ - `,` or `]` expected in packages/engine/src/opponentBenchCount.test.ts at 146884..146885
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m packages/engine/src/opponentBenchCount.test.ts:722:12 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m722 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249me[0m[38;5;249mx[0m[38;5;249mp[0m[38;5;249me[0m[38;5;249mc[0m[38;5;249mt[0m[38;5;249m([0m[
+ [38;5;240m    │[0m            ┬  
+ [38;5;240m    │[0m            ╰── Opened here
+[38;5;246m─────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/jofre/projects/luminous_ui/packages/engine/src/opponentBenchCount.test.ts
+ ❯ transformWithOxc node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3343:19
+ ❯ TransformPluginContext.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3411:26
+ ❯ EnvironmentPluginContainer.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:30164:51
+ ❯ loadAndTransform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:24512:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  packages/engine/src/precociousEvolution.test.ts [ packages/engine/src/precociousEvolution.test.ts ]
+Error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] Error:[0m Expected `,` or `)` but found `decimal`
+ - `,` or `)` expected in packages/engine/src/precociousEvolution.test.ts at 203691..203692
+ - Opened here in packages/engine/src/precociousEvolution.test.ts at 203116..203117
+
+  Plugin: vite:oxc
+  File: /home/jofre/projects/luminous_ui/packages/engine/src/precociousEvolution.test.ts
+ ❯ transformWithOxc node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3343:19
+ ❯ TransformPluginContext.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3411:26
+ ❯ EnvironmentPluginContainer.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:30164:51
+ ❯ loadAndTransform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:24512:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  packages/engine/src/retreatCostBonus.test.ts [ packages/engine/src/retreatCostBonus.test.ts ]
+Error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] Error:[0m Expected `,` or `]` but found `decimal`
+ - `,` or `]` expected in packages/engine/src/retreatCostBonus.test.ts at 150103..150104
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m packages/engine/src/retreatCostBonus.test.ts:831:12 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m831 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249me[0m[38;5;249mx[0m[38;5;249mp[0m[38;5;249me[0m[38;5;249mc[0m[38;5;249mt[0m[38;5;249m([0m[
+ [38;5;240m    │[0m            ┬  
+ [38;5;240m    │[0m            ╰── Opened here
+[38;5;246m─────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/jofre/projects/luminous_ui/packages/engine/src/retreatCostBonus.test.ts
+ ❯ transformWithOxc node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3343:19
+ ❯ TransformPluginContext.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3411:26
+ ❯ EnvironmentPluginContainer.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:30164:51
+ ❯ loadAndTransform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:24512:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  packages/engine/src/sameEnergyBonus.test.ts [ packages/engine/src/sameEnergyBonus.test.ts ]
+Error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] Error:[0m Expected `,` or `)` but found `decimal`
+ - `,` or `)` expected in packages/engine/src/sameEnergyBonus.test.ts at 240193..240194
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m packages/engine/src/sameEnergyBonus.test.ts:880:11 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m880 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249me[0m[38;5;249mx[0m[38;5;249mp[0m[38;5;249me[0m[38;5;249mc[0m[38;5;249mt[0m(
+ [38;5;240m    │[0m           ┬  
+ [38;5;240m    │[0m           ╰── Opened here
+[38;5;246m─────╯[0m
+
+  Plugin: vite:oxc
+  File: /home/jofre/projects/luminous_ui/packages/engine/src/sameEnergyBonus.test.ts
+ ❯ transformWithOxc node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3343:19
+ ❯ TransformPluginContext.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:3411:26
+ ❯ EnvironmentPluginContainer.transform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:30164:51
+ ❯ loadAndTransform node_modules/.bun/vite@8.0.10+e8db27bcd2692163/node_modules/vite/dist/node/chunks/node.js:24512:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/bareAttackLock.test.ts > §5 — anchored end to end, and every refusal is a warrant > refuses the COIN-GATED defender lock, which this slice measured and left out
+AssertionError: expected [ { op: 'coinFlipGate', …(1) } ] to be null
+
+- Expected:
+null
+
++ Received:
+[
+  {
+    "op": "coinFlipGate",
+    "then": [
+      {
+        "op": "preventAttack",
+        "target": "defender",
+      },
+    ],
+  },
+]
+
+ ❯ packages/engine/src/bareAttackLock.test.ts:428:7
+    426|         "Flip a coin. If heads, during your opponent's next turn, the …
+    427|       ),
+    428|     ).toBeNull();
+       |       ^
+    429|   });
+    430|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯
+
+ FAIL  packages/engine/src/compoundCompose.test.ts > §4 — the SHADOW REFUSAL: the anchor wins, the splitter is the fallback > 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused
+AssertionError: expected 498 to be 497 // Object.is equality
+
+- Expected
++ Received
+
+- 497
++ 498
+
+ ❯ packages/engine/src/compoundCompose.test.ts:622:33
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 528, 1560 ] to deeply equal [ 527, 1559 ]
+
+- Expected
++ Received
+
+  [
+-   527,
+-   1559,
++   528,
++   1560,
+  ]
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:546:58
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/15]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 528, 1560 ] to deeply equal [ 527, 1559 ]
+
+- Expected
++ Received
+
+  [
+-   527,
+-   1559,
++   528,
++   1560,
+  ]
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:565:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/15]⎯
+
+ FAIL  packages/engine/src/flipStatusHeadsTails.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 528, 1560 ] to deeply equal [ 527, 1559 ]
+
+- Expected
++ Received
+
+  [
+-   527,
+-   1559,
++   528,
++   1560,
+  ]
+
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts:735:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/15]⎯
+
+ FAIL  packages/engine/src/perHeadsEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ 527, 1560 ] to deeply equal [ 526, 1559 ]
+
+- Expected
++ Received
+
+  [
+-   526,
+-   1559,
++   527,
++   1560,
+  ]
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts:667:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/15]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §2 — the census moves in exactly ONE summand, and the step is 1 and 1 > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 528, 1561 ] to deeply equal [ 527, 1560 ]
+
+- Expected
++ Received
+
+  [
+-   527,
+-   1560,
++   528,
++   1561,
+  ]
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:190:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/15]⎯
+
+
+ Test Files  15 failed | 465 passed (480)
+      Tests  7 failed | 10727 passed (10734)
+   Start at  21:23:03
+   Duration  171.47s (transform 24.22s, setup 0ms, import 185.31s, tests 48.38s, environment 31.15s)
+

@@ -1,0 +1,29 @@
+
+Mutation harness (D211) — 8 mutant(s)
+
+⚠️  --allow-dirty: mutating 1 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+
+  D486-gate-collapses-to-the-unconditional-reading … KILLED           3.4s
+  D486-increment-becomes-the-total … KILLED           3.4s
+  D486-increment-floor-admits-zero … KILLED           3.4s
+  D486-head-discard-is-not-the-article … KILLED           3.4s
+  D486-gate-arms-are-crossed … KILLED           3.4s
+  D486-clause-table-miss-defaults-to-the-named-card … KILLED           3.3s
+  D486-clause-row-names-the-wrong-card … KILLED           3.4s
+  D486-tail-only-anchor-loses-the-antecedent … KILLED           3.5s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D486-gate-collapses-to-t… D486                  KILLED           3.4s    1
+D486-increment-becomes-t… D486                  KILLED           3.4s    1
+D486-increment-floor-adm… D486                  KILLED           3.4s    1
+D486-head-discard-is-not… D486                  KILLED           3.4s    1
+D486-gate-arms-are-cross… D486                  KILLED           3.4s    1
+D486-clause-table-miss-d… D486                  KILLED           3.3s    1
+D486-clause-row-names-th… D486                  KILLED           3.4s    1
+D486-tail-only-anchor-lo… D486                  KILLED           3.5s    2
+────────────────────────────────────────────────────────────────────────────────────
+8 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 34.0s total
+

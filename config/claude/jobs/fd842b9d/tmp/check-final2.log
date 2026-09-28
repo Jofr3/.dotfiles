@@ -1,0 +1,74 @@
+[0m[2m[35m$[0m [2m[1mbun scripts/typecheck-coverage.ts && tsc -b && bun scripts/lint-coverage.ts && biome lint . --error-on-warnings && vitest run[0m
+typecheck-coverage: OK — all 732 TypeScript files are in 6 project(s) of tsconfig.json (apps/api/tsconfig.json, packages/engine/tsconfig.json, packages/schema/tsconfig.json, tsconfig.app.json, tsconfig.node.json, tsconfig.scripts.json).
+lint-coverage: OK — all 734 source files are covered by Biome.
+./packages/engine/src/derivedBenchSearchMove.test.ts:1136:5 lint/performance/noDelete  FIXABLE  ━━━━━━━━━━
+
+  × Avoid the delete operator which can impact performance.
+  
+    1134 │     if (stripped.phase.kind !== "effect:choose") throw new Error("expected a park");
+    1135 │     const pendingOp = stripped.phase.cont.pendingOp as unknown as Record<string, unknown>;
+  > 1136 │     delete pendingOp.recordAs;
+         │     ^^^^^^^^^^^^^^^^^^^^^^^^^
+    1137 │     const gate = stripped.phase.cont.rest[1] as unknown as { then: Record<string, unknown>[] };
+    1138 │     const nested = gate.then[0];
+  
+  i Unsafe fix: Use an undefined assignment instead.
+  
+    1134 1134 │       if (stripped.phase.kind !== "effect:choose") throw new Error("expected a park");
+    1135 1135 │       const pendingOp = stripped.phase.cont.pendingOp as unknown as Record<string, unknown>;
+    1136      │ - ····delete·pendingOp.recordAs;
+         1136 │ + ····pendingOp.recordAs·=·undefined;
+    1137 1137 │       const gate = stripped.phase.cont.rest[1] as unknown as { then: Record<string, unknown>[] };
+    1138 1138 │       const nested = gate.then[0];
+  
+
+./packages/engine/src/derivedBenchSearchMove.test.ts:1139:31 lint/performance/noDelete  FIXABLE  ━━━━━━━━━━
+
+  × Avoid the delete operator which can impact performance.
+  
+    1137 │     const gate = stripped.phase.cont.rest[1] as unknown as { then: Record<string, unknown>[] };
+    1138 │     const nested = gate.then[0];
+  > 1139 │     if (nested !== undefined) delete nested.destRecorded;
+         │                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    1140 │     const uid = searchPark(stripped).candidates.find(
+    1141 │       (u) => stripped.cardIdByUid[u] === "fix-kissfound",
+  
+  i Unsafe fix: Use an undefined assignment instead.
+  
+    1137 1137 │       const gate = stripped.phase.cont.rest[1] as unknown as { then: Record<string, unknown>[] };
+    1138 1138 │       const nested = gate.then[0];
+    1139      │ - ····if·(nested·!==·undefined)·delete·nested.destRecorded;
+         1139 │ + ····if·(nested·!==·undefined)·nested.destRecorded·=·undefined;
+    1140 1140 │       const uid = searchPark(stripped).candidates.find(
+    1141 1141 │         (u) => stripped.cardIdByUid[u] === "fix-kissfound",
+  
+
+./packages/engine/src/derivedBenchSearchMove.test.ts:1217:31 lint/performance/noDelete  FIXABLE  ━━━━━━━━━━
+
+  × Avoid the delete operator which can impact performance.
+  
+    1215 │     const gate = unpinned[2] as { then: Record<string, unknown>[] };
+    1216 │     const nested = gate.then[0];
+  > 1217 │     if (nested !== undefined) delete nested.destRecorded;
+         │                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    1218 │     // The wrong build is a DIFFERENT program — which the census cannot see, because
+    1219 │     // the census asks whether a sentence is CLAIMED and never what it is claimed AS.
+  
+  i Unsafe fix: Use an undefined assignment instead.
+  
+    1215 1215 │       const gate = unpinned[2] as { then: Record<string, unknown>[] };
+    1216 1216 │       const nested = gate.then[0];
+    1217      │ - ····if·(nested·!==·undefined)·delete·nested.destRecorded;
+         1217 │ + ····if·(nested·!==·undefined)·nested.destRecorded·=·undefined;
+    1218 1218 │       // The wrong build is a DIFFERENT program — which the census cannot see, because
+    1219 1219 │       // the census asks whether a sentence is CLAIMED and never what it is claimed AS.
+  
+
+Checked 770 files in 1385ms. No fixes applied.
+Found 3 errors.
+lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+
+[0m[31merror[0m[2m:[0m script [1m"check"[0m exited with code 1[0m

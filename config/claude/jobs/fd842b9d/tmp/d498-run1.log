@@ -1,0 +1,98 @@
+############ SUITE packages/engine/src/censusAtHead.test.ts ############
+
+===== R1-every : exit=1 =====
+      Tests  10 failed | 40 passed (50)
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the seven readers are wired — a control sentence DOES resolve
+AssertionError: expected false to be true // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the headline arithmetic closes over all four columns
+AssertionError: expected false to be true // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it
+AssertionError: expected 640 to be 111 // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > 🆕🆕 D420 — the TWELVE readers, RUN LIVE over the corpus, resolve 415 sentences / 1,368 printings
+AssertionError: expected +0 to be 529 // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > the SPLIT half — 6 gate sentences in the corpus, 5 with a body and ALL 5 resolving, 14 printings
+AssertionError: expected +0 to be 5 // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > BUILT.attack IS that live sum plus the registry attacks — no literal in the addition
+AssertionError: expected +0 to be 13 // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > the corpus is really the catalog and the readers really run — the attribution controls
+
+===== R2-undefined : exit=1 =====
+      Tests  8 failed | 42 passed (50)
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > every printed sentence in every backlog family is refused by ALL SEVEN readers
+AssertionError: expected [ …(15) ] to deeply equal []
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the thirteen registry-authored legal attacks are NOT derivable — the '+13' is real
+AssertionError: sv09-068's text became derivable: expected true to be false // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it
+AssertionError: expected +0 to be 111 // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > 🆕🆕 D420 — the TWELVE readers, RUN LIVE over the corpus, resolve 415 sentences / 1,368 printings
+AssertionError: expected 640 to be 529 // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > the SPLIT half — 6 gate sentences in the corpus, 5 with a body and ALL 5 resolving, 14 printings
+AssertionError: If you go first, you can use this attack during your first turn. Search your deck for a card that evolves from this Pokémon and put it onto this Pokémon to evolve it. Then, shuffle your deck.: expected true to be false // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > BUILT.attack IS that live sum plus the registry attacks — no literal in the addition
+AssertionError: You may search your deck for any number of Basic Lillie's Pokémon and put them onto your Bench. Then, shuffle your deck.: expected true to be false // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > the corpus is really the catalog and the readers really run — the attribution controls
+
+===== R3-loose : exit=0 =====
+      Tests  50 passed (50)
+
+===== X-eqnull : exit=1 =====
+      Tests  8 failed | 42 passed (50)
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > every printed sentence in every backlog family is refused by ALL SEVEN readers
+AssertionError: expected [ …(15) ] to deeply equal []
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the thirteen registry-authored legal attacks are NOT derivable — the '+13' is real
+AssertionError: sv09-068's text became derivable: expected true to be false // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D233 — the derived census re-run at HEAD, and the numbers rows 9-16 quote > the eight rows are a NAMED FRACTION of the unbuilt attack column, not all of it
+AssertionError: expected +0 to be 111 // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > 🆕🆕 D420 — the TWELVE readers, RUN LIVE over the corpus, resolve 415 sentences / 1,368 printings
+AssertionError: expected 640 to be 529 // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > the SPLIT half — 6 gate sentences in the corpus, 5 with a body and ALL 5 resolving, 14 printings
+AssertionError: If you go first, you can use this attack during your first turn. Search your deck for a card that evolves from this Pokémon and put it onto this Pokémon to evolve it. Then, shuffle your deck.: expected true to be false // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > BUILT.attack IS that live sum plus the registry attacks — no literal in the addition
+AssertionError: You may search your deck for any number of Basic Lillie's Pokémon and put them onto your Bench. Then, shuffle your deck.: expected true to be false // Object.is equality
+ FAIL  packages/engine/src/censusAtHead.test.ts > D274 — BUILT.attack, derived from the LIVE readers over the committed corpus > the corpus is really the catalog and the readers really run — the attribution controls
+
+===== X-truthy : exit=0 =====
+      Tests  50 passed (50)
+
+RESTORED_OK=true
+############ SUITE packages/engine/src/coinThreshold.test.ts ############
+
+===== R1-every : exit=1 =====
+      Tests  1 failed | 29 passed (30)
+ FAIL  packages/engine/src/coinThreshold.test.ts > §4 — disjointness: one reader owns the sentence, and the coin is taken ONCE > 🛑 the trailing splitter refuses all three — and now by the SHADOW REFUSAL
+AssertionError: expected false to be true // Object.is equality
+
+===== R2-undefined : exit=0 =====
+      Tests  30 passed (30)
+
+===== R3-loose : exit=0 =====
+      Tests  30 passed (30)
+
+===== X-eqnull : exit=0 =====
+      Tests  30 passed (30)
+
+===== X-truthy : exit=0 =====
+      Tests  30 passed (30)
+
+RESTORED_OK=true
+############ SUITE packages/engine/src/discardHandDraw.test.ts ############
+
+===== R1-every : exit=1 =====
+      Tests  1 failed | 20 passed (21)
+ FAIL  packages/engine/src/discardHandDraw.test.ts > D404 §1 — the sentence, measured live over the legal column > ⚠️ 🆕🆕 D479 — the SHUFFLE spelling is a real printing and is now BUILT, by ONE OTHER reader
+AssertionError: Shuffle your hand into your deck. Then, draw 6 cards.: expected false to be true // Object.is equality
+
+===== R2-undefined : exit=0 =====
+      Tests  21 passed (21)
+
+===== R3-loose : exit=0 =====
+      Tests  21 passed (21)
+
+===== X-eqnull : exit=0 =====
+      Tests  21 passed (21)
+
+===== X-truthy : exit=0 =====
+      Tests  21 passed (21)
+
+RESTORED_OK=true
+###DONE###

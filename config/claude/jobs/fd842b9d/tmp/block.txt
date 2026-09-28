@@ -1,0 +1,20 @@
+  const opponentCounters = OPPONENT_COUNTER_SCALE.exec(effect);
+  if (opponentCounters !== null) {
+    const per = Number(opponentCounters[1]);
+    if (per >= 1) return { per, count: { kind: "damageCountersOnOpponentActive" } };
+  }
+  // 🆕🆕 D469 — THE SAME SEAT, THE WHOLE BOARD. Corpus file line 534, 1 legal
+  // printing. Same fold and the same `per >= 1` printed-zero guard as every arm in
+  // this reader; what differs is one literal run of bytes in the anchored tail, and
+  // that literal is the ONLY thing separating this arm from the one directly above
+  // — which is why the two anchors are structurally disjoint and neither carries a
+  // lookahead. Arm ORDER here is legibility: no string reaches both `exec`s, and
+  // the corpus row that swaps them is a declared structural `equivalent`.
+  const opponentBoardCounters = OPPONENT_BOARD_COUNTER_SCALE.exec(effect);
+  if (opponentBoardCounters !== null) {
+    const per = Number(opponentBoardCounters[1]);
+    if (per >= 1) return { per, count: { kind: "damageCountersOnOpponentBoard" } };
+  }
+  // D193 — the two BODY counts, both on this fold because both sentences carry
+  // "more". Same `per >= 1` guard, a different resource: these tally Pokémon, not
+  // the counters on them.

@@ -1,0 +1,58 @@
+corpus 640 sentences / 1732 printings
+residue 100 sentences / 139 printings
+
+### P1 over WHOLE CORPUS (any Pokemon-ex/V noun): 20 sentences / 30 printings
+  [1p] Discard all Energy from this Pokémon, and this attack does 210 damage to 1 of your opponent's Benched Pokémon ex. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  [1p] Discard an Energy from your opponent's Active Pokémon ex.
+  [1p] Discard the top card of your deck, and if that card is a Pokémon that doesn't have a Rule Box, choose 1 of its attacks and use it as this attack. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
+  [1p] During your opponent's next turn, prevent all damage done to each of your Future Pokémon by attacks from Pokémon ex. If this Pokémon is no longer your Active Pokémon, this effect ends.
+  [3p] If your opponent's Active Pokémon is a Pokémon ex or Pokémon V, this attack does 110 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex or Pokémon V, this attack does 120 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex or Pokémon V, this attack does 80 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex or Pokémon V, this attack does 90 more damage.
+  [4p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 100 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 40 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 50 more damage.
+  [2p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 70 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 80 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 90 more damage.
+  [2p] If your opponent's Active Pokémon isn't a Pokémon ex, this attack does nothing. This attack's damage isn't affected by Weakness or Resistance.
+  [2p] This attack does 100 damage to each of your opponent's Pokémon ex and Pokémon V. This attack's damage isn't affected by Weakness or Resistance.
+  [1p] This attack does 60 damage for each of your opponent's Pokémon ex and Pokémon V in play.
+  [2p] This attack does 60 damage for each of your opponent's Pokémon ex in play.
+  [1p] This attack does 60 damage to 1 of your opponent's Benched Pokémon ex or Benched Pokémon V. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  [2p] This attack does 60 damage to each of your opponent's Pokémon ex. This attack's damage isn't affected by Weakness or Resistance.
+
+### P1 over RESIDUE: 6 sentences / 8 printings
+  [1p] Discard all Energy from this Pokémon, and this attack does 210 damage to 1 of your opponent's Benched Pokémon ex. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  [1p] Discard the top card of your deck, and if that card is a Pokémon that doesn't have a Rule Box, choose 1 of its attacks and use it as this attack. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
+  [1p] During your opponent's next turn, prevent all damage done to each of your Future Pokémon by attacks from Pokémon ex. If this Pokémon is no longer your Active Pokémon, this effect ends.
+  [2p] This attack does 100 damage to each of your opponent's Pokémon ex and Pokémon V. This attack's damage isn't affected by Weakness or Resistance.
+  [1p] This attack does 60 damage to 1 of your opponent's Benched Pokémon ex or Benched Pokémon V. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  [2p] This attack does 60 damage to each of your opponent's Pokémon ex. This attack's damage isn't affected by Weakness or Resistance.
+
+### P2 over RESIDUE (opponent-side target narrowing): 5 sentences / 7 printings
+  [1p] Discard all Energy from this Pokémon, and this attack does 210 damage to 1 of your opponent's Benched Pokémon ex. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  [1p] During your opponent's next turn, prevent all damage done to each of your Future Pokémon by attacks from Pokémon ex. If this Pokémon is no longer your Active Pokémon, this effect ends.
+  [2p] This attack does 100 damage to each of your opponent's Pokémon ex and Pokémon V. This attack's damage isn't affected by Weakness or Resistance.
+  [1p] This attack does 60 damage to 1 of your opponent's Benched Pokémon ex or Benched Pokémon V. (Don't apply Weakness and Resistance for Benched Pokémon.)
+  [2p] This attack does 60 damage to each of your opponent's Pokémon ex. This attack's damage isn't affected by Weakness or Resistance.
+
+### P3 over RESIDUE (your-side narrowing): 1 sentences / 1 printings
+  [1p] During your opponent's next turn, prevent all damage done to each of your Future Pokémon by attacks from Pokémon ex. If this Pokémon is no longer your Active Pokémon, this effect ends.
+
+### P1 over BUILT: 14 sentences / 22 printings
+  [1p] Discard an Energy from your opponent's Active Pokémon ex.
+  [3p] If your opponent's Active Pokémon is a Pokémon ex or Pokémon V, this attack does 110 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex or Pokémon V, this attack does 120 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex or Pokémon V, this attack does 80 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex or Pokémon V, this attack does 90 more damage.
+  [4p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 100 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 40 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 50 more damage.
+  [2p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 70 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 80 more damage.
+  [1p] If your opponent's Active Pokémon is a Pokémon ex, this attack does 90 more damage.
+  [2p] If your opponent's Active Pokémon isn't a Pokémon ex, this attack does nothing. This attack's damage isn't affected by Weakness or Resistance.
+  [1p] This attack does 60 damage for each of your opponent's Pokémon ex and Pokémon V in play.
+  [2p] This attack does 60 damage for each of your opponent's Pokémon ex in play.

@@ -1,0 +1,58 @@
+packages/engine/package.json:4:  "version": "0.368.0",
+packages/engine/src/counterFold.test.ts:508:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/derivedDeckSearchAttach.test.ts:1736:  it("engineVersion is 0.368.0 and `manifest.version` agrees", () => {
+packages/engine/src/derivedDeckSearchAttach.test.ts:1746:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/optionalSelfSwitch.test.ts:1018:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/retreatCostPenalty.test.ts:643:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/defenderStatusTriple.test.ts:631:  it("engineVersion is 0.368.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/defenderStatusTriple.test.ts:635:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/extraEnergyBonus.test.ts:468:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/scopedBoardHeal.test.ts:707:  it("engineVersion is 0.368.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/scopedBoardHeal.test.ts:713:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/counterUntilHp.test.ts:540:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/preDamageRefusal.test.ts:659:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/discardPileScaling.test.ts:834:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/bodiesInPlayScaling.test.ts:1483:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/scaledAnySnipe.test.ts:442:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/typedSelfSwitch.test.ts:708:  it("engineVersion is 0.368.0", () => {
+packages/engine/src/typedSelfSwitch.test.ts:709:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/ownBenchSpread.test.ts:463:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/selfEnergyScaling.test.ts:1133:  it("engineVersion is 0.368.0 and `manifest.version` agrees", () => {
+packages/engine/src/selfEnergyScaling.test.ts:1147:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/counterPutChosen.test.ts:559:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/benchNounScaling.test.ts:330:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/toolCountScaling.test.ts:465:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/perHeadsConsequent.test.ts:553:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/index.ts:19472:export const engineVersion = "0.368.0";
+packages/engine/src/untilLeavesActiveBar.test.ts:951:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/defenderStatusPair.test.ts:930:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/boardWideEnergyScaling.test.ts:561:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/opponentBoardCounterScaling.test.ts:27:// 0.367.0 → 0.368.0 — 🆕🆕 D469: THE OPPONENT'S WHOLE BOARD OF DAMAGE COUNTERS.
+packages/engine/src/opponentBoardCounterScaling.test.ts:667:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/delayedCounters.test.ts:1121:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/flipStatusEnergyDiscard.test.ts:684:  it("engineVersion is 0.368.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/flipStatusEnergyDiscard.test.ts:688:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/derivedOpponentEnergyMove.test.ts:665:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/devolveEach.test.ts:1063:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/noWeaknessBar.test.ts:684:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/legacyEnergy.test.ts:1084:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/legacyEnergy.test.ts:1085:    expect(manifest.version).toBe("0.368.0");
+packages/engine/src/opponentCounterMultiply.test.ts:816:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/preDamageFamily.test.ts:973:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/bareAttackLock.test.ts:516:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/opponentHandDiscard.test.ts:997:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/preDamageToolDiscard.test.ts:723:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/perHeadsEnergyDiscard.test.ts:757:  it("engineVersion is 0.368.0 and the bump is owed for BEHAVIOUR", () => {
+packages/engine/src/perHeadsEnergyDiscard.test.ts:762:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/derivedMoveAllEnergy.test.ts:447:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/selfDamagePerCounter.test.ts:411:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/filteredBenchSnipe.test.ts:747:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/coinThreshold.test.ts:700:  it("engineVersion is 0.368.0 and `manifest.version` agrees", () => {
+packages/engine/src/coinThreshold.test.ts:708:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/ownBenchSnipe.test.ts:384:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/takePrizeAttack.test.ts:351:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/derivedAttackGate.test.ts:775:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/selfHealDealt.test.ts:443:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/derivedSpreadEnergyMove.test.ts:731:    expect(engineVersion).toBe("0.368.0");
+packages/engine/src/compoundCompose.test.ts:1084:    expect(engineVersion).toBe("0.368.0");
+scripts/mutation/mutants.ts:5775:    find: 'export const engineVersion = "0.368.0";',

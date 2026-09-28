@@ -1,0 +1,255 @@
+=== THE BLOCKER CENSUS (D459) ===
+readers: 13   REGISTRY_ATTACKS: 16 pairs / 10 distinct sentences   SUBMAX=4
+
+population  640 sentences / 1732 printings
+  − reader    533            / 1567
+  − registry   10            /  16
+  − gate        5            /  13
+  − trailing   11            /  21
+= RESIDUE     81 sentences / 115 printings
+
+=== CLASS TABLE ===
+CLASS            sentences  printings
+COMPOUND-head      5          6
+SUBST-2            3          4
+SUBST-3            1          1
+SUBST-5            1          1
+PHRASE-1           3          4
+PHRASE-7           1          1
+PHRASE-13          1          1
+PHRASE-18          1          3
+PHRASE-24          1          1
+PHRASE-29          1          1
+OPAQUE            63         92
+TOTAL             81        115
+
+=== ROWS, BY CLASS ===
+
+── COMPOUND-head ───────────────────────────────────────────────
+  2p  Discard the top card of your opponent's deck. If you played an Ancient Supporter card from your hand during this turn, discard 3 more cards in this way.
+     SEGMENT 2/2 removed.
+       KEPT  ✅ builds (reader): Discard the top card of your opponent's deck.
+             deriveAttackEffect → [{"op":"discardDeckTop","whose":"opponent","count":1}]
+       CUT   🛑 does NOT build: If you played an Ancient Supporter card from your hand during this turn, discard 3 more cards in this way.
+     SPAN  delete 20 token(s) at 8 (1 minimal span(s) build): «If you played an Ancient Supporter card from your hand during this turn, discard 3 more cards in this way.»
+  1p  This attack does 30 damage for each {W} Energy attached to this Pokémon. Before doing damage, you may attach any number of Basic {W} Energy cards from your hand to this Pokémon.
+     SEGMENT 2/2 removed.
+       KEPT  ✅ builds (reader): This attack does 30 damage for each {W} Energy attached to this Pokémon.
+             deriveAttackDamageMultiplier → {"per":30,"count":{"kind":"energyOnSelf","energyType":"Water"}}
+       CUT   🛑 does NOT build: Before doing damage, you may attach any number of Basic {W} Energy cards from your hand to this Pokémon.
+     SPAN  delete 19 token(s) at 10 (4 minimal span(s) build): «to this Pokémon. Before doing damage, you may attach any number of Basic {W} Energy cards from your hand»
+  1p  Your opponent reveals their hand. You may use the effect of a Supporter card you find there as the effect of this attack.
+     SEGMENT 2/2 removed.
+       KEPT  ✅ builds (reader): Your opponent reveals their hand.
+             deriveAttackEffect → [{"op":"revealOpponentHand"}]
+       CUT   🛑 does NOT build: You may use the effect of a Supporter card you find there as the effect of this attack.
+     SPAN  delete 18 token(s) at 5 (1 minimal span(s) build): «You may use the effect of a Supporter card you find there as the effect of this attack.»
+  1p  Your opponent's Active Pokémon is now Confused. You may move any number of damage counters from your opponent's Pokémon to their other Pokémon in any way you like.
+     SEGMENT 2/2 removed.
+       KEPT  ✅ builds (reader): Your opponent's Active Pokémon is now Confused.
+             deriveAttackEffect → [{"op":"applyStatus","target":"defender","status":"confused"}]
+       CUT   🛑 does NOT build: You may move any number of damage counters from your opponent's Pokémon to their other Pokémon in any way you like.
+     SPAN  delete 21 token(s) at 7 (1 minimal span(s) build): «You may move any number of damage counters from your opponent's Pokémon to their other Pokémon in any way you like.»
+  1p  Your opponent's Active Pokémon is now Poisoned. During your opponent's next turn, Energy cards can't be attached from your opponent's hand to that Pokémon.
+     SEGMENT 2/2 removed.
+       KEPT  ✅ builds (reader): Your opponent's Active Pokémon is now Poisoned.
+             deriveAttackEffect → [{"op":"applyStatus","target":"defender","status":"poisoned"}]
+       CUT   🛑 does NOT build: During your opponent's next turn, Energy cards can't be attached from your opponent's hand to that Pokémon.
+     SPAN  delete 17 token(s) at 7 (1 minimal span(s) build): «During your opponent's next turn, Energy cards can't be attached from your opponent's hand to that Pokémon.»
+
+── SUBST-2 ─────────────────────────────────────────────────────
+  1p  During your opponent's next turn, prevent all damage done to this Pokémon by attacks from Ancient Pokémon.
+     SUBST 2 token(s): «Ancient» → «Basic»
+       onto BUILT (reader): During your opponent's next turn, prevent all damage done to this Pokémon by attacks from Basic Pokémon.
+             deriveAttackEffect → [{"op":"preventDamage","fromClass":{"stage":"basic"}}]
+  1p  If your opponent has any Future Pokémon in play, this attack does 120 more damage.
+     SUBST 2 token(s): «Future» → «{W}»
+       onto BUILT (reader): If your opponent has any {W} Pokémon in play, this attack does 120 more damage.
+             deriveAttackDamageBonus → {"per":120,"count":{"kind":"boardCondition","cond":{"kind":"opponentInPlayHasType","type":"Water"}}}
+  2p  This attack does 30 damage for each of your Ancient Pokémon in play.
+     SUBST 2 token(s): «Ancient» → «{G}»
+       onto BUILT (reader): This attack does 30 damage for each of your {G} Pokémon in play.
+             deriveAttackDamageMultiplier → {"per":30,"count":{"kind":"pokemonInPlay","seat":"you","filter":{"kind":"typedPokemon","pokemonType":"Grass"}}}
+     SPAN  delete 1 token(s) at 9 (1 minimal span(s) build): «Ancient»
+           deriveAttackDamageMultiplier → {"per":30,"count":{"kind":"pokemonInPlay","seat":"you","filter":{"kind":"anyPokemon"}}}
+
+── SUBST-3 ─────────────────────────────────────────────────────
+  1p  Move all damage counters from 1 of your Benched Ancient Pokémon to your opponent's Active Pokémon.
+     SUBST 3 token(s): «Ancient» → «Team Rocket's»
+       onto BUILT (reader): Move all damage counters from 1 of your Benched Team Rocket's Pokémon to your opponent's Active Pokémon.
+             deriveAttackEffect → [{"op":"moveCountersToDefender","ownerPokemon":"Team Rocket"}]
+     SPAN  delete 1 token(s) at 9 (1 minimal span(s) build): «Ancient»
+           deriveAttackEffect → [{"op":"moveCountersToDefender"}]
+
+── SUBST-5 ─────────────────────────────────────────────────────
+  1p  Search your deck for up to 3 Basic Energy cards of different types, reveal them, and put them into your hand. Then, shuffle your deck.
+     SUBST 5 token(s): «cards of different types,» → «cards,»
+       onto BUILT (reader): Search your deck for up to 3 Basic Energy cards, reveal them, and put them into your hand. Then, shuffle your deck.
+             deriveAttackEffect → [{"op":"searchDeck","filter":{"kind":"basicEnergy"},"dest":"hand","max":3,"reveal":true},{"op":"shuffleDeck"}]
+     SPAN  delete 5 token(s) at 10 (1 minimal span(s) build): «of different types, reveal them,»
+           deriveAttackEffect → [{"op":"searchDeck","filter":{"kind":"basicEnergy"},"dest":"hand","max":3},{"op":"shuffleDeck"}]
+
+── PHRASE-1 ────────────────────────────────────────────────────
+  1p  Heal 100 damage from 1 of your Benched Ancient Pokémon.
+     SPAN  delete 1 token(s) at 8 (1 minimal span(s) build): «Ancient»
+           deriveAttackEffect → [{"op":"healChosen","amount":100,"zone":"bench"}]
+  1p  If you played a Future Supporter card from your hand during this turn, this attack does 100 more damage.
+     SPAN  delete 1 token(s) at 4 (1 minimal span(s) build): «Future»
+           deriveAttackDamageBonus → {"per":100,"count":{"kind":"boardCondition","cond":{"kind":"youPlayedSupporterThisTurn"}}}
+  2p  Search your deck for up to 2 Basic Energy cards and attach them to your Future Pokémon in any way you like. Then, shuffle your deck.
+     SPAN  delete 1 token(s) at 15 (1 minimal span(s) build): «Future»
+           deriveAttackEffect → [{"op":"attachFromDeck","filter":{"kind":"basicEnergy"},"max":2},{"op":"shuffleDeck"}]
+
+── PHRASE-7 ────────────────────────────────────────────────────
+  1p  This attack does 20 damage to 1 of your opponent's Benched Pokémon for each damage counter on that Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+     SPAN  delete 7 token(s) at 11 (1 minimal span(s) build): «Pokémon for each damage counter on that»
+           deriveAttackEffect → [{"op":"damageChosen","target":"opponentBench","amount":20,"count":1,"source":"attack","deals":true}]
+
+── PHRASE-13 ───────────────────────────────────────────────────
+  1p  Search your deck for up to 5 Pokémon that are the same type as any Basic Energy attached to this Pokémon, reveal them, and put them into your hand. Then, shuffle your deck.
+     SPAN  delete 13 token(s) at 7 (1 minimal span(s) build): «Pokémon that are the same type as any Basic Energy attached to this»
+           deriveAttackEffect → [{"op":"searchDeck","filter":{"kind":"anyPokemon"},"dest":"hand","max":5,"reveal":true},{"op":"shuffleDeck"}]
+
+── PHRASE-18 ───────────────────────────────────────────────────
+  3p  Put 2 damage counters on 1 of your opponent's Pokémon for each Basic {G} Energy card in your discard pile. Then, shuffle those Energy cards into your deck.
+     SPAN  delete 18 token(s) at 10 (1 minimal span(s) build) [TAIL REPAIR]: «for each Basic {G} Energy card in your discard pile. Then, shuffle those Energy cards into your deck.»
+           KEPT  Put 2 damage counters on 1 of your opponent's Pokémon.
+           deriveAttackEffect → [{"op":"damageChosen","target":"opponentAny","amount":20,"count":1,"source":"attack"}]
+
+── PHRASE-24 ───────────────────────────────────────────────────
+  1p  Your opponent flips a coin for each of their Benched Pokémon. This attack does 80 damage to your opponent's Active Pokémon for each tails. This attack's damage isn't affected by Weakness or Resistance.
+     SPAN  delete 24 token(s) at 0 (1 minimal span(s) build): «Your opponent flips a coin for each of their Benched Pokémon. This attack does 80 damage to your opponent's Active Pokémon for each tails.»
+           deriveAttackDamageSuppression → {"weakness":true,"resistance":true}
+
+── PHRASE-29 ───────────────────────────────────────────────────
+  1p  Switch in 1 of your opponent's Benched Pokémon to the Active Spot. If you do, this attack does 120 damage to the new Active Pokémon. If you didn't play Xerosic's Machinations from your hand during this turn, this attack does nothing.
+     SPAN  delete 29 token(s) at 12 (1 minimal span(s) build): «If you do, this attack does 120 damage to the new Active Pokémon. If you didn't play Xerosic's Machinations from your hand during this turn, this attack does nothing.»
+           deriveAttackEffect → [{"op":"gust"}]
+
+── OPAQUE ──────────────────────────────────────────────────────
+  1p  Attach up to 3 Energy cards from your opponent's discard pile to their Pokémon in any way you like.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Both Active Pokémon are now Asleep. During your next turn, attacks used by this Pokémon do 100 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance).
+     no deletion and no substitution this instrument can make reaches a built string.
+  4p  Choose 1 of your Benched N's Pokémon's attacks and use it as this attack.
+     no deletion and no substitution this instrument can make reaches a built string.
+  3p  Choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Choose 1 of your opponent's Active Tera Pokémon's attacks and use it as this attack.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  Choose 1 of your opponent's Pokémon 6 times. (You can choose the same Pokémon more than once.) For each time you chose a Pokémon, do 20 damage to it. This damage isn't affected by Weakness or Resistance.
+     no deletion and no substitution this instrument can make reaches a built string.
+  3p  Choose 2 of your opponent's Benched Pokémon. Shuffle those Pokémon and all attached cards into your opponent's deck. If 1 of your Pokémon used Angelite during your last turn, this attack can't be used.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  Choose 3 of your opponent's Benched Pokémon. If you do, shuffle all of your opponent's Benched Pokémon that you didn't choose, and all cards attached to those Pokémon, into their deck.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Devolve 1 of your opponent's evolved Pokémon by putting the highest Stage Evolution card on it into your opponent's hand.
+     no deletion and no substitution this instrument can make reaches a built string.
+  3p  Discard a Team Rocket's Energy from this Pokémon. If you do, discard your opponent's Active Pokémon and all attached cards.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Discard a card from your hand. If you do, your opponent discards a card from their hand.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Discard the top card of your deck, and if that card is a Pokémon that doesn't have a Rule Box, choose 1 of its attacks and use it as this attack. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  Discard up to 2 Pokémon Tools from your opponent's Pokémon.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  During your next turn, attacks used by this Pokémon do 120 more damage to your opponent's Active Pokémon (before applying Weakness and Resistance).
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  During your next turn, if the Defending Pokémon is Knocked Out, take 2 more Prize cards.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  During your next turn, the Defending Pokémon takes 50 more damage from attacks (after applying Weakness and Resistance).
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  During your next turn, this Pokémon's Hyper Fang attack's base damage is 240.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  During your next turn, your Pokémon can't attack. (This includes new Pokémon that come into play.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  During your opponent's next turn, Pokémon that have 2 or less Energy attached can't attack. (This includes new Pokémon that come into play.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  During your opponent's next turn, attacks used by the Defending Pokémon cost {C} more, and its Retreat Cost is {C} more.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  During your opponent's next turn, if the Defending Pokémon tries to use an attack, your opponent flips a coin. If tails, that attack doesn't happen.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  During your opponent's next turn, if they attach an Energy card from their hand to the Defending Pokémon, their turn ends.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  During your opponent's next turn, prevent all damage done to each of your Future Pokémon by attacks from Pokémon ex. If this Pokémon is no longer your Active Pokémon, this effect ends.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  Flip 2 coins. If both of them are tails, this Pokémon also does 90 damage to itself.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Flip 3 coins. Attach a number of Basic {L} Energy cards up to the number of heads from your discard pile to your Benched Pokémon in any way you like.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Flip 3 coins. If 1 of them is heads, this attack does 20 more damage. If 2 of them are heads, this attack does 50 more damage. If all of them are heads, this attack does 80 more damage.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  Flip 3 coins. Put a number of cards up to the number of heads from your discard pile into your hand.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Flip a coin. If heads, choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  If 1 of your other Ancient Pokémon used an attack during your last turn, this attack does 150 more damage.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  If a Stadium is in play, this attack also does 30 damage to each of your opponent's Benched Pokémon, and discard that Stadium. (Don't apply Weakness and Resistance for Benched Pokémon.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  If this Pokémon has any damage counters on it, this attack can be used for {F}.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  If this Pokémon is affected by a Special Condition, ignore all Energy in this attack's cost.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  If you have any Tera Pokémon on your Bench, this attack does 100 more damage.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  If you have exactly 1 Prize card remaining, your opponent's Active Pokémon is now Paralyzed.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  If you use this attack when you have exactly 1 Prize card remaining, you win this game.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  If your opponent's Active Pokémon is a Tera Pokémon, this attack does 230 more damage.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Look at 1 of your opponent's face-down Prize cards.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Look at the top card of your opponent's deck. You may have your opponent shuffle their deck.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Put up to 9 damage counters on this Pokémon. This attack does 20 damage for each damage counter you placed in this way.
+     no deletion and no substitution this instrument can make reaches a built string.
+  3p  Reveal the top 10 cards of your opponent's deck. You may choose an attack from a Pokémon you find there and use it as this attack. Shuffle the revealed cards into your opponent's deck.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  Reveal the top 5 cards of your deck. This attack does 70 damage for each Future card you find there. Then, discard those Future cards and shuffle the other cards back into your deck.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Search your deck for a number of cards up to the number of your Benched Pokémon and put them into your hand. Then, shuffle your deck.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Search your deck for up to 3 Basic Energy cards of different types and attach them to your Tera Pokémon in any way you like. Then, shuffle your deck.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Shuffle up to 3 Basic {W} Energy cards from your discard pile into your deck.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Shuffle your hand into your deck. Then, draw a card for each card in your opponent's hand.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  This attack also does 10 damage to each Benched Pokémon (both yours and your opponent's). (Don't apply Weakness and Resistance for Benched Pokémon.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  3p  This attack also does 10 damage to each of your opponent's Benched Pokémon for each Prize card your opponent has taken. (Don't apply Weakness and Resistance for Benched Pokémon.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  This attack also does 40 damage to each Benched Pokémon that has any damage counters on it (both yours and your opponent's). (Don't apply Weakness and Resistance for Benched Pokémon.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  This attack does 10 more damage for each Ancient card in your discard pile.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  This attack does 100 damage for each Special Condition affecting your opponent's Active Pokémon.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  This attack does 20 damage for each Pokémon in your discard pile that has the United Wings attack.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  This attack does 20 damage for each Supporter card that has "Team Rocket" in its name in your discard pile.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  This attack does 40 damage for each Pokémon in play that has "Koffing" or "Weezing" in its name (both yours and your opponent's).
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  This attack does 50 damage for each of your Drifloon and Drifblim in play. This attack also does 30 damage to each of your Drifloon and Drifblim. (Don't apply Weakness and Resistance for Benched Pokémon.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  This attack does 50 damage for each of your Pokémon that has any damage counters on it.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  This attack does 50 damage to each Pokémon that has any damage counters on it (both yours and your opponent's), except for this Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Until the end of your next turn, the Defending Pokémon's Weakness is now {C}. (The amount of Weakness doesn't change.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  You can use this attack only if this Pokémon used Rollout during your last turn.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  You may move any number of damage counters from your opponent's Benched Pokémon to their Active Pokémon.
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  You may put all Energy attached to this Pokémon into your hand to have this attack do 80 more damage.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  You may search your deck for any number of Fennel cards, reveal them, and put them into your hand. Then, shuffle your deck.
+     no deletion and no substitution this instrument can make reaches a built string.
+  2p  You may turn 1 of your face-down Prize cards face up. If you do, this attack does 80 more damage. (That Prize card remains face up for the rest of the game.)
+     no deletion and no substitution this instrument can make reaches a built string.
+  1p  Your opponent chooses 3 cards from their hand and shuffles those cards into their deck.
+     no deletion and no substitution this instrument can make reaches a built string.

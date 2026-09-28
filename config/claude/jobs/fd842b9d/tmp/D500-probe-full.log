@@ -1,0 +1,20 @@
+
+Mutation harness (D211) — 1 mutant(s), FULL suite
+
+⚠️  --allow-dirty: mutating 1 file(s) with uncommitted changes:
+      packages/engine/src/continuous.ts
+
+  D500-board-arm-forgets-its-continue … SURVIVED         133.2s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D500-board-arm-forgets-i… D500                  SURVIVED         133.2s  1
+────────────────────────────────────────────────────────────────────────────────────
+0 killed · 0 known survivor(s) · 1 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 266.9s total
+
+
+⚠️  SURVIVED (undeclared) — D500-board-arm-forgets-its-continue  [D500]
+    ⚠️ C5 — **THE BOARD-WIDE ARM ADDS ITS COUNT AND FALLS THROUGH INTO THE TERNARY BELOW**, so every holder is counted twice — once as a category and once by provision. It is the slip a `continue`-shaped insertion invites, and it is invisible on any board where no attached card provides a basic type (the second term is 0 there). `basicEnergyScaling.test.ts` §2's board has three Water-providers across two bodies, so `countEnergyInPlay(state, "p1", "basic")` answers 12 rather than 7. **SILENT IN EVERY CENSUS** — no reader's return value moves.
+    packages/engine/src/continuous.ts
+    Either the suite has a real gap, or the decision row's tally was wrong. Both are findings — write one down.

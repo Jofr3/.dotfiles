@@ -1,0 +1,53 @@
+
+Mutation harness (D211) — 19 mutant(s)
+
+⚠️  --allow-dirty: mutating 3 file(s) with uncommitted changes:
+      packages/engine/src/effects.ts
+      packages/engine/src/handEnergyCancel.test.ts
+      packages/engine/src/interpreter.ts
+
+  D489-arm-reads-the-shifted-group … KILLED           3.4s
+  D489-arm-drops-the-payments-record-slot … KILLED           3.4s
+  D489-arm-drops-the-scale-rider … KILLED           3.6s
+  D489-arm-names-the-wrong-slot … KILLED           3.4s
+  D489-arm-drops-the-energy-filter … KILLED           3.4s
+  D489-ops-are-emitted-in-the-wrong-order … KILLED           3.4s
+  D489-snipe-targets-the-bench-only … KILLED           3.4s
+  D489-arm-drops-the-cap-positivity-guard … KILLED           3.4s
+  D489-anchor-loses-its-caret … KILLED           3.4s
+  D489-fold-ignores-the-slot-rider … KILLED           3.4s
+  D489-fold-adds-instead-of-multiplying … KILLED           3.4s
+  D489-collapse-ceiling-is-a-hard-one … KILLED           3.4s
+  D489-declinable-cost-gates-the-wrong-arm … KILLED           3.6s
+  D489-declinable-note-drops-the-up-to … KILLED           3.4s
+  D489-declinable-park-refuses-the-decline … KILLED           3.5s
+  D489-declinable-ceiling-is-the-whole-offer … KILLED           3.4s
+  D489-lone-candidate-resolves-inline … KILLED           3.4s
+  D489-escape-drops-the-declinable-test … KILLED           3.4s
+  D489-escape-drops-the-slot-match … KILLED           3.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D489-arm-reads-the-shift… D489                  KILLED           3.4s    1
+D489-arm-drops-the-payme… D489                  KILLED           3.4s    2
+D489-arm-drops-the-scale… D489                  KILLED           3.6s    2
+D489-arm-names-the-wrong… D489                  KILLED           3.4s    1
+D489-arm-drops-the-energ… D489                  KILLED           3.4s    1
+D489-ops-are-emitted-in-… D489                  KILLED           3.4s    1
+D489-snipe-targets-the-b… D489                  KILLED           3.4s    1
+D489-arm-drops-the-cap-p… D489                  KILLED           3.4s    1
+D489-anchor-loses-its-ca… D489                  KILLED           3.4s    1
+D489-fold-ignores-the-sl… D489                  KILLED           3.4s    1
+D489-fold-adds-instead-o… D489                  KILLED           3.4s    1
+D489-collapse-ceiling-is… D489                  KILLED           3.4s    1
+D489-declinable-cost-gat… D489                  KILLED           3.6s    2
+D489-declinable-note-dro… D489                  KILLED           3.4s    1
+D489-declinable-park-ref… D489                  KILLED           3.5s    1
+D489-declinable-ceiling-… D489                  KILLED           3.4s    1
+D489-lone-candidate-reso… D489                  KILLED           3.4s    1
+D489-escape-drops-the-de… D489                  KILLED           3.4s    1
+D489-escape-drops-the-sl… D489                  KILLED           3.4s    1
+────────────────────────────────────────────────────────────────────────────────────
+19 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 79.1s total
+

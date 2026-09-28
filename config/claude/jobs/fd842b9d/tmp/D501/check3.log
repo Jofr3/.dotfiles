@@ -1,0 +1,435 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/confusionDamage.test.ts (40 tests | 8 failed) 156ms
+     × 🛑 the hazard a bare-tail arm would open, counted over the whole column 26ms
+     × 🛑 a CURE puts the amount back — the clear-rung's silent aftermath (D434) 33ms
+     × `confusionDamage` and `poisonDamage` are SEPARATE slots, not one amount 3ms
+     × 🛑 THE SEPARATING BOARD: 80 under the raised sentence, 30 under the bare one 5ms
+     × a HEADS flip costs nothing, on both boards — the face is the axis 3ms
+     × 🛑 the raised hit is SURVIVABLE at 100 HP and the bare one is not lethal either 5ms
+     × 🛑 DIRECTION 1 — a v30 record round-trips and the raised hit STILL lands at 80 3ms
+     × 🛑 DIRECTION 2 — a v29-SHAPED body answers a DIFFERENT NUMBER, and it is `NaN` 4ms
+ ❯ packages/engine/src/cancelThenPrevent.test.ts (33 tests | 1 failed) 138ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 27ms
+ ❯ packages/engine/src/compoundCompose.test.ts (30 tests | 1 failed) 149ms
+     × 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused 19ms
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts (26 tests | 1 failed) 140ms
+     × 🛑 the resolving corpus gains TWO sentences and TWO printings 27ms
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts (27 tests | 1 failed) 136ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 29ms
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts (31 tests | 1 failed) 116ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 24ms
+ ❯ packages/engine/src/defenderStatusTriple.test.ts (31 tests | 1 failed) 116ms
+     × 🛑 the resolving corpus gains ONE sentence and TWO printings 26ms
+ ❯ packages/engine/src/flipDefenderAttackLock.test.ts (25 tests | 1 failed) 118ms
+     × the resolving corpus gains ONE sentence and ONE printing 31ms
+ ❯ packages/engine/src/exOnlyActive.test.ts (18 tests | 1 failed) 112ms
+     × 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM 69ms
+ ❯ packages/engine/src/precociousEvolution.test.ts (13 tests | 1 failed) 87ms
+     × 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two 43ms
+ ❯ packages/engine/src/benchNamedBonus.test.ts (24 tests | 1 failed) 90ms
+     × 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345 27ms
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts (21 tests | 1 failed) 91ms
+     × the census moves by exactly 2 printings on exactly 1 sentence 57ms
+ ❯ packages/engine/src/sameEnergyBonus.test.ts (25 tests | 1 failed) 88ms
+     × the resolving corpus gains TWO sentences and TWO printings 28ms
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts (22 tests | 1 failed) 84ms
+     × 🛑 the resolving corpus gains ONE sentence and ONE printing 33ms
+ ❯ packages/engine/src/moreEnergyBonus.test.ts (22 tests | 1 failed) 86ms
+     × the resolving corpus gains ONE sentence and ONE printing 26ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 22 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/benchNamedBonus.test.ts > §7 — the census moves in exactly ONE summand, and the other three are measured > 🛑 raw 1,207 → 1,220 → 🆕 1,223 and resolving sentences 335 → 344 → 🆕 345
+AssertionError: expected 1566 to be 1565 // Object.is equality
+
+- Expected
++ Received
+
+- 1565
++ 1566
+
+ ❯ packages/engine/src/benchNamedBonus.test.ts:854:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/22]⎯
+
+ FAIL  packages/engine/src/cancelThenPrevent.test.ts > §8 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 531, 1564 ] to deeply equal [ 530, 1563 ]
+
+- Expected
++ Received
+
+  [
+-   530,
+-   1563,
++   531,
++   1564,
+  ]
+
+ ❯ packages/engine/src/cancelThenPrevent.test.ts:667:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/22]⎯
+
+ FAIL  packages/engine/src/compoundCompose.test.ts > §4 — the SHADOW REFUSAL: the anchor wins, the splitter is the fallback > 🛑 🆕🆕 D420 — 153 sentences / 430 printings are multi-clause AND claimed whole — all refused
+AssertionError: expected 501 to be 500 // Object.is equality
+
+- Expected
++ Received
+
+- 500
++ 501
+
+ ❯ packages/engine/src/compoundCompose.test.ts:622:33
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/22]⎯
+
+ FAIL  packages/engine/src/confusionDamage.test.ts > §2 — a WHOLE-SENTENCE anchor, and the two measurements that warrant it > 🛑 the hazard a bare-tail arm would open, counted over the whole column
+AssertionError: expected 493 to be 492 // Object.is equality
+
+- Expected
++ Received
+
+- 492
++ 493
+
+ ❯ packages/engine/src/confusionDamage.test.ts:209:42
+    207|       ([, t]) => resolvedByAnyReader(t) && t.endsWith("."),
+    208|     );
+    209|     expect(claimedEndingInPeriod.length).toBe(492);
+       |                                          ^
+    210|     const burnedHead = "Flip a coin. If heads, your opponent's Active …
+    211|     expect(resolvedByAnyReader(burnedHead)).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/22]⎯
+
+ FAIL  packages/engine/src/confusionDamage.test.ts > §4 — `SpecialConditions.confusionDamage` on a real board > 🛑 a CURE puts the amount back — the clear-rung's silent aftermath (D434)
+Error: endTurn rejected: WRONG_SEAT: it is p2's turn
+ ❯ mustApply packages/engine/src/testFixtures.ts:21753:11
+    21751|   const result = applyAction(state, action);
+    21752|   if (!result.ok) {
+    21753|     throw new Error(`${action.type} rejected: ${result.error.code}: ${…
+       |           ^
+    21754|   }
+    21755|   return { state: result.state, events: result.events };
+ ❯ packages/engine/src/confusionDamage.test.ts:476:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/22]⎯
+
+ FAIL  packages/engine/src/confusionDamage.test.ts > §4 — `SpecialConditions.confusionDamage` on a real board > `confusionDamage` and `poisonDamage` are SEPARATE slots, not one amount
+Error: no Active
+ ❯ must0 packages/engine/src/confusionDamage.test.ts:409:28
+    407|
+    408| function must0(body: InPlayPokemon | null): InPlayPokemon {
+    409|   if (body === null) throw new Error("no Active");
+       |                            ^
+    410|   return body;
+    411| }
+ ❯ packages/engine/src/confusionDamage.test.ts:516:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/22]⎯
+
+ FAIL  packages/engine/src/confusionDamage.test.ts > §5 — the missed flip, and the two numbers it can answer > 🛑 THE SEPARATING BOARD: 80 under the raised sentence, 30 under the bare one
+Error: no Active
+ ❯ must0 packages/engine/src/confusionDamage.test.ts:409:28
+    407|
+    408| function must0(body: InPlayPokemon | null): InPlayPokemon {
+    409|   if (body === null) throw new Error("no Active");
+       |                            ^
+    410|   return body;
+    411| }
+ ❯ packages/engine/src/confusionDamage.test.ts:557:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/22]⎯
+
+ FAIL  packages/engine/src/confusionDamage.test.ts > §5 — the missed flip, and the two numbers it can answer > a HEADS flip costs nothing, on both boards — the face is the axis
+AssertionError: expected 20 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 20
+
+ ❯ packages/engine/src/confusionDamage.test.ts:579:59
+    577|     expect(find(r.swung.events, "CONFUSION_CHECK")?.result).toBe("head…
+    578|     expect(find(r.swung.events, "COUNTERS_PLACED")).toBeUndefined();
+    579|     expect(must0(r.swung.state.players.p2.active).damage).toBe(0);
+       |                                                           ^
+    580|   });
+    581|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/22]⎯
+
+ FAIL  packages/engine/src/confusionDamage.test.ts > §5 — the missed flip, and the two numbers it can answer > 🛑 the raised hit is SURVIVABLE at 100 HP and the bare one is not lethal either
+AssertionError: expected { type: 'KNOCKED_OUT', …(3) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+{
+  "discarded": [
+    "p2#13",
+    "p2#40",
+    "p2#39",
+    "p2#45",
+  ],
+  "seat": "p2",
+  "type": "KNOCKED_OUT",
+  "uid": "p2#13",
+}
+
+ ❯ packages/engine/src/confusionDamage.test.ts:587:49
+    585|     // builds look alike on the zone counts.
+    586|     const r = confuseThenSwing(RAISE, tailsSeed(RAISE));
+    587|     expect(find(r.swung.events, "KNOCKED_OUT")).toBeUndefined();
+       |                                                 ^
+    588|     expect(must0(r.swung.state.players.p2.active).damage).toBe(80);
+    589|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/22]⎯
+
+ FAIL  packages/engine/src/confusionDamage.test.ts > §7 — the bump, and the corruption it refuses > 🛑 DIRECTION 1 — a v30 record round-trips and the raised hit STILL lands at 80
+Error: no Active
+ ❯ must0 packages/engine/src/confusionDamage.test.ts:409:28
+    407|
+    408| function must0(body: InPlayPokemon | null): InPlayPokemon {
+    409|   if (body === null) throw new Error("no Active");
+       |                            ^
+    410|   return body;
+    411| }
+ ❯ packages/engine/src/confusionDamage.test.ts:715:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/22]⎯
+
+ FAIL  packages/engine/src/confusionDamage.test.ts > §7 — the bump, and the corruption it refuses > 🛑 DIRECTION 2 — a v29-SHAPED body answers a DIFFERENT NUMBER, and it is `NaN`
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/engine/src/confusionDamage.test.ts:763:33
+    761|     expect(find(swung.events, "CONFUSION_CHECK")?.result).toBe("tails"…
+    762|     const dealt = find(swung.events, "COUNTERS_PLACED")?.amount;
+    763|     expect(Number.isNaN(dealt)).toBe(true);
+       |                                 ^
+    764|     expect(dealt).not.toBe(80);
+    765|     expect(dealt).not.toBe(30);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/22]⎯
+
+ FAIL  packages/engine/src/defenderStatusTriple.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 531, 1564 ] to deeply equal [ 530, 1563 ]
+
+- Expected
++ Received
+
+  [
+-   530,
+-   1563,
++   531,
++   1564,
+  ]
+
+ ❯ packages/engine/src/defenderStatusTriple.test.ts:558:58
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/22]⎯
+
+ FAIL  packages/engine/src/exOnlyActive.test.ts > §1 — the population, re-derived LIVE rather than quoted > 🆕🆕 D420 — the TWELVE readers resolve 415 / 1,368 of a 640 / 1,732 corpus, and the parts SUM
+AssertionError: expected 1566 to be 1565 // Object.is equality
+
+- Expected
++ Received
+
+- 1565
++ 1566
+
+ ❯ packages/engine/src/exOnlyActive.test.ts:202:23
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/22]⎯
+
+ FAIL  packages/engine/src/flipDefenderAttackLock.test.ts > §8 — the census moves in exactly ONE summand > the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 531, 1565 ] to deeply equal [ 530, 1564 ]
+
+- Expected
++ Received
+
+  [
+-   530,
+-   1564,
++   531,
++   1565,
+  ]
+
+ ❯ packages/engine/src/flipDefenderAttackLock.test.ts:709:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/22]⎯
+
+ FAIL  packages/engine/src/flipStatusEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 531, 1564 ] to deeply equal [ 530, 1563 ]
+
+- Expected
++ Received
+
+  [
+-   530,
+-   1563,
++   531,
++   1564,
+  ]
+
+ ❯ packages/engine/src/flipStatusEnergyDiscard.test.ts:575:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/22]⎯
+
+ FAIL  packages/engine/src/flipStatusHeadsTails.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains ONE sentence and TWO printings
+AssertionError: expected [ 531, 1564 ] to deeply equal [ 530, 1563 ]
+
+- Expected
++ Received
+
+  [
+-   530,
+-   1563,
++   531,
++   1564,
+  ]
+
+ ❯ packages/engine/src/flipStatusHeadsTails.test.ts:810:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/22]⎯
+
+ FAIL  packages/engine/src/moreEnergyBonus.test.ts > §6 — the census moves in exactly ONE summand, and the step is 1 and 1 > the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected 1566 to be 1565 // Object.is equality
+
+- Expected
++ Received
+
+- 1565
++ 1566
+
+ ❯ packages/engine/src/moreEnergyBonus.test.ts:630:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/22]⎯
+
+ FAIL  packages/engine/src/perHeadsEnergyDiscard.test.ts > §6 — the census moves in exactly ONE summand > 🛑 the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected [ 530, 1564 ] to deeply equal [ 529, 1563 ]
+
+- Expected
++ Received
+
+  [
+-   529,
+-   1563,
++   530,
++   1564,
+  ]
+
+ ❯ packages/engine/src/perHeadsEnergyDiscard.test.ts:667:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/22]⎯
+
+ FAIL  packages/engine/src/precociousEvolution.test.ts > D306 §2 — what BUILT.attack would move by, keyed on the READER > 🛑 THE ANSWER D305 COULD NOT GIVE: the move is SIX, not two
+AssertionError: expected 1616 to be 1615 // Object.is equality
+
+- Expected
++ Received
+
+- 1615
++ 1616
+
+ ❯ packages/engine/src/precociousEvolution.test.ts:635:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/22]⎯
+
+ FAIL  packages/engine/src/sameEnergyBonus.test.ts > §7 — the census moves in exactly ONE summand, and the step is 2 and 2 > the resolving corpus gains TWO sentences and TWO printings
+AssertionError: expected 1566 to be 1565 // Object.is equality
+
+- Expected
++ Received
+
+- 1565
++ 1566
+
+ ❯ packages/engine/src/sameEnergyBonus.test.ts:820:29
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/22]⎯
+
+ FAIL  packages/engine/src/sawkRequirementSplit.test.ts > §1 — D362's counts reproduce and its ATTRIBUTION does not > the census moves by exactly 2 printings on exactly 1 sentence
+AssertionError: expected 1566 to be 1565 // Object.is equality
+
+- Expected
++ Received
+
+- 1565
++ 1566
+
+ ❯ packages/engine/src/sawkRequirementSplit.test.ts:261:25
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/22]⎯
+
+ FAIL  packages/engine/src/selfDamagePerCounter.test.ts > §2 — the census moves in exactly ONE summand, and the step is 1 and 1 > 🛑 the resolving corpus gains ONE sentence and ONE printing
+AssertionError: expected [ 531, 1565 ] to deeply equal [ 530, 1564 ]
+
+- Expected
++ Received
+
+  [
+-   530,
+-   1564,
++   531,
++   1565,
+  ]
+
+ ❯ packages/engine/src/selfDamagePerCounter.test.ts:190:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/22]⎯
+
+
+ Test Files  15 failed | 469 passed (484)
+      Tests  22 failed | 11042 passed (11064)
+   Start at  22:07:23
+   Duration  180.86s (transform 26.14s, setup 0ms, import 196.88s, tests 52.44s, environment 33.27s)
+

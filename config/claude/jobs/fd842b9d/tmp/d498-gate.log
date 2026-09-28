@@ -1,0 +1,7 @@
+R1-every / residue-census-gate: exit=1        residue-census.ts says 1695, the suite pins 120 | [0m
+R1-every / opaque-anatomy-gate: exit=1        built side is 0 — either it has become a genuine blocker (re-declare it) or the control has been narrowed to nothing | [0m
+R2-undefined / residue-census-gate: exit=1        0 repaired candidates over 0 spans in 0 residue sentences | [0m
+R2-undefined / opaque-anatomy-gate: exit=1        all 0 rows carry a hit | [0m
+R3-loose / residue-census-gate: exit=0  residue-census-gate: OK — §A three pinned literals agree (111 / 85 / 120), §B 7 tail-repair claims hold, §C 1462 repaired candidate(s) over 25089 spans in 85 residue sentences, none outside a tail span.
+R3-loose / opaque-anatomy-gate: exit=0  opaque-anatomy-gate: OK — §A no k=1 row over 63 OPAQUE sentences, §B 6 region-reduction claims hold, §C 4 blocker(s) with an empty built side and 6 co-marker(s) with a live one, §D 9 classes covering 63 sentences / 92 printings exactly once, §E 163 admitted of
+RESTORED_OK=true

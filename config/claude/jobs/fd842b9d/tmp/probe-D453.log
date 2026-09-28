@@ -1,0 +1,50 @@
+[0m[2m[35m$[0m [2m[1mbun scripts/mutation/run.ts --decision "D453" --allow-dirty[0m
+
+Mutation harness (D211) — 18 mutant(s)
+
+  D453-reduce-damage-window-is-the-holders-own-turn … KILLED           3.4s
+  D453-reduce-damage-installs-on-the-defender … KILLED           3.4s
+  D453-reduce-damage-merge-takes-the-smaller … KILLED           3.3s
+  D453-weaken-installs-on-the-actor … KILLED           3.5s
+  D453-weaken-drops-the-section-11-gate … KILLED           3.5s
+  D453-boost-window-is-the-opponents-turn … KILLED           3.3s
+  D453-boost-stacks-across-different-attacks … KILLED           3.3s
+  D453-recoil-counters-are-not-converted-to-hp … KILLED           3.3s
+  D453-chosen-lock-forces-at-two-candidates … KILLED           3.5s
+  D453-chosen-lock-drops-the-section-11-gate … KILLED           3.5s
+  D453-recover-announces-a-clean-body … KILLED           3.3s
+  D453-counter-move-destination-is-your-own-active … KILLED           3.4s
+  D453-chosen-destination-loses-the-active … KILLED           3.5s
+  D453-chosen-source-prompts-on-a-clean-body … KILLED           3.3s
+  D453-chosen-source-forces-at-most-one … SURVIVES(known)  3.3s
+  D453-checkup-counters-land-on-your-own-active … KILLED           3.3s
+  D453-board-heal-overheals-past-zero … KILLED           3.3s
+  D453-may-draw-is-answered-by-the-controller … KILLED           3.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D453-reduce-damage-windo… D453                  KILLED           3.4s    2
+D453-reduce-damage-insta… D453                  KILLED           3.4s    2
+D453-reduce-damage-merge… D453                  KILLED           3.3s    2
+D453-weaken-installs-on-… D453                  KILLED           3.5s    2
+D453-weaken-drops-the-se… D453                  KILLED           3.5s    2
+D453-boost-window-is-the… D453                  KILLED           3.3s    1
+D453-boost-stacks-across… D453                  KILLED           3.3s    2
+D453-recoil-counters-are… D453                  KILLED           3.3s    2
+D453-chosen-lock-forces-… D453                  KILLED           3.5s    3
+D453-chosen-lock-drops-t… D453                  KILLED           3.5s    2
+D453-recover-announces-a… D453                  KILLED           3.3s    2
+D453-counter-move-destin… D453                  KILLED           3.4s    2
+D453-chosen-destination-… D453                  KILLED           3.5s    1
+D453-chosen-source-promp… D453                  KILLED           3.3s    1
+D453-chosen-source-force… D453                  SURVIVES(known)  3.3s    1
+D453-checkup-counters-la… D453                  KILLED           3.3s    2
+D453-board-heal-overheal… D453                  KILLED           3.3s    2
+D453-may-draw-is-answere… D453                  KILLED           3.4s    3
+────────────────────────────────────────────────────────────────────────────────────
+17 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 107.5s total
+
+  known survivor  D453-chosen-source-forces-at-most-one — unreachable-shape
+      The `if (sources.length === 0) return { done: state };` two lines above makes the empty set unreachable here, so `<= 1` and `=== 1` select the same candidate on every board. ⚠ SELF-INVALIDATING: this stops being true the moment that early return is deleted, narrowed, or moved below this line — `sources[0]` would then be `undefined` and the forced ending would schedule `counterSourceAnswered` on a body that is not there. If this row is ever KILLED, read the early return first, not the suite.
+

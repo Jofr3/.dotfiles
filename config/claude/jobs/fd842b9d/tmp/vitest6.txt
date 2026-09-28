@@ -1,0 +1,242 @@
+
+ RUN  v4.1.9 /home/jofre/projects/luminous_ui
+
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts (35 tests | 15 failed) 48ms
+     × 🛑 …and on a board it reaches ATTACK_EFFECT_SKIPPED with the whole sentence 6ms
+     × …and the SAME board under the built clause paralyses, which is the control 1ms
+     × 🛑 it FIRES — asserted on the FIELDS, with the event row beside it 0ms
+     × 🛑 BOTH SEATS — the same sentence read from p2 lands on p1's Active 0ms
+     × 🛑 ZERO-MATCH ROUTE 1 — their Active is the wrong type while OUR Active is right 0ms
+     × 🛑 ZERO-MATCH ROUTE 2 — the Dragon is on THEIR Bench, not in their Active Spot 0ms
+     × 🛑 ZERO-MATCH ROUTE 3 — the Dragon is on OUR Bench, which is a different member 0ms
+     × 🛑 the DUAL-TYPED defender is Paralyzed though `Dragon` is its SECOND type 0ms
+     × the gate emits NO event of its own — the condition is public 0ms
+     × 🛑 the DEFENDER signature is 17 and the ATTACKER signature is 0 0ms
+     × the UNGATED sibling answers 31 on the same family, which prices the gate 0ms
+     × the DATA-BLOCKED banner answers 0, and the clauseless attack answers 0 0ms
+     × the same family read from p2 gives the same two numbers 0ms
+     × 🛑 REACHABILITY — the program is LENGTH ONE and the gate never becomes a `pendingOp` 0ms
+     × a record round-trips and the parsed bytes are a LIVE board 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §3 — `Tera` is refused AT THE MAP, and the refusal is loud on a real board > 🛑 …and on a board it reaches ATTACK_EFFECT_SKIPPED with the whole sentence
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:554:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §3 — `Tera` is refused AT THE MAP, and the refusal is loud on a real board > …and the SAME board under the built clause paralyses, which is the control
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:567:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §5 — the condition on a real board, and three routes to silence > 🛑 it FIRES — asserted on the FIELDS, with the event row beside it
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:677:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §5 — the condition on a real board, and three routes to silence > 🛑 BOTH SEATS — the same sentence read from p2 lands on p1's Active
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:695:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §5 — the condition on a real board, and three routes to silence > 🛑 ZERO-MATCH ROUTE 1 — their Active is the wrong type while OUR Active is right
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:709:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §5 — the condition on a real board, and three routes to silence > 🛑 ZERO-MATCH ROUTE 2 — the Dragon is on THEIR Bench, not in their Active Spot
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:722:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §5 — the condition on a real board, and three routes to silence > 🛑 ZERO-MATCH ROUTE 3 — the Dragon is on OUR Bench, which is a different member
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:737:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §5 — the condition on a real board, and three routes to silence > 🛑 the DUAL-TYPED defender is Paralyzed though `Dragon` is its SECOND type
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:753:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §5 — the condition on a real board, and three routes to silence > the gate emits NO event of its own — the condition is public
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:764:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §6 — one board family, eight readings, eight different numbers > 🛑 the DEFENDER signature is 17 and the ATTACKER signature is 0
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ signature packages/engine/src/typedActiveStatusGate.test.ts:402:29
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:781:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §6 — one board family, eight readings, eight different numbers > the UNGATED sibling answers 31 on the same family, which prices the gate
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ signature packages/engine/src/typedActiveStatusGate.test.ts:402:29
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:788:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §6 — one board family, eight readings, eight different numbers > the DATA-BLOCKED banner answers 0, and the clauseless attack answers 0
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ signature packages/engine/src/typedActiveStatusGate.test.ts:402:29
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:795:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §6 — one board family, eight readings, eight different numbers > the same family read from p2 gives the same two numbers
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ signature packages/engine/src/typedActiveStatusGate.test.ts:402:29
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:801:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §7 — the persisted bytes, and why 29 does not move > 🛑 REACHABILITY — the program is LENGTH ONE and the gate never becomes a `pendingOp`
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:840:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/15]⎯
+
+ FAIL  packages/engine/src/typedActiveStatusGate.test.ts > §7 — the persisted bytes, and why 29 does not move > a record round-trips and the parsed bytes are a LIVE board
+Error: createGame failed: BAD_DECK_SIZE
+ ❯ localSetup packages/engine/src/typedActiveStatusGate.test.ts:297:26
+    295| function localSetup(first: Seat): GameState {
+    296|   const created = createGame({ seed: SEED, decks: { p1: DECK, p2: DECK…
+    297|   if (!created.ok) throw new Error(`createGame failed: ${created.error…
+       |                          ^
+    298|   let state = created.state;
+    299|   if (state.phase.kind !== "setup:chooseFirst") throw new Error("expec…
+ ❯ table packages/engine/src/typedActiveStatusGate.test.ts:339:17
+ ❯ packages/engine/src/typedActiveStatusGate.test.ts:848:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/15]⎯
+
+
+ Test Files  1 failed | 347 passed (348)
+      Tests  15 failed | 9100 passed (9115)
+   Start at  13:26:13
+   Duration  117.08s (transform 18.23s, setup 0ms, import 150.15s, tests 25.53s, environment 49ms)
+

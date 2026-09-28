@@ -1,0 +1,13 @@
+===== --decision D474 =====
+  D474-body-arm-moves-ahead-of-the-energy-one … SURVIVES(known)  3.6s
+D474-body-arm-moves-ahea… D474                  SURVIVES(known)  3.6s    2
+20 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 100.6s total
+===== --decision D196 =====
+  D196-live-active           … SURVIVES(known)  4.0s
+D196-live-active          D196                  SURVIVES(known)  4.0s    1
+1 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 11.1s total
+===== --decision D463 =====
+  D463-audit-d130-empty-program-survives-zero-heads … SURVIVES(known)  3.7s
+D463-audit-d130-empty-pr… D463                  SURVIVES(known)  3.7s    1
+14 killed · 1 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 64.9s total
+      🔎 **DECLARED AFTER THE PROBE REPORTED IT AS A GAP, AND THE FINDING IS ABOUT D130's COMMENT RATHER THAN ABOUT THE SUITE.** That comment says an empty `EffectOp[]` "would route the attack through `settleProgram` to say nothing at all, which is a different ending with the same result", and that "different ending is how a no-op grows a KO sweep it did not have". **MEASURED AT THIS HEAD, THE TWO ENDINGS ARE BYTE-IDENTICAL AND NO BOARD IN THIS REPO DISTINGUISHES THEM**: the mutation was applied to `attack.ts` and the WHOLE engine suite run against it — 341 files / 8,888 tests, all green. The reason is visible ten lines below the guard, in a comment that contradicts the one above it: with no damaged-trigger and no KO-Tool stage, `epilogue` is `[attackEpilogue]` alone, `advance` pops that stage and calls `finishAttack` itself, and `settleProgram` draining an empty program reaches the same call — which the no-program branch calls "byte-identical to the pre-slice tail" in so many words. So the coalesce is written FROM THE RULE, exactly like the `cancelSplit === null` conjunct forty lines up that D420 also found undriven. ⚠️ **IT IS NOT DELETED, FOR THE REASON THAT CONJUNCT IS NOT**: a program-shaped null and an empty program are different states, and the day a stage runs BETWEEN the queue build and the drain, they stop agreeing. 🛑 **THE ROW IS SELF-INVALIDATING (D427): the day any board tells the two endings apart, this is KILLED and the sweep fails with `STALE-SURVIVOR`** — which is the whole reason it is declared rather than dropped. ⚠️ **AND IT IS THE SECOND OVERSTATEMENT ON THE SAME UNPINNED LINE.** D130's other claim about this expansion — that a parking op is "the one thing D130's expansion cannot express" — is what D463 spent the slice disproving. A line with no mutant row for 333 decisions accumulated two claims stronger than the code, and needling for it is what found both.

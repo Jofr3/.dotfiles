@@ -1,0 +1,1547 @@
+rows=2267 resolved=2267
+multi-occurrence rows=0
+multi-line finds=934
+
+=== A) LINES CARRYING >1 ROW (by START line): 383 lines, 943 rows ===
+  biome.json:10  (2) D212-drop-scripts[10-10] | D212-drop-vite-config[10-10]
+  docs/progress.md:42631  (2) D318-gap-declaration-deleted[42631-42631] | D318-declared-gap-is-not-a-gap[42631-42631]
+  packages/engine/src/attack.ts:1016  (2) D430-context-loses-invokedBy[1016-1016] | D430-context-seat-is-the-victim[1016-1016]
+  packages/engine/src/attack.ts:1075  (2) D429-row74-status-is-asleep[1075-1075] | D429-row74-status-hits-self[1075-1075]
+  packages/engine/src/attack.ts:1871  (2) D403-the-base-is-claimed-nowhere[1871-1873] | D381-printed-base-lands-twice[1871-1873]
+  packages/engine/src/attack.ts:2349  (2) D316-note-paraphrased[2349-2349] | D318-boost-program-not-appended[2349-2349]
+  packages/engine/src/attack.ts:277  (2) D467-counter-fold-ignores-the-filter[277-279] | D467-counter-fold-loses-the-unfiltered-path[277-277]
+  packages/engine/src/attack.ts:2868  (2) D251-defender-ability[2868-2868] | D251-any-attacker[2868-2868]
+  packages/engine/src/attack.ts:2891  (2) D252-holder-energy[2891-2892] | D252-any-attacker[2891-2892]
+  packages/engine/src/attack.ts:2966  (3) D427-heals-the-printed-base[2966-2966] | D427-heals-the-pre-reduction-figure[2966-2966] | D427-heals-through-a-prevented-hit[2966-2967]
+  packages/engine/src/attack.ts:310  (2) D469-board-counter-reads-the-attacker-seat[310-310] | D469-board-counter-drops-the-per-multiplier[310-310]
+  packages/engine/src/attack.ts:344  (3) D282-your-bench-reads-the-DEFENDER[344-345] | D282-your-bench-spans-the-table[344-345] | D466-bench-fold-ignores-the-filter[344-344]
+  packages/engine/src/attack.ts:414  (3) D470-owner-board-evaluator-drops-the-filter[414-414] | D470-owner-board-evaluator-inverts-the-seat[414-414] | D470-owner-board-evaluator-reads-the-declaring-body[414-414]
+  packages/engine/src/attack.ts:416  (4) D407-board-zone-reads-the-defender[416-416] | D407-board-zone-never-widens[416-416] | D407-board-zone-drops-the-bench[416-416] | D407-board-zone-drops-the-filter[416-416]
+  packages/engine/src/attack.ts:417  (2) D196-seat-zone[417-417] | D196-live-active[417-417]
+  packages/engine/src/attack.ts:455  (4) D406-seat-is-the-defender[455-455] | D406-zone-narrows-to-the-active[455-455] | D406-zone-narrows-to-the-bench[455-455] | D406-resource-is-bodies[455-455]
+  packages/engine/src/attack.ts:499  (2) D439-count-skips-the-active-spot[499-499] | D439-count-becomes-the-bench-trios-arm[499-499]
+  packages/engine/src/attack.ts:562  (2) D445-fold-reads-the-attackers-hand[562-562] | D445-fold-reads-the-discard-pile[562-562]
+  packages/engine/src/attack.ts:584  (3) D436-counts-cards-not-units[584-584] | D436-cost-dropped-from-the-comparison[584-584] | D436-strictly-greater-not-at-least[584-584]
+  packages/engine/src/attack.ts:753  (3) D474-flip-count-crosses-the-seat[753-753] | D474-flip-count-drops-the-printed-filter[753-753] | D474-flip-count-reads-the-bench-only[753-753]
+  packages/engine/src/attack.ts:785  (5) D475-flip-count-reads-only-the-attacker[785-787] | D475-flip-count-reads-only-the-defender[785-787] | D475-flip-count-counts-a-printed-type[785-787] | D475-flip-count-reads-the-whole-board[785-787] | D475-flip-count-counts-units-not-cards[785-787]
+  packages/engine/src/attack.ts:927  (3) D430-strip-skips-the-refusal-gate[927-927] | D430-refusal-is-not-announced[927-927] | D430-refused-strip-claims-a-discard[927-927]
+  packages/engine/src/attack.ts:944  (2) D428-event-swaps-owner-and-actor[944-944] | D428-empty-board-still-files-a-row[944-944]
+  packages/engine/src/cardplay.ts:1035  (2) D246-play-gate-ignores-the-bare-noun[1035-1036] | D353-play-gate-ignores-the-name[1035-1036]
+  packages/engine/src/cardplay.ts:1424  (2) D358-validator-admits-the-decline-everywhere[1424-1427] | D358-validator-refuses-every-decline[1424-1427]
+  packages/engine/src/cardplay.ts:1456  (3) D359-validator-admits-a-take-above-the-ceiling[1456-1458] | D359-validator-admits-a-take-of-zero[1456-1456] | D359-validator-admits-a-fractional-take[1456-1456]
+  packages/engine/src/cardplay.ts:1508  (2) D441-validator-drops-the-floor[1508-1510] | D441-validator-floor-defaults-to-the-max[1508-1508]
+  packages/engine/src/cardplay.ts:1549  (2) D442-validator-deletes-the-destination-coupling[1549-1550] | D442-validator-asks-the-wrong-rider[1549-1550]
+  packages/engine/src/cardplay.ts:1704  (2) D457-validator-ignores-the-rider[1704-1704] | D457-validator-caps-the-cards-not-the-targets[1704-1704]
+  packages/engine/src/cardplay.ts:1760  (2) D344-validator-admits-the-empty-answer-everywhere[1760-1760] | D344-validator-admits-any-short-answer[1760-1760]
+  packages/engine/src/cardplay.ts:230  (4) D287-stadium-play-escapes-the-bar[230-235] | D287-stadium-gate-bars-the-barring-seat[230-230] | D287-stadium-gate-asks-the-wrong-class[230-231] | D287-stadium-bar-ordered-below-the-coverage-gate[230-232]
+  packages/engine/src/cardplay.ts:300  (2) D328-stadium-play-skips-the-ko-sweep[300-300] | D328-stadium-sweep-narrowed-to-the-actor[300-300]
+  packages/engine/src/cardplay.ts:341  (2) D303-tool-surface-drops-the-rarity-arm[341-341] | D284-tool-site-asks-the-wrong-class[341-341]
+  packages/engine/src/cardplay.ts:485  (2) D286-rare-candy-escapes-the-item-bar[485-490] | D286-rare-candy-gate-bars-the-barring-seat[485-486]
+  packages/engine/src/cardplay.ts:650  (2) D286-candy-options-keep-offering[650-650] | D286-candy-options-bar-every-class[650-650]
+  packages/engine/src/cardplay.ts:772  (2) D272-ability-gate-deleted[772-772] | D272-ability-gate-reads-the-opponents-seat[772-772]
+  packages/engine/src/cards.ts:305  (3) D255-ex-or-v-reuse[305-306] | D255-stage-conjunct-dropped[305-306] | D255-stage-required[305-306]
+  packages/engine/src/cards.ts:419  (3) D265-matches-filter-ignores-maxhp[419-419] | D265-matches-filter-admits-null-hp[419-419] | D265-matches-filter-threshold-is-exclusive[419-419]
+  packages/engine/src/cards.ts:452  (2) D466-stage-arm-swaps-the-ordinals[452-452] | D466-stage-arm-widens-to-any-evolution[452-453]
+  packages/engine/src/cards.ts:482  (3) D238-typed-predicate-reads-the-first-type-only[482-482] | D238-typed-predicate-ignores-the-stage-rider[482-484] | D245-typed-stage-still-means-basic[482-488]
+  packages/engine/src/cards.ts:485  (2) D275-typed-maxhp-never-narrows[485-485] | D275-typed-maxhp-admits-a-null-hp[485-485]
+  packages/engine/src/cards.ts:496  (2) D245-anyOf-is-an-intersection[496-496] | D245-anyOf-admits-everything[496-496]
+  packages/engine/src/cards.ts:520  (2) D446-attack-name-filter-counts-any-attack[520-520] | D446-attack-name-filter-matches-a-substring[520-520]
+  packages/engine/src/cards.ts:532  (2) D446-suffix-filter-reads-the-rule-box[532-532] | D446-suffix-filter-widens-to-ex-or-v[532-532]
+  packages/engine/src/cards.ts:549  (2) D200-possessive[549-549] | D200-stage-rider[549-551]
+  packages/engine/src/continuous.ts:1161  (2) D278-fold-drops-the-active-spot-clause[1161-1161] | D279-zone-gate-reused-on-the-partner-licence[1161-1161]
+  packages/engine/src/continuous.ts:1283  (2) D208-drop-passive[1283-1283] | D208-printed-hp[1283-1284]
+  packages/engine/src/continuous.ts:1365  (2) D257-threshold-inverted[1365-1365] | D257-threshold-exclusive[1365-1365]
+  packages/engine/src/continuous.ts:1430  (2) D258-flip-face-inverted[1430-1430] | D258-flip-first-only[1430-1431]
+  packages/engine/src/continuous.ts:1497  (2) D253-zone-inverted[1497-1497] | D253-identity-by-reference[1497-1497]
+  packages/engine/src/continuous.ts:1609  (2) D240-cap-boundary-becomes-exclusive[1609-1609] | D240-unknown-damage-passes-a-capped-block[1609-1609]
+  packages/engine/src/continuous.ts:1886  (3) D456-read-site-ignores-the-channel[1886-1888] | D456-read-site-takes-the-hit-unconditionally[1886-1888] | D456-read-site-drops-the-floor[1886-1888]
+  packages/engine/src/continuous.ts:2073  (3) D281-gate-read-through-the-ability-fold[2073-2073] | D395-gate-read-ignores-the-index[2073-2073] | D444-derivation-wins-over-the-registry[2073-2074]
+  packages/engine/src/continuous.ts:2074  (2) D444-derivation-dropped[2074-2074] | D444-derivation-reads-index-zero[2074-2074]
+  packages/engine/src/continuous.ts:2274  (2) D324-seat-hp-active-only[2274-2275] | D324-seat-hp-crosses-the-table[2274-2276]
+  packages/engine/src/continuous.ts:2282  (2) D324-seat-hp-lock-not-consulted[2282-2283] | D324-seat-hp-lock-read-on-the-beneficiary[2282-2284]
+  packages/engine/src/continuous.ts:2287  (2) D324-seat-hp-no-stack-ledger-sums[2287-2287] | D324-seat-hp-no-stack-keyed-on-the-uid[2287-2287]
+  packages/engine/src/continuous.ts:2317  (2) D324-stadium-hp-stage-clause-dropped[2317-2318] | D324-stadium-hp-stage-arm-swapped[2317-2317]
+  packages/engine/src/continuous.ts:2353  (2) D324-max-hp-floor-removed[2353-2356] | D324-max-hp-floor-becomes-the-answer[2353-2354]
+  packages/engine/src/continuous.ts:2355  (2) D324-max-hp-drops-the-seat-aura[2355-2355] | D324-max-hp-drops-the-stadium[2355-2355]
+  packages/engine/src/continuous.ts:2416  (2) D310-hp-gate-is-strictly-less-than[2416-2416] | D310-hp-gate-reads-the-damage-not-the-remainder[2416-2416]
+  packages/engine/src/continuous.ts:2561  (2) D325-prizes-taken-becomes-prizes-remaining[2561-2561] | D325-prizes-read-off-the-holders-own-side[2561-2561]
+  packages/engine/src/continuous.ts:2633  (3) D470-board-energy-filter-reads-the-bottom-of-the-stack[2633-2633] | D470-board-energy-filter-is-inverted[2633-2633] | D470-board-energy-filter-asks-the-energy-not-the-body[2633-2633]
+  packages/engine/src/continuous.ts:2666  (2) D406-counts-bodies-wearing-a-tool[2666-2670] | D406-holders-drop-the-active[2666-2668]
+  packages/engine/src/continuous.ts:2697  (2) D469-board-walk-skips-the-active[2697-2699] | D469-board-walk-sums-before-flooring[2697-2699]
+  packages/engine/src/continuous.ts:2828  (2) D300-stage-dispatch-inverted[2828-2832] | D300-stage-value-ignored[2828-2832]
+  packages/engine/src/continuous.ts:2890  (4) D267-stage-gate-dropped[2890-2891] | D267-stage-read-off-the-holder[2890-2891] | D267-absent-stage-means-basic[2890-2891] | D267-basic-read-as-not-stage-2[2890-2891]
+  packages/engine/src/continuous.ts:2953  (3) D322-surcharge-target-filter-dropped[2953-2953] | D322-surcharge-target-filter-asked-of-the-source[2953-2953] | D322-surcharge-target-filter-inverted[2953-2953]
+  packages/engine/src/continuous.ts:3001  (2) D322-allied-source-zone-gate-dropped[3001-3001] | D322-allied-source-zone-gate-inverted[3001-3001]
+  packages/engine/src/continuous.ts:3002  (2) D322-allied-discount-set-to-zero[3002-3002] | D322-allied-discount-does-not-sum[3002-3002]
+  packages/engine/src/continuous.ts:3232  (2) D254-scope-ignored[3232-3232] | D254-scope-over-applied[3232-3232]
+  packages/engine/src/continuous.ts:3296  (2) D256-target-conjunct-inverted[3296-3297] | D256-rulebox-read-on-source[3296-3297]
+  packages/engine/src/continuous.ts:3558  (2) D284-funnel-forgets-the-stamp[3558-3559] | D284-funnel-forgets-the-passive[3558-3559]
+  packages/engine/src/continuous.ts:3813  (2) D321-beneficiary-dropped[3813-3813] | D321-beneficiary-asked-of-the-source[3813-3813]
+  packages/engine/src/continuous.ts:3818  (2) D321-source-zone-gate-dropped[3818-3818] | D321-source-zone-gate-inverted[3818-3818]
+  packages/engine/src/continuous.ts:3838  (2) D321-cap-becomes-a-sum[3838-3838] | D321-cap-keyed-by-a-boolean[3838-3838]
+  packages/engine/src/continuous.ts:3925  (2) D245-target-rider-never-narrows[3925-3925] | D245-target-rider-reads-the-attacker[3925-3925]
+  packages/engine/src/continuous.ts:3992  (2) D323-scan-reads-the-other-board[3992-3994] | D323-scan-reads-the-active-only[3992-3994]
+  packages/engine/src/continuous.ts:4007  (2) D323-kospot-clause-dropped[4007-4007] | D323-kospot-clause-inverted[4007-4007]
+  packages/engine/src/continuous.ts:4008  (2) D323-kotarget-matched-against-the-holder[4008-4008] | D323-kotarget-clause-dropped[4008-4008]
+  packages/engine/src/continuous.ts:4009  (2) D323-attacker-clause-conflated-with-the-seat[4009-4009] | D323-attacker-clause-inverted[4009-4009]
+  packages/engine/src/continuous.ts:4106  (3) D322-melt-away-gate-dropped[4106-4106] | D322-melt-away-gate-inverted[4106-4106] | D322-melt-away-counts-provided-units[4106-4106]
+  packages/engine/src/continuous.ts:4154  (2) D322-allied-discount-not-subtracted[4154-4155] | D322-allied-discount-sign-flipped[4154-4155]
+  packages/engine/src/continuous.ts:4277  (2) D327-named-discard-summand-dropped[4277-4277] | D327-discard-pile-read-from-the-wrong-seat[4277-4277]
+  packages/engine/src/continuous.ts:4278  (3) D327-bench-summand-dropped[4278-4278] | D327-bench-count-read-from-the-wrong-seat[4278-4278] | D327-bench-count-includes-the-active[4278-4278]
+  packages/engine/src/continuous.ts:960  (2) D325-energy-gate-dropped[960-961] | D325-energy-gate-reads-the-holders-type[960-961]
+  packages/engine/src/continuous.ts:971  (3) D325-scaled-hp-not-folded[971-971] | D325-scaled-hp-paid-flat[971-971] | D325-scaled-hp-empty-count-pays-once[971-971]
+  packages/engine/src/effects.ts:10046  (2) D427-anchor-loses-its-leading-caret[10046-10046] | D427-anchor-loses-its-trailing-terminator[10046-10046]
+  packages/engine/src/effects.ts:10121  (2) D461-narrowed-heal-anchor-loses-its-head[10121-10122] | D461-narrowed-heal-anchor-loses-its-tail[10121-10122]
+  packages/engine/src/effects.ts:10364  (2) D239-class-anchor-loses-its-end-anchor[10364-10364] | D239-class-anchor-captures-greedily[10364-10364]
+  packages/engine/src/effects.ts:10417  (2) D240-cap-anchor-loses-its-end-anchor[10417-10417] | D240-cap-anchor-captures-greedily[10417-10417]
+  packages/engine/src/effects.ts:10999  (2) D449-any-anchor-loses-its-tail-anchor[10999-10999] | D449-any-anchor-gains-the-zone-word[10999-10999]
+  packages/engine/src/effects.ts:11839  (4) D408-defender-verb-bare-only[11839-11839] | D408-defender-verb-plural-only[11839-11839] | D408-defender-anchor-unanchored[11839-11839] | D408-defender-anchor-drops-the-curly-class[11839-11839]
+  packages/engine/src/effects.ts:11956  (3) D410-pronoun-lock-reads-the-self-side-twin[11956-11957] | D410-pronoun-lock-becomes-the-defending-noun[11956-11957] | D410-pronoun-lock-loses-its-apostrophe-class[11956-11957]
+  packages/engine/src/effects.ts:12258  (4) D482-anchor-admits-also[12258-12259] | D482-anchor-captures-the-possessive[12258-12259] | D482-anchor-loses-its-terminator[12258-12259] | D482-anchor-loses-its-caret[12258-12259]
+  packages/engine/src/effects.ts:12454  (3) D399-shared-body-pins-the-new-arity[12454-12454] | D447-anchor-keeps-the-mandatory-also[12454-12454] | D447-anchor-loses-the-bare-possessive[12454-12454]
+  packages/engine/src/effects.ts:12481  (2) D399-gated-anchor-loses-its-terminator[12481-12481] | D399-gated-anchor-takes-the-capital[12481-12481]
+  packages/engine/src/effects.ts:12554  (2) D448-anchor-drops-the-count-clause[12554-12554] | D448-count-clause-made-mandatory[12554-12554]
+  packages/engine/src/effects.ts:12567  (2) D476-audit-bare-self-discard-anchor-was-unpinned[12567-12567] | D476-audit-bare-self-discard-terminator-was-unpinned[12567-12567]
+  packages/engine/src/effects.ts:12685  (2) D431-anchor-wants-a-period-joiner[12685-12685] | D431-anchor-templates-the-count[12685-12685]
+  packages/engine/src/effects.ts:12750  (2) D405-anchor-flips-the-possessive[12750-12750] | D405-anchor-admits-the-may[12750-12750]
+  packages/engine/src/effects.ts:12791  (2) D465-anchor-loses-its-terminator[12791-12791] | D465-anchor-loses-its-head[12791-12791]
+  packages/engine/src/effects.ts:13054  (3) D438-anchor-takes-the-more-twin[13054-13054] | D438-anchor-goes-straight-only[13054-13054] | D438-anchor-loses-its-tail[13054-13054]
+  packages/engine/src/effects.ts:13174  (3) D423-multiply-anchor-admits-the-additive-twin[13174-13175] | D423-multiply-anchor-names-the-wrong-body[13174-13175] | D423-multiply-anchor-drops-the-curly-apostrophe[13174-13175]
+  packages/engine/src/effects.ts:13207  (6) D469-board-counter-anchor-loses-the-more[13207-13207] | D469-board-counter-anchor-drops-the-all-of[13207-13207] | D469-board-counter-anchor-loses-its-head[13207-13207] | D469-board-counter-anchor-loses-the-trailing-dollar[13207-13207] | D469-board-counter-anchor-hardcodes-the-amount[13207-13207] | D469-board-counter-anchor-loses-the-possessive-class[13207-13207]
+  packages/engine/src/effects.ts:13491  (2) D466-bench-anchor-loses-its-terminator[13491-13491] | D466-bench-anchor-loses-its-head[13491-13491]
+  packages/engine/src/effects.ts:13582  (2) D439-anchor-swallows-the-owner-prefix[13582-13582] | D439-anchor-swallows-the-compound[13582-13582]
+  packages/engine/src/effects.ts:13618  (2) D446-foe-anchor-drops-the-possessive-class[13618-13618] | D446-foe-anchor-loses-its-terminator[13618-13618]
+  packages/engine/src/effects.ts:13982  (3) D440-vocabulary-defaults-instead-of-staying-loud[13982-13982] | D440-vocabulary-claims-any-card-noun[13982-13982] | D440-noun-lookup-drops-the-apostrophe-fold[13982-13982]
+  packages/engine/src/effects.ts:14310  (2) D407-anchor-swallows-the-owner-prefix[14310-14310] | D459-additive-fold-widened-for-symmetry[14310-14310]
+  packages/engine/src/effects.ts:14355  (3) D470-owner-board-anchor-loses-the-opponent-lookahead[14355-14356] | D470-owner-board-anchor-drops-the-trailing-dollar[14355-14356] | D470-owner-board-anchor-loses-the-more[14355-14356]
+  packages/engine/src/effects.ts:14358  (5) D407-multiply-widens-for-symmetry[14358-14358] | D459-card-group-deleted[14358-14358] | D459-card-group-made-required[14358-14358] | D459-card-group-becomes-a-wildcard[14358-14358] | D459-card-group-put-before-the-noun[14358-14358]
+  packages/engine/src/effects.ts:14531  (2) D436-anchor-drops-the-parenthetical[14531-14532] | D436-apostrophe-class-narrowed[14531-14532]
+  packages/engine/src/effects.ts:14611  (2) D378-bonus-row-ships-the-refused-rename[14611-14611] | D378-bonus-row-key-is-a-paraphrase[14611-14611]
+  packages/engine/src/effects.ts:14646  (2) D368-undamaged-row-keys-on-the-near-miss[14646-14646] | D368-declaration-clause-gets-a-board-row[14646-14646]
+  packages/engine/src/effects.ts:15102  (2) D367-bench-named-durant-row-drops[15102-15102] | D367-bench-named-durant-names-the-wrong-card[15102-15102]
+  packages/engine/src/effects.ts:15218  (2) D391-typed-threshold-row-claims-the-unquantified-neighbour[15218-15221] | D391-typed-threshold-row-forgets-the-new-field[15218-15221]
+  packages/engine/src/effects.ts:15963  (2) D363-does-nothing-anchor-restores-the-dollar[15963-15963] | D363-does-nothing-clause-group-turns-greedy[15963-15963]
+  packages/engine/src/effects.ts:16201  (2) D377-cancel-row-widens-to-any-condition[16201-16201] | D377-cancel-row-key-loses-the-contraction[16201-16201]
+  packages/engine/src/effects.ts:16222  (2) D365-stadium-row-ships-the-refused-rename[16222-16222] | D378-cancel-row-key-loses-the-no[16222-16222]
+  packages/engine/src/effects.ts:16247  (3) D379-hand-row-ships-the-refused-near-miss[16247-16247] | D379-hand-row-count-is-off-by-one[16247-16247] | D379-hand-row-key-is-a-paraphrase[16247-16247]
+  packages/engine/src/effects.ts:16882  (4) D475-anchor-loses-its-start-anchor[16882-16883] | D475-anchor-loses-its-end-anchor[16882-16883] | D475-anchor-drops-the-printed-scope[16882-16883] | D475-anchor-admits-a-type-word[16882-16883]
+  packages/engine/src/effects.ts:16948  (3) D474-anchor-loses-its-start-anchor[16948-16948] | D474-anchor-loses-its-end-anchor[16948-16948] | D474-anchor-widens-the-printed-subject[16948-16948]
+  packages/engine/src/effects.ts:17274  (3) D476-anchor-loses-its-terminator[17274-17274] | D476-anchor-waits-for-heads[17274-17274] | D476-anchor-hits-the-wrong-body[17274-17274]
+  packages/engine/src/effects.ts:17609  (2) D413-additive-arm-becomes-the-multiplicative-one[17609-17609] | D413-additive-flip-count-hardcodes-the-printed-two[17609-17610]
+  packages/engine/src/effects.ts:17661  (2) D460-threshold-status-hardcoded[17661-17661] | D460-threshold-status-hits-the-attacker[17661-17663]
+  packages/engine/src/effects.ts:17716  (2) D474-arm-reads-the-noun-from-the-damage-group[17716-17718] | D475-both-actives-arm-moves-ahead-of-the-body-one[17716-17717]
+  packages/engine/src/effects.ts:17723  (3) D474-arm-defaults-the-unresolvable-noun[17723-17725] | D474-arm-drops-the-positive-per-guard[17723-17725] | D474-arm-emits-the-neighbouring-flip-member[17723-17725]
+  packages/engine/src/effects.ts:17754  (3) D475-arm-emits-the-self-attached-member[17754-17754] | D475-arm-emits-the-body-count-member[17754-17754] | D475-arm-drops-the-positive-per-guard[17754-17754]
+  packages/engine/src/effects.ts:17828  (2) D452-singular-mill-count-is-the-neighbours[17828-17828] | D452-singular-mill-hits-the-wrong-deck[17828-17832]
+  packages/engine/src/effects.ts:17857  (2) D452-hand-arm-shuffles-the-card-back[17857-17857] | D452-hand-arm-is-the-mill[17857-17861]
+  packages/engine/src/effects.ts:17872  (2) D463-printed-arm-loses-the-plural-floor[17872-17876] | D463-printed-arm-loses-the-printed-ceiling[17872-17876]
+  packages/engine/src/effects.ts:17876  (3) D463-printed-arm-discards-the-attackers-own-energy[17876-17876] | D463-printed-arm-is-the-hand-discard[17876-17880] | D476-d463-printed-arm-counts-tails[17876-17877]
+  packages/engine/src/effects.ts:17892  (2) D463-until-tails-arm-becomes-a-printed-count[17892-17893] | D463-until-tails-arm-narrows-to-special-energy[17892-17893]
+  packages/engine/src/effects.ts:17919  (2) D476-arm-loses-the-plural-floor[17919-17924] | D476-arm-loses-the-printed-ceiling[17919-17924]
+  packages/engine/src/effects.ts:17923  (3) D476-arm-counts-heads[17923-17924] | D476-arm-discards-the-opponents-energy[17923-17924] | D476-arm-narrows-to-special-energy[17923-17924]
+  packages/engine/src/effects.ts:18143  (2) D477-anchor-type-slot-becomes-mandatory[18143-18143] | D477-anchor-code-class-drops-the-map[18143-18143]
+  packages/engine/src/effects.ts:18144  (2) D477-anchor-demands-the-period-join[18144-18144] | D477-anchor-loses-its-terminator[18144-18144]
+  packages/engine/src/effects.ts:18255  (3) D402-the-additive-fold-is-swallowed[18255-18255] | D402-the-bench-only-zone-is-admitted[18255-18255] | D402-the-plural-noun-is-refused[18255-18255]
+  packages/engine/src/effects.ts:18467  (3) D422-anchor-loses-its-caret[18467-18467] | D422-anchor-loses-its-dollar[18467-18467] | D422-anchor-capitalises-the-verb[18467-18467]
+  packages/engine/src/effects.ts:18521  (3) D468-typed-switch-anchor-loses-its-caret[18521-18522] | D468-typed-switch-anchor-loses-its-dollar[18521-18522] | D468-typed-switch-anchor-folds-the-case[18521-18522]
+  packages/engine/src/effects.ts:18806  (2) D443-free-anchor-admits-the-own-board-twin[18806-18806] | D443-free-anchor-drops-the-apostrophe-class[18806-18806]
+  packages/engine/src/effects.ts:18849  (2) D202-caret-drawN[18849-18849] | D202-tail-anchor[18849-18849]
+  packages/engine/src/effects.ts:19060  (2) D238-energy-noun-drops-the-printed-basic[19060-19060] | D238-energy-noun-unwelds-the-grammatical-number[19060-19060]
+  packages/engine/src/effects.ts:19588  (2) D248-spread-destination-drops-the-bench-word[19588-19588] | D248-spread-destination-becomes-a-distribution[19588-19588]
+  packages/engine/src/effects.ts:19688  (2) D234-anchor-drops-its-trailing-anchor[19688-19688] | D234-anchor-drops-its-leading-anchor[19688-19688]
+  packages/engine/src/effects.ts:20094  (2) D247-any-number-rehomes-the-printed-count[20094-20094] | D247-any-number-anchor-drops-the-terminal[20094-20094]
+  packages/engine/src/effects.ts:20259  (6) D234-spread-collapses-into-one-batch[20259-20264] | D234-batch-explodes-into-a-spread[20259-20264] | D234-singular-emits-an-explicit-count-1[20259-20264] | D360-spread-loses-the-printed-decline[20259-20264] | D360-hedge-read-off-the-number-not-the-print[20259-20264] | D360-flag-hoisted-onto-the-batch-as-well[20259-20264]
+  packages/engine/src/effects.ts:20785  (2) D342-program-drops-the-exact-floor[20785-20786] | D342-program-searches-into-the-hand[20785-20786]
+  packages/engine/src/effects.ts:20901  (3) D404-anchor-loses-its-start[20901-20901] | D404-anchor-loses-its-terminator[20901-20901] | D404-anchor-admits-the-opponents-hand[20901-20901]
+  packages/engine/src/effects.ts:20939  (4) D479-anchor-loses-its-terminator[20939-20939] | D479-anchor-loses-its-caret[20939-20939] | D479-anchor-reads-the-one-sentence-join[20939-20939] | D479-anchor-drops-the-printed-possessive[20939-20939]
+  packages/engine/src/effects.ts:20981  (3) D473-anchor-widens-the-printed-subject[20981-20981] | D473-anchor-loses-its-end-anchor[20981-20981] | D473-anchor-loses-its-start-anchor[20981-20981]
+  packages/engine/src/effects.ts:21033  (2) D424-flip-pair-drops-the-coin-gate[21033-21040] | D424-flip-pair-nullish-check-never-fires[21033-21033]
+  packages/engine/src/effects.ts:21070  (2) D478-arm-drops-the-second-heads-status[21070-21070] | D478-arm-reverses-the-printed-heads-order[21070-21071]
+  packages/engine/src/effects.ts:21104  (2) D462-triple-drops-the-third-status[21104-21104] | D462-refused-list-becomes-an-empty-program[21104-21104]
+  packages/engine/src/effects.ts:21131  (6) D464-arm-drops-the-energy-discard[21131-21138] | D464-arm-drops-the-status[21131-21138] | D464-arm-reverses-printed-order[21131-21138] | D464-arm-discards-the-attackers-own-energy[21131-21138] | D464-arm-drops-the-coin-gate[21131-21138] | D464-arm-hardcodes-the-printed-status[21131-21138]
+  packages/engine/src/effects.ts:21172  (4) D472-gate-dropped-status-lands-unconditionally[21172-21182] | D472-status-lands-on-the-attacker[21172-21182] | D472-arm-hardcodes-the-printed-status[21172-21182] | D472-clause-resolved-by-a-hardcoded-member[21172-21182]
+  packages/engine/src/effects.ts:21643  (4) D482-arm-drops-the-active-half[21643-21644] | D482-arm-order-flips[21643-21644] | D482-arm-active-half-places-counters[21643-21644] | D482-arm-spread-side-flips[21643-21644]
+  packages/engine/src/effects.ts:21732  (2) D399-flat-arm-drops-the-count-guard[21732-21733] | D437-number-agreement-dropped[21732-21732]
+  packages/engine/src/effects.ts:21913  (2) D400-agreement-check-never-rejects[21913-21913] | D400-agreement-check-off-by-one[21913-21913]
+  packages/engine/src/effects.ts:21917  (2) D400-count-positivity-guard-dropped[21917-21917] | D448-unprinted-pair-guard-dropped[21917-21917]
+  packages/engine/src/effects.ts:22013  (2) D401-discard-positivity-guard-dropped[22013-22013] | D401-amount-positivity-guard-dropped[22013-22013]
+  packages/engine/src/effects.ts:22018  (2) D401-ops-in-the-wrong-order[22018-22019] | D401-discard-count-becomes-all[22018-22018]
+  packages/engine/src/effects.ts:22019  (2) D401-snipe-arity-back-to-the-literal[22019-22019] | D401-snipe-targets-the-bench-only[22019-22019]
+  packages/engine/src/effects.ts:22068  (2) D477-snipe-aims-at-the-any-target[22068-22068] | D477-snipe-side-is-hardcoded-to-the-opponent[22068-22068]
+  packages/engine/src/effects.ts:22154  (3) D431-arm-drops-the-prize[22154-22157] | D431-arm-drops-the-discard[22154-22157] | D431-arm-reverses-printed-order[22154-22157]
+  packages/engine/src/effects.ts:22229  (2) D402-a-printed-zero-per-unit-derives[22229-22229] | D402-a-printed-up-to-zero-derives[22229-22229]
+  packages/engine/src/effects.ts:22431  (5) D405-the-energy-goes-to-the-pile[22431-22432] | D405-the-victim-is-the-defender[22431-22432] | D405-the-filter-narrows-to-basic[22431-22432] | D405-the-count-is-spelled[22431-22432] | D405-the-wrapper-is-added[22431-22432]
+  packages/engine/src/effects.ts:22461  (2) D465-rider-not-set[22461-22461] | D465-printed-zero-derives[22461-22461]
+  packages/engine/src/effects.ts:22554  (3) D461-unknown-adjective-falls-through-to-the-whole-board[22554-22554] | D461-narrowed-heal-drops-the-scope-at-the-producer[22554-22554] | D461-narrowed-heal-takes-a-printed-zero[22554-22554]
+  packages/engine/src/effects.ts:23819  (2) D468-typed-switch-arm-drops-the-printed-narrowing[23819-23819] | D468-typed-switch-arm-defaults-an-unreadable-code[23819-23819]
+  packages/engine/src/effects.ts:23892  (5) D422-arm-forgets-the-wrapper[23892-23895] | D422-arm-wraps-the-mirrors-op[23892-23895] | D422-arm-empties-the-then[23892-23895] | D422-arm-switches-on-the-decline[23892-23895] | D422-arm-rebuilds-the-note[23892-23895]
+  packages/engine/src/effects.ts:24025  (2) D442-free-arm-drops-the-source-rider[24025-24028] | D442-free-arm-drops-the-destination-rider[24025-24028]
+  packages/engine/src/effects.ts:24040  (2) D442-spread-arm-drops-the-destination-rider[24040-24042] | D442-spread-arm-emits-the-mirror-route[24040-24042]
+  packages/engine/src/effects.ts:24118  (2) D441-arm-emits-a-number-instead-of-the-quantifier[24118-24118] | D441-arm-emits-the-mirror-route[24118-24120]
+  packages/engine/src/effects.ts:24163  (2) D230-dest-is-the-hand[24163-24163] | D230-drops-the-trailing-shuffle[24163-24163]
+  packages/engine/src/effects.ts:24207  (2) D231-reveal-never-set[24207-24207] | D231-reveal-read-off-the-singular-half-only[24207-24207]
+  packages/engine/src/effects.ts:24210  (2) D231-reveal-is-the-destination[24210-24210] | D231-dest-is-the-bench[24210-24210]
+  packages/engine/src/effects.ts:24521  (2) D236-heal-tail-fires-on-every-printing[24521-24521] | D236-heal-tail-never-fires[24521-24522]
+  packages/engine/src/effects.ts:24561  (2) D247-any-number-reads-the-single-body-destinations[24561-24561] | D247-any-number-swallows-a-rider-it-cannot-express[24561-24561]
+  packages/engine/src/effects.ts:24680  (2) D458-second-noun-ignores-the-batch-rule[24680-24681] | D458-second-noun-ignores-the-poison-tail[24680-24681]
+  packages/engine/src/effects.ts:24704  (2) D235-batch-rule-dropped[24704-24704] | D457-one-target-rider-written-at-every-count[24704-24704]
+  packages/engine/src/effects.ts:24738  (2) D458-second-search-drops-the-destination[24738-24739] | D458-shuffle-between-the-two-searches[24738-24741]
+  packages/engine/src/effects.ts:24745  (3) D235-poison-tail-fires-on-every-printing[24745-24746] | D235-poison-tail-silently-dropped[24745-24746] | D458-record-gate-read-off-the-old-group-index[24745-24746]
+  packages/engine/src/effects.ts:25084  (2) D404-count-pinned-to-the-printed-six[25084-25087] | D404-positivity-guard-dropped[25084-25087]
+  packages/engine/src/effects.ts:25089  (3) D404-ops-in-the-wrong-order[25089-25090] | D404-the-discard-is-dropped[25089-25090] | D404-the-draw-is-dropped[25089-25090]
+  packages/engine/src/effects.ts:25132  (5) D479-arm-emits-the-discard-sibling[25132-25132] | D479-arm-refreshes-both-seats[25132-25132] | D479-arm-refreshes-the-opponent-instead[25132-25132] | D479-arm-draws-hand-plus-instead-of-fixed[25132-25132] | D479-arm-hardcodes-the-printed-count[25132-25132]
+  packages/engine/src/effects.ts:25161  (5) D473-arm-drops-the-record-gate[25161-25163] | D473-arm-pays-two-cards-from-hand[25161-25161] | D473-arm-pays-to-the-deck-bottom[25161-25161] | D473-arm-drops-the-payments-record-slot[25161-25161] | D473-near-miss-list-keeps-the-built-sentence[25161-25163]
+  packages/engine/src/effects.ts:25163  (2) D473-gate-reads-a-different-slot[25163-25163] | D473-gate-draws-a-hard-coded-two[25163-25163]
+  packages/engine/src/effects.ts:25830  (2) D469-board-counter-arm-drops-the-printed-zero-guard[25830-25834] | D469-board-counter-arm-emits-the-active-member[25830-25834]
+  packages/engine/src/effects.ts:25865  (3) D467-benched-noun-builds-the-unfiltered-member[25865-25867] | D467-benched-noun-printed-zero-derives[25865-25866] | D467-benched-noun-skips-the-vocabulary[25865-25869]
+  packages/engine/src/effects.ts:25896  (3) D466-bench-noun-skips-the-vocabulary[25896-25896] | D466-bench-printed-zero-derives[25896-25898] | D466-bench-filter-not-carried[25896-25898]
+  packages/engine/src/effects.ts:26025  (2) D470-owner-board-arm-drops-the-printed-zero-guard[26025-26025] | D470-owner-board-arm-confuses-null-with-undefined-in-the-energy-guard[26025-26025]
+  packages/engine/src/effects.ts:26029  (2) D470-owner-board-arm-drops-the-filter-from-the-value[26029-26029] | D470-owner-board-arm-drops-the-board-zone[26029-26029]
+  packages/engine/src/effects.ts:26077  (2) D436-threshold-hardcoded-at-two[26077-26077] | D436-printed-zero-guard-dropped[26077-26077]
+  packages/engine/src/effects.ts:26248  (2) D423-multiply-arm-returns-the-self-member[26248-26251] | D423-multiply-arm-drops-the-zero-guard[26248-26251]
+  packages/engine/src/effects.ts:26284  (2) D467-counter-arm-skips-the-vocabulary[26284-26285] | D467-counter-printed-zero-derives[26284-26286]
+  packages/engine/src/effects.ts:26315  (2) D439-multiply-arm-drops-the-filter[26315-26318] | D439-zero-guard-admits-a-printed-zero[26315-26319]
+  packages/engine/src/effects.ts:26489  (2) D406-zero-per-scores[26489-26489] | D406-member-is-the-neighbour[26489-26489]
+  packages/engine/src/effects.ts:26782  (4) D316-yes-arm-loses-the-bonus[26782-26782] | D316-consequent-dropped[26782-26782] | D317-yes-arm-loses-the-bonus[26782-26782] | D317-consequent-dropped[26782-26782]
+  packages/engine/src/effects.ts:26783  (3) D316-no-arm-takes-the-boost[26783-26783] | D317-decline-arm-takes-the-bonus[26783-26783] | D317-decline-arm-deals-nothing[26783-26783]
+  packages/engine/src/effects.ts:26945  (2) D317-heal-amount-pinned[26945-26945] | D317-zero-heal-admitted[26945-26945]
+  packages/engine/src/effects.ts:26991  (2) D382-then-anchor-declared-and-never-consulted[26991-26991] | D382-join-operands-swapped[26991-26991]
+  packages/engine/src/effects.ts:27233  (2) D385-connective-loses-its-second-branch[27233-27233] | D385-connective-saturates[27233-27233]
+  packages/engine/src/effects.ts:27255  (2) D383-bench-snipe-anchor-loses-its-terminator[27255-27255] | D383-bench-snipe-anchor-takes-the-capital[27255-27255]
+  packages/engine/src/effects.ts:27294  (2) D385-hand-cost-row-copies-the-neighbours-gate[27294-27294] | D385-hand-cost-row-copies-the-neighbours-ops[27294-27294]
+  packages/engine/src/effects.ts:27369  (2) D437-payoff-drops-the-narrowing[27369-27369] | D483-payoff-honours-the-class-it-cannot-carry[27369-27369]
+  packages/engine/src/effects.ts:27636  (3) D403-the-additive-fold-is-refused[27636-27636] | D403-the-bench-scope-leaves-the-anchor[27636-27636] | D403-the-offer-becomes-optional[27636-27636]
+  packages/engine/src/effects.ts:28353  (2) D428-anchor-drops-the-tail[28353-28353] | D428-anchor-loses-the-apostrophe-class[28353-28353]
+  packages/engine/src/effects.ts:9776  (3) D478-anchor-loses-its-caret[9776-9776] | D478-anchor-loses-its-terminator[9776-9776] | D478-anchor-widens-the-tails-slot[9776-9776]
+  packages/engine/src/effects.ts:9853  (2) D462-triple-anchor-loses-its-end-anchor[9853-9853] | D462-triple-anchor-loses-its-start-anchor[9853-9853]
+  packages/engine/src/effects.ts:9914  (2) D464-anchor-loses-its-end-anchor[9914-9914] | D464-anchor-loses-its-apostrophe-class[9914-9914]
+  packages/engine/src/effects.ts:9988  (5) D472-anchor-drops-the-printed-subject[9988-9990] | D472-anchor-widens-the-status-slot[9988-9990] | D472-anchor-loses-its-start-anchor[9988-9990] | D472-anchor-loses-its-end-anchor[9988-9990] | D472-anchor-loses-its-apostrophe-class[9988-9990]
+  packages/engine/src/flow.ts:1191  (2) D394-finish-attack-never-writes-the-stamp[1191-1191] | D394-attack-stamp-goes-to-the-other-seat[1191-1191]
+  packages/engine/src/flow.ts:1266  (2) D312-attack-empties-the-spot-and-nothing-promotes[1266-1268] | D312-promotion-is-queued-behind-the-turn-tail[1266-1268]
+  packages/engine/src/flow.ts:135  (2) D271-stamp-keys-the-seat-that-scored-the-ko[135-135] | D271-stamp-records-the-next-turn[135-135]
+  packages/engine/src/flow.ts:1751  (2) D434-checkup-places-nothing[1751-1753] | D434-stamps-the-ko-by-effect-marker[1751-1751]
+  packages/engine/src/flow.ts:1778  (2) D435-knock-out-pays-no-prize[1778-1779] | D435-ko-marker-not-stamped[1778-1778]
+  packages/engine/src/flow.ts:704  (2) D326-every-ko-counts-as-an-attack[704-704] | D326-no-ko-counts-as-an-attack[704-705]
+  packages/engine/src/flow.ts:834  (2) D323-tails-pays-and-heads-does-not[834-834] | D323-coin-clause-dropped[834-834]
+  packages/engine/src/interpreter.ts:1021  (2) D355-coins-count-is-ignored[1021-1021] | D355-absent-coins-defaults-to-two[1021-1021]
+  packages/engine/src/interpreter.ts:10251  (2) D433-refusal-is-dropped[10251-10251] | D433-shield-asked-before-the-filter[10251-10251]
+  packages/engine/src/interpreter.ts:10366  (2) D433-ko-cause-always-stamped[10366-10366] | D433-lethality-read-before-the-writeback[10366-10367]
+  packages/engine/src/interpreter.ts:1042  (3) D355-gate-reads-any-heads-not-all[1042-1042] | D355-gate-reads-the-first-coin-only[1042-1042] | D355-gate-reads-the-last-coin-only[1042-1042]
+  packages/engine/src/interpreter.ts:10483  (3) D345-self-ko-never-fires[10483-10483] | D345-self-ko-stops-one-counter-short[10483-10483] | D345-self-ko-overwrites-existing-damage[10483-10483]
+  packages/engine/src/interpreter.ts:1062  (3) D269-otherwise-is-never-spliced[1062-1062] | D269-arms-are-swapped[1062-1062] | D269-both-arms-run[1062-1062]
+  packages/engine/src/interpreter.ts:10638  (2) D431-take-prize-wrong-seat[10638-10638] | D431-take-prize-takes-two[10638-10638]
+  packages/engine/src/interpreter.ts:1072  (2) D455-condition-gate-arms-are-swapped[1072-1072] | D455-condition-gate-asks-about-the-opponent[1072-1072]
+  packages/engine/src/interpreter.ts:10994  (2) D244-switch-parks-on-any-benched-body[10994-10994] | D244-fromSource-admits-the-active-spot[10994-10994]
+  packages/engine/src/interpreter.ts:11065  (2) D331-gust-ignores-its-own-rider[11065-11068] | D331-rider-narrows-every-gust[11065-11068]
+  packages/engine/src/interpreter.ts:11139  (2) D437-predicate-counts-counters-not-presence[11139-11141] | D437-predicate-inverted[11139-11141]
+  packages/engine/src/interpreter.ts:11184  (3) D416-counter-window-admits-anything-larger[11184-11184] | D416-chosen-funnel-drops-its-basic-narrowing[11184-11186] | D416-chosen-funnel-inverts-its-basic-narrowing[11184-11187]
+  packages/engine/src/interpreter.ts:11453  (2) D320-switch-site-dropped[11453-11453] | D320-subject-is-the-promoted-body[11453-11453]
+  packages/engine/src/interpreter.ts:11537  (3) D246-attachable-energies-ignores-the-bare-noun[11537-11537] | D246-attachable-energies-drops-the-basic-test[11537-11537] | D353-named-energy-still-demands-basic[11537-11537]
+  packages/engine/src/interpreter.ts:11541  (2) D353-named-energy-ignored[11541-11541] | D353-named-energy-matches-any-special[11541-11541]
+  packages/engine/src/interpreter.ts:11626  (2) D354-target-union-is-the-first-type-only[11626-11626] | D354-target-union-demands-every-type[11626-11626]
+  packages/engine/src/interpreter.ts:11985  (2) D359-apply-ignores-the-answered-quantity[11985-11985] | D359-apply-trusts-an-over-take[11985-11985]
+  packages/engine/src/interpreter.ts:12053  (2) D236-heal-lands-before-the-attach[12053-12053] | D236-heal-is-unconditional[12053-12053]
+  packages/engine/src/interpreter.ts:12667  (2) D244-any-amount-clamps-to-one[12667-12667] | D441-cap-forgets-the-new-quantifier[12667-12667]
+  packages/engine/src/interpreter.ts:12720  (2) D443-board-helper-never-crosses[12720-12720] | D443-board-helper-always-crosses[12720-12720]
+  packages/engine/src/interpreter.ts:12870  (2) D229-destinations-include-the-active[12870-12874] | D229-destinations-are-the-other-seat[12870-12871]
+  packages/engine/src/interpreter.ts:13064  (2) D437-funnel-drops-the-narrowing[13064-13071] | D483-snipe-targets-ignores-the-class[13064-13064]
+  packages/engine/src/interpreter.ts:13517  (2) D273-switch-name-exclusion-dropped[13517-13517] | D273-switch-exclusion-only-when-untyped[13517-13517]
+  packages/engine/src/interpreter.ts:13989  (2) D245-evolution-noun-reads-basic[13989-13989] | D275-typed-noun-drops-the-threshold[13989-13989]
+  packages/engine/src/interpreter.ts:1839  (2) D403-the-interpreter-ignores-the-addend[1839-1839] | D316-flat-hit-skips-weakness[1839-1841]
+  packages/engine/src/interpreter.ts:2020  (2) D342-search-floor-ignores-the-candidate-count[2020-2020] | D342-search-floor-applies-to-every-producer[2020-2020]
+  packages/engine/src/interpreter.ts:2030  (2) D336-caps-are-not-sent-to-the-prompt[2030-2030] | D336-caps-read-the-union-not-the-group[2030-2030]
+  packages/engine/src/interpreter.ts:2105  (2) D308-scheduler-drops-the-slot[2105-2105] | D308-scheduler-shuffles-per-body[2105-2105]
+  packages/engine/src/interpreter.ts:2176  (2) D315-single-body-is-forced[2176-2176] | D315-max-is-not-clamped[2176-2176]
+  packages/engine/src/interpreter.ts:2295  (2) D241-whiff-look-goes-unannounced[2295-2296] | D241-empty-deck-announces-a-look-nobody-took[2295-2295]
+  packages/engine/src/interpreter.ts:2312  (2) D334-floor-goes-back-to-zero[2312-2312] | D334-floor-is-not-clamped-to-the-candidates[2312-2312]
+  packages/engine/src/interpreter.ts:2620  (2) D441-force-swallows-the-declinable-family[2620-2620] | D441-no-force-at-one-destination[2620-2620]
+  packages/engine/src/interpreter.ts:3112  (2) D227-applies-to-the-attackers-side[3112-3113] | D228-forced-arm-files-nothing[3112-3113]
+  packages/engine/src/interpreter.ts:3113  (2) D227-park-carries-no-decider[3113-3115] | D227-decider-is-the-controller[3113-3114]
+  packages/engine/src/interpreter.ts:3323  (2) D248-toEach-implies-bench[3323-3323] | D248-spread-feeds-only-the-first-body[3323-3323]
+  packages/engine/src/interpreter.ts:3338  (3) D359-ceiling-drops-the-declinable-half[3338-3338] | D359-ceiling-drops-the-count-half[3338-3338] | D359-ceiling-is-one-short[3338-3338]
+  packages/engine/src/interpreter.ts:3360  (3) D205-caption-count[3360-3362] | D205-count-le-1[3360-3362] | D359-park-loses-the-toself-caption[3360-3362]
+  packages/engine/src/interpreter.ts:3425  (3) D378-presence-keeps-the-owner-test[3425-3425] | D378-presence-reads-the-opponents-stadium[3425-3425] | D378-presence-inverts-to-absence[3425-3425]
+  packages/engine/src/interpreter.ts:3481  (2) D387-condition-reads-the-wide-member[3481-3481] | D387-condition-reads-not-basic[3481-3481]
+  packages/engine/src/interpreter.ts:3516  (3) D368-undamaged-satisfied-by-an-empty-spot[3516-3516] | D368-undamaged-becomes-its-own-complement[3516-3516] | D368-undamaged-tolerates-one-counter[3516-3516]
+  packages/engine/src/interpreter.ts:3542  (4) D373-empty-bench-reads-vacuously-true[3542-3543] | D373-universal-becomes-the-existential[3542-3543] | D373-universal-bench-reads-the-far-seat[3542-3543] | D373-universal-bench-widens-to-the-whole-side[3542-3543]
+  packages/engine/src/interpreter.ts:3566  (3) D397-walk-drops-the-name-test[3566-3566] | D397-walk-drops-the-damage-test[3566-3566] | D397-name-read-off-the-stack-bottom[3566-3566]
+  packages/engine/src/interpreter.ts:3607  (2) D377-burned-reads-the-poison-counter[3607-3608] | D377-burned-reads-its-own-seat[3607-3608]
+  packages/engine/src/interpreter.ts:3623  (2) D377-confused-reaches-for-isImmobilized[3623-3623] | D377-confused-widens-to-any-rotation[3623-3623]
+  packages/engine/src/interpreter.ts:3660  (2) D415-opponent-member-reads-the-near-seat[3660-3661] | D415-opponent-member-ignores-its-parameter[3660-3663]
+  packages/engine/src/interpreter.ts:3691  (5) D374-named-energy-reads-the-owner-prefix[3691-3696] | D374-named-energy-drops-the-apostrophe-fold[3691-3696] | D374-named-energy-widens-to-the-whole-side[3691-3696] | D374-named-energy-reads-the-tool-slot[3691-3696] | D374-named-energy-reads-the-far-seat[3691-3696]
+  packages/engine/src/interpreter.ts:3703  (3) D207-seats-crossed[3703-3703] | D207-remaining-vs-taken[3703-3703] | D365-prize-membership-becomes-a-threshold[3703-3703]
+  packages/engine/src/interpreter.ts:3722  (3) D379-hand-size-comparator-is-a-floor[3722-3722] | D379-hand-size-comparator-is-a-ceiling[3722-3722] | D379-hand-size-reads-the-far-hand[3722-3722]
+  packages/engine/src/interpreter.ts:3741  (2) D385-hand-gate-becomes-vacuously-true[3741-3741] | D385-hand-gate-reads-the-opponents-hand[3741-3741]
+  packages/engine/src/interpreter.ts:3763  (4) D398-reads-the-far-seats-deck[3763-3763] | D398-reads-the-hand-not-the-deck[3763-3763] | D398-strict-less-than[3763-3763] | D398-equality-not-threshold[3763-3763]
+  packages/engine/src/interpreter.ts:3794  (4) D383-energy-threshold-is-strict[3794-3794] | D383-energy-threshold-reads-the-side[3794-3794] | D383-empty-active-spot-holds-zero-energy[3794-3794] | D391-typed-threshold-drops-the-filter[3794-3794]
+  packages/engine/src/interpreter.ts:3816  (4) D372-equal-energy-reads-the-whole-side[3816-3822] | D372-equal-energy-compares-your-own-active-twice[3816-3822] | D372-equal-energy-reads-an-empty-active-spot-as-zero[3816-3822] | D372-equal-energy-becomes-at-least-as-much[3816-3822]
+  packages/engine/src/interpreter.ts:3847  (5) D384-strict-inequality-reads-the-whole-side[3847-3853] | D384-strict-inequality-inverts-the-operands[3847-3853] | D384-strict-inequality-reads-an-empty-active-spot-as-zero[3847-3853] | D384-strict-inequality-becomes-at-least-as-much[3847-3853] | D384-strict-inequality-compares-your-own-active-twice[3847-3853]
+  packages/engine/src/interpreter.ts:3861  (2) D472-active-type-condition-reads-the-asker-seat[3861-3862] | D472-active-type-condition-reads-only-the-first-type[3861-3862]
+  packages/engine/src/interpreter.ts:3886  (5) D371-resistance-clause-routes-through-resistanceOf[3886-3887] | D371-resistance-clause-reads-the-weakness-column[3886-3887] | D371-resistance-clause-reads-the-other-seat[3886-3887] | D371-resistance-clause-reads-only-the-first-entry[3886-3887] | D371-resistance-clause-also-requires-a-printed-value[3886-3887]
+  packages/engine/src/interpreter.ts:3924  (2) D388-condition-reads-the-printed-column[3924-3925] | D388-condition-reads-the-asker-seat[3924-3925]
+  packages/engine/src/interpreter.ts:3925  (2) D388-condition-uses-strict-inequality[3925-3925] | D388-condition-uses-equality[3925-3925]
+  packages/engine/src/interpreter.ts:3945  (3) D370-bench-type-reads-the-active-spot-too[3945-3947] | D370-bench-type-reads-the-other-seat[3945-3947] | D370-bench-type-reads-only-the-first-type[3945-3947]
+  packages/engine/src/interpreter.ts:3974  (4) D390-in-play-type-narrows-to-the-active-spot[3974-3977] | D390-in-play-type-reads-the-asker-seat[3974-3977] | D390-in-play-type-drops-the-active-from-the-spread[3974-3977] | D390-in-play-type-reads-the-first-type-only[3974-3977]
+  packages/engine/src/interpreter.ts:4009  (4) D375-type-intersection-narrows-your-side-to-the-active[4009-4016] | D375-type-intersection-narrows-their-side-to-the-active[4009-4016] | D375-type-intersection-compares-arrays-instead[4009-4016] | D375-type-intersection-reads-only-the-first-type[4009-4014]
+  packages/engine/src/interpreter.ts:4024  (2) D279-bench-member-widened-instead-of-added[4024-4027] | D367-bench-named-durant-reads-in-play[4024-4026]
+  packages/engine/src/interpreter.ts:4045  (2) D392-substring-collapses-to-equality[4045-4045] | D392-substring-narrowed-to-prefix[4045-4045]
+  packages/engine/src/interpreter.ts:4106  (3) D376-discard-threshold-reads-energy-in-play[4106-4107] | D376-discard-threshold-drops-the-printed-basic[4106-4106] | D376-discard-threshold-drops-the-printed-type[4106-4106]
+  packages/engine/src/interpreter.ts:4107  (2) D376-discard-threshold-is-strict[4107-4107] | D376-discard-threshold-hardcodes-the-printed-ten[4107-4107]
+  packages/engine/src/interpreter.ts:4181  (3) D369-cross-board-tool-reads-its-own-seat[4181-4182] | D369-cross-board-tool-caps-at-one[4181-4182] | D369-cross-board-tool-reads-the-neighbouring-field[4181-4182]
+  packages/engine/src/interpreter.ts:4244  (3) D386-condition-reads-the-promotion-stamp[4244-4244] | D386-heal-window-never-expires[4244-4244] | D386-condition-reads-the-other-seat[4244-4244]
+  packages/engine/src/interpreter.ts:4269  (2) D393-evolve-arm-drops-the-turn-and-keeps-the-stamp[4269-4269] | D393-evolve-arm-reads-the-opponents-stamp[4269-4269]
+  packages/engine/src/interpreter.ts:4340  (3) D366-bench-floor-becomes-strict[4340-4340] | D366-bench-count-reads-the-other-seat[4340-4340] | D366-bench-count-becomes-in-play[4340-4340]
+  packages/engine/src/interpreter.ts:4369  (3) D389-opponent-bench-reads-the-asker-seat[4369-4369] | D389-opponent-bench-counts-in-play[4369-4369] | D389-opponent-bench-comparator-becomes-strict[4369-4369]
+  packages/engine/src/interpreter.ts:4433  (2) D280-going-order-read-as-a-turn-number[4433-4434] | D280-nullable-first-player-guard-dropped[4433-4433]
+  packages/engine/src/interpreter.ts:4439  (2) D280-allOf-folds-with-some[4439-4439] | D365-allof-fold-turns-disjunctive[4439-4439]
+  packages/engine/src/interpreter.ts:4504  (2) D242-count-skips-the-active-spot[4504-4504] | D439-shared-walk-loses-the-null-body-guard[4504-4508]
+  packages/engine/src/interpreter.ts:4668  (2) D242-unless-polarity-inverted[4668-4670] | D242-gate-read-off-the-catalog-past-the-ability-lock[4668-4670]
+  packages/engine/src/interpreter.ts:4805  (2) D278-predicate-bypasses-the-ability-lock[4805-4805] | D279-read-site-drops-the-partner-gate[4805-4807]
+  packages/engine/src/interpreter.ts:5263  (2) D389-opponent-bench-note-loses-its-seat[5263-5263] | D389-opponent-bench-note-hard-codes-the-threshold[5263-5263]
+  packages/engine/src/interpreter.ts:5394  (3) D243-read-site-passes-the-defender[5394-5394] | D243-scan-summed-at-one-site-only[5394-5394] | D245-read-site-withholds-the-defender[5394-5394]
+  packages/engine/src/interpreter.ts:5514  (2) D308-resolution-drops-the-slot[5514-5514] | D310-resolution-drops-the-names[5514-5514]
+  packages/engine/src/interpreter.ts:5576  (2) D341-reorder-apply-keeps-the-whole-old-deck-under-the-window[5576-5576] | D341-reorder-apply-reverses-the-answer[5576-5577]
+  packages/engine/src/interpreter.ts:6832  (2) D432-stamp-is-this-turn[6832-6833] | D432-stamp-plus-two[6832-6833]
+  packages/engine/src/interpreter.ts:7027  (2) D434-stamp-is-off-by-one[7027-7029] | D434-no-section-11-gate[7027-7030]
+  packages/engine/src/interpreter.ts:8522  (3) D461-basic-gate-stops-narrowing[8522-8522] | D461-basic-gate-is-inverted[8522-8522] | D461-basic-gate-becomes-any-pokemon[8522-8522]
+  packages/engine/src/interpreter.ts:8526  (3) D266-heal-each-drops-the-type-gate[8526-8526] | D266-heal-each-gate-is-equality-not-includes[8526-8526] | D266-heal-each-gate-is-inverted[8526-8526]
+  packages/engine/src/interpreter.ts:8540  (2) D461-bench-scope-heals-the-attacker[8540-8540] | D461-bench-scope-is-inverted[8540-8540]
+  packages/engine/src/interpreter.ts:8671  (2) D340-subtraction-becomes-a-conjunction[8671-8671] | D340-exemption-read-as-a-prefix[8671-8671]
+  packages/engine/src/interpreter.ts:8672  (3) D450-shield-asked-before-the-window[8672-8675] | D450-window-narrowing-dropped[8672-8672] | D450-window-threshold-is-a-full-counter[8672-8672]
+  packages/engine/src/interpreter.ts:8675  (2) D450-shield-never-consulted[8675-8675] | D450-shield-asked-of-the-active-only[8675-8675]
+  packages/engine/src/interpreter.ts:8755  (4) D451-amount-ignores-the-destination[8755-8755] | D451-per-body-damage-becomes-the-first-bodys[8755-8756] | D451-floor-removed[8755-8757] | D451-gate-asked-before-the-amount[8755-8759]
+  packages/engine/src/interpreter.ts:8913  (2) D356-heal-is-not-clamped-to-the-damage-present[8913-8913] | D356-a-whiff-announces-a-heal-that-did-not-happen[8913-8914]
+  packages/engine/src/interpreter.ts:9092  (2) D465-recoil-fold-never-scales[9092-9092] | D465-recoil-fold-always-scales[9092-9092]
+  packages/engine/src/interpreter.ts:9094  (3) D465-counter-unit-lost[9094-9094] | D465-floor-becomes-exact[9094-9094] | D465-fold-counts-its-own-placement[9094-9094]
+  packages/engine/src/interpreter.ts:9173  (2) D344-bottom-arm-puts-the-window-back-on-top[9173-9173] | D344-bottom-arm-duplicates-the-window[9173-9173]
+  packages/engine/src/interpreter.ts:9215  (2) D268-opponent-falls-through-to-you[9215-9217] | D268-opponent-widens-to-both[9215-9217]
+  packages/engine/src/interpreter.ts:9274  (3) D270-perseat-deals-you-to-every-seat[9274-9275] | D270-perseat-pair-read-backwards[9274-9275] | D270-perseat-hardcodes-p1-as-you[9274-9275]
+  packages/engine/src/interpreter.ts:9336  (2) D342-placement-appends-instead-of-prepending[9336-9336] | D342-placement-keeps-the-old-deck-whole[9336-9336]
+  packages/engine/src/interpreter.ts:9428  (2) D310-names-is-conjoined-instead-of-replacing[9428-9428] | D310-names-is-ignored-entirely[9428-9429]
+  packages/engine/src/interpreter.ts:9783  (2) D297-offer-collapses-to-one-representative[9783-9783] | D350-any-offer-collapses-to-one-representative[9783-9783]
+  packages/engine/src/log.ts:1403  (2) D225-names-on-destination[1403-1407] | D225-search-arm-inverted[1403-1405]
+  packages/engine/src/redact.ts:554  (2) D277-redact-site-regresses-to-the-literal[554-554] | D281-wire-hoists-the-first-turn-ban-back-out[554-554]
+  packages/engine/src/redact.ts:862  (2) D288-wire-stadium-ignores-the-same-name-rule[862-862] | D288-wire-stadium-ignores-the-turn-allowance[862-862]
+  packages/engine/src/redact.ts:965  (2) D210-actor-gate[965-966] | D210-owner-gate[965-966]
+  packages/engine/src/refusedPrintings.ts:242  (3) D480-predicate-drops-the-suffix-reading[242-242] | D480-predicate-admits-any-set-mate[242-242] | D480-predicate-answers-yes-to-everything[242-242]
+  packages/engine/src/registry.ts:10079  (2) D269-picnicker-tails-draws-the-heads-count[10079-10080] | D269-picnicker-gains-ontails[10079-10080]
+  packages/engine/src/registry.ts:10111  (2) D269-drasna-tails-arm-drops-the-shuffle[10111-10111] | D269-drasna-refreshes-both-seats[10111-10111]
+  packages/engine/src/registry.ts:10405  (2) D249-heal-all[10405-10405] | D249-no-heal[10405-10405]
+  packages/engine/src/registry.ts:10493  (4) D250-no-self-target[10493-10495] | D250-single-attach[10493-10495] | D250-count-three[10493-10494] | D250-any-energy[10493-10495]
+  packages/engine/src/registry.ts:10657  (5) D224-drops-stage-narrowing[10657-10659] | D224-wrong-owner[10657-10657] | D224-hops-bag-cap[10657-10659] | D224-searches-to-bench[10657-10658] | D225-proton-loses-reveal[10657-10660]
+  packages/engine/src/registry.ts:10811  (2) D279-registry-row-gains-the-zone-clause[10811-10811] | D279-partner-gate-is-self-satisfying[10811-10811]
+  packages/engine/src/registry.ts:10888  (2) D327-food-prep-keyed-to-the-wrong-count-source[10888-10888] | D327-food-prep-counts-the-wrong-card-name[10888-10888]
+  packages/engine/src/registry.ts:10966  (2) D330-invitation-confuses-before-it-drags[10966-10966] | D330-invitation-status-escapes-the-coin-gate[10966-10968]
+  packages/engine/src/registry.ts:11432  (2) D311-registry-invents-abras-active-clause[11432-11434] | D311-registry-shares-the-once-per-turn-by-name[11432-11433]
+  packages/engine/src/registry.ts:11480  (2) D312-teleporter-drops-its-active-clause[11480-11482] | D312-teleporter-shares-the-once-per-turn-by-name[11480-11481]
+  packages/engine/src/registry.ts:11621  (3) D314-breezy-gift-spends-the-recordgate-the-handoff-priced[11621-11623] | D314-breezy-gift-searches-before-it-returns[11621-11622] | D314-breezy-gift-returns-to-the-hand-instead-of-the-deck[11621-11622]
+  packages/engine/src/registry.ts:11622  (5) D314-breezy-gift-shuffles-before-it-searches[11622-11623] | D314-breezy-gift-drops-its-trailing-shuffle[11622-11624] | D314-breezy-gift-searches-for-a-pokemon[11622-11622] | D314-breezy-gift-takes-only-one-card[11622-11623] | D314-breezy-gift-reveals-what-it-finds[11622-11622]
+  packages/engine/src/registry.ts:11705  (2) D345-dusclops-drops-the-times-ten[11705-11705] | D345-dusclops-program-drops-the-cost[11705-11706]
+  packages/engine/src/registry.ts:11797  (6) D346-overvolt-attaches-two-instead-of-three[11797-11800] | D346-overvolt-welds-the-three-ops-into-one-count[11797-11799] | D346-overvolt-drops-the-target-type[11797-11800] | D346-overvolt-narrows-the-energy-to-lightning[11797-11800] | D346-overvolt-pays-the-cost-before-the-attaches[11797-11800] | D358-overvolt-flags-only-its-first-op[11797-11799]
+  packages/engine/src/registry.ts:11911  (2) D347-buzzing-boost-drops-the-promoted-gate[11911-11915] | D347-buzzing-boost-drops-the-active-only-half[11911-11912]
+  packages/engine/src/registry.ts:11916  (2) D347-buzzing-boost-attaches-two-instead-of-three[11916-11918] | D347-buzzing-boost-reads-the-wrong-brace-code[11916-11918]
+  packages/engine/src/registry.ts:11917  (2) D347-buzzing-boost-drops-to-self[11917-11920] | D347-buzzing-boost-forgets-the-shuffle[11917-11924]
+  packages/engine/src/registry.ts:12053  (2) D354-xboot-drops-the-target-union[12053-12055] | D354-xboot-attaches-two-of-the-first-type[12053-12054]
+  packages/engine/src/registry.ts:12107  (2) D355-energycoin-drops-the-coin-count[12107-12108] | D355-energycoin-gains-ontails[12107-12108]
+  packages/engine/src/registry.ts:12111  (3) D355-energycoin-shuffles-outside-the-gate[12111-12116] | D355-energycoin-attaches-two-energy[12111-12111] | D355-energycoin-narrows-the-energy-filter[12111-12111]
+  packages/engine/src/registry.ts:3870  (2) D322-secret-forest-path-loses-its-zone-gate[3870-3870] | D322-secret-forest-path-amount-halved[3870-3870]
+  packages/engine/src/registry.ts:4294  (3) D325-okidogi-authored-as-a-per-energy-scale[4294-4294] | D325-okidogi-authored-without-the-gate[4294-4294] | D325-okidogi-gated-on-its-own-printed-type[4294-4294]
+  packages/engine/src/registry.ts:4596  (2) D340-exemption-deleted[4596-4599] | D450-registry-row-claims-the-attack-source[4596-4597]
+  packages/engine/src/registry.ts:4598  (2) D340-exemption-truncated-to-a-prefix[4598-4598] | D340-exemption-gains-an-ex-suffix[4598-4598]
+  packages/engine/src/registry.ts:5123  (3) D337-pokemon-member-is-type-narrowed[5123-5124] | D337-owner-member-narrowed-to-basic[5123-5124] | D337-union-collapses-to-the-pokemon-member[5123-5125]
+  packages/engine/src/registry.ts:5124  (2) D337-energy-member-loses-its-type[5124-5125] | D337-energy-member-widened-to-any-energy[5124-5126]
+  packages/engine/src/registry.ts:5126  (4) D337-cap-is-two[5126-5129] | D337-drops-the-reveal[5126-5133] | D337-drops-the-trailing-shuffle[5126-5133] | D337-searches-onto-the-bench[5126-5129]
+  packages/engine/src/registry.ts:5192  (4) D338-pokemon-member-is-owner-narrowed[5192-5193] | D338-pokemon-member-narrowed-to-basic[5192-5193] | D338-union-collapses-to-the-pokemon-member[5192-5194] | D338-union-collapses-to-the-energy-member[5192-5193]
+  packages/engine/src/registry.ts:5193  (2) D338-energy-member-loses-its-type[5193-5194] | D338-energy-member-widened-to-any-energy[5193-5195]
+  packages/engine/src/registry.ts:5195  (4) D338-cap-is-two[5195-5198] | D338-drops-the-reveal[5195-5203] | D338-drops-the-trailing-shuffle[5195-5203] | D338-searches-onto-the-bench[5195-5199]
+  packages/engine/src/registry.ts:5290  (5) D339-union-collapses-to-the-bare-name[5290-5291] | D339-union-collapses-to-the-ex-name[5290-5291] | D339-byname-becomes-a-prefix-shaped-pair[5290-5291] | D339-names-swapped-for-the-pre-evolution[5290-5291] | D339-cardnoun-added-to-both-members[5290-5291]
+  packages/engine/src/registry.ts:5291  (4) D339-searches-into-the-hand[5291-5297] | D339-cap-is-three[5291-5297] | D339-reveal-added[5291-5297] | D339-drops-the-trailing-shuffle[5291-5297]
+  packages/engine/src/registry.ts:5570  (2) D321-stone-palace-loses-its-zone-gate[5570-5571] | D321-stone-palace-owner-misread[5570-5571]
+  packages/engine/src/registry.ts:5694  (3) D323-wonder-kiss-not-capped[5694-5696] | D323-wonder-kiss-authored-without-the-spot[5694-5696] | D323-wonder-kiss-authored-without-the-coin[5694-5696]
+  packages/engine/src/registry.ts:5735  (2) D324-vibrant-dance-authored-without-the-cap[5735-5735] | D324-vibrant-dance-authored-as-a-self-bonus[5735-5735]
+  packages/engine/src/registry.ts:5768  (2) D323-greedy-eater-targets-evolutions[5768-5769] | D323-greedy-eater-authored-without-the-attacker[5768-5769]
+  packages/engine/src/registry.ts:7613  (3) D268-distorted-future-draws-judges-four[7613-7613] | D268-distorted-future-gains-ionos-tobottom[7613-7613] | D268-distorted-future-gains-onlyifanymoved[7613-7613]
+  packages/engine/src/registry.ts:7720  (2) D313-crobat-loses-its-split[7720-7720] | D313-crobat-discards-itself-as-well[7720-7720]
+  packages/engine/src/registry.ts:8004  (2) D320-timing-collapses-onto-the-evolve-verb[8004-8005] | D320-stack-flag-invented[8004-8006]
+  packages/engine/src/registry.ts:8006  (2) D320-consequent-hits-the-watcher[8006-8007] | D320-burn-becomes-poison[8006-8008]
+  packages/engine/src/registry.ts:8238  (2) D263-dynamotor-loses-benchonly[8238-8238] | D263-dynamotor-loses-energy-type[8238-8238]
+  packages/engine/src/registry.ts:8301  (2) D263-assemble-alloy-welds-into-one-count[8301-8314] | D263-assemble-alloy-loses-target-type[8301-8314]
+  packages/engine/src/registry.ts:8444  (2) D266-quick-wit-loses-the-gate[8444-8444] | D266-quick-wit-gates-on-colorless[8444-8444]
+  packages/engine/src/registry.ts:8502  (2) D264-lanas-aid-loses-norulebox[8502-8502] | D264-lanas-aid-narrows-to-basic-only[8502-8502]
+  packages/engine/src/registry.ts:8539  (2) D264-greedy-order-byname-becomes-item[8539-8539] | D264-greedy-order-loses-card-noun[8539-8539]
+  packages/engine/src/registry.ts:8892  (2) D353-spike-clad-attaches-one[8892-8894] | D353-spike-clad-loses-toself[8892-8895]
+  packages/engine/src/registry.ts:8919  (2) D265-poffin-loses-the-threshold[8919-8919] | D265-poffin-drops-the-shuffle[8919-8920]
+  packages/engine/src/registry.ts:9158  (2) D344-registry-loses-the-printed-alternative[9158-9159] | D344-registry-windows-disagree[9158-9158]
+  packages/engine/src/registry.ts:9698  (2) D313-comfey-gains-the-split[9698-9698] | D313-comfey-gains-an-optional[9698-9698]
+  packages/engine/src/triggers.ts:227  (2) D356-self-entry-point-sweeps-the-opponent[227-227] | D356-self-sweep-walks-the-wrong-board[227-227]
+  packages/engine/src/triggers.ts:362  (2) D320-during-their-turn-dropped[362-362] | D320-turn-clause-inverted[362-362]
+  packages/engine/src/triggers.ts:98  (2) D319-direction-term-dropped[98-98] | D319-direction-inverted[98-98]
+  packages/engine/src/turn.ts:237  (2) D261-draw-arm-unwired[237-239] | D261-draw-arm-inherits-jets-spot-guard[237-237]
+  packages/engine/src/turn.ts:293  (2) D356-the-self-sweep-is-never-called[293-300] | D356-the-two-sweeps-resolve-in-the-wrong-order[293-308]
+  packages/engine/src/turn.ts:861  (2) D320-retreat-site-dropped[861-861] | D328-retreat-sweep-runs-before-the-trigger[861-861]
+  packages/engine/src/types.ts:2135  (2) D271-window-never-expires[2135-2135] | D271-sentinel-compares-as-zero[2135-2135]
+  packages/engine/src/types.ts:2159  (3) D394-used-attack-window-is-the-opponents-clock[2159-2159] | D394-used-attack-window-becomes-this-turn[2159-2159] | D394-used-attack-arm-ignores-the-attack-name[2159-2159]
+  packages/engine/src/types.ts:2265  (2) D283-bar-never-expires[2265-2265] | D283-bar-ignores-the-class[2265-2265]
+  packages/engine/src/types.ts:2336  (2) D275-first-turn-ignores-the-seat[2336-2336] | D275-first-turn-swaps-the-seats[2336-2336]
+  scripts/mutation/run.ts:233  (2) D411-liveness-gate-never-fires[233-233] | D411-liveness-gate-always-fires[233-233]
+  scripts/residue-census.ts:412  (2) D465-tail-repair-never-fires[412-412] | D465-tail-repair-fires-on-every-span[412-412]
+  src/features/game/GameHud.tsx:244  (2) D289-local-hud-hardwires-the-item-class[244-244] | D293-local-hud-drops-the-rarity-arm[244-244]
+
+=== B) LINES TOUCHED BY >1 ROW (full span): 861 lines ===
+    distinct row-pair/set clusters: 578
+  * D192-weakness + D432-main-hit-bar-not-read
+      lines: packages/engine/src/attack.ts:2738, packages/engine/src/attack.ts:2739, packages/engine/src/attack.ts:2740
+  * D196-live-active + D196-seat-zone
+      lines: packages/engine/src/attack.ts:417
+  * D200-category + D200-possessive + D200-stage-rider
+      lines: packages/engine/src/cards.ts:549
+  * D202-caret-drawN + D202-tail-anchor
+      lines: packages/engine/src/effects.ts:18849
+  * D205-caption-count + D205-count-le-1 + D359-park-loses-the-toself-caption
+      lines: packages/engine/src/interpreter.ts:3360, packages/engine/src/interpreter.ts:3361, packages/engine/src/interpreter.ts:3362
+  * D207-remaining-vs-taken + D207-seats-crossed + D365-prize-membership-becomes-a-threshold
+      lines: packages/engine/src/interpreter.ts:3703
+  * D208-drop-passive + D208-printed-hp
+      lines: packages/engine/src/continuous.ts:1283
+  * D210-actor-gate + D210-owner-gate
+      lines: packages/engine/src/redact.ts:965, packages/engine/src/redact.ts:966
+  * D210-programPlayable + D210-used-flag
+      lines: packages/engine/src/redact.ts:974
+  * D212-drop-scripts + D212-drop-vite-config
+      lines: biome.json:10
+  * D213-programPlayable + D213-used-flag
+      lines: src/features/game/GameHud.tsx:441
+  * D222-any-energy + D222-fixed-draw
+      lines: packages/engine/src/registry.ts:10558
+  * D222-any-energy + D222-your-active
+      lines: packages/engine/src/registry.ts:10557
+  * D224-drops-first-turn-flag + D224-drops-trailing-shuffle
+      lines: packages/engine/src/registry.ts:10662, packages/engine/src/registry.ts:10663, packages/engine/src/registry.ts:10664
+  * D224-drops-stage-narrowing + D224-drops-trailing-shuffle + D224-hops-bag-cap + D224-searches-to-bench + D225-proton-loses-reveal
+      lines: packages/engine/src/registry.ts:10658
+  * D224-drops-stage-narrowing + D224-drops-trailing-shuffle + D224-hops-bag-cap + D225-proton-loses-reveal
+      lines: packages/engine/src/registry.ts:10659
+  * D224-drops-stage-narrowing + D224-hops-bag-cap + D224-searches-to-bench + D224-wrong-owner + D225-proton-loses-reveal
+      lines: packages/engine/src/registry.ts:10657
+  * D224-drops-trailing-shuffle + D225-proton-loses-reveal
+      lines: packages/engine/src/registry.ts:10660
+  * D225-names-on-destination + D225-search-arm-inverted
+      lines: packages/engine/src/log.ts:1403, packages/engine/src/log.ts:1404, packages/engine/src/log.ts:1405
+  * D227-applies-to-the-attackers-side + D227-decider-is-the-controller + D227-park-carries-no-decider + D228-forced-arm-files-nothing
+      lines: packages/engine/src/interpreter.ts:3113
+  * D227-applies-to-the-attackers-side + D228-forced-arm-files-nothing
+      lines: packages/engine/src/interpreter.ts:3112
+  * D227-bare-anchor-drops-the-apostrophe-class + D227-bare-anchor-drops-the-tail
+      lines: packages/engine/src/effects.ts:18572
+  * D227-decider-is-the-controller + D227-park-carries-no-decider
+      lines: packages/engine/src/interpreter.ts:3114
+  * D228-damage-goes-to-the-captured-defender + D228-ungated-arm-gains-a-gate
+      lines: packages/engine/src/effects.ts:23952
+  * D229-anchor-drops-the-article-alternation + D229-anchor-drops-the-tail
+      lines: packages/engine/src/effects.ts:18705
+  * D229-destinations-are-the-other-seat + D229-destinations-include-the-active + D229-source-scope-is-the-whole-board
+      lines: packages/engine/src/interpreter.ts:12870
+  * D229-destinations-are-the-other-seat + D229-destinations-include-the-active
+      lines: packages/engine/src/interpreter.ts:12871
+  * D229-destinations-include-the-active + D229-needed-is-two
+      lines: packages/engine/src/interpreter.ts:12872, packages/engine/src/interpreter.ts:12873, packages/engine/src/interpreter.ts:12874
+  * D230-dest-is-the-hand + D230-drops-the-trailing-shuffle
+      lines: packages/engine/src/effects.ts:24163
+  * D231-dest-is-the-bench + D231-reveal-is-the-destination
+      lines: packages/engine/src/effects.ts:24210
+  * D231-reveal-never-set + D231-reveal-read-off-the-singular-half-only
+      lines: packages/engine/src/effects.ts:24207
+  * D232-random-pick-is-index-zero + D232-random-take-drops-the-empty-hand-guard
+      lines: packages/engine/src/interpreter.ts:9965
+  * D234-anchor-drops-its-leading-anchor + D234-anchor-drops-its-trailing-anchor
+      lines: packages/engine/src/effects.ts:19688
+  * D234-batch-explodes-into-a-spread + D234-singular-emits-an-explicit-count-1 + D234-spread-collapses-into-one-batch + D360-flag-hoisted-onto-the-batch-as-well + D360-hedge-read-off-the-number-not-the-print + D360-spread-loses-the-printed-decline
+      lines: packages/engine/src/effects.ts:20259, packages/engine/src/effects.ts:20260, packages/engine/src/effects.ts:20261, packages/engine/src/effects.ts:20262, packages/engine/src/effects.ts:20263, packages/engine/src/effects.ts:20264
+  * D235-batch-rule-dropped + D457-one-target-rider-written-at-every-count
+      lines: packages/engine/src/effects.ts:24704
+  * D235-poison-tail-fires-on-every-printing + D235-poison-tail-silently-dropped + D235-printed-shuffle-dropped + D458-record-gate-read-off-the-old-group-index
+      lines: packages/engine/src/effects.ts:24746
+  * D235-poison-tail-fires-on-every-printing + D235-poison-tail-silently-dropped + D458-record-gate-read-off-the-old-group-index
+      lines: packages/engine/src/effects.ts:24745
+  * D236-heal-is-unconditional + D236-heal-lands-before-the-attach
+      lines: packages/engine/src/interpreter.ts:12053
+  * D236-heal-tail-fires-on-every-printing + D236-heal-tail-never-fires
+      lines: packages/engine/src/effects.ts:24521
+  * D238-energy-noun-drops-the-printed-basic + D238-energy-noun-unwelds-the-grammatical-number
+      lines: packages/engine/src/effects.ts:19060
+  * D238-typed-predicate-ignores-the-stage-rider + D238-typed-predicate-reads-the-first-type-only + D245-typed-stage-still-means-basic
+      lines: packages/engine/src/cards.ts:482
+  * D238-typed-predicate-ignores-the-stage-rider + D245-typed-stage-still-means-basic
+      lines: packages/engine/src/cards.ts:483, packages/engine/src/cards.ts:484
+  * D239-class-anchor-captures-greedily + D239-class-anchor-loses-its-end-anchor
+      lines: packages/engine/src/effects.ts:10364
+  * D240-cap-anchor-captures-greedily + D240-cap-anchor-loses-its-end-anchor
+      lines: packages/engine/src/effects.ts:10417
+  * D240-cap-boundary-becomes-exclusive + D240-unknown-damage-passes-a-capped-block
+      lines: packages/engine/src/continuous.ts:1609
+  * D241-empty-deck-announces-a-look-nobody-took + D241-whiff-look-goes-unannounced
+      lines: packages/engine/src/interpreter.ts:2295
+  * D241-whiff-look-goes-unannounced + D334-whiff-path-skips-the-leftovers
+      lines: packages/engine/src/interpreter.ts:2296
+  * D242-count-skips-the-active-spot + D439-shared-walk-loses-the-null-body-guard
+      lines: packages/engine/src/interpreter.ts:4504
+  * D242-gate-read-off-the-catalog-past-the-ability-lock + D242-unless-polarity-inverted
+      lines: packages/engine/src/interpreter.ts:4668, packages/engine/src/interpreter.ts:4669, packages/engine/src/interpreter.ts:4670
+  * D243-read-site-passes-the-defender + D243-scan-summed-at-one-site-only + D245-read-site-withholds-the-defender
+      lines: packages/engine/src/interpreter.ts:5394
+  * D244-any-amount-clamps-to-one + D441-cap-forgets-the-new-quantifier
+      lines: packages/engine/src/interpreter.ts:12667
+  * D244-fromSource-admits-the-active-spot + D244-switch-parks-on-any-benched-body
+      lines: packages/engine/src/interpreter.ts:10994
+  * D245-anyOf-admits-everything + D245-anyOf-is-an-intersection
+      lines: packages/engine/src/cards.ts:496
+  * D245-evolution-noun-reads-basic + D275-typed-noun-drops-the-threshold
+      lines: packages/engine/src/interpreter.ts:13989
+  * D245-target-rider-never-narrows + D245-target-rider-reads-the-attacker
+      lines: packages/engine/src/continuous.ts:3925
+  * D245-typed-stage-still-means-basic + D275-typed-maxhp-admits-a-null-hp + D275-typed-maxhp-never-narrows
+      lines: packages/engine/src/cards.ts:485
+  * D246-attachable-energies-drops-the-basic-test + D246-attachable-energies-ignores-the-bare-noun + D353-named-energy-still-demands-basic
+      lines: packages/engine/src/interpreter.ts:11537
+  * D246-gated-arm-drops-the-record-gate + D246-gated-arm-drops-the-recordAs
+      lines: packages/engine/src/effects.ts:24604, packages/engine/src/effects.ts:24605, packages/engine/src/effects.ts:24606
+  * D246-play-gate-ignores-the-bare-noun + D353-play-gate-ignores-the-name
+      lines: packages/engine/src/cardplay.ts:1035, packages/engine/src/cardplay.ts:1036
+  * D247-any-number-anchor-drops-the-terminal + D247-any-number-rehomes-the-printed-count
+      lines: packages/engine/src/effects.ts:20094
+  * D247-any-number-reads-the-single-body-destinations + D247-any-number-swallows-a-rider-it-cannot-express
+      lines: packages/engine/src/effects.ts:24561
+  * D248-spread-destination-becomes-a-distribution + D248-spread-destination-drops-the-bench-word
+      lines: packages/engine/src/effects.ts:19588
+  * D248-spread-feeds-only-the-first-body + D248-toEach-implies-bench
+      lines: packages/engine/src/interpreter.ts:3323
+  * D249-heal-all + D249-no-heal + D249-self-target
+      lines: packages/engine/src/registry.ts:10405
+  * D250-any-energy + D250-count-three + D250-no-self-target + D250-single-attach
+      lines: packages/engine/src/registry.ts:10493, packages/engine/src/registry.ts:10494
+  * D250-any-energy + D250-no-self-target + D250-single-attach
+      lines: packages/engine/src/registry.ts:10495
+  * D251-any-attacker + D251-defender-ability
+      lines: packages/engine/src/attack.ts:2868
+  * D252-any-attacker + D252-holder-energy
+      lines: packages/engine/src/attack.ts:2891, packages/engine/src/attack.ts:2892
+  * D252-effects-off-top-card + D252-effects-unwired
+      lines: packages/engine/src/interpreter.ts:7392
+  * D252-effects-unwired + D260-holder-shield-unwired
+      lines: packages/engine/src/interpreter.ts:7395
+  * D253-identity-by-reference + D253-zone-inverted
+      lines: packages/engine/src/continuous.ts:1497
+  * D254-scope-ignored + D254-scope-over-applied
+      lines: packages/engine/src/continuous.ts:3232
+  * D255-ex-or-v-reuse + D255-stage-conjunct-dropped + D255-stage-required
+      lines: packages/engine/src/cards.ts:305, packages/engine/src/cards.ts:306
+  * D256-effects-half-granted + D256-rulebox-read-on-source + D256-target-conjunct-dropped + D256-target-conjunct-inverted
+      lines: packages/engine/src/continuous.ts:3296
+  * D256-effects-half-granted + D256-target-conjunct-dropped
+      lines: packages/engine/src/continuous.ts:3295
+  * D256-rulebox-read-on-source + D256-target-conjunct-dropped + D256-target-conjunct-inverted
+      lines: packages/engine/src/continuous.ts:3297
+  * D257-threshold-exclusive + D257-threshold-inverted
+      lines: packages/engine/src/continuous.ts:1365
+  * D258-flip-face-inverted + D258-flip-first-only
+      lines: packages/engine/src/continuous.ts:1430
+  * D261-draw-arm-inherits-jets-spot-guard + D261-draw-arm-unwired
+      lines: packages/engine/src/turn.ts:237
+  * D262-stage2-provision-unwired + D262-two-at-a-time-becomes-one
+      lines: packages/engine/src/registry.ts:9355
+  * D263-assemble-alloy-loses-target-type + D263-assemble-alloy-welds-into-one-count + D358-assemble-alloy-loses-the-decline
+      lines: packages/engine/src/registry.ts:8302, packages/engine/src/registry.ts:8303, packages/engine/src/registry.ts:8304, packages/engine/src/registry.ts:8305, packages/engine/src/registry.ts:8306, packages/engine/src/registry.ts:8307, packages/engine/src/registry.ts:8308, packages/engine/src/registry.ts:8309, packages/engine/src/registry.ts:8310, packages/engine/src/registry.ts:8311, packages/engine/src/registry.ts:8312, packages/engine/src/registry.ts:8313, packages/engine/src/registry.ts:8314
+  * D263-assemble-alloy-loses-target-type + D263-assemble-alloy-welds-into-one-count
+      lines: packages/engine/src/registry.ts:8301
+  * D263-dynamotor-loses-benchonly + D263-dynamotor-loses-energy-type
+      lines: packages/engine/src/registry.ts:8238
+  * D264-greedy-order-byname-becomes-item + D264-greedy-order-loses-card-noun
+      lines: packages/engine/src/registry.ts:8539
+  * D264-lanas-aid-loses-norulebox + D264-lanas-aid-narrows-to-basic-only
+      lines: packages/engine/src/registry.ts:8502
+  * D265-matches-filter-admits-null-hp + D265-matches-filter-ignores-maxhp + D265-matches-filter-threshold-is-exclusive
+      lines: packages/engine/src/cards.ts:419
+  * D265-poffin-drops-the-shuffle + D265-poffin-loses-the-threshold
+      lines: packages/engine/src/registry.ts:8919
+  * D266-heal-each-absent-gate-means-colorless + D266-heal-each-drops-the-type-gate + D266-heal-each-gate-is-equality-not-includes + D266-heal-each-gate-is-inverted
+      lines: packages/engine/src/interpreter.ts:8526
+  * D266-quick-wit-gates-on-colorless + D266-quick-wit-loses-the-gate
+      lines: packages/engine/src/registry.ts:8444
+  * D267-absent-stage-means-basic + D267-basic-read-as-not-stage-2 + D267-stage-gate-dropped + D267-stage-read-off-the-holder
+      lines: packages/engine/src/continuous.ts:2890, packages/engine/src/continuous.ts:2891
+  * D268-distorted-future-draws-judges-four + D268-distorted-future-gains-ionos-tobottom + D268-distorted-future-gains-onlyifanymoved
+      lines: packages/engine/src/registry.ts:7613
+  * D268-opponent-falls-through-to-you + D268-opponent-widens-to-both
+      lines: packages/engine/src/interpreter.ts:9215, packages/engine/src/interpreter.ts:9216, packages/engine/src/interpreter.ts:9217
+  * D269-arms-are-swapped + D269-both-arms-run + D269-otherwise-is-never-spliced
+      lines: packages/engine/src/interpreter.ts:1062
+  * D269-drasna-refreshes-both-seats + D269-drasna-tails-arm-drops-the-shuffle
+      lines: packages/engine/src/registry.ts:10111
+  * D269-picnicker-gains-ontails + D269-picnicker-tails-draws-the-heads-count
+      lines: packages/engine/src/registry.ts:10079, packages/engine/src/registry.ts:10080
+  * D270-perseat-deals-you-to-every-seat + D270-perseat-hardcodes-p1-as-you + D270-perseat-pair-read-backwards
+      lines: packages/engine/src/interpreter.ts:9274, packages/engine/src/interpreter.ts:9275
+  * D271-sentinel-compares-as-zero + D271-window-never-expires
+      lines: packages/engine/src/types.ts:2135
+  * D271-stamp-keys-the-seat-that-scored-the-ko + D271-stamp-records-the-next-turn
+      lines: packages/engine/src/flow.ts:135
+  * D272-ability-gate-deleted + D272-ability-gate-reads-the-opponents-seat
+      lines: packages/engine/src/cardplay.ts:772
+  * D273-switch-exclusion-only-when-untyped + D273-switch-name-exclusion-dropped
+      lines: packages/engine/src/interpreter.ts:13517
+  * D273-switch-type-narrowing-dropped + D273-switch-type-reads-the-first-type-only
+      lines: packages/engine/src/interpreter.ts:13520
+  * D275-first-turn-ignores-the-seat + D275-first-turn-swaps-the-seats
+      lines: packages/engine/src/types.ts:2336
+  * D276-walk-stops-at-the-top-level + D276-walk-yields-post-order
+      lines: packages/engine/src/testFixtures.ts:22169
+  * D277-redact-site-regresses-to-the-literal + D281-wire-hoists-the-first-turn-ban-back-out
+      lines: packages/engine/src/redact.ts:554
+  * D278-fold-drops-the-active-spot-clause + D279-zone-gate-reused-on-the-partner-licence
+      lines: packages/engine/src/continuous.ts:1161
+  * D278-predicate-bypasses-the-ability-lock + D279-read-site-drops-the-partner-gate
+      lines: packages/engine/src/interpreter.ts:4805
+  * D279-bench-member-widened-instead-of-added + D367-bench-named-durant-reads-in-play
+      lines: packages/engine/src/interpreter.ts:4024, packages/engine/src/interpreter.ts:4025, packages/engine/src/interpreter.ts:4026
+  * D279-partner-gate-is-self-satisfying + D279-registry-row-gains-the-zone-clause
+      lines: packages/engine/src/registry.ts:10811
+  * D280-allOf-folds-with-some + D365-allof-fold-turns-disjunctive
+      lines: packages/engine/src/interpreter.ts:4439
+  * D280-going-order-read-as-a-turn-number + D280-nullable-first-player-guard-dropped
+      lines: packages/engine/src/interpreter.ts:4433
+  * D281-gate-read-through-the-ability-fold + D395-gate-read-ignores-the-index + D444-derivation-wins-over-the-registry
+      lines: packages/engine/src/continuous.ts:2073
+  * D282-additive-arm-goes-missing + D467-benched-noun-arm-moves-behind-the-shipped-one
+      lines: packages/engine/src/effects.ts:25870
+  * D282-your-bench-reads-the-DEFENDER + D282-your-bench-spans-the-table + D466-bench-fold-ignores-the-filter
+      lines: packages/engine/src/attack.ts:344
+  * D282-your-bench-reads-the-DEFENDER + D282-your-bench-spans-the-table
+      lines: packages/engine/src/attack.ts:345
+  * D283-bar-ignores-the-class + D283-bar-never-expires
+      lines: packages/engine/src/types.ts:2265
+  * D284-funnel-forgets-the-passive + D284-funnel-forgets-the-stamp
+      lines: packages/engine/src/continuous.ts:3558, packages/engine/src/continuous.ts:3559
+  * D284-tool-site-asks-the-wrong-class + D303-tool-surface-drops-the-rarity-arm
+      lines: packages/engine/src/cardplay.ts:341
+  * D286-candy-options-bar-every-class + D286-candy-options-keep-offering
+      lines: packages/engine/src/cardplay.ts:650
+  * D286-rare-candy-escapes-the-item-bar + D286-rare-candy-gate-bars-the-barring-seat
+      lines: packages/engine/src/cardplay.ts:485, packages/engine/src/cardplay.ts:486
+  * D287-stadium-bar-ordered-below-the-coverage-gate + D287-stadium-gate-asks-the-wrong-class + D287-stadium-gate-bars-the-barring-seat + D287-stadium-play-escapes-the-bar
+      lines: packages/engine/src/cardplay.ts:230
+  * D287-stadium-bar-ordered-below-the-coverage-gate + D287-stadium-gate-asks-the-wrong-class + D287-stadium-play-escapes-the-bar
+      lines: packages/engine/src/cardplay.ts:231
+  * D287-stadium-bar-ordered-below-the-coverage-gate + D287-stadium-play-escapes-the-bar
+      lines: packages/engine/src/cardplay.ts:232
+  * D288-wire-stadium-ignores-the-same-name-rule + D288-wire-stadium-ignores-the-turn-allowance
+      lines: packages/engine/src/redact.ts:862
+  * D289-local-hud-hardwires-the-item-class + D293-local-hud-drops-the-rarity-arm
+      lines: src/features/game/GameHud.tsx:244
+  * D297-offer-collapses-to-one-representative + D350-any-offer-collapses-to-one-representative
+      lines: packages/engine/src/interpreter.ts:9783
+  * D299-the-bench-splice-keeps-the-body + D299-the-event-swaps-seat-and-actor
+      lines: packages/engine/src/interpreter.ts:10020
+  * D300-one-at-a-time-becomes-two + D300-prism-provision-unwired
+      lines: packages/engine/src/registry.ts:9394
+  * D300-stage-dispatch-inverted + D300-stage-value-ignored
+      lines: packages/engine/src/continuous.ts:2828, packages/engine/src/continuous.ts:2829, packages/engine/src/continuous.ts:2830, packages/engine/src/continuous.ts:2831, packages/engine/src/continuous.ts:2832
+  * D307-candidate-filter-reads-the-id-not-the-name + D310-names-is-ignored-entirely
+      lines: packages/engine/src/interpreter.ts:9429
+  * D308-resolution-drops-the-slot + D310-resolution-drops-the-names
+      lines: packages/engine/src/interpreter.ts:5514
+  * D308-scheduler-drops-the-slot + D308-scheduler-shuffles-per-body
+      lines: packages/engine/src/interpreter.ts:2105
+  * D310-hp-gate-is-strictly-less-than + D310-hp-gate-reads-the-damage-not-the-remainder
+      lines: packages/engine/src/continuous.ts:2416
+  * D310-names-is-conjoined-instead-of-replacing + D310-names-is-ignored-entirely
+      lines: packages/engine/src/interpreter.ts:9428
+  * D311-ko-seat-gets-a-second-promotion + D312-attack-seam-drops-the-ko-dedup
+      lines: packages/engine/src/flow.ts:206
+  * D311-registry-invents-abras-active-clause + D311-registry-shares-the-once-per-turn-by-name
+      lines: packages/engine/src/registry.ts:11432, packages/engine/src/registry.ts:11433
+  * D312-attack-empties-the-spot-and-nothing-promotes + D312-promotion-is-queued-behind-the-turn-tail
+      lines: packages/engine/src/flow.ts:1266, packages/engine/src/flow.ts:1267, packages/engine/src/flow.ts:1268
+  * D312-surf-back-loses-its-optional + D312-surf-back-note-is-paraphrased
+      lines: packages/engine/src/registry.ts:11536
+  * D312-teleporter-drops-its-active-clause + D312-teleporter-shares-the-once-per-turn-by-name
+      lines: packages/engine/src/registry.ts:11480, packages/engine/src/registry.ts:11481
+  * D312-teleporter-drops-its-active-clause + D312-teleporter-wraps-itself-in-an-optional
+      lines: packages/engine/src/registry.ts:11482
+  * D312-teleporter-wraps-itself-in-an-optional + D313-teleporter-stops-spelling-its-dest
+      lines: packages/engine/src/registry.ts:11483
+  * D313-comfey-gains-an-optional + D313-comfey-gains-the-split
+      lines: packages/engine/src/registry.ts:9698
+  * D313-crobat-discards-itself-as-well + D313-crobat-loses-its-split
+      lines: packages/engine/src/registry.ts:7720
+  * D313-crobat-loses-its-optional + D313-crobat-note-drops-the-parenthetical
+      lines: packages/engine/src/registry.ts:7718
+  * D313-revavroom-authors-the-wrong-attack-index + D313-revavroom-shuffles-instead-of-discarding
+      lines: packages/engine/src/registry.ts:9722
+  * D314-breezy-gift-authors-the-wrong-attack-index + D314-breezy-gift-returns-to-the-hand-instead-of-the-deck + D314-breezy-gift-searches-before-it-returns + D314-breezy-gift-spends-the-recordgate-the-handoff-priced
+      lines: packages/engine/src/registry.ts:11621
+  * D314-breezy-gift-drops-its-trailing-shuffle + D314-breezy-gift-returns-to-the-hand-instead-of-the-deck + D314-breezy-gift-reveals-what-it-finds + D314-breezy-gift-searches-before-it-returns + D314-breezy-gift-searches-for-a-pokemon + D314-breezy-gift-shuffles-before-it-searches + D314-breezy-gift-spends-the-recordgate-the-handoff-priced + D314-breezy-gift-takes-only-one-card
+      lines: packages/engine/src/registry.ts:11622
+  * D314-breezy-gift-drops-its-trailing-shuffle + D314-breezy-gift-shuffles-before-it-searches + D314-breezy-gift-spends-the-recordgate-the-handoff-priced + D314-breezy-gift-takes-only-one-card
+      lines: packages/engine/src/registry.ts:11623
+  * D315-answer-buys-only-the-first-op + D315-continuation-loses-its-fourth-member
+      lines: packages/engine/src/interpreter.ts:1570
+  * D315-max-is-not-clamped + D315-single-body-is-forced
+      lines: packages/engine/src/interpreter.ts:2176
+  * D316-base-not-dropped + D317-base-not-dropped + D381-printed-base-lands-twice + D403-the-base-is-claimed-nowhere + D460-threshold-base-is-not-dropped
+      lines: packages/engine/src/attack.ts:1873
+  * D316-base-not-dropped + D317-base-not-dropped + D381-printed-base-lands-twice + D403-the-base-is-claimed-nowhere
+      lines: packages/engine/src/attack.ts:1871, packages/engine/src/attack.ts:1872
+  * D316-base-not-dropped + D317-base-not-dropped
+      lines: packages/engine/src/attack.ts:1870
+  * D316-consequent-dropped + D316-yes-arm-loses-the-bonus + D317-consequent-dropped + D317-yes-arm-loses-the-bonus
+      lines: packages/engine/src/effects.ts:26782
+  * D316-effect-unclaimed + D317-effect-unclaimed + D403-the-sentence-is-flagged-unsimulated
+      lines: packages/engine/src/attack.ts:2010, packages/engine/src/attack.ts:2011, packages/engine/src/attack.ts:2012
+  * D316-effect-unclaimed + D317-effect-unclaimed
+      lines: packages/engine/src/attack.ts:2009
+  * D316-flat-hit-skips-weakness + D403-the-interpreter-ignores-the-addend
+      lines: packages/engine/src/interpreter.ts:1839
+  * D316-modifier-unclaimed + D317-modifier-unclaimed + D403-the-plus-marker-is-unclaimed
+      lines: packages/engine/src/attack.ts:2050, packages/engine/src/attack.ts:2051, packages/engine/src/attack.ts:2052
+  * D316-modifier-unclaimed + D317-modifier-unclaimed
+      lines: packages/engine/src/attack.ts:2049
+  * D316-no-arm-takes-the-boost + D317-decline-arm-deals-nothing + D317-decline-arm-takes-the-bonus
+      lines: packages/engine/src/effects.ts:26783
+  * D316-note-paraphrased + D318-boost-program-not-appended
+      lines: packages/engine/src/attack.ts:2349
+  * D317-heal-amount-pinned + D317-zero-heal-admitted
+      lines: packages/engine/src/effects.ts:26945
+  * D318-declared-gap-is-not-a-gap + D318-gap-declaration-deleted
+      lines: docs/progress.md:42631
+  * D319-attach-scan-site-dropped + D356-the-two-sweeps-resolve-in-the-wrong-order + D357-turn-hands-the-sweep-the-post-rider-board
+      lines: packages/engine/src/turn.ts:301
+  * D319-attach-scan-site-dropped + D356-the-two-sweeps-resolve-in-the-wrong-order
+      lines: packages/engine/src/turn.ts:302, packages/engine/src/turn.ts:303, packages/engine/src/turn.ts:304, packages/engine/src/turn.ts:305, packages/engine/src/turn.ts:306, packages/engine/src/turn.ts:307, packages/engine/src/turn.ts:308
+  * D319-both-verbs-collapse-to-one-timing + D319-curse-loses-its-direction
+      lines: packages/engine/src/registry.ts:7911
+  * D319-direction-inverted + D319-direction-term-dropped
+      lines: packages/engine/src/triggers.ts:98
+  * D320-burn-becomes-poison + D320-consequent-hits-the-watcher + D320-lava-zone-loses-its-direction + D320-stack-flag-invented
+      lines: packages/engine/src/registry.ts:8006
+  * D320-burn-becomes-poison + D320-consequent-hits-the-watcher
+      lines: packages/engine/src/registry.ts:8007
+  * D320-during-their-turn-dropped + D320-turn-clause-inverted
+      lines: packages/engine/src/triggers.ts:362
+  * D320-lava-zone-loses-its-direction + D320-stack-flag-invented + D320-timing-collapses-onto-the-evolve-verb
+      lines: packages/engine/src/registry.ts:8005
+  * D320-retreat-site-dropped + D328-retreat-sweep-runs-before-the-trigger
+      lines: packages/engine/src/turn.ts:861
+  * D320-stack-flag-invented + D320-timing-collapses-onto-the-evolve-verb
+      lines: packages/engine/src/registry.ts:8004
+  * D320-subject-is-the-promoted-body + D320-switch-site-dropped
+      lines: packages/engine/src/interpreter.ts:11453
+  * D321-beneficiary-asked-of-the-source + D321-beneficiary-dropped
+      lines: packages/engine/src/continuous.ts:3813
+  * D321-cap-becomes-a-sum + D321-cap-keyed-by-a-boolean
+      lines: packages/engine/src/continuous.ts:3838
+  * D321-source-zone-gate-dropped + D321-source-zone-gate-inverted
+      lines: packages/engine/src/continuous.ts:3818
+  * D321-stone-palace-loses-its-zone-gate + D321-stone-palace-owner-misread
+      lines: packages/engine/src/registry.ts:5570, packages/engine/src/registry.ts:5571
+  * D322-allied-discount-does-not-sum + D322-allied-discount-set-to-zero
+      lines: packages/engine/src/continuous.ts:3002
+  * D322-allied-discount-floored-per-term + D322-allied-discount-not-subtracted + D322-allied-discount-sign-flipped
+      lines: packages/engine/src/continuous.ts:4154, packages/engine/src/continuous.ts:4155
+  * D322-allied-discount-ignores-the-ability-lock + D322-allied-source-zone-gate-dropped + D322-allied-source-zone-gate-inverted
+      lines: packages/engine/src/continuous.ts:3001
+  * D322-melt-away-counts-provided-units + D322-melt-away-gate-dropped + D322-melt-away-gate-inverted
+      lines: packages/engine/src/continuous.ts:4106
+  * D322-secret-forest-path-amount-halved + D322-secret-forest-path-loses-its-zone-gate
+      lines: packages/engine/src/registry.ts:3870
+  * D322-surcharge-target-filter-asked-of-the-source + D322-surcharge-target-filter-dropped + D322-surcharge-target-filter-inverted
+      lines: packages/engine/src/continuous.ts:2953
+  * D323-attacker-clause-conflated-with-the-seat + D323-attacker-clause-inverted
+      lines: packages/engine/src/continuous.ts:4009
+  * D323-coin-clause-dropped + D323-tails-pays-and-heads-does-not
+      lines: packages/engine/src/flow.ts:834
+  * D323-greedy-eater-authored-on-the-wrong-field + D323-greedy-eater-authored-without-the-attacker + D323-greedy-eater-targets-evolutions
+      lines: packages/engine/src/registry.ts:5768, packages/engine/src/registry.ts:5769
+  * D323-kospot-clause-dropped + D323-kospot-clause-inverted + D323-section9-gate-dropped
+      lines: packages/engine/src/continuous.ts:4007
+  * D323-kotarget-clause-dropped + D323-kotarget-matched-against-the-holder
+      lines: packages/engine/src/continuous.ts:4008
+  * D323-nostack-keyed-on-the-body + D323-nostack-ledger-never-refuses
+      lines: packages/engine/src/continuous.ts:4011, packages/engine/src/continuous.ts:4012
+  * D323-scan-reads-the-active-only + D323-scan-reads-the-other-board
+      lines: packages/engine/src/continuous.ts:3992, packages/engine/src/continuous.ts:3993, packages/engine/src/continuous.ts:3994
+  * D323-wonder-kiss-authored-without-the-coin + D323-wonder-kiss-authored-without-the-spot + D323-wonder-kiss-not-capped
+      lines: packages/engine/src/registry.ts:5694, packages/engine/src/registry.ts:5695, packages/engine/src/registry.ts:5696
+  * D324-max-hp-drops-the-seat-aura + D324-max-hp-drops-the-stadium + D324-max-hp-floor-removed
+      lines: packages/engine/src/continuous.ts:2355
+  * D324-max-hp-floor-becomes-the-answer + D324-max-hp-floor-removed
+      lines: packages/engine/src/continuous.ts:2353, packages/engine/src/continuous.ts:2354
+  * D324-seat-hp-active-only + D324-seat-hp-crosses-the-table
+      lines: packages/engine/src/continuous.ts:2274, packages/engine/src/continuous.ts:2275
+  * D324-seat-hp-lock-not-consulted + D324-seat-hp-lock-read-on-the-beneficiary + D324-seat-hp-no-stack-dropped + D324-seat-hp-source-must-be-active
+      lines: packages/engine/src/continuous.ts:2283
+  * D324-seat-hp-lock-not-consulted + D324-seat-hp-lock-read-on-the-beneficiary + D324-seat-hp-source-must-be-active
+      lines: packages/engine/src/continuous.ts:2282
+  * D324-seat-hp-lock-read-on-the-beneficiary + D324-seat-hp-no-stack-dropped
+      lines: packages/engine/src/continuous.ts:2284
+  * D324-seat-hp-no-stack-keyed-on-the-uid + D324-seat-hp-no-stack-ledger-sums
+      lines: packages/engine/src/continuous.ts:2287
+  * D324-seat-hp-scope-others-only + D324-seat-hp-source-must-be-active
+      lines: packages/engine/src/continuous.ts:2281
+  * D324-stadium-hp-sign-flipped + D324-stadium-hp-stage-clause-dropped
+      lines: packages/engine/src/continuous.ts:2318
+  * D324-stadium-hp-stage-arm-swapped + D324-stadium-hp-stage-clause-dropped
+      lines: packages/engine/src/continuous.ts:2317
+  * D324-vibrant-dance-authored-as-a-self-bonus + D324-vibrant-dance-authored-without-the-cap
+      lines: packages/engine/src/registry.ts:5735
+  * D325-energy-gate-dropped + D325-energy-gate-reads-the-holders-type
+      lines: packages/engine/src/continuous.ts:960, packages/engine/src/continuous.ts:961
+  * D325-okidogi-authored-as-a-per-energy-scale + D325-okidogi-authored-without-the-gate + D325-okidogi-gated-on-its-own-printed-type
+      lines: packages/engine/src/registry.ts:4294
+  * D325-prizes-read-off-the-holders-own-side + D325-prizes-taken-becomes-prizes-remaining
+      lines: packages/engine/src/continuous.ts:2561
+  * D325-scaled-hp-empty-count-pays-once + D325-scaled-hp-not-folded + D325-scaled-hp-paid-flat
+      lines: packages/engine/src/continuous.ts:971
+  * D326-every-ko-counts-as-an-attack + D326-no-ko-counts-as-an-attack
+      lines: packages/engine/src/flow.ts:704
+  * D327-bench-count-includes-the-active + D327-bench-count-read-from-the-wrong-seat + D327-bench-summand-dropped
+      lines: packages/engine/src/continuous.ts:4278
+  * D327-discard-count-collapses-to-a-boolean + D327-discard-count-matches-by-substring
+      lines: packages/engine/src/continuous.ts:4300
+  * D327-discard-pile-read-from-the-wrong-seat + D327-named-discard-summand-dropped
+      lines: packages/engine/src/continuous.ts:4277
+  * D327-food-prep-counts-the-wrong-card-name + D327-food-prep-keyed-to-the-wrong-count-source
+      lines: packages/engine/src/registry.ts:10888
+  * D328-stadium-play-skips-the-ko-sweep + D328-stadium-sweep-narrowed-to-the-actor
+      lines: packages/engine/src/cardplay.ts:300
+  * D330-invitation-confuses-before-it-drags + D330-invitation-status-escapes-the-coin-gate
+      lines: packages/engine/src/registry.ts:10966
+  * D331-gust-ignores-its-own-rider + D331-rider-narrows-every-gust
+      lines: packages/engine/src/interpreter.ts:11065, packages/engine/src/interpreter.ts:11066, packages/engine/src/interpreter.ts:11067, packages/engine/src/interpreter.ts:11068
+  * D332-caption-drops-the-conjunction + D334-exactness-leaks-onto-the-second-noun
+      lines: packages/engine/src/interpreter.ts:13366
+  * D333-bugcatching-takes-any-energy + D333-bugcatching-widens-the-pokemon-noun
+      lines: packages/engine/src/registry.ts:11154
+  * D334-floor-goes-back-to-zero + D334-floor-is-not-clamped-to-the-candidates
+      lines: packages/engine/src/interpreter.ts:2312
+  * D334-leftovers-are-the-candidates-not-the-window + D334-leftovers-stay-in-the-deck
+      lines: packages/engine/src/interpreter.ts:9650
+  * D334-leftovers-credited-to-the-wrong-actor + D335-discard-arm-loses-its-event
+      lines: packages/engine/src/interpreter.ts:9670
+  * D335-bottomed-cards-land-nowhere + D335-shuffled-bottom-is-not-shuffled
+      lines: packages/engine/src/interpreter.ts:9664
+  * D335-drakloak-loses-its-exact + D335-drakloak-shuffles-its-single-leftover
+      lines: packages/engine/src/registry.ts:11273, packages/engine/src/registry.ts:11274
+  * D335-drakloak-shuffles-its-single-leftover + D335-drakloak-shuffles-like-every-other-look
+      lines: packages/engine/src/registry.ts:11275
+  * D335-rika-bottoms-without-shuffling + D335-rika-shuffles-the-whole-deck
+      lines: packages/engine/src/registry.ts:11315
+  * D336-caps-are-not-sent-to-the-prompt + D336-caps-read-the-union-not-the-group
+      lines: packages/engine/src/interpreter.ts:2030
+  * D337-anyof-rewritten-as-also + D337-cap-is-two + D337-drops-the-reveal + D337-drops-the-trailing-shuffle + D337-energy-member-widened-to-any-energy + D337-searches-onto-the-bench
+      lines: packages/engine/src/registry.ts:5126
+  * D337-anyof-rewritten-as-also + D337-cap-is-two + D337-drops-the-reveal + D337-drops-the-trailing-shuffle + D337-searches-onto-the-bench
+      lines: packages/engine/src/registry.ts:5127, packages/engine/src/registry.ts:5128, packages/engine/src/registry.ts:5129
+  * D337-anyof-rewritten-as-also + D337-energy-member-loses-its-type + D337-energy-member-widened-to-any-energy + D337-owner-member-narrowed-to-basic + D337-pokemon-member-is-type-narrowed + D337-union-collapses-to-the-pokemon-member
+      lines: packages/engine/src/registry.ts:5124
+  * D337-anyof-rewritten-as-also + D337-energy-member-loses-its-type + D337-energy-member-widened-to-any-energy + D337-union-collapses-to-the-pokemon-member
+      lines: packages/engine/src/registry.ts:5125
+  * D337-anyof-rewritten-as-also + D337-owner-member-narrowed-to-basic + D337-pokemon-member-is-type-narrowed + D337-union-collapses-to-the-pokemon-member
+      lines: packages/engine/src/registry.ts:5123
+  * D337-drops-the-reveal + D337-drops-the-trailing-shuffle
+      lines: packages/engine/src/registry.ts:5130, packages/engine/src/registry.ts:5131, packages/engine/src/registry.ts:5132, packages/engine/src/registry.ts:5133
+  * D338-anyof-rewritten-as-also + D338-authored-at-index-one + D338-pokemon-member-is-owner-narrowed + D338-pokemon-member-narrowed-to-basic + D338-union-collapses-to-the-energy-member + D338-union-collapses-to-the-pokemon-member
+      lines: packages/engine/src/registry.ts:5192
+  * D338-anyof-rewritten-as-also + D338-authored-at-index-one
+      lines: packages/engine/src/registry.ts:5189, packages/engine/src/registry.ts:5190, packages/engine/src/registry.ts:5191
+  * D338-anyof-rewritten-as-also + D338-cap-is-two + D338-drops-the-reveal + D338-drops-the-trailing-shuffle + D338-energy-member-widened-to-any-energy + D338-searches-onto-the-bench
+      lines: packages/engine/src/registry.ts:5195
+  * D338-anyof-rewritten-as-also + D338-cap-is-two + D338-drops-the-reveal + D338-drops-the-trailing-shuffle + D338-searches-onto-the-bench
+      lines: packages/engine/src/registry.ts:5196, packages/engine/src/registry.ts:5197, packages/engine/src/registry.ts:5198
+  * D338-anyof-rewritten-as-also + D338-energy-member-loses-its-type + D338-energy-member-widened-to-any-energy + D338-pokemon-member-is-owner-narrowed + D338-pokemon-member-narrowed-to-basic + D338-union-collapses-to-the-energy-member + D338-union-collapses-to-the-pokemon-member
+      lines: packages/engine/src/registry.ts:5193
+  * D338-anyof-rewritten-as-also + D338-energy-member-loses-its-type + D338-energy-member-widened-to-any-energy + D338-union-collapses-to-the-pokemon-member
+      lines: packages/engine/src/registry.ts:5194
+  * D338-drops-the-reveal + D338-drops-the-trailing-shuffle + D338-searches-onto-the-bench
+      lines: packages/engine/src/registry.ts:5199
+  * D338-drops-the-reveal + D338-drops-the-trailing-shuffle
+      lines: packages/engine/src/registry.ts:5200, packages/engine/src/registry.ts:5201, packages/engine/src/registry.ts:5202, packages/engine/src/registry.ts:5203
+  * D339-authored-at-index-one + D339-byname-becomes-a-prefix-shaped-pair + D339-cardnoun-added-to-both-members + D339-names-swapped-for-the-pre-evolution + D339-union-collapses-to-the-bare-name + D339-union-collapses-to-the-ex-name
+      lines: packages/engine/src/registry.ts:5290
+  * D339-byname-becomes-a-prefix-shaped-pair + D339-cap-is-three + D339-cardnoun-added-to-both-members + D339-drops-the-trailing-shuffle + D339-names-swapped-for-the-pre-evolution + D339-reveal-added + D339-searches-into-the-hand + D339-union-collapses-to-the-bare-name + D339-union-collapses-to-the-ex-name
+      lines: packages/engine/src/registry.ts:5291
+  * D339-cap-is-three + D339-drops-the-trailing-shuffle + D339-reveal-added + D339-searches-into-the-hand
+      lines: packages/engine/src/registry.ts:5292, packages/engine/src/registry.ts:5293, packages/engine/src/registry.ts:5294, packages/engine/src/registry.ts:5295, packages/engine/src/registry.ts:5296, packages/engine/src/registry.ts:5297
+  * D340-ability-becomes-active-only + D340-trigger-moved-off-the-checkup
+      lines: packages/engine/src/registry.ts:4585
+  * D340-counter-not-converted-to-hp + D340-noun-widens-to-any-pokemon
+      lines: packages/engine/src/registry.ts:4590
+  * D340-exemption-deleted + D340-exemption-gains-an-ex-suffix + D340-exemption-truncated-to-a-prefix
+      lines: packages/engine/src/registry.ts:4598
+  * D340-exemption-deleted + D450-registry-row-claims-the-attack-source
+      lines: packages/engine/src/registry.ts:4596, packages/engine/src/registry.ts:4597
+  * D340-exemption-read-as-a-prefix + D340-subtraction-becomes-a-conjunction
+      lines: packages/engine/src/interpreter.ts:8671
+  * D340-walk-collapses-to-the-controllers-seat + D450-opponent-scope-walks-both-seats
+      lines: packages/engine/src/interpreter.ts:8661
+  * D341-order-prompt-redaction-is-order-scrambled + D344-wire-drops-the-alternative
+      lines: packages/engine/src/redact.ts:293
+  * D341-reorder-apply-keeps-the-whole-old-deck-under-the-window + D341-reorder-apply-reverses-the-answer
+      lines: packages/engine/src/interpreter.ts:5576
+  * D342-placement-appends-instead-of-prepending + D342-placement-keeps-the-old-deck-whole
+      lines: packages/engine/src/interpreter.ts:9336
+  * D342-program-drops-the-exact-floor + D342-program-searches-into-the-hand
+      lines: packages/engine/src/effects.ts:20785, packages/engine/src/effects.ts:20786
+  * D342-search-floor-applies-to-every-producer + D342-search-floor-ignores-the-candidate-count
+      lines: packages/engine/src/interpreter.ts:2020
+  * D343-kofu-loses-the-ordering-op + D343-kofu-orders-the-deck-top-instead
+      lines: packages/engine/src/registry.ts:9172
+  * D343-reorder-apply-bottom-reverses-the-answer + D343-reorder-apply-splices-the-bottom-answer-on-top
+      lines: packages/engine/src/interpreter.ts:5575
+  * D343-reorder-window-bottom-is-off-by-the-window + D343-reorder-window-bottom-reads-the-top
+      lines: packages/engine/src/interpreter.ts:13281
+  * D344-bottom-arm-duplicates-the-window + D344-bottom-arm-puts-the-window-back-on-top
+      lines: packages/engine/src/interpreter.ts:9173
+  * D344-registry-loses-the-printed-alternative + D344-registry-windows-disagree
+      lines: packages/engine/src/registry.ts:9158
+  * D344-validator-admits-any-short-answer + D344-validator-admits-the-empty-answer-everywhere
+      lines: packages/engine/src/cardplay.ts:1760
+  * D345-dusclops-drops-the-times-ten + D345-dusclops-gains-an-active-only-clause + D345-dusclops-program-drops-the-cost
+      lines: packages/engine/src/registry.ts:11705
+  * D345-self-ko-kills-the-active-instead-of-the-host + D345-self-ko-meets-the-printed-hp-not-the-effective-one
+      lines: packages/engine/src/interpreter.ts:10479
+  * D345-self-ko-never-fires + D345-self-ko-overwrites-existing-damage + D345-self-ko-stops-one-counter-short
+      lines: packages/engine/src/interpreter.ts:10483
+  * D346-overvolt-attaches-two-instead-of-three + D346-overvolt-drops-the-target-type + D346-overvolt-forgets-the-printed-cost + D346-overvolt-narrows-the-energy-to-lightning + D346-overvolt-pays-the-cost-before-the-attaches + D346-overvolt-welds-the-three-ops-into-one-count + D358-overvolt-flags-only-its-first-op
+      lines: packages/engine/src/registry.ts:11799
+  * D346-overvolt-attaches-two-instead-of-three + D346-overvolt-drops-the-target-type + D346-overvolt-forgets-the-printed-cost + D346-overvolt-narrows-the-energy-to-lightning + D346-overvolt-pays-the-cost-before-the-attaches
+      lines: packages/engine/src/registry.ts:11800
+  * D346-overvolt-attaches-two-instead-of-three + D346-overvolt-drops-the-target-type + D346-overvolt-narrows-the-energy-to-lightning + D346-overvolt-pays-the-cost-before-the-attaches + D346-overvolt-welds-the-three-ops-into-one-count + D358-overvolt-flags-only-its-first-op
+      lines: packages/engine/src/registry.ts:11797, packages/engine/src/registry.ts:11798
+  * D347-buzzing-boost-attaches-two-instead-of-three + D347-buzzing-boost-drops-to-self + D347-buzzing-boost-forgets-the-shuffle + D347-buzzing-boost-reads-the-wrong-brace-code
+      lines: packages/engine/src/registry.ts:11917, packages/engine/src/registry.ts:11918
+  * D347-buzzing-boost-attaches-two-instead-of-three + D347-buzzing-boost-reads-the-wrong-brace-code
+      lines: packages/engine/src/registry.ts:11916
+  * D347-buzzing-boost-drops-the-active-only-half + D347-buzzing-boost-drops-the-promoted-gate
+      lines: packages/engine/src/registry.ts:11911, packages/engine/src/registry.ts:11912
+  * D347-buzzing-boost-drops-to-self + D347-buzzing-boost-forgets-the-shuffle
+      lines: packages/engine/src/registry.ts:11919, packages/engine/src/registry.ts:11920
+  * D353-named-energy-ignored + D353-named-energy-matches-any-special
+      lines: packages/engine/src/interpreter.ts:11541
+  * D353-spike-clad-attaches-one + D353-spike-clad-loses-its-name + D353-spike-clad-loses-toself
+      lines: packages/engine/src/registry.ts:8892, packages/engine/src/registry.ts:8893
+  * D353-spike-clad-attaches-one + D353-spike-clad-loses-toself
+      lines: packages/engine/src/registry.ts:8894
+  * D354-target-union-demands-every-type + D354-target-union-is-the-first-type-only
+      lines: packages/engine/src/interpreter.ts:11626
+  * D354-xboot-attaches-two-of-the-first-type + D354-xboot-drops-the-target-union + D354-xboot-welds-the-two-ops-into-one-count
+      lines: packages/engine/src/registry.ts:12053, packages/engine/src/registry.ts:12054
+  * D354-xboot-drops-the-target-union + D354-xboot-welds-the-two-ops-into-one-count
+      lines: packages/engine/src/registry.ts:12055
+  * D354-xboot-narrows-both-ops-to-one-energy + D354-xboot-welds-the-two-ops-into-one-count
+      lines: packages/engine/src/registry.ts:12059, packages/engine/src/registry.ts:12060, packages/engine/src/registry.ts:12061
+  * D355-absent-coins-defaults-to-two + D355-coins-count-is-ignored
+      lines: packages/engine/src/interpreter.ts:1021
+  * D355-energycoin-attaches-two-energy + D355-energycoin-narrows-the-energy-filter + D355-energycoin-shuffles-outside-the-gate
+      lines: packages/engine/src/registry.ts:12111
+  * D355-energycoin-drops-the-coin-count + D355-energycoin-gains-ontails
+      lines: packages/engine/src/registry.ts:12107, packages/engine/src/registry.ts:12108
+  * D355-gate-reads-any-heads-not-all + D355-gate-reads-the-first-coin-only + D355-gate-reads-the-last-coin-only
+      lines: packages/engine/src/interpreter.ts:1042
+  * D356-a-whiff-announces-a-heal-that-did-not-happen + D356-heal-is-not-clamped-to-the-damage-present
+      lines: packages/engine/src/interpreter.ts:8913
+  * D356-heal-reads-the-scan-direction-not-the-possessive + D356-heal-runs-without-a-subject
+      lines: packages/engine/src/interpreter.ts:8900, packages/engine/src/interpreter.ts:8901
+  * D356-self-entry-point-sweeps-the-opponent + D356-self-sweep-walks-the-wrong-board
+      lines: packages/engine/src/triggers.ts:227
+  * D356-the-active-spot-clause-is-dropped + D356-the-row-watches-the-opponent-instead
+      lines: packages/engine/src/registry.ts:7957, packages/engine/src/registry.ts:7958
+  * D356-the-printed-amount-drifts + D356-the-row-watches-the-opponent-instead
+      lines: packages/engine/src/registry.ts:7959
+  * D356-the-self-sweep-is-never-called + D356-the-two-sweeps-resolve-in-the-wrong-order + D357-turn-hands-the-sweep-the-post-rider-board
+      lines: packages/engine/src/turn.ts:297, packages/engine/src/turn.ts:298, packages/engine/src/turn.ts:299, packages/engine/src/turn.ts:300
+  * D356-the-self-sweep-is-never-called + D356-the-two-sweeps-resolve-in-the-wrong-order
+      lines: packages/engine/src/turn.ts:293, packages/engine/src/turn.ts:294, packages/engine/src/turn.ts:295, packages/engine/src/turn.ts:296
+  * D358-validator-admits-the-decline-everywhere + D358-validator-refuses-every-decline + D359-validator-admits-a-take-beside-a-decline
+      lines: packages/engine/src/cardplay.ts:1427
+  * D358-validator-admits-the-decline-everywhere + D358-validator-refuses-every-decline
+      lines: packages/engine/src/cardplay.ts:1424, packages/engine/src/cardplay.ts:1425, packages/engine/src/cardplay.ts:1426
+  * D359-apply-ignores-the-answered-quantity + D359-apply-trusts-an-over-take
+      lines: packages/engine/src/interpreter.ts:11985
+  * D359-ceiling-drops-the-count-half + D359-ceiling-drops-the-declinable-half + D359-ceiling-is-one-short
+      lines: packages/engine/src/interpreter.ts:3338
+  * D359-hud-collapses-the-quantity-rows + D359-hud-offers-a-zero-quantity-row
+      lines: src/features/game/GameHud.tsx:1917, src/features/game/GameHud.tsx:1918, src/features/game/GameHud.tsx:1919, src/features/game/GameHud.tsx:1920
+  * D359-validator-admits-a-fractional-take + D359-validator-admits-a-take-above-the-ceiling + D359-validator-admits-a-take-of-zero
+      lines: packages/engine/src/cardplay.ts:1456
+  * D360-koraidon-flags-only-its-first-op + D360-koraidon-keeps-the-exact-two
+      lines: packages/engine/src/registry.ts:5995, packages/engine/src/registry.ts:5996, packages/engine/src/registry.ts:5997, packages/engine/src/registry.ts:5998, packages/engine/src/registry.ts:5999, packages/engine/src/registry.ts:6000, packages/engine/src/registry.ts:6001, packages/engine/src/registry.ts:6002, packages/engine/src/registry.ts:6003, packages/engine/src/registry.ts:6004, packages/engine/src/registry.ts:6005
+  * D361-cross-seat-filter-collapses-to-any-energy + D361-cross-seat-type-hardcoded-not-mapped
+      lines: packages/engine/src/effects.ts:22289
+  * D362-turtonator-anchor-drops-the-article + D362-turtonator-anchor-drops-the-ex-adjective
+      lines: packages/engine/src/effects.ts:18028
+  * D363-does-nothing-anchor-restores-the-dollar + D363-does-nothing-clause-group-turns-greedy
+      lines: packages/engine/src/effects.ts:15963
+  * D365-stadium-row-ships-the-refused-rename + D378-cancel-row-key-loses-the-no
+      lines: packages/engine/src/effects.ts:16222
+  * D366-bench-count-becomes-in-play + D366-bench-count-reads-the-other-seat + D366-bench-floor-becomes-strict
+      lines: packages/engine/src/interpreter.ts:4340
+  * D367-bench-named-durant-names-the-wrong-card + D367-bench-named-durant-row-drops
+      lines: packages/engine/src/effects.ts:15102
+  * D368-declaration-clause-gets-a-board-row + D368-undamaged-row-keys-on-the-near-miss
+      lines: packages/engine/src/effects.ts:14646
+  * D368-undamaged-becomes-its-own-complement + D368-undamaged-satisfied-by-an-empty-spot + D368-undamaged-tolerates-one-counter
+      lines: packages/engine/src/interpreter.ts:3516
+  * D369-cross-board-tool-caps-at-one + D369-cross-board-tool-reads-its-own-seat + D369-cross-board-tool-reads-the-neighbouring-field
+      lines: packages/engine/src/interpreter.ts:4181, packages/engine/src/interpreter.ts:4182
+  * D370-bench-type-reads-only-the-first-type + D370-bench-type-reads-the-active-spot-too + D370-bench-type-reads-the-other-seat
+      lines: packages/engine/src/interpreter.ts:3945, packages/engine/src/interpreter.ts:3946, packages/engine/src/interpreter.ts:3947
+  * D371-resistance-clause-also-requires-a-printed-value + D371-resistance-clause-reads-only-the-first-entry + D371-resistance-clause-reads-the-other-seat + D371-resistance-clause-reads-the-weakness-column + D371-resistance-clause-routes-through-resistanceOf
+      lines: packages/engine/src/interpreter.ts:3886, packages/engine/src/interpreter.ts:3887
+  * D372-equal-energy-becomes-at-least-as-much + D372-equal-energy-compares-your-own-active-twice + D372-equal-energy-reads-an-empty-active-spot-as-zero + D372-equal-energy-reads-the-whole-side
+      lines: packages/engine/src/interpreter.ts:3816, packages/engine/src/interpreter.ts:3817, packages/engine/src/interpreter.ts:3818, packages/engine/src/interpreter.ts:3819, packages/engine/src/interpreter.ts:3820, packages/engine/src/interpreter.ts:3821, packages/engine/src/interpreter.ts:3822
+  * D373-empty-bench-reads-vacuously-true + D373-universal-becomes-the-existential + D373-universal-bench-reads-the-far-seat + D373-universal-bench-widens-to-the-whole-side
+      lines: packages/engine/src/interpreter.ts:3542, packages/engine/src/interpreter.ts:3543
+  * D374-named-energy-drops-the-apostrophe-fold + D374-named-energy-reads-the-far-seat + D374-named-energy-reads-the-owner-prefix + D374-named-energy-reads-the-tool-slot + D374-named-energy-widens-to-the-whole-side
+      lines: packages/engine/src/interpreter.ts:3691, packages/engine/src/interpreter.ts:3692, packages/engine/src/interpreter.ts:3693, packages/engine/src/interpreter.ts:3694, packages/engine/src/interpreter.ts:3695, packages/engine/src/interpreter.ts:3696
+  * D375-type-intersection-collapses-the-two-seats + D375-type-intersection-compares-arrays-instead + D375-type-intersection-narrows-their-side-to-the-active + D375-type-intersection-narrows-your-side-to-the-active
+      lines: packages/engine/src/interpreter.ts:4015
+  * D375-type-intersection-compares-arrays-instead + D375-type-intersection-narrows-their-side-to-the-active + D375-type-intersection-narrows-your-side-to-the-active + D375-type-intersection-reads-only-the-first-type + D375-type-intersection-reads-the-stack-base
+      lines: packages/engine/src/interpreter.ts:4012
+  * D375-type-intersection-compares-arrays-instead + D375-type-intersection-narrows-their-side-to-the-active + D375-type-intersection-narrows-your-side-to-the-active + D375-type-intersection-reads-only-the-first-type
+      lines: packages/engine/src/interpreter.ts:4009, packages/engine/src/interpreter.ts:4010, packages/engine/src/interpreter.ts:4011, packages/engine/src/interpreter.ts:4013, packages/engine/src/interpreter.ts:4014
+  * D375-type-intersection-compares-arrays-instead + D375-type-intersection-narrows-their-side-to-the-active + D375-type-intersection-narrows-your-side-to-the-active
+      lines: packages/engine/src/interpreter.ts:4016
+  * D376-discard-threshold-drops-the-printed-basic + D376-discard-threshold-drops-the-printed-type + D376-discard-threshold-reads-energy-in-play
+      lines: packages/engine/src/interpreter.ts:4106
+  * D376-discard-threshold-hardcodes-the-printed-ten + D376-discard-threshold-is-strict + D376-discard-threshold-reads-energy-in-play
+      lines: packages/engine/src/interpreter.ts:4107
+  * D377-burned-reads-its-own-seat + D377-burned-reads-the-poison-counter
+      lines: packages/engine/src/interpreter.ts:3607, packages/engine/src/interpreter.ts:3608
+  * D377-cancel-row-key-loses-the-contraction + D377-cancel-row-widens-to-any-condition
+      lines: packages/engine/src/effects.ts:16201
+  * D377-confused-reaches-for-isImmobilized + D377-confused-widens-to-any-rotation
+      lines: packages/engine/src/interpreter.ts:3623
+  * D378-bonus-row-key-is-a-paraphrase + D378-bonus-row-ships-the-refused-rename
+      lines: packages/engine/src/effects.ts:14611
+  * D378-presence-inverts-to-absence + D378-presence-keeps-the-owner-test + D378-presence-reads-the-opponents-stadium
+      lines: packages/engine/src/interpreter.ts:3425
+  * D379-hand-row-count-is-off-by-one + D379-hand-row-key-is-a-paraphrase + D379-hand-row-ships-the-refused-near-miss
+      lines: packages/engine/src/effects.ts:16247
+  * D379-hand-size-comparator-is-a-ceiling + D379-hand-size-comparator-is-a-floor + D379-hand-size-reads-the-far-hand
+      lines: packages/engine/src/interpreter.ts:3722
+  * D380-confirm-note-is-a-revoicing + D380-may-discard-becomes-mandatory
+      lines: packages/engine/src/effects.ts:25033
+  * D380-may-discard-becomes-mandatory + D380-may-discard-loses-its-empty-zone-gate
+      lines: packages/engine/src/effects.ts:25030
+  * D380-may-discard-gate-reads-ownership + D380-may-discard-loses-its-empty-zone-gate
+      lines: packages/engine/src/effects.ts:25026
+  * D382-join-operands-swapped + D382-then-anchor-declared-and-never-consulted
+      lines: packages/engine/src/effects.ts:26991
+  * D383-bench-snipe-anchor-loses-its-terminator + D383-bench-snipe-anchor-takes-the-capital
+      lines: packages/engine/src/effects.ts:27255
+  * D383-empty-active-spot-holds-zero-energy + D383-energy-threshold-is-strict + D383-energy-threshold-reads-the-side + D391-typed-threshold-drops-the-filter
+      lines: packages/engine/src/interpreter.ts:3794
+  * D383-shuffle-caption-still-says-discard + D405-caption-still-says-discard
+      lines: packages/engine/src/interpreter.ts:13828
+  * D384-strict-inequality-becomes-at-least-as-much + D384-strict-inequality-compares-your-own-active-twice + D384-strict-inequality-inverts-the-operands + D384-strict-inequality-reads-an-empty-active-spot-as-zero + D384-strict-inequality-reads-the-whole-side
+      lines: packages/engine/src/interpreter.ts:3847, packages/engine/src/interpreter.ts:3848, packages/engine/src/interpreter.ts:3849, packages/engine/src/interpreter.ts:3850, packages/engine/src/interpreter.ts:3851, packages/engine/src/interpreter.ts:3852, packages/engine/src/interpreter.ts:3853
+  * D385-connective-loses-its-second-branch + D385-connective-saturates
+      lines: packages/engine/src/effects.ts:27233
+  * D385-hand-cost-row-copies-the-neighbours-gate + D385-hand-cost-row-copies-the-neighbours-ops
+      lines: packages/engine/src/effects.ts:27294
+  * D385-hand-gate-becomes-vacuously-true + D385-hand-gate-reads-the-opponents-hand
+      lines: packages/engine/src/interpreter.ts:3741
+  * D386-condition-reads-the-other-seat + D386-condition-reads-the-promotion-stamp + D386-heal-window-never-expires
+      lines: packages/engine/src/interpreter.ts:4244
+  * D387-condition-reads-not-basic + D387-condition-reads-the-asker-seat + D387-condition-reads-the-wide-member
+      lines: packages/engine/src/interpreter.ts:3481
+  * D388-condition-reads-the-asker-seat + D388-condition-reads-the-printed-column + D388-condition-uses-equality + D388-condition-uses-strict-inequality
+      lines: packages/engine/src/interpreter.ts:3925
+  * D388-condition-reads-the-asker-seat + D388-condition-reads-the-printed-column
+      lines: packages/engine/src/interpreter.ts:3924
+  * D389-opponent-bench-comparator-becomes-strict + D389-opponent-bench-counts-in-play + D389-opponent-bench-reads-the-asker-seat
+      lines: packages/engine/src/interpreter.ts:4369
+  * D389-opponent-bench-note-hard-codes-the-threshold + D389-opponent-bench-note-loses-its-seat
+      lines: packages/engine/src/interpreter.ts:5263
+  * D390-in-play-type-drops-the-active-from-the-spread + D390-in-play-type-narrows-to-the-active-spot + D390-in-play-type-reads-the-asker-seat + D390-in-play-type-reads-the-first-type-only
+      lines: packages/engine/src/interpreter.ts:3974, packages/engine/src/interpreter.ts:3975, packages/engine/src/interpreter.ts:3976, packages/engine/src/interpreter.ts:3977
+  * D391-typed-threshold-row-claims-the-unquantified-neighbour + D391-typed-threshold-row-forgets-the-new-field
+      lines: packages/engine/src/effects.ts:15218, packages/engine/src/effects.ts:15219, packages/engine/src/effects.ts:15220, packages/engine/src/effects.ts:15221
+  * D392-substring-arm-consults-the-active-spot + D392-substring-collapses-to-equality + D392-substring-narrowed-to-prefix
+      lines: packages/engine/src/interpreter.ts:4045
+  * D393-evolve-arm-drops-the-turn-and-keeps-the-stamp + D393-evolve-arm-reads-the-opponents-stamp
+      lines: packages/engine/src/interpreter.ts:4269
+  * D394-attack-stamp-goes-to-the-other-seat + D394-finish-attack-never-writes-the-stamp
+      lines: packages/engine/src/flow.ts:1191
+  * D394-used-attack-arm-ignores-the-attack-name + D394-used-attack-window-becomes-this-turn + D394-used-attack-window-is-the-opponents-clock
+      lines: packages/engine/src/types.ts:2159
+  * D395-condition-names-the-gated-attack + D395-polarity-copied-from-terapagos + D395-row-authored-at-index-zero
+      lines: packages/engine/src/registry.ts:7067
+  * D395-polarity-copied-from-terapagos + D395-row-authored-at-index-zero
+      lines: packages/engine/src/registry.ts:7065, packages/engine/src/registry.ts:7066
+  * D396-condition-names-the-attack-beside-it + D396-polarity-copied-from-miltank
+      lines: packages/engine/src/registry.ts:7139
+  * D396-polarity-copied-from-miltank + D396-row-authored-at-index-zero
+      lines: packages/engine/src/registry.ts:7138
+  * D397-name-read-off-the-stack-bottom + D397-walk-becomes-the-allOf-composition + D397-walk-drops-the-damage-test + D397-walk-drops-the-name-test
+      lines: packages/engine/src/interpreter.ts:3566
+  * D398-equality-not-threshold + D398-reads-the-far-seats-deck + D398-reads-the-hand-not-the-deck + D398-strict-less-than
+      lines: packages/engine/src/interpreter.ts:3763
+  * D399-flat-arm-drops-the-count-guard + D437-number-agreement-dropped
+      lines: packages/engine/src/effects.ts:21732
+  * D399-gate-gains-an-empty-decline-arm + D399-gate-is-dropped-from-the-gated-arm
+      lines: packages/engine/src/effects.ts:21858, packages/engine/src/effects.ts:21859, packages/engine/src/effects.ts:21860
+  * D399-gate-is-dropped-from-the-gated-arm + D399-gated-arm-keeps-the-neighbours-literal
+      lines: packages/engine/src/effects.ts:21873, packages/engine/src/effects.ts:21874, packages/engine/src/effects.ts:21875, packages/engine/src/effects.ts:21876, packages/engine/src/effects.ts:21877, packages/engine/src/effects.ts:21878, packages/engine/src/effects.ts:21879, packages/engine/src/effects.ts:21880, packages/engine/src/effects.ts:21881, packages/engine/src/effects.ts:21882
+  * D399-gated-anchor-loses-its-terminator + D399-gated-anchor-takes-the-capital
+      lines: packages/engine/src/effects.ts:12481
+  * D399-shared-body-pins-the-new-arity + D447-anchor-keeps-the-mandatory-also + D447-anchor-loses-the-bare-possessive
+      lines: packages/engine/src/effects.ts:12454
+  * D400-agreement-check-never-rejects + D400-agreement-check-off-by-one
+      lines: packages/engine/src/effects.ts:21913
+  * D400-count-positivity-guard-dropped + D448-unprinted-pair-guard-dropped
+      lines: packages/engine/src/effects.ts:21917
+  * D401-amount-positivity-guard-dropped + D401-discard-positivity-guard-dropped
+      lines: packages/engine/src/effects.ts:22013
+  * D401-discard-count-becomes-all + D401-ops-in-the-wrong-order
+      lines: packages/engine/src/effects.ts:22018
+  * D401-ops-in-the-wrong-order + D401-snipe-arity-back-to-the-literal + D401-snipe-targets-the-bench-only
+      lines: packages/engine/src/effects.ts:22019
+  * D402-a-printed-up-to-zero-derives + D402-a-printed-zero-per-unit-derives
+      lines: packages/engine/src/effects.ts:22229
+  * D402-the-additive-fold-is-swallowed + D402-the-bench-only-zone-is-admitted + D402-the-plural-noun-is-refused
+      lines: packages/engine/src/effects.ts:18255
+  * D402-the-cap-is-dropped + D402-the-record-is-never-filed
+      lines: packages/engine/src/effects.ts:22244
+  * D403-the-additive-fold-is-refused + D403-the-bench-scope-leaves-the-anchor + D403-the-offer-becomes-optional
+      lines: packages/engine/src/effects.ts:27636
+  * D404-anchor-admits-the-opponents-hand + D404-anchor-loses-its-start + D404-anchor-loses-its-terminator
+      lines: packages/engine/src/effects.ts:20901
+  * D404-count-pinned-to-the-printed-six + D404-positivity-guard-dropped
+      lines: packages/engine/src/effects.ts:25084, packages/engine/src/effects.ts:25085, packages/engine/src/effects.ts:25086, packages/engine/src/effects.ts:25087
+  * D404-ops-in-the-wrong-order + D404-the-discard-is-dropped + D404-the-draw-is-dropped
+      lines: packages/engine/src/effects.ts:25089, packages/engine/src/effects.ts:25090
+  * D405-anchor-admits-the-may + D405-anchor-flips-the-possessive
+      lines: packages/engine/src/effects.ts:12750
+  * D405-the-count-is-spelled + D405-the-energy-goes-to-the-pile + D405-the-filter-narrows-to-basic + D405-the-victim-is-the-defender + D405-the-wrapper-is-added
+      lines: packages/engine/src/effects.ts:22431, packages/engine/src/effects.ts:22432
+  * D406-counts-bodies-wearing-a-tool + D406-holders-drop-the-active
+      lines: packages/engine/src/continuous.ts:2666, packages/engine/src/continuous.ts:2667, packages/engine/src/continuous.ts:2668
+  * D406-member-is-the-neighbour + D406-zero-per-scores
+      lines: packages/engine/src/effects.ts:26489
+  * D406-resource-is-bodies + D406-seat-is-the-defender + D406-zone-narrows-to-the-active + D406-zone-narrows-to-the-bench
+      lines: packages/engine/src/attack.ts:455
+  * D407-anchor-swallows-the-owner-prefix + D459-additive-fold-widened-for-symmetry
+      lines: packages/engine/src/effects.ts:14310
+  * D407-board-zone-drops-the-bench + D407-board-zone-drops-the-filter + D407-board-zone-never-widens + D407-board-zone-reads-the-defender
+      lines: packages/engine/src/attack.ts:416
+  * D407-multiply-widens-for-symmetry + D459-card-group-becomes-a-wildcard + D459-card-group-deleted + D459-card-group-made-required + D459-card-group-put-before-the-noun
+      lines: packages/engine/src/effects.ts:14358
+  * D407-producer-emits-the-zone-always + D470-owner-board-arm-moves-ahead-of-the-shipped-one
+      lines: packages/engine/src/effects.ts:25996
+  * D407-producer-never-emits-the-zone + D470-owner-board-arm-moves-ahead-of-the-shipped-one
+      lines: packages/engine/src/effects.ts:25997
+  * D408-defender-anchor-drops-the-curly-class + D408-defender-anchor-unanchored + D408-defender-verb-bare-only + D408-defender-verb-plural-only
+      lines: packages/engine/src/effects.ts:11839
+  * D410-pronoun-lock-becomes-the-defending-noun + D410-pronoun-lock-loses-its-apostrophe-class + D410-pronoun-lock-reads-the-self-side-twin
+      lines: packages/engine/src/effects.ts:11956, packages/engine/src/effects.ts:11957
+  * D411-liveness-gate-always-fires + D411-liveness-gate-never-fires
+      lines: scripts/mutation/run.ts:233
+  * D413-additive-arm-becomes-the-multiplicative-one + D413-additive-arm-loses-its-plural-guard + D413-additive-flip-count-hardcodes-the-printed-two
+      lines: packages/engine/src/effects.ts:17609
+  * D415-opponent-member-ignores-its-parameter + D415-opponent-member-reads-the-near-seat
+      lines: packages/engine/src/interpreter.ts:3660, packages/engine/src/interpreter.ts:3661
+  * D416-chosen-funnel-drops-its-basic-narrowing + D416-chosen-funnel-inverts-its-basic-narrowing + D416-counter-window-admits-anything-larger
+      lines: packages/engine/src/interpreter.ts:11184
+  * D416-chosen-funnel-drops-its-basic-narrowing + D416-chosen-funnel-inverts-its-basic-narrowing
+      lines: packages/engine/src/interpreter.ts:11185, packages/engine/src/interpreter.ts:11186
+  * D416-heads-arm-knocks-out-any-active + D416-tails-arm-scopes-the-whole-opponent-board
+      lines: packages/engine/src/effects.ts:21432
+  * D417-cancel-anchor-loses-its-apostrophe-class + D420-cancel-anchor-drops-the-named-referent-branch
+      lines: packages/engine/src/effects.ts:16450
+  * D422-anchor-capitalises-the-verb + D422-anchor-loses-its-caret + D422-anchor-loses-its-dollar
+      lines: packages/engine/src/effects.ts:18467
+  * D422-arm-empties-the-then + D422-arm-forgets-the-wrapper + D422-arm-rebuilds-the-note + D422-arm-switches-on-the-decline + D422-arm-wraps-the-mirrors-op
+      lines: packages/engine/src/effects.ts:23892, packages/engine/src/effects.ts:23893, packages/engine/src/effects.ts:23894, packages/engine/src/effects.ts:23895
+  * D423-multiply-anchor-admits-the-additive-twin + D423-multiply-anchor-drops-the-curly-apostrophe + D423-multiply-anchor-names-the-wrong-body
+      lines: packages/engine/src/effects.ts:13174, packages/engine/src/effects.ts:13175
+  * D423-multiply-arm-drops-the-zero-guard + D423-multiply-arm-returns-the-self-member
+      lines: packages/engine/src/effects.ts:26248, packages/engine/src/effects.ts:26249, packages/engine/src/effects.ts:26250, packages/engine/src/effects.ts:26251
+  * D424-flip-pair-drops-the-coin-gate + D424-flip-pair-nullish-check-never-fires
+      lines: packages/engine/src/effects.ts:21033
+  * D426-absent-group-defaults-to-the-plural + D426-zero-count-derives
+      lines: packages/engine/src/effects.ts:24382
+  * D427-anchor-loses-its-leading-caret + D427-anchor-loses-its-trailing-terminator
+      lines: packages/engine/src/effects.ts:10046
+  * D427-heals-the-pre-reduction-figure + D427-heals-the-printed-base + D427-heals-through-a-prevented-hit
+      lines: packages/engine/src/attack.ts:2966
+  * D427-interpreter-ignores-the-context + D427-literal-heal-reads-the-dealt-amount
+      lines: packages/engine/src/interpreter.ts:1693
+  * D428-anchor-drops-the-tail + D428-anchor-loses-the-apostrophe-class
+      lines: packages/engine/src/effects.ts:28353
+  * D428-empty-board-still-files-a-row + D428-event-swaps-owner-and-actor
+      lines: packages/engine/src/attack.ts:944
+  * D429-row74-status-hits-self + D429-row74-status-is-asleep
+      lines: packages/engine/src/attack.ts:1075
+  * D430-context-loses-invokedBy + D430-context-seat-is-the-victim
+      lines: packages/engine/src/attack.ts:1016
+  * D430-refusal-is-not-announced + D430-refused-strip-claims-a-discard + D430-strip-skips-the-refusal-gate
+      lines: packages/engine/src/attack.ts:927
+  * D431-anchor-templates-the-count + D431-anchor-wants-a-period-joiner
+      lines: packages/engine/src/effects.ts:12685
+  * D431-arm-drops-the-discard + D431-arm-drops-the-prize + D431-arm-reverses-printed-order
+      lines: packages/engine/src/effects.ts:22154, packages/engine/src/effects.ts:22155, packages/engine/src/effects.ts:22156, packages/engine/src/effects.ts:22157
+  * D431-take-prize-takes-two + D431-take-prize-wrong-seat
+      lines: packages/engine/src/interpreter.ts:10638
+  * D432-idempotence-guard-dropped + D432-installs-on-the-defender + D432-silent-install
+      lines: packages/engine/src/interpreter.ts:6834
+  * D432-idempotence-guard-dropped + D432-installs-on-the-defender + D432-stamp-is-this-turn + D432-stamp-plus-two
+      lines: packages/engine/src/interpreter.ts:6833
+  * D432-installs-on-the-defender + D432-silent-install
+      lines: packages/engine/src/interpreter.ts:6835
+  * D432-installs-on-the-defender + D432-stamp-is-this-turn + D432-stamp-plus-two
+      lines: packages/engine/src/interpreter.ts:6832
+  * D433-clears-markers-like-evolveOnto + D433-keeps-the-evolution-stamp
+      lines: packages/engine/src/interpreter.ts:10312
+  * D433-ko-cause-always-stamped + D433-lethality-read-before-the-writeback
+      lines: packages/engine/src/interpreter.ts:10366
+  * D433-refusal-is-dropped + D433-shield-asked-before-the-filter
+      lines: packages/engine/src/interpreter.ts:10251
+  * D434-checkup-fires-on-the-wrong-seat + D434-checkup-reads-the-wrong-turn + D434-fires-after-the-condition-steps
+      lines: packages/engine/src/flow.ts:1745
+  * D434-checkup-fires-on-the-wrong-seat + D434-fires-after-the-condition-steps
+      lines: packages/engine/src/flow.ts:1744
+  * D434-checkup-places-nothing + D434-fires-after-the-condition-steps + D434-stamps-the-ko-by-effect-marker
+      lines: packages/engine/src/flow.ts:1751
+  * D434-checkup-places-nothing + D434-fires-after-the-condition-steps
+      lines: packages/engine/src/flow.ts:1752, packages/engine/src/flow.ts:1753
+  * D434-fires-after-the-condition-steps + D435-discard-pays-a-prize + D435-discard-row-credits-the-victim
+      lines: packages/engine/src/flow.ts:1769, packages/engine/src/flow.ts:1770
+  * D434-fires-after-the-condition-steps + D435-discard-pays-a-prize + D435-returned-row-names-only-the-body
+      lines: packages/engine/src/flow.ts:1771
+  * D434-fires-after-the-condition-steps + D435-discard-pays-a-prize
+      lines: packages/engine/src/flow.ts:1763, packages/engine/src/flow.ts:1764, packages/engine/src/flow.ts:1765, packages/engine/src/flow.ts:1766, packages/engine/src/flow.ts:1767, packages/engine/src/flow.ts:1768, packages/engine/src/flow.ts:1772
+  * D434-fires-after-the-condition-steps + D435-knock-out-pays-no-prize + D435-ko-marker-not-stamped
+      lines: packages/engine/src/flow.ts:1778
+  * D434-fires-after-the-condition-steps + D435-knock-out-pays-no-prize
+      lines: packages/engine/src/flow.ts:1779
+  * D434-installs-on-the-wrong-seat + D434-no-section-11-gate + D434-stamp-is-off-by-one
+      lines: packages/engine/src/interpreter.ts:7027, packages/engine/src/interpreter.ts:7028, packages/engine/src/interpreter.ts:7029
+  * D436-anchor-drops-the-parenthetical + D436-apostrophe-class-narrowed
+      lines: packages/engine/src/effects.ts:14531, packages/engine/src/effects.ts:14532
+  * D436-cost-dropped-from-the-comparison + D436-counts-cards-not-units + D436-strictly-greater-not-at-least
+      lines: packages/engine/src/attack.ts:584
+  * D436-printed-zero-guard-dropped + D436-threshold-hardcoded-at-two
+      lines: packages/engine/src/effects.ts:26077
+  * D437-funnel-drops-the-narrowing + D483-snipe-targets-ignores-the-class
+      lines: packages/engine/src/interpreter.ts:13064
+  * D437-payoff-drops-the-narrowing + D483-payoff-honours-the-class-it-cannot-carry
+      lines: packages/engine/src/effects.ts:27369
+  * D437-predicate-counts-counters-not-presence + D437-predicate-inverted
+      lines: packages/engine/src/interpreter.ts:11139, packages/engine/src/interpreter.ts:11140, packages/engine/src/interpreter.ts:11141
+  * D438-anchor-goes-straight-only + D438-anchor-loses-its-tail + D438-anchor-takes-the-more-twin
+      lines: packages/engine/src/effects.ts:13054
+  * D438-arm-takes-the-self-counter-source + D438-zero-guard-admits-a-printed-zero
+      lines: packages/engine/src/effects.ts:26172, packages/engine/src/effects.ts:26173
+  * D439-anchor-swallows-the-compound + D439-anchor-swallows-the-owner-prefix
+      lines: packages/engine/src/effects.ts:13582
+  * D439-count-becomes-the-bench-trios-arm + D439-count-skips-the-active-spot
+      lines: packages/engine/src/attack.ts:499
+  * D439-multiply-arm-drops-the-filter + D439-zero-guard-admits-a-printed-zero
+      lines: packages/engine/src/effects.ts:26315, packages/engine/src/effects.ts:26316, packages/engine/src/effects.ts:26317, packages/engine/src/effects.ts:26318
+  * D439-vocabulary-defaults-instead-of-staying-loud + D439-vocabulary-order-loses-the-owner
+      lines: packages/engine/src/effects.ts:13820, packages/engine/src/effects.ts:13821, packages/engine/src/effects.ts:13822
+  * D440-multiply-arm-hardcodes-the-opponents-pile + D440-zero-guard-admits-a-printed-zero
+      lines: packages/engine/src/effects.ts:26396
+  * D440-noun-lookup-drops-the-apostrophe-fold + D440-vocabulary-claims-any-card-noun + D440-vocabulary-defaults-instead-of-staying-loud
+      lines: packages/engine/src/effects.ts:13982
+  * D441-arm-emits-a-number-instead-of-the-quantifier + D441-arm-emits-the-mirror-route
+      lines: packages/engine/src/effects.ts:24118
+  * D441-force-swallows-the-declinable-family + D441-no-force-at-one-destination
+      lines: packages/engine/src/interpreter.ts:2620
+  * D441-validator-drops-the-floor + D441-validator-floor-defaults-to-the-max
+      lines: packages/engine/src/cardplay.ts:1508
+  * D442-free-arm-drops-the-destination-rider + D442-free-arm-drops-the-source-rider
+      lines: packages/engine/src/effects.ts:24025, packages/engine/src/effects.ts:24026, packages/engine/src/effects.ts:24027, packages/engine/src/effects.ts:24028
+  * D442-spread-arm-drops-the-destination-rider + D442-spread-arm-emits-the-mirror-route
+      lines: packages/engine/src/effects.ts:24040, packages/engine/src/effects.ts:24041, packages/engine/src/effects.ts:24042
+  * D442-typed-arm-falls-back-to-any-energy + D442-typed-arm-reads-the-print-not-the-provision
+      lines: packages/engine/src/effects.ts:24016
+  * D442-validator-asks-the-wrong-rider + D442-validator-deletes-the-destination-coupling
+      lines: packages/engine/src/cardplay.ts:1549, packages/engine/src/cardplay.ts:1550
+  * D443-board-helper-always-crosses + D443-board-helper-never-crosses
+      lines: packages/engine/src/interpreter.ts:12720
+  * D443-free-anchor-admits-the-own-board-twin + D443-free-anchor-drops-the-apostrophe-class
+      lines: packages/engine/src/effects.ts:18806
+  * D444-derivation-dropped + D444-derivation-reads-index-zero + D444-derivation-wins-over-the-registry
+      lines: packages/engine/src/continuous.ts:2074
+  * D445-fold-reads-the-attackers-hand + D445-fold-reads-the-discard-pile
+      lines: packages/engine/src/attack.ts:562
+  * D445-log-row-derives-the-actor + D445-log-row-drops-the-word-chose
+      lines: packages/engine/src/log.ts:1344
+  * D445-reveal-arm-drops-the-vocabulary-guard + D445-reveal-compound-derives-no-effect
+      lines: packages/engine/src/effects.ts:24464
+  * D446-attack-name-filter-counts-any-attack + D446-attack-name-filter-matches-a-substring
+      lines: packages/engine/src/cards.ts:520
+  * D446-foe-anchor-drops-the-possessive-class + D446-foe-anchor-loses-its-terminator
+      lines: packages/engine/src/effects.ts:13618
+  * D446-suffix-filter-reads-the-rule-box + D446-suffix-filter-widens-to-ex-or-v
+      lines: packages/engine/src/cards.ts:532
+  * D448-anchor-drops-the-count-clause + D448-count-clause-made-mandatory
+      lines: packages/engine/src/effects.ts:12554
+  * D449-any-anchor-gains-the-zone-word + D449-any-anchor-loses-its-tail-anchor
+      lines: packages/engine/src/effects.ts:10999
+  * D449-chosen-arm-arity-back-to-the-literal + D449-chosen-arm-transposes-the-captures
+      lines: packages/engine/src/effects.ts:23130
+  * D450-shield-asked-before-the-window + D450-shield-asked-of-the-active-only + D450-shield-never-consulted
+      lines: packages/engine/src/interpreter.ts:8675
+  * D450-shield-asked-before-the-window + D450-window-narrowing-dropped + D450-window-threshold-is-a-full-counter
+      lines: packages/engine/src/interpreter.ts:8672
+  * D451-active-anchor-loses-its-tail + D451-active-anchor-loses-the-apostrophe-class
+      lines: packages/engine/src/effects.ts:11151
+  * D451-active-arm-multiplies-the-destination + D451-active-arm-targets-the-bench
+      lines: packages/engine/src/effects.ts:23258
+  * D451-amount-ignores-the-destination + D451-floor-removed + D451-gate-asked-before-the-amount + D451-per-body-damage-becomes-the-first-bodys
+      lines: packages/engine/src/interpreter.ts:8755
+  * D451-data-gap-is-countered-anyway + D451-maximum-is-the-printed-hp
+      lines: packages/engine/src/interpreter.ts:8753
+  * D451-floor-is-strictly-negative + D451-floor-removed + D451-gate-asked-before-the-amount + D451-per-body-damage-becomes-the-first-bodys
+      lines: packages/engine/src/interpreter.ts:8756
+  * D451-floor-removed + D451-gate-asked-before-the-amount
+      lines: packages/engine/src/interpreter.ts:8757
+  * D451-gate-asked-before-the-amount + D451-section-11-gate-dropped + D451-section-11-gate-reads-the-active-for-every-body
+      lines: packages/engine/src/interpreter.ts:8759
+  * D451-gate-asked-before-the-amount + D451-section-11-gate-dropped
+      lines: packages/engine/src/interpreter.ts:8758
+  * D451-no-knock-out-guard-removed + D451-walk-reads-the-attackers-own-board
+      lines: packages/engine/src/interpreter.ts:8749
+  * D452-hand-arm-is-the-mill + D452-hand-arm-loses-the-printed-ceiling + D452-hand-arm-shuffles-the-card-back
+      lines: packages/engine/src/effects.ts:17857
+  * D452-singular-anchor-loses-its-caret + D452-singular-mill-drops-to-a-gate
+      lines: packages/engine/src/effects.ts:17159
+  * D452-singular-mill-count-is-the-neighbours + D452-singular-mill-hardcodes-two-flips + D452-singular-mill-hits-the-wrong-deck + D452-singular-mill-loses-the-plural-floor
+      lines: packages/engine/src/effects.ts:17828
+  * D452-singular-mill-hardcodes-two-flips + D452-singular-mill-loses-the-plural-floor
+      lines: packages/engine/src/effects.ts:17826, packages/engine/src/effects.ts:17827
+  * D453-reduce-damage-installs-on-the-defender + D453-reduce-damage-window-is-the-holders-own-turn
+      lines: packages/engine/src/interpreter.ts:6785, packages/engine/src/interpreter.ts:6786
+  * D454-discarded-hand-leaves-the-game + D454-hand-discard-crosses-the-table
+      lines: packages/engine/src/interpreter.ts:9133
+  * D454-draw-until-ignores-the-hand + D454-draw-until-measures-the-opponents-hand
+      lines: packages/engine/src/interpreter.ts:1955
+  * D454-recoil-arms-the-defender + D454-recoil-merge-takes-the-smaller
+      lines: packages/engine/src/interpreter.ts:7140
+  * D454-recoil-arms-the-defender + D454-recoil-window-is-your-own-next-turn
+      lines: packages/engine/src/interpreter.ts:7133, packages/engine/src/interpreter.ts:7134
+  * D454-recoil-arms-the-defender + D456-event-drops-the-flag
+      lines: packages/engine/src/interpreter.ts:7164, packages/engine/src/interpreter.ts:7165
+  * D454-recoil-arms-the-defender + D456-record-drops-the-flag
+      lines: packages/engine/src/interpreter.ts:7171
+  * D454-recoil-arms-the-defender + D456-stale-flag-read-ungated
+      lines: packages/engine/src/interpreter.ts:7148
+  * D454-recoil-arms-the-defender + D456-suppression-loses-the-flag-conjunct
+      lines: packages/engine/src/interpreter.ts:7154
+  * D454-self-damage-lands-across-the-table + D454-self-damage-overwrites-the-counters
+      lines: packages/engine/src/interpreter.ts:9109
+  * D455-condition-gate-arms-are-swapped + D455-condition-gate-asks-about-the-opponent
+      lines: packages/engine/src/interpreter.ts:1072
+  * D455-deck-bottom-payment-lands-on-top + D455-hand-cost-pays-into-the-wrong-zone
+      lines: packages/engine/src/interpreter.ts:9738
+  * D455-the-shuffle-lands-on-the-opponents-deck + D455-the-shuffle-never-advances-the-rng
+      lines: packages/engine/src/interpreter.ts:9140
+  * D456-read-site-drops-the-floor + D456-read-site-ignores-the-channel + D456-read-site-takes-the-hit-unconditionally
+      lines: packages/engine/src/continuous.ts:1886, packages/engine/src/continuous.ts:1887, packages/engine/src/continuous.ts:1888
+  * D457-validator-caps-the-cards-not-the-targets + D457-validator-ignores-the-rider
+      lines: packages/engine/src/cardplay.ts:1704
+  * D458-second-noun-ignores-the-batch-rule + D458-second-noun-ignores-the-poison-tail
+      lines: packages/engine/src/effects.ts:24680, packages/engine/src/effects.ts:24681
+  * D458-second-noun-summed-into-one-op + D458-second-search-copies-the-first-type
+      lines: packages/engine/src/effects.ts:24736
+  * D458-second-noun-summed-into-one-op + D458-second-search-drops-the-destination + D458-shuffle-between-the-two-searches
+      lines: packages/engine/src/effects.ts:24738, packages/engine/src/effects.ts:24739
+  * D458-second-noun-summed-into-one-op + D458-shuffle-between-the-two-searches
+      lines: packages/engine/src/effects.ts:24740, packages/engine/src/effects.ts:24741
+  * D459-fixture-drops-the-printed-noun + D459-fixture-marker-goes-additive
+      lines: packages/engine/src/testFixtures.ts:7537
+  * D460-threshold-arm-loses-its-plural-floor + D460-threshold-arm-loses-the-printed-ceiling + D460-threshold-drops-the-zero-guard
+      lines: packages/engine/src/effects.ts:17652
+  * D460-threshold-arm-loses-its-plural-floor + D460-threshold-arm-loses-the-printed-ceiling
+      lines: packages/engine/src/effects.ts:17651
+  * D460-threshold-arm-loses-the-printed-ceiling + D460-threshold-drops-the-unreachable-guard + D460-threshold-drops-the-zero-guard
+      lines: packages/engine/src/effects.ts:17653
+  * D460-threshold-counts-every-face + D460-threshold-counts-heads-not-the-printed-face
+      lines: packages/engine/src/attack.ts:2314
+  * D460-threshold-drops-the-two-coin-word-guard + D460-threshold-drops-the-unreachable-guard
+      lines: packages/engine/src/effects.ts:17654
+  * D460-threshold-status-hardcoded + D460-threshold-status-hits-the-attacker
+      lines: packages/engine/src/effects.ts:17661
+  * D461-basic-gate-becomes-any-pokemon + D461-basic-gate-is-inverted + D461-basic-gate-stops-narrowing
+      lines: packages/engine/src/interpreter.ts:8522
+  * D461-bench-scope-heals-the-attacker + D461-bench-scope-is-inverted
+      lines: packages/engine/src/interpreter.ts:8540
+  * D461-narrowed-heal-anchor-loses-its-head + D461-narrowed-heal-anchor-loses-its-tail
+      lines: packages/engine/src/effects.ts:10121, packages/engine/src/effects.ts:10122
+  * D461-narrowed-heal-drops-the-scope-at-the-producer + D461-narrowed-heal-takes-a-printed-zero + D461-unknown-adjective-falls-through-to-the-whole-board
+      lines: packages/engine/src/effects.ts:22554
+  * D461-narrowed-heal-map-drops-the-bench-row + D461-narrowed-heal-map-swaps-the-two-adjectives
+      lines: packages/engine/src/effects.ts:10138
+  * D462-refused-list-becomes-an-empty-program + D462-triple-drops-the-third-status
+      lines: packages/engine/src/effects.ts:21104
+  * D462-triple-anchor-loses-its-end-anchor + D462-triple-anchor-loses-its-start-anchor
+      lines: packages/engine/src/effects.ts:9853
+  * D463-audit-bare-flip-discard-anchor-was-unpinned + D463-audit-bare-flip-discard-terminator-was-unpinned
+      lines: packages/engine/src/effects.ts:12752
+  * D463-printed-anchor-hits-your-own-active + D463-printed-anchor-loses-its-caret
+      lines: packages/engine/src/effects.ts:17209
+  * D463-printed-arm-discards-the-attackers-own-energy + D463-printed-arm-hardcodes-two-flips + D463-printed-arm-is-the-hand-discard + D463-printed-arm-loses-the-plural-floor + D463-printed-arm-loses-the-printed-ceiling + D476-d463-printed-arm-counts-tails
+      lines: packages/engine/src/effects.ts:17876
+  * D463-printed-arm-hardcodes-two-flips + D463-printed-arm-loses-the-plural-floor + D463-printed-arm-loses-the-printed-ceiling
+      lines: packages/engine/src/effects.ts:17875
+  * D463-printed-arm-is-the-hand-discard + D476-d463-printed-arm-counts-tails
+      lines: packages/engine/src/effects.ts:17877
+  * D463-printed-arm-loses-the-plural-floor + D463-printed-arm-loses-the-printed-ceiling
+      lines: packages/engine/src/effects.ts:17872, packages/engine/src/effects.ts:17873, packages/engine/src/effects.ts:17874
+  * D463-until-tails-anchor-loses-its-caret + D463-until-tails-anchor-waits-for-heads
+      lines: packages/engine/src/effects.ts:17211
+  * D463-until-tails-arm-becomes-a-printed-count + D463-until-tails-arm-narrows-to-special-energy + D476-until-tails-arm-counts-tails
+      lines: packages/engine/src/effects.ts:17893
+  * D463-until-tails-arm-becomes-a-printed-count + D463-until-tails-arm-narrows-to-special-energy
+      lines: packages/engine/src/effects.ts:17892
+  * D464-anchor-loses-its-apostrophe-class + D464-anchor-loses-its-caret + D464-anchor-loses-its-end-anchor
+      lines: packages/engine/src/effects.ts:9914
+  * D464-arm-discards-the-attackers-own-energy + D464-arm-drops-the-coin-gate + D464-arm-drops-the-energy-discard + D464-arm-drops-the-status + D464-arm-hardcodes-the-printed-status + D464-arm-reverses-printed-order
+      lines: packages/engine/src/effects.ts:21131, packages/engine/src/effects.ts:21132, packages/engine/src/effects.ts:21133, packages/engine/src/effects.ts:21134, packages/engine/src/effects.ts:21135, packages/engine/src/effects.ts:21136, packages/engine/src/effects.ts:21137, packages/engine/src/effects.ts:21138
+  * D465-anchor-loses-its-head + D465-anchor-loses-its-terminator
+      lines: packages/engine/src/effects.ts:12791
+  * D465-counter-unit-lost + D465-floor-becomes-exact + D465-fold-counts-its-own-placement
+      lines: packages/engine/src/interpreter.ts:9094
+  * D465-printed-zero-derives + D465-rider-not-set
+      lines: packages/engine/src/effects.ts:22461
+  * D465-recoil-fold-always-scales + D465-recoil-fold-never-scales
+      lines: packages/engine/src/interpreter.ts:9092
+  * D465-tail-repair-fires-on-every-span + D465-tail-repair-never-fires
+      lines: scripts/residue-census.ts:412
+  * D466-bench-anchor-loses-its-head + D466-bench-anchor-loses-its-terminator
+      lines: packages/engine/src/effects.ts:13491
+  * D466-bench-filter-not-carried + D466-bench-noun-skips-the-vocabulary + D466-bench-printed-zero-derives
+      lines: packages/engine/src/effects.ts:25896
+  * D466-bench-filter-not-carried + D466-bench-printed-zero-derives
+      lines: packages/engine/src/effects.ts:25897, packages/engine/src/effects.ts:25898
+  * D466-stage-arm-swaps-the-ordinals + D466-stage-arm-widens-to-any-evolution
+      lines: packages/engine/src/cards.ts:452
+  * D467-benched-noun-arm-moves-behind-the-shipped-one + D467-benched-noun-builds-the-unfiltered-member + D467-benched-noun-printed-zero-derives + D467-benched-noun-skips-the-vocabulary
+      lines: packages/engine/src/effects.ts:25865, packages/engine/src/effects.ts:25866
+  * D467-benched-noun-arm-moves-behind-the-shipped-one + D467-benched-noun-builds-the-unfiltered-member + D467-benched-noun-skips-the-vocabulary
+      lines: packages/engine/src/effects.ts:25867
+  * D467-benched-noun-arm-moves-behind-the-shipped-one + D467-benched-noun-skips-the-vocabulary
+      lines: packages/engine/src/effects.ts:25868, packages/engine/src/effects.ts:25869
+  * D467-counter-arm-builds-the-unfiltered-member + D467-counter-printed-zero-derives
+      lines: packages/engine/src/effects.ts:26286
+  * D467-counter-arm-skips-the-vocabulary + D467-counter-printed-zero-derives
+      lines: packages/engine/src/effects.ts:26284, packages/engine/src/effects.ts:26285
+  * D467-counter-fold-ignores-the-filter + D467-counter-fold-loses-the-unfiltered-path
+      lines: packages/engine/src/attack.ts:277
+  * D467-counter-fold-ignores-the-filter + D467-counter-fold-tallies-bodies
+      lines: packages/engine/src/attack.ts:278, packages/engine/src/attack.ts:279
+  * D468-typed-switch-anchor-folds-the-case + D468-typed-switch-anchor-loses-its-caret + D468-typed-switch-anchor-loses-its-dollar
+      lines: packages/engine/src/effects.ts:18521, packages/engine/src/effects.ts:18522
+  * D468-typed-switch-arm-defaults-an-unreadable-code + D468-typed-switch-arm-drops-the-printed-narrowing + D468-typed-switch-arm-moves-behind-the-bare-one
+      lines: packages/engine/src/effects.ts:23819
+  * D469-board-counter-anchor-drops-the-all-of + D469-board-counter-anchor-hardcodes-the-amount + D469-board-counter-anchor-loses-its-head + D469-board-counter-anchor-loses-the-more + D469-board-counter-anchor-loses-the-possessive-class + D469-board-counter-anchor-loses-the-trailing-dollar
+      lines: packages/engine/src/effects.ts:13207
+  * D469-board-counter-arm-drops-the-printed-zero-guard + D469-board-counter-arm-emits-the-active-member + D469-board-counter-arm-moves-behind-the-active-one
+      lines: packages/engine/src/effects.ts:25830, packages/engine/src/effects.ts:25831, packages/engine/src/effects.ts:25832, packages/engine/src/effects.ts:25833, packages/engine/src/effects.ts:25834
+  * D469-board-counter-drops-the-per-multiplier + D469-board-counter-reads-the-attacker-seat
+      lines: packages/engine/src/attack.ts:310
+  * D469-board-walk-counts-bodies-not-counters + D469-board-walk-skips-the-active + D469-board-walk-sums-before-flooring
+      lines: packages/engine/src/continuous.ts:2699
+  * D469-board-walk-skips-the-active + D469-board-walk-sums-before-flooring
+      lines: packages/engine/src/continuous.ts:2697, packages/engine/src/continuous.ts:2698
+  * D470-board-energy-filter-asks-the-energy-not-the-body + D470-board-energy-filter-is-inverted + D470-board-energy-filter-reads-the-bottom-of-the-stack
+      lines: packages/engine/src/continuous.ts:2633
+  * D470-owner-board-anchor-drops-the-trailing-dollar + D470-owner-board-anchor-loses-the-more + D470-owner-board-anchor-loses-the-opponent-lookahead
+      lines: packages/engine/src/effects.ts:14355, packages/engine/src/effects.ts:14356
+  * D470-owner-board-arm-confuses-null-with-undefined-in-the-energy-guard + D470-owner-board-arm-drops-the-printed-zero-guard + D470-owner-board-arm-moves-ahead-of-the-shipped-one
+      lines: packages/engine/src/effects.ts:26025
+  * D470-owner-board-arm-drops-the-board-zone + D470-owner-board-arm-drops-the-filter-from-the-value + D470-owner-board-arm-moves-ahead-of-the-shipped-one
+      lines: packages/engine/src/effects.ts:26029
+  * D470-owner-board-arm-moves-ahead-of-the-shipped-one + D470-owner-board-arm-spells-the-filter-instead-of-delegating
+      lines: packages/engine/src/effects.ts:26024
+  * D470-owner-board-evaluator-drops-the-filter + D470-owner-board-evaluator-inverts-the-seat + D470-owner-board-evaluator-reads-the-declaring-body
+      lines: packages/engine/src/attack.ts:414
+  * D472-active-type-condition-reads-only-the-first-type + D472-active-type-condition-reads-the-asker-seat
+      lines: packages/engine/src/interpreter.ts:3861, packages/engine/src/interpreter.ts:3862
+  * D472-anchor-drops-the-printed-subject + D472-anchor-loses-its-apostrophe-class + D472-anchor-loses-its-end-anchor + D472-anchor-loses-its-start-anchor + D472-anchor-widens-the-status-slot
+      lines: packages/engine/src/effects.ts:9988, packages/engine/src/effects.ts:9989, packages/engine/src/effects.ts:9990
+  * D472-arm-hardcodes-the-printed-status + D472-clause-resolved-by-a-hardcoded-member + D472-gate-dropped-status-lands-unconditionally + D472-status-lands-on-the-attacker
+      lines: packages/engine/src/effects.ts:21172, packages/engine/src/effects.ts:21173, packages/engine/src/effects.ts:21174, packages/engine/src/effects.ts:21175, packages/engine/src/effects.ts:21176, packages/engine/src/effects.ts:21177, packages/engine/src/effects.ts:21178, packages/engine/src/effects.ts:21179, packages/engine/src/effects.ts:21180, packages/engine/src/effects.ts:21181, packages/engine/src/effects.ts:21182
+  * D473-anchor-loses-its-end-anchor + D473-anchor-loses-its-start-anchor + D473-anchor-widens-the-printed-subject
+      lines: packages/engine/src/effects.ts:20981
+  * D473-arm-drops-the-payments-record-slot + D473-arm-drops-the-record-gate + D473-arm-pays-to-the-deck-bottom + D473-arm-pays-two-cards-from-hand + D473-near-miss-list-keeps-the-built-sentence
+      lines: packages/engine/src/effects.ts:25161
+  * D473-arm-drops-the-record-gate + D473-gate-draws-a-hard-coded-two + D473-gate-reads-a-different-slot + D473-near-miss-list-keeps-the-built-sentence
+      lines: packages/engine/src/effects.ts:25163
+  * D473-arm-drops-the-record-gate + D473-near-miss-list-keeps-the-built-sentence
+      lines: packages/engine/src/effects.ts:25162
+  * D474-anchor-loses-its-end-anchor + D474-anchor-loses-its-start-anchor + D474-anchor-widens-the-printed-subject
+      lines: packages/engine/src/effects.ts:16948
+  * D474-arm-defaults-the-unresolvable-noun + D474-arm-drops-the-positive-per-guard + D474-arm-emits-the-neighbouring-flip-member
+      lines: packages/engine/src/effects.ts:17723, packages/engine/src/effects.ts:17724, packages/engine/src/effects.ts:17725
+  * D474-arm-reads-the-noun-from-the-damage-group + D475-both-actives-arm-moves-ahead-of-the-body-one
+      lines: packages/engine/src/effects.ts:17716, packages/engine/src/effects.ts:17717
+  * D474-flip-count-crosses-the-seat + D474-flip-count-drops-the-printed-filter + D474-flip-count-reads-the-bench-only
+      lines: packages/engine/src/attack.ts:753
+  * D475-anchor-admits-a-type-word + D475-anchor-drops-the-printed-scope + D475-anchor-loses-its-end-anchor + D475-anchor-loses-its-start-anchor
+      lines: packages/engine/src/effects.ts:16882, packages/engine/src/effects.ts:16883
+  * D475-arm-drops-the-positive-per-guard + D475-arm-emits-the-body-count-member + D475-arm-emits-the-self-attached-member
+      lines: packages/engine/src/effects.ts:17754
+  * D475-flip-count-counts-a-printed-type + D475-flip-count-counts-units-not-cards + D475-flip-count-reads-only-the-attacker + D475-flip-count-reads-only-the-defender + D475-flip-count-reads-the-whole-board
+      lines: packages/engine/src/attack.ts:785, packages/engine/src/attack.ts:786, packages/engine/src/attack.ts:787
+  * D476-anchor-hits-the-wrong-body + D476-anchor-loses-its-caret + D476-anchor-loses-its-terminator + D476-anchor-waits-for-heads
+      lines: packages/engine/src/effects.ts:17274
+  * D476-arm-counts-heads + D476-arm-discards-the-opponents-energy + D476-arm-hardcodes-three-flips + D476-arm-loses-the-plural-floor + D476-arm-loses-the-printed-ceiling + D476-arm-narrows-to-special-energy
+      lines: packages/engine/src/effects.ts:17923
+  * D476-arm-counts-heads + D476-arm-discards-the-opponents-energy + D476-arm-loses-the-plural-floor + D476-arm-loses-the-printed-ceiling + D476-arm-narrows-to-special-energy
+      lines: packages/engine/src/effects.ts:17924
+  * D476-arm-hardcodes-three-flips + D476-arm-loses-the-plural-floor + D476-arm-loses-the-printed-ceiling
+      lines: packages/engine/src/effects.ts:17922
+  * D476-arm-loses-the-plural-floor + D476-arm-loses-the-printed-ceiling
+      lines: packages/engine/src/effects.ts:17919, packages/engine/src/effects.ts:17920, packages/engine/src/effects.ts:17921
+  * D476-audit-bare-self-discard-anchor-was-unpinned + D476-audit-bare-self-discard-terminator-was-unpinned
+      lines: packages/engine/src/effects.ts:12567
+  * D476-expansion-counts-heads-literally + D476-expansion-normalises-through-the-heads-count
+      lines: packages/engine/src/attack.ts:2264
+  * D477-anchor-code-class-drops-the-map + D477-anchor-type-slot-becomes-mandatory
+      lines: packages/engine/src/effects.ts:18143
+  * D477-anchor-demands-the-period-join + D477-anchor-loses-its-terminator
+      lines: packages/engine/src/effects.ts:18144
+  * D477-cost-count-is-not-the-printed-quantifier + D477-ops-are-emitted-in-the-wrong-order + D477-the-printed-cost-is-not-emitted
+      lines: packages/engine/src/effects.ts:22113
+  * D477-cost-count-is-not-the-printed-quantifier + D477-ops-are-emitted-in-the-wrong-order
+      lines: packages/engine/src/effects.ts:22112
+  * D477-ops-are-emitted-in-the-wrong-order + D477-snipe-becomes-a-placed-counter
+      lines: packages/engine/src/effects.ts:22124, packages/engine/src/effects.ts:22125, packages/engine/src/effects.ts:22126, packages/engine/src/effects.ts:22127, packages/engine/src/effects.ts:22128, packages/engine/src/effects.ts:22129, packages/engine/src/effects.ts:22130, packages/engine/src/effects.ts:22131
+  * D477-ops-are-emitted-in-the-wrong-order + D477-the-printed-cost-is-not-emitted
+      lines: packages/engine/src/effects.ts:22114, packages/engine/src/effects.ts:22115
+  * D477-snipe-aims-at-the-any-target + D477-snipe-side-is-hardcoded-to-the-opponent
+      lines: packages/engine/src/effects.ts:22068
+  * D478-anchor-loses-its-caret + D478-anchor-loses-its-terminator + D478-anchor-widens-the-tails-slot
+      lines: packages/engine/src/effects.ts:9776
+  * D478-arm-drops-the-second-heads-status + D478-arm-reverses-the-printed-heads-order
+      lines: packages/engine/src/effects.ts:21070
+  * D478-arm-drops-the-tails-branch + D478-arm-hardcodes-the-printed-tails-status + D478-arm-swaps-the-two-branches
+      lines: packages/engine/src/effects.ts:21079
+  * D478-arm-drops-the-tails-branch + D478-arm-swaps-the-two-branches
+      lines: packages/engine/src/effects.ts:21078, packages/engine/src/effects.ts:21080
+  * D479-anchor-drops-the-printed-possessive + D479-anchor-loses-its-caret + D479-anchor-loses-its-terminator + D479-anchor-reads-the-one-sentence-join
+      lines: packages/engine/src/effects.ts:20939
+  * D479-arm-draws-hand-plus-instead-of-fixed + D479-arm-emits-the-discard-sibling + D479-arm-guard-admits-a-printed-zero + D479-arm-hardcodes-the-printed-count + D479-arm-refreshes-both-seats + D479-arm-refreshes-the-opponent-instead
+      lines: packages/engine/src/effects.ts:25132
+  * D480-predicate-admits-any-set-mate + D480-predicate-answers-yes-to-everything + D480-predicate-drops-the-suffix-reading
+      lines: packages/engine/src/refusedPrintings.ts:242
+  * D482-anchor-admits-also + D482-anchor-captures-the-possessive + D482-anchor-loses-its-caret + D482-anchor-loses-its-terminator
+      lines: packages/engine/src/effects.ts:12258, packages/engine/src/effects.ts:12259
+  * D482-arm-active-half-places-counters + D482-arm-drops-the-active-half + D482-arm-hardcodes-the-printed-amount + D482-arm-order-flips + D482-arm-spread-side-flips
+      lines: packages/engine/src/effects.ts:21643
+  * D482-arm-active-half-places-counters + D482-arm-drops-the-active-half + D482-arm-order-flips + D482-arm-spread-side-flips
+      lines: packages/engine/src/effects.ts:21644

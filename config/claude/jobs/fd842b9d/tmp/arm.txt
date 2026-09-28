@@ -1,0 +1,15 @@
+  // 🆕🆕 D468 — the same op with the printed BENCH-END narrowing (Vikavolt
+  // `sv07-053` "Volt Switch", 1 legal). STRUCTURALLY disjoint from the bare arm
+  // above — `Benched Pokémon.` and `Benched {X} Pokémon.` cannot both match one
+  // string — so this arm needs no lookahead and its position is legibility, which
+  // D467 requires stating rather than leaving to the reader. The narrowing itself
+  // is D273's shipped `targetType`, read by `switchBenchNarrowing` and spelled by
+  // `switchTargetNoun`; only the ATTACK-surface reader was missing.
+  const typedSwitch = ATTACK_SELF_SWITCH_TYPED.exec(effect);
+  if (typedSwitch !== null) {
+    const targetType = POKEMON_TYPE_BY_CODE[typedSwitch[1] ?? ""];
+    // An unreadable code returns null (LOUD) rather than an unnarrowed switch:
+    // dropping the rider would silently offer the WHOLE Bench, a superset the
+    // card does not print, and every board assertion would stay green (D461).
+    if (targetType !== undefined) return [{ op: "switchActive", targetType }];
+  }

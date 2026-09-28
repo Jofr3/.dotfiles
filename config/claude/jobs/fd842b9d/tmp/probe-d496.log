@@ -1,0 +1,44 @@
+
+Mutation harness (D211) — 17 mutant(s)
+
+  D496-wide-anchor-loses-its-caret … KILLED           3.5s
+  D496-wide-anchor-loses-its-terminator … KILLED           3.5s
+  D496-wide-anchor-drops-the-apostrophe-class … KILLED           3.5s
+  D496-narrow-anchor-loses-its-caret … KILLED           3.4s
+  D496-narrow-anchor-loses-its-terminator … KILLED           3.4s
+  D496-narrow-anchor-drops-the-apostrophe-class … KILLED           3.4s
+  D496-tails-anchor-loses-its-caret … KILLED           3.4s
+  D496-tails-anchor-loses-its-terminator … KILLED           3.3s
+  D496-tails-anchor-drops-the-apostrophe-class … KILLED           3.3s
+  D496-tails-anchor-reads-the-winning-face … KILLED           3.3s
+  D496-wide-arm-drops-the-effects-field … KILLED           3.4s
+  D496-wide-gate-gains-ontails … KILLED           3.4s
+  D496-wide-gate-dropped-block-lands-unconditionally … KILLED           3.4s
+  D496-narrow-arm-gains-the-effects-field … KILLED           3.5s
+  D496-narrow-arm-tests-the-wide-anchor … KILLED           4.1s
+  D496-tails-arm-drops-the-ontails-field … KILLED           3.4s
+  D496-tails-arm-emits-the-neighbours-op … KILLED           3.4s
+
+────────────────────────────────────────────────────────────────────────────────────
+MUTANT                    FROM                  VERDICT          TIME    SUITES
+────────────────────────────────────────────────────────────────────────────────────
+D496-wide-anchor-loses-i… D496                  KILLED           3.5s    1
+D496-wide-anchor-loses-i… D496                  KILLED           3.5s    1
+D496-wide-anchor-drops-t… D496                  KILLED           3.5s    2
+D496-narrow-anchor-loses… D496                  KILLED           3.4s    1
+D496-narrow-anchor-loses… D496                  KILLED           3.4s    1
+D496-narrow-anchor-drops… D496                  KILLED           3.4s    2
+D496-tails-anchor-loses-… D496                  KILLED           3.4s    1
+D496-tails-anchor-loses-… D496                  KILLED           3.3s    1
+D496-tails-anchor-drops-… D496                  KILLED           3.3s    2
+D496-tails-anchor-reads-… D496                  KILLED           3.3s    1
+D496-wide-arm-drops-the-… D496                  KILLED           3.4s    1
+D496-wide-gate-gains-ont… D496                  KILLED           3.4s    2
+D496-wide-gate-dropped-b… D496                  KILLED           3.4s    1
+D496-narrow-arm-gains-th… D496                  KILLED           3.5s    2
+D496-narrow-arm-tests-th… D496                  KILLED           4.1s    3
+D496-tails-arm-drops-the… D496                  KILLED           3.4s    1
+D496-tails-arm-emits-the… D496                  KILLED           3.4s    1
+────────────────────────────────────────────────────────────────────────────────────
+17 killed · 0 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 83.2s total
+

@@ -37,11 +37,6 @@
           command = "chat.new";
           when = "!terminalFocus";
         }
-        {
-          key = "mod+shift+o";
-          command = "chat.new";
-          when = "!terminalFocus";
-        }
       ];
 
       clientSettings = {

@@ -25,6 +25,7 @@
           workspace = "mail";
         };
         VSCode = "code";
+        t3code = "t3code-desktop";
         Bitwarden = "bitwarden";
         Postman = "postman";
         "1Password" = "1password";

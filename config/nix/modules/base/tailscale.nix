@@ -11,6 +11,8 @@
     openFirewall = true; # UDP 41641, for direct peer connections instead of relaying
   };
 
+  flake.modules.nixos.base.services.resolved.enable = true;
+
   # Only the server accepts connections *over* the tailnet. Anything arriving
   # there is already authenticated by WireGuard, so it skips the firewall
   # entirely -- that is what makes a dev server on 5173/3000/whatever reachable

@@ -6,8 +6,15 @@
     };
 
   flake.modules.homeManager.base =
-    { config, lib, ... }:
     {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
+    {
+      home.packages = [ pkgs.github-cli ];
+
       programs.git = {
         enable = true;
 

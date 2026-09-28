@@ -48,6 +48,9 @@ trust_level = "trusted"
 [projects."/home/jofre/lsw/compartium"]
 trust_level = "trusted"
 
+[projects."/home/jofre/lsw/targecopy_app_clients"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 

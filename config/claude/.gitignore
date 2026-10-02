@@ -70,6 +70,7 @@ state/
 stats-cache.json
 .last-update-result.json
 plugins/synced/
+plugins/store/
 feedback/
 plans/
 skills/.trash/

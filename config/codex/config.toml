@@ -1,7 +1,8 @@
-model = "gpt-5.6-sol"
+model = "gpt-6-sol"
 model_reasoning_effort = "high"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
+service_tier = "fast"
 
 [projects."/home/jofre/projects/luminous"]
 trust_level = "trusted"
@@ -51,11 +52,18 @@ trust_level = "trusted"
 [projects."/home/jofre/lsw/targecopy_app_clients"]
 trust_level = "trusted"
 
+[projects."/home/jofre/.config/herdr"]
+trust_level = "trusted"
+
+[projects."/home/jofre/projects/lectio"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
 [tui]
 alternate_screen = "never"
+screen_reader_detection_done = true
 
 [tui.model_availability_nux]
 "gpt-5.5" = 1

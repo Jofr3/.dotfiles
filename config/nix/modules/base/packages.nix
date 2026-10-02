@@ -1,5 +1,6 @@
 # Packages not tied to a feature file. GUI applications live in
 # ../desktop/packages.nix, headless extras in ../server/packages.nix.
+{ inputs, ... }:
 {
   # Minimal system-wide set; everything user-facing goes through Home Manager.
   flake.modules.nixos.base =
@@ -16,14 +17,12 @@
         btop
         claude-code
         pi-coding-agent
-        opencode
         direnv
         eza
         fastfetch
         fd
         jq
         lsof
-        nix-prefetch-github
         ripgrep
         rsync
         tmux
@@ -31,7 +30,7 @@
         wget
         jujutsu
         yazi
-        herdr
+        inputs.nixpkgs-herdr.legacyPackages.${pkgs.stdenv.hostPlatform.system}.herdr # see flake.nix
 
         # editors
         neovim
@@ -57,27 +56,27 @@
         python315
 
         # lsp servers
-        angular-language-server
-        lua-language-server
-        markdown-oxide
-        marksman
-        nil
-        typescript-language-server
-        typos-lsp
-        vscode-langservers-extracted
+        # angular-language-server
+        # lua-language-server
+        # markdown-oxide
+        # marksman
+        # nil
+        # typescript-language-server
+        # typos-lsp
+        # vscode-langservers-extracted
 
         # formatters
-        blade-formatter
-        nixfmt
-        php83Packages.php-cs-fixer
-        stylua
+        # blade-formatter
+        # nixfmt
+        # php83Packages.php-cs-fixer
+        # stylua
 
         # temporary
-        vtsls
-        intelephense
+        # vtsls
+        # intelephense
 
         #pi
-        firecrawl-cli
+        # firecrawl-cli
       ];
     };
 }

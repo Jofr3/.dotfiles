@@ -4,6 +4,11 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    # herdr fails to link with gcc 16 / binutils 2.46 ("overlapping FDEs" in
+    # the zig-built libghostty-vt); build it from the last gcc 15 revision.
+    # Drop once herdr builds on nixpkgs again.
+    nixpkgs-herdr.url = "github:nixos/nixpkgs/e158d9ed9b51c98974c5e66e1ba1c9e0255fecaa";
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";

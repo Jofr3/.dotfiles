@@ -10,7 +10,7 @@
         # apps
         dbeaver-bin
         gnome-calculator
-        gnome-text-editor
+        # gnome-text-editor
         libreoffice
         nautilus
         thunderbird

@@ -1,5 +1,0 @@
-waited 80s
-EXIT=0
- Test Files  483 passed (483)
-      Tests  11023 passed (11023)
-   Duration  133.30s (transform 28.91s, setup 0ms, import 216.55s, tests 58.34s, environment 37.70s)

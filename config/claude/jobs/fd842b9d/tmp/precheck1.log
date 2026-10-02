@@ -1,2 +1,0 @@
-checked 2194 mutants
-every `find` occurs exactly once in its target, and scripts/mutation/run.ts patches LITERALLY (15 row(s) depend on it) — corpus is runnable

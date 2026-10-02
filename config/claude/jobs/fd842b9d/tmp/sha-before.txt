@@ -1,4 +1,0 @@
-39e240ac8f19fd3d05e8c5ca3125382f09745b52be00e1a858fb42c4d0c3f5bb  packages/engine/src/progressLog.test.ts
-b5537dae3ca5b61f1cc95b51b5e9f025db739c110cd1683beabf3d03c6f5473e  docs/progress.md
-6607992f63167648693c6723b37559f72c6d699d5b2309d909175ff840a6e69b  docs/decisions.md
-bf62167a3b6f85723542de27bdd7e6e2d97061bdc09662506bc41850c10bb1a8  docs/conventions.md

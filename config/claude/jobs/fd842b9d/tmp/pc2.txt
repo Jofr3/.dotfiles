@@ -1,5 +1,0 @@
-checked 2541 mutants
-[0m[31m
-2 BROKEN ROW(S):[0m
-[0m[31m  D196-seat-zone: find occurs 0× in packages/engine/src/attack.ts[0m
-[0m[31m  D196-live-active: find occurs 0× in packages/engine/src/attack.ts[0m

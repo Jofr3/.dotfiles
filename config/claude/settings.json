@@ -1,6 +1,6 @@
 {
   "permissions": {
-    "defaultMode": "auto"
+    "defaultMode": "bypassPermissions"
   },
   "model": "opus[1m]",
   "enabledPlugins": {
@@ -16,6 +16,7 @@
     }
   },
   "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "autoMode": {

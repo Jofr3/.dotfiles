@@ -1,8 +1,0 @@
-[0m[31mresidue-census-gate: 2 claim(s) FAILED
-[0m
-[0m[31m  🛑 §A residue sentences: the instrument and packages/engine/src/censusAtHead.test.ts disagree
-      residue-census.ts says 102, the suite pins 103
-[0m
-[0m[31m  🛑 §A residue printings: the instrument and packages/engine/src/censusAtHead.test.ts disagree
-      residue-census.ts says 141, the suite pins 143
-[0m

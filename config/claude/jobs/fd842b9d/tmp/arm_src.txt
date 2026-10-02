@@ -1,8 +1,0 @@
-  const typedSwitch = ATTACK_SELF_SWITCH_TYPED.exec(effect);
-  if (typedSwitch !== null) {
-    const targetType = POKEMON_TYPE_BY_CODE[typedSwitch[1] ?? ""];
-    // An unreadable code returns null (LOUD) rather than an unnarrowed switch:
-    // dropping the rider would silently offer the WHOLE Bench, a superset the
-    // card does not print, and every board assertion would stay green (D461).
-    if (targetType !== undefined) return [{ op: "switchActive", targetType }];
-  }

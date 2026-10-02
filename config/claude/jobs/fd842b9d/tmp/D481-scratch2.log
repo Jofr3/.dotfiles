@@ -1,7 +1,0 @@
-error TS2688: Cannot find type definition file for 'node'.
-  The file is in the program because:
-    Entry point of type library 'node' specified in compilerOptions
-
-real	0m1.298s
-user	0m2.381s
-sys	0m0.118s

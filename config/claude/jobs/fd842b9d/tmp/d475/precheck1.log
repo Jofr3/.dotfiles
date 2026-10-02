@@ -1,4 +1,0 @@
-checked 2178 mutants
-[0m[31m
-1 BROKEN ROW(S):[0m
-[0m[31m  D475-arm-reads-the-whole-match-as-the-amount: find occurs 2× in packages/engine/src/effects.ts[0m

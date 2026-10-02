@@ -1,6 +1,0 @@
-77:4 Choose 1 of your Benched N's Pokémon's attacks and use it as this attack.
-78:3 Choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
-80:1 Choose 1 of your opponent's Active Tera Pokémon's attacks and use it as this attack.
-131:1 Discard the top card of your deck, and if that card is a Pokémon that doesn't have a Rule Box, choose 1 of its attacks and use it as this attack. (Pokémon ex, Pokémon V, etc. have Rule Boxes.)
-245:1 Flip a coin. If heads, choose 1 of your opponent's Active Pokémon's attacks and use it as this attack.
-434:3 Reveal the top 10 cards of your opponent's deck. You may choose an attack from a Pokémon you find there and use it as this attack. Shuffle the revealed cards into your opponent's deck.

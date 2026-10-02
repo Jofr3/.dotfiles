@@ -1,2 +1,0 @@
-checked 2446 mutants
-every `find` occurs exactly once in its target, no two of 2446 rows are the same experiment (8 row(s) share a patch, separated by their killers), and scripts/mutation/run.ts patches LITERALLY (22 row(s) depend on it) — corpus is runnable

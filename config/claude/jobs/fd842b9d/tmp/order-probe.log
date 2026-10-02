@@ -1,9 +1,0 @@
-
- RUN  v4.1.9 /home/jofre/projects/luminous_ui
-
-
- Test Files  1 passed (1)
-      Tests  1 passed (1)
-   Start at  05:17:09
-   Duration  912ms (transform 585ms, setup 0ms, import 760ms, tests 4ms, environment 0ms)
-

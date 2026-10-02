@@ -43,6 +43,7 @@
           ls = "exa --icons --group-directories-first";
           lt = "exa --tree --level=4 --icons --group-directories-first";
           grep = "grep --color='auto'";
+          pair = "t3 pair --tailscale --ttl 1h";
         };
 
         functions = {

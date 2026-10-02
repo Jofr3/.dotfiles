@@ -1,1 +1,0 @@
-partition-gate: OK — no two of 2424 rows are the same experiment (8 row(s) share a patch, separated by their killers).

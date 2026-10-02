@@ -1,1 +1,0 @@
-ALTER TABLE `decks` ADD `cover_card_id` text REFERENCES cards(id);

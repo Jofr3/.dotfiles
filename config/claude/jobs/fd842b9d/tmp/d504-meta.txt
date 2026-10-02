@@ -1,5 +1,0 @@
-docs/progress.md:6: HE EMITTED LINE.** The harness prints **`GAP(S)`**, and has since D211's first commit; **`GAP(s)` has NEVER existed in `run.ts`** (`git log -
-docs/progress.md:653: > The harness prints **`GAP(S)`** — capital S — and has since **D211's first commit**; **`GAP(s)` > has never existed in `run.ts`** (`git log
-docs/progress.md:654: since **D211's first commit**; **`GAP(s)` > has never existed in `run.ts`** (`git log -S 'GAP(s) ·' -- scripts/mutation/run.ts` is empty). >
-docs/decisions.md:485: MITTED LINE.** The harness prints **`GAP(S)`** and has since **D211's first commit** — **`GAP(s)` has never existed in `run.ts`** — yet the a
-docs/conventions.md:6237: total ``` **`GAP(S)` has a capital S, and has since D211's first commit** — `git log -S 'GAP(s) ·' -- scripts/mutation/run.ts` returns nothi

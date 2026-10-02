@@ -31,6 +31,7 @@
         wget
         jujutsu
         yazi
+        herdr
 
         # editors
         neovim

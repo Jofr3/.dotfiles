@@ -52,3 +52,27 @@ plugins/marketplaces/
 # Skills). Claude Code owns this directory and rewrites it on every sync, and
 # the bucket name is tied to one account/org. Manage them on claude.ai instead.
 skills/synced/
+
+# Background job workspaces. Each one holds scratch checkouts of whatever repo
+# the job ran against (thousands of files of somebody else's code).
+jobs/
+
+# The background daemon's runtime state, including control.key, a local secret.
+daemon/
+daemon.lock
+daemon.log
+daemon.status.json
+daemon-auth-cooldown
+daemon-auth-status.json
+
+# Per-machine state and caches that Claude Code rewrites on its own.
+state/
+stats-cache.json
+.last-update-result.json
+plugins/synced/
+feedback/
+plans/
+skills/.trash/
+
+# Generated wrapper with an absolute path into this machine's npx cache.
+chrome/

@@ -1,2 +1,0 @@
-const ATTACK_SELF_SWITCH_TYPED =
-  /^Switch this Pokémon with 1 of your Benched \{([A-Z])\} Pokémon\.$/;

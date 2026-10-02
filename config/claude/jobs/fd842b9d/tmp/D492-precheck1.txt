@@ -1,5 +1,0 @@
-checked 2361 mutants
-[0m[31m
-2 BROKEN ROW(S):[0m
-[0m[31m  D345-playable-gate-reverts-to-the-bench-length: find occurs 0× in packages/engine/src/cardplay.ts[0m
-[0m[31m  D437-narrows-after-the-arity-doctrine: find occurs 0× in packages/engine/src/interpreter.ts[0m

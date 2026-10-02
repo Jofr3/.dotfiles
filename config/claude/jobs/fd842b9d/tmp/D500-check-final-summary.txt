@@ -1,7 +1,0 @@
-$ bun scripts/typecheck-coverage.ts && tsc -b && bun scripts/lint-coverage.ts && biome lint . --error-on-warnings && vitest run
-typecheck-coverage: OK — all 730 TypeScript files are in 6 project(s) of tsconfig.json (apps/api/tsconfig.json, packages/engine/tsconfig.json, packages/schema/tsconfig.json, tsconfig.app.json, tsconfig.node.json, tsconfig.scripts.json).
-lint-coverage: OK — all 732 source files are covered by Biome.
-Checked 768 files in 1405ms. No fixes applied.
- Test Files  483 passed (483)
-      Tests  11023 passed (11023)
-   Duration  133.30s (transform 28.91s, setup 0ms, import 216.55s, tests 58.34s, environment 37.70s)

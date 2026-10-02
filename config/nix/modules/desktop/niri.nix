@@ -122,6 +122,12 @@
             }
             {
               workspace = {
+                _args = [ "code" ];
+                open-on-output = "HDMI-A-1";
+              };
+            }
+            {
+              workspace = {
                 _args = [ "database" ];
                 open-on-output = "HDMI-A-1";
               };
@@ -156,6 +162,12 @@
             }
             {
               window-rule = {
+                match._props.app-id = "code";
+                open-on-workspace = "code";
+              };
+            }
+            {
+              window-rule = {
                 match._props.app-id = "DBeaver";
                 open-on-workspace = "database";
               };
@@ -170,17 +182,11 @@
             "Super+M".focus-workspace = "mail";
             "Super+W".focus-workspace = "chrome";
             "Super+I".focus-workspace = "terminal";
+            "Super+C".focus-workspace = "code";
             "Super+D".focus-workspace = "database";
 
             # Overview
             "Super+Space".toggle-overview = { };
-
-            # Focus by index
-            "Super+1".focus-column = 1;
-            "Super+2".focus-column = 2;
-            "Super+3".focus-column = 3;
-            "Super+4".focus-column = 4;
-            "Super+5".focus-column = 5;
 
             # Focus
             "Super+H".focus-column-left = { };

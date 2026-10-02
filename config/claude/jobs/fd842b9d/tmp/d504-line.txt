@@ -1,1 +1,0 @@
-2,446 killed · 50 known survivor(s) · 0 GAP(S) · 0 stale · 0 skipped(dirty) · 0 clobber(s) · 0 error(s) · 10,505.0s

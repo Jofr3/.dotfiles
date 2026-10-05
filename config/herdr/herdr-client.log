@@ -1,0 +1,48 @@
+2026-05-19T09:08:11.336476Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=56946
+2026-05-19T09:08:11.336533Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-05-19T09:08:11.540774Z  INFO herdr::client: handshake succeeded version=6 encoding=SemanticFrame
+2026-05-19T09:11:42.585859Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=58518
+2026-05-19T09:11:42.585893Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-05-19T09:11:42.748773Z  INFO herdr::client: handshake succeeded version=6 encoding=SemanticFrame
+2026-05-19T09:34:36.631531Z  INFO herdr::logging: herdr exiting event="app.shutdown" subsystem="client" outcome="completed" pid=58518
+2026-05-19T09:34:38.273885Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=66802
+2026-05-19T09:34:38.273928Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-05-19T09:34:38.276924Z  INFO herdr::client: handshake succeeded version=6 encoding=SemanticFrame
+2026-05-19T09:43:44.269856Z  INFO herdr::logging: herdr exiting event="app.shutdown" subsystem="client" outcome="completed" pid=66802
+2026-09-28T08:09:56.889010Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=17336
+2026-09-28T08:09:56.889303Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-09-28T08:09:57.094807Z  INFO herdr::client: handshake succeeded version=6 encoding=SemanticFrame
+2026-10-01T06:33:59.317586Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=108633
+2026-10-01T06:33:59.317717Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-10-01T06:33:59.328198Z  INFO herdr::client: handshake succeeded version=6 encoding=SemanticFrame
+2026-10-01T06:59:48.384507Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=115975
+2026-10-01T06:59:48.384615Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-10-01T06:59:48.490756Z  INFO herdr::client: handshake succeeded version=6 encoding=SemanticFrame
+2026-10-01T07:00:15.850573Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=116133
+2026-10-01T07:00:15.850631Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-10-01T07:00:16.083518Z  INFO herdr::client: handshake succeeded version=6 encoding=SemanticFrame
+2026-10-01T07:11:59.958857Z  INFO herdr::logging: herdr exiting event="app.shutdown" subsystem="client" outcome="completed" pid=116133
+2026-10-01T07:12:03.340218Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=119224
+2026-10-01T07:12:03.340254Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-10-01T07:12:03.453464Z  INFO herdr::client: handshake succeeded version=6 encoding=SemanticFrame
+2026-10-01T08:30:53.702897Z  WARN herdr::config::keybinds: config diagnostic unsafe direct keybinding: keys.new_tab = "c" would intercept typing; use "prefix+c" to require the prefix; disabling binding
+2026-10-01T08:30:53.703197Z  WARN herdr::config::keybinds: config diagnostic unsafe direct keybinding: keys.new_tab = "c" would intercept typing; use "prefix+c" to require the prefix; disabling binding
+2026-10-01T08:30:53.703244Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=150778
+2026-10-01T08:30:53.703249Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-10-01T08:30:53.706161Z  INFO herdr::client::handshake: endpoint handshake succeeded generation=1 server_version=0.9.1
+2026-10-01T08:30:53.730594Z  WARN herdr::config::keybinds: config diagnostic unsafe direct keybinding: keys.new_tab = "c" would intercept typing; use "prefix+c" to require the prefix; disabling binding
+2026-10-01T08:43:37.444511Z  WARN herdr::config::keybinds: config diagnostic ctrl+o: kept keys.workspace_picker, disabled keys.command[0].key
+2026-10-01T09:05:54.232725Z  INFO herdr::client: client terminal unavailable; detaching err=Input/output error (os error 5)
+2026-10-01T09:05:54.237503Z  INFO herdr::logging: herdr exiting event="app.shutdown" subsystem="client" outcome="completed" pid=150778
+2026-10-01T09:05:56.526390Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=163484
+2026-10-01T09:05:56.526413Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-10-01T09:05:56.576308Z  INFO herdr::client::handshake: endpoint handshake succeeded generation=1 server_version=0.9.1
+2026-10-01T12:58:19.410066Z  INFO herdr::client: client terminal unavailable; detaching err=Input/output error (os error 5)
+2026-10-01T12:58:19.411112Z  INFO herdr::logging: herdr exiting event="app.shutdown" subsystem="client" outcome="completed" pid=163484
+2026-10-02T05:31:23.147531Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=2062
+2026-10-02T05:31:23.147741Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-10-02T05:31:23.281962Z  INFO herdr::client::handshake: endpoint handshake succeeded generation=1 server_version=0.9.1
+2026-10-05T05:30:46.488538Z  INFO herdr::logging: herdr starting event="app.startup" subsystem="client" outcome="started" pid=2099
+2026-10-05T05:30:46.488645Z  INFO herdr::client: connecting to server path=/home/jofre/.config/herdr/herdr-client.sock
+2026-10-05T05:30:46.630376Z  INFO herdr::client::handshake: endpoint handshake succeeded generation=1 server_version=0.9.1
+2026-10-05T05:30:48.004090Z  INFO herdr::client::handshake: endpoint handshake succeeded generation=1 server_version=0.9.1

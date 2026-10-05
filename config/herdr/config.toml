@@ -1,0 +1,37 @@
+onboarding = false
+
+[theme]
+name = "rose-pine"
+
+[theme.custom]
+panel_bg = "reset"
+
+[terminal]
+default_shell = "fish"
+
+[ui]
+prompt_new_tab_name = false
+
+[keys]
+new_tab = "ctrl+t"
+close_tab = "ctrl+q"
+next_tab = "ctrl+l"
+previous_tab = "ctrl+h"
+move_tab_previous = "ctrl+shift+h"
+move_tab_next = "ctrl+shift+l"
+next_workspace = "ctrl+j"
+previous_workspace = "ctrl+k"
+new_workspace = "ctrl+o"
+goto = "ctrl+f"
+
+[[keys.command]]
+key = "ctrl+e"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/open-command-tab.sh" "nvim"'
+description = "open Neovim in a new tab"
+
+[[keys.command]]
+key = "ctrl+n"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/open-command-tab.sh" "yazi"'
+description = "open Neovim in a new tab"

@@ -21,6 +21,5 @@
         source = "${dotfiles}/config/claude";
         recursive = true;
       };
-      home.file.".pi".source = "${dotfiles}/config/pi";
     };
 }

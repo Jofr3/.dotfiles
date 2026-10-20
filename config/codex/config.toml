@@ -1,4 +1,4 @@
-model = "gpt-6.1-sol"
+model = "gpt-6-astra"
 model_reasoning_effort = "high"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
@@ -62,6 +62,18 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/home/jofre/lsw/targecopy_app"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/mydocumentium"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/myproductium"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/myproductium_app"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/targecopy_clients"]
 trust_level = "trusted"
 
 [notice.model_migrations]

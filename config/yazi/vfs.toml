@@ -112,6 +112,12 @@ host = "dev.virtual.targecopy.com"
 user = "dev_virtual_targecopy_com"
 port = 22
 
+[sftp.targecopy_clients]
+type = "sftp"
+host = "clients.targecopy.com"
+user = "clients_targecopy_com"
+port = 22
+
 [sftp.vicfires]
 type = "sftp"
 host = "ec2-15-188-172-200.eu-west-3.compute.amazonaws.com"

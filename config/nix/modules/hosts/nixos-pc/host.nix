@@ -5,6 +5,7 @@
     imports = with config.flake.modules.nixos; [
       desktop
       amdgpu
+      gaming
     ];
 
     networking.hostName = "nixos-pc";

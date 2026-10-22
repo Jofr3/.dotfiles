@@ -7,17 +7,18 @@
       ...
     }:
     let
-      dailyLimitsMinutes = {
-        "youtube.com" = 45;
-        "reddit.com" = 10;
-      };
+      # Daily minutes per domain, e.g. { "youtube.com": 45 }. Kept encrypted in
+      # secrets/WEBSITE_LIMITS.age (edit with `secret-edit WEBSITE_LIMITS`) and
+      # decrypted by base/secrets.nix, so it is read at runtime, never by Nix.
+      limitsSecret = ../../secrets/WEBSITE_LIMITS.age;
+      limitsFile = "${config.xdg.stateHome}/secrets/WEBSITE_LIMITS";
       pollIntervalSeconds = 5;
       debuggerPort = 9222;
 
       python = pkgs.python3.withPackages (ps: [ ps.websocket-client ]);
       settings = pkgs.writeText "website-usage-limiter.json" (
         builtins.toJSON {
-          inherit dailyLimitsMinutes pollIntervalSeconds debuggerPort;
+          inherit limitsFile pollIntervalSeconds debuggerPort;
         }
       );
       script = pkgs.writeText "website-usage-limiter.py" ''
@@ -28,6 +29,8 @@
         import logging
         import math
         import os
+        import re
+        import sys
         from pathlib import Path
         import tempfile
         import time
@@ -38,10 +41,7 @@
         import websocket
 
         SETTINGS = json.loads(Path("${settings}").read_text())
-        LIMITS = {
-            domain.lower().rstrip("."): minutes * 60
-            for domain, minutes in SETTINGS["dailyLimitsMinutes"].items()
-        }
+        LIMITS_FILE = Path(SETTINGS["limitsFile"])
         INTERVAL = SETTINGS["pollIntervalSeconds"]
         PORT = SETTINGS["debuggerPort"]
         ENDPOINT = f"http://127.0.0.1:{PORT}"
@@ -56,6 +56,24 @@
             url: location.href,
             focused: document.visibilityState === 'visible' && document.hasFocus()
         })"""
+
+
+        def load_limits():
+            try:
+                minutes = json.loads(LIMITS_FILE.read_text())
+            except (OSError, ValueError) as error:
+                sys.exit(f"Cannot read website limits from {LIMITS_FILE}: {error}")
+            if not isinstance(minutes, dict):
+                sys.exit("Website limits must be a JSON object of domain: minutes")
+            for domain, value in minutes.items():
+                if not re.fullmatch(r"[a-z0-9-]+(\.[a-z0-9-]+)*", domain):
+                    sys.exit(f"Website limits must use lowercase hostnames, not URLs or wildcards: {domain!r}")
+                if type(value) is not int or value < 0:
+                    sys.exit(f"Website limits must be non-negative whole minutes (0 blocks immediately): {domain!r}")
+            return {domain: value * 60 for domain, value in minutes.items()}
+
+
+        LIMITS = load_limits()
 
 
         def today():
@@ -246,7 +264,7 @@
                 }, indent=2))
                 return
             if not LIMITS:
-                logging.info("No limits configured; edit dailyLimitsMinutes in website-usage-limiter.nix")
+                logging.info("No limits configured; run `secret-edit WEBSITE_LIMITS`")
                 return
             STATE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
             with (STATE_DIR / "monitor.lock").open("w") as lock:
@@ -283,24 +301,14 @@
       };
     in
     {
-      assertions = [
-        {
-          assertion = lib.all (minutes: builtins.isInt minutes && minutes >= 0) (
-            builtins.attrValues dailyLimitsMinutes
-          );
-          message = "Website limits must be non-negative whole minutes (0 blocks immediately).";
-        }
-        {
-          assertion = lib.all (domain: builtins.match "[a-z0-9-]+(\\.[a-z0-9-]+)*" domain != null) (
-            builtins.attrNames dailyLimitsMinutes
-          );
-          message = "Website limits must use lowercase hostnames, not URLs or wildcards.";
-        }
-      ];
-
       home.packages = [ monitor ];
-      systemd.user.services.website-usage-limiter = lib.mkIf (dailyLimitsMinutes != { }) {
-        Unit.Description = "Daily website usage limits for chrome-jofre";
+      systemd.user.services.website-usage-limiter = {
+        Unit = {
+          Description = "Daily website usage limits for chrome-jofre";
+          ConditionPathExists = limitsFile;
+          # The decrypted file is rewritten on activation; restart when it changes.
+          X-Restart-Triggers = [ "${limitsSecret}" ];
+        };
         Service = {
           ExecStart = "${monitor}/bin/website-usage-limiter";
           Restart = "on-failure";

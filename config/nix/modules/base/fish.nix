@@ -31,14 +31,11 @@
           n = "nvim";
           ff = "fastfetch";
           b = "btop";
-          bcc = "npx -y @anthropic-ai/claude-code --chrome";
-          bpi = "bunx @mariozechner/pi-coding-agent";
-          cc = "claude";
-          ".." = "cd ..";
+          co = "npx -y @anthropic-ai/claude-code --chrome";
+          cc = "npx -y @mariozechner/pi-coding-agent";
           sd = "shutdown now";
           rb = "sudo reboot now";
           p = "sudo lsof -i -P -n";
-          nd = "nix develop";
           nr = "nix run ${config.home.homeDirectory}/.dotfiles/config/nix#rebuild";
           ls = "exa --icons --group-directories-first";
           lt = "exa --tree --level=4 --icons --group-directories-first";

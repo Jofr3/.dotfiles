@@ -33,8 +33,8 @@
     in
     {
       home.packages = with pkgs; [
-        openconnect
         openfortivpn
+        openvpn
       ];
 
       home.activation.ateinsaVpn = lib.hm.dag.entryAfter [ "secrets" ] ''
@@ -57,9 +57,10 @@
       '';
 
       programs.fish.functions.vpn-lsw = ''
-        sudo ${pkgs.openconnect}/bin/openconnect \
-          -b vpn.lasevaweb.com:8443 --user=jofre --passwd-on-stdin $argv \
-          < "${secretsDir}/LSW_VPN_PASSWORD"
+        sudo ${pkgs.openvpn}/bin/openvpn \
+          --config "${secretsDir}/LSW_VPN_OVPN" \
+          --auth-retry interact \
+          --askpass "${secretsDir}/LSW_VPN_PASSWORD" $argv
       '';
     };
 }

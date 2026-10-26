@@ -2,6 +2,7 @@ scripts/passwords.json
 config/fish/fish_variables
 config/pi/agent/auth.json
 config/pi/agent/sessions/
+config/pi/agent/experimental/durable-sessions/
 config/claude/projects/
 config/claude/debug/
 config/claude/todos/
@@ -15,3 +16,10 @@ config/claude/mcp-needs-auth-cache.json
 # Generated extension dependencies and downloaded runtimes
 node_modules/
 config/pi/agent/extensions/*/runtime/
+
+# Herdr runtime state
+config/herdr/*.log
+config/herdr/*.sock
+config/herdr/session.json
+config/herdr/release-notes.json
+config/herdr/.plugins.lock

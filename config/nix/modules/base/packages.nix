@@ -16,7 +16,6 @@
         # cli tools
         btop
         claude-code
-        pi-coding-agent
         direnv
         eza
         fastfetch
@@ -76,7 +75,7 @@
         # intelephense
 
         #pi
-        # firecrawl-cli
+        firecrawl-cli
       ];
     };
 }

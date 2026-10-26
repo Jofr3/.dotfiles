@@ -32,11 +32,13 @@ clone it restores the age key first), or `sudo nixos-rebuild switch --flake .#<h
 | `base` | every machine, NixOS and Home Manager |
 | `desktop` | graphical workstations; imports `base` |
 | `server` | headless boxes; imports `base` |
+| `gaming` | optional i3/X11 + Steam profile; currently enabled on `nixos-pc` |
 | `nvidia`, `amdgpu`, `intel-graphics` | GPU, NixOS only |
 | `hosts/<hostname>` | one per machine |
 
 A host imports exactly one layer (`desktop` or `server`) plus its hardware
-modules. It must never import `base` directly: the layer already does, and
+modules and optional profiles such as `gaming`. It must never import `base`
+directly: the layer already does, and
 attrset modules are not deduplicated, so a second import would define
 everything twice. Layering lives in `modules/layers.nix`, the Home Manager
 wiring per layer in `modules/home-manager.nix`.
@@ -54,6 +56,7 @@ modules/
   base/                     features every machine gets (boot, nix, user, fish, ssh, docker, secrets, packages, ...)
   desktop/                  graphical features (niri, audio, stylix, wayland, terminals, browsers, mime, ...)
   server/                   headless features (openssh, firewall, gc, auto-upgrade, no-sleep, ...)
+  gaming/                   optional i3/X11 session and Steam
   hardware/                 GPU modules
   hosts/<hostname>/         host.nix (hostname, hostId, imports) + hardware.nix (wrapped nixos-generate-config)
 theme/  secrets/
@@ -149,7 +152,7 @@ After changing the passphrase, re-run
    nix eval .#modules.nixos --apply builtins.attrNames
    nix eval .#modules.homeManager --apply builtins.attrNames
    ```
-   Expected: base, desktop, server, the three GPU modules and four `hosts/*`
+   Expected: base, desktop, server, gaming, the three GPU modules and four `hosts/*`
    for nixos; base, desktop, server for homeManager.
 4. `nix fmt`.
 
@@ -161,6 +164,31 @@ are concatenated in file order, so moving packages between files reorders
 buildEnv derivations but does not change their content. Building both
 toplevels and running `nix store diff-closures old new` (or `nvd diff`) is
 the definitive check.
+
+## Gaming profile
+
+`nixos-pc` imports `gaming` in addition to `desktop` and `amdgpu`. Rebuild
+with `nix run .#rebuild -- nixos-pc`, then log out and select the i3 X11
+session (`none+i3`) in Ly. Niri remains available. This is a login session,
+not a separate host or boot specialisation.
+
+The profile installs Steam, enables its required 32-bit graphics support,
+and uses i3 without Picom. AMD X11 TearFree buffering is explicitly disabled;
+tearing is an intentional tradeoff. It does not change the kernel, force a
+Proton version, or set game-specific environment variables.
+
+Keybindings use Super: Return opens an X terminal, D opens dmenu, S opens
+Steam, O launches Overwatch (Steam app 2357570), F toggles fullscreen,
+Shift+Q closes the focused window, and 1–5 switch workspaces (add Shift to
+move a window). Shift+X locks; Shift+E asks before logging out.
+
+Install Overwatch in Steam and use Steam Play/Proton. Start with fullscreen,
+VSync off, and low graphics settings; tune the game's FPS cap against actual
+frame times and GPU load. These game settings are manual. No refresh rate
+is hard-coded: run `xrandr` in i3 to list the connected outputs and supported
+modes, then select a mode with `xrandr --output <output> --mode <resolution>
+--rate <reported-rate>`. Verify 540 Hz is actually offered before selecting
+it. The monitor/GPU combination still determines the available modes.
 
 ## Gotchas
 

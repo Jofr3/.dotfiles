@@ -21,11 +21,7 @@
       home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
       home.sessionVariables.CODEX_HOME = "${config.xdg.configHome}/codex";
 
-      # Keep Codex state in CODEX_HOME and editable config and skills in the repo.
+      # Keep Codex state in CODEX_HOME and editable config in the repo.
       xdg.configFile."codex/config.toml".source = "${dotfiles}/config/codex/config.toml";
-      home.file.".agents/skills" = {
-        source = "${dotfiles}/config/codex/skills";
-        recursive = true;
-      };
     };
 }

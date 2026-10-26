@@ -91,6 +91,11 @@
           host = "dev.virtual.targecopy.com";
           user = "dev_virtual_targecopy_com";
         };
+        targecopy_clients = {
+          host = "clients.targecopy.com";
+          user = "clients_targecopy_com";
+          key = null;
+        };
         vicfires = {
           host = "ec2-15-188-172-200.eu-west-3.compute.amazonaws.com";
           user = "dev_vicfires_cat";

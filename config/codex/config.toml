@@ -1,4 +1,4 @@
-model = "gpt-6-sol"
+model = "gpt-6.1-sol"
 model_reasoning_effort = "high"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
@@ -58,6 +58,24 @@ trust_level = "trusted"
 [projects."/home/jofre/projects/lectio"]
 trust_level = "trusted"
 
+[projects."/home/jofre/lsw/targecopy"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/targecopy_app"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/mydocumentium"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/myproductium"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/myproductium_app"]
+trust_level = "trusted"
+
+[projects."/home/jofre/lsw/targecopy_clients"]
+trust_level = "trusted"
+
 [notice.model_migrations]
 "gpt-5.3-codex" = "gpt-5.4"
 
@@ -69,6 +87,7 @@ screen_reader_detection_done = true
 "gpt-5.5" = 1
 "gpt-5.6-sol" = 1
 gpt-6-astra = 4
+"gpt-6.1-sol" = 4
 
 [hooks.state]
 

@@ -45,8 +45,10 @@
         };
 
         "gitlab.com" = {
-          HostName = "gitlab.com";
+          Host = "git.lasevaweb.com";
+          HostName = "git.lasevaweb.com";
           User = "git";
+          Port = "2222";
           IdentityFile = "${config.home.homeDirectory}/.ssh/keys/jofre_gitlab.pub";
           IdentitiesOnly = true;
         };

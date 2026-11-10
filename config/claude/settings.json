@@ -2,7 +2,7 @@
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
-  "model": "sonnet",
+  "model": "opus[1m]",
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true,
     "php-lsp@claude-plugins-official": true,

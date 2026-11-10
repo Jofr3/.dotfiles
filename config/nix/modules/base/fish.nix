@@ -32,7 +32,8 @@
           ff = "fastfetch";
           b = "btop";
           co = "npx -y @anthropic-ai/claude-code --chrome";
-          cc = "npx -y @mariozechner/pi-coding-agent";
+          npi = "npx -y @mariozechner/pi-coding-agent";
+          cc = "npx -y @anthropic-ai/claude-code";
           sd = "shutdown now";
           rb = "sudo reboot now";
           p = "sudo lsof -i -P -n";

@@ -54,6 +54,8 @@
         php
         python315
 
+        t3code
+
         # lsp servers
         # angular-language-server
         # lua-language-server

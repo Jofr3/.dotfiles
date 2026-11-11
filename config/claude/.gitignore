@@ -77,3 +77,9 @@ skills/.trash/
 
 # Generated wrapper with an absolute path into this machine's npx cache.
 chrome/
+
+# Plugin directory listing cache (~2.7MB), re-downloaded by Claude Code.
+plugins/plugin-directory-cache-v2.json
+
+# IDE connection lock files, per-session and per-machine.
+ide/

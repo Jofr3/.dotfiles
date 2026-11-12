@@ -30,6 +30,7 @@
         shellAliases = {
           n = "nvim";
           ff = "fastfetch";
+          gg = "onefetch --no-title --no-color-palette";
           b = "btop";
           co = "npx -y @anthropic-ai/claude-code --chrome";
           npi = "npx -y @mariozechner/pi-coding-agent";

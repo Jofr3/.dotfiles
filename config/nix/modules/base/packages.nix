@@ -30,6 +30,7 @@
         jujutsu
         yazi
         inputs.nixpkgs-herdr.legacyPackages.${pkgs.stdenv.hostPlatform.system}.herdr # see flake.nix
+        onefetch
 
         # editors
         neovim

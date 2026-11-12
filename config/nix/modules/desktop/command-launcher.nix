@@ -13,6 +13,7 @@
         };
         screenshot.command = "screenshot-satty";
         "keyboard switch layout".command = "niri msg action switch-layout next";
+        "tasques export".command = "tasques-export | wl-copy";
         "color picker".command = "wl-color-picker clipboard";
         dot = {
           command = "dot";

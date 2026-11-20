@@ -11,6 +11,7 @@ update-notes.json
 update-notes-cache.md
 update-notes-media/
 data/
+telemetry/
 *.error
 *.reset-*
 *.old-*

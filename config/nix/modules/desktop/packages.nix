@@ -6,6 +6,7 @@
       home.packages = with pkgs; [
         # editors
         vscode
+        herdr-desktop
 
         # apps
         dbeaver-bin

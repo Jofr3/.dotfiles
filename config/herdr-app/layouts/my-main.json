@@ -11,6 +11,16 @@
       "type": "column",
       "children": [
         {
+          "id": "cmd-buttons",
+          "type": "block",
+          "content": {
+            "mod": "cmd-buttons"
+          },
+          "size": {
+            "px": 40
+          }
+        },
+        {
           "id": "sidebar-lists",
           "type": "column",
           "children": [

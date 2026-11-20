@@ -22,7 +22,7 @@ gpui-kit.d.ts
 herdr.d.ts
 jsconfig.json
 frame/
-icons/
+/icons/
 
 # Shipped layouts, mods and themes (replaced whole on every start)
 layouts/main.json

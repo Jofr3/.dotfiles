@@ -8,5 +8,6 @@
   "minimum_contrast": 1,
   "appearance": "dark",
   "telemetry": false,
-  "font_size": 13.33
+  "font_size": 13.33,
+  "pane_scrollbars": false
 }

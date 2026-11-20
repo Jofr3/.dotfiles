@@ -2,14 +2,13 @@
   "nodes": {
     "agents": {
       "size": {
-        "weight": 0.7373965
+        "weight": 0.4687578
       }
     },
     "panel": {
       "size": {
         "px": 526.0
-      },
-      "hidden": false
+      }
     },
     "sidebar": {
       "size": {
@@ -18,7 +17,7 @@
     },
     "spaces": {
       "size": {
-        "weight": 1.2626035
+        "weight": 1.5312421
       }
     }
   },
@@ -38,6 +37,16 @@
         "id": "sidebar",
         "type": "column",
         "children": [
+          {
+            "id": "cmd-buttons",
+            "type": "block",
+            "content": {
+              "mod": "cmd-buttons"
+            },
+            "size": {
+              "px": 40.0
+            }
+          },
           {
             "id": "sidebar-lists",
             "type": "column",
@@ -133,7 +142,7 @@
                         "id": "files",
                         "type": "block",
                         "content": {
-                          "mod": "files"
+                          "mod": "my-files"
                         }
                       },
                       {
@@ -163,7 +172,7 @@
               }
             ],
             "padding": 0.0,
-            "gap": 8.0
+            "gap": 0.0
           },
           {
             "id": "status",

@@ -1,6 +1,6 @@
 import { View, div, image, svg } from "gpui-kit";
 import { h_flex, v_flex } from "gpui-base";
-import { theme, run, props, window, shared, setShared, updates, layout } from "herdr";
+import { theme, run, props, window, shared, setShared, updates, layout, openOverlay } from "herdr";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -42,7 +42,11 @@ export default class WorkspaceChrome extends View {
         .px(collapsed ? 2 : 8).gap(collapsed ? 2 : 4).items_center()
         .child(icon("settings", "mods/my-chrome/settings.svg", () => run("app.settings"))
           .when(Boolean(updates().app.ready), el => el.child(div().absolute().top(5).right(4).size(6).rounded_full().bg(t.accent))))
-        .child(icon("keybinds", "mods/keybinds/keyboard.svg", () => run("mod.open", { name: "keybinds" })));
+        .child(icon("keybinds", "mods/keybinds/keyboard.svg", () => run("mod.open", { name: "keybinds" })))
+        // The command buttons' manager (mods/cmd-buttons, its "manage" view).
+        .child(icon("cmd-buttons", "mods/cmd-buttons/icons/square-terminal.svg",
+          () => openOverlay({ mod: "cmd-buttons", kind: "dialog", width: 560, height: 480, props: { view: "manage" } }))
+          .tooltip("Command buttons"));
     }
     return h_flex().size_full().bg(t.chrome).pl(collapsed ? 6 : 14).pr(10).gap(4).items_center().text_size(13.5)
       .when(window()?.platform === "macos" && !window()?.fullscreen && !collapsed, el => el.pl(76))

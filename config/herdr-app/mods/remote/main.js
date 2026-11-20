@@ -239,7 +239,7 @@ export default class Remote extends View {
       .when(st.limited, el => el.child(message("Listing limited to 1,000 entries per folder")));
 
     const file = st?.file;
-    return v_flex().id("remote").size_full().min_h(0).overflow_hidden().bg(t.background).text_color(t.foreground).text_size(13)
+    return v_flex().id("remote").size_full().min_h(0).overflow_hidden().bg(t.background).border_l_1().border_color(t.border).text_color(t.foreground).text_size(13)
       .child(h_flex().h(42).flex_none().px(10).gap(4).items_center().border_b(1).border_color(t.border)
         .when(Boolean(file), el => el.child(tool("back", "←", (_e, cx) => this.show(st, null, cx))))
         .child(v_flex().flex_1().min_w(0).pl(4)

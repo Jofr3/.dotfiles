@@ -96,8 +96,12 @@ export default class Tabs extends View {
     const stop = (_e, cx) => cx.stop_propagation();
     const button = (id, label, action) => div().id(id).size(26).flex_none().flex().items_center().justify_center().rounded(6).text_color(t.dim).hover(s => s.bg(t.hover).text_color(t.foreground))
       .on_mouse_down("left", stop).on_click(action).child(label);
+    // Panel tabs (mod panes) get their panel's icon.
+    const MOD_ICONS = { "my-files": "mods/files/file.svg", "my-changes": "mods/changes/changes.svg", "remote": "mods/remote/server.svg" };
     const item = (c, i) => {
-      const program = panes().find(p => p.tab === c.id && p.program?.agent)?.program ?? panes().find(p => p.tab === c.id)?.program;
+      const modPane = panes().find(p => p.tab === c.id && MOD_ICONS[p.mod]);
+      const program = panes().find(p => p.tab === c.id && p.program?.agent)?.program
+        ?? (modPane ? { icon: MOD_ICONS[modPane.mod], tint: true } : panes().find(p => p.tab === c.id)?.program);
       const tabPanes = panes().filter(p => p.tab === c.id);
       const titled = tabPanes.find(p => p.focused) ?? tabPanes.find(p => p.program?.agent) ?? tabPanes[0];
       const name = c.named ? c.name : titled?.title || program?.name || c.name;
@@ -124,24 +128,34 @@ export default class Tabs extends View {
     const panel = find(root, "panel"), body = find(root, "panel-body");
     const enabled = [...(shared("workspace.panels") ?? ["files", "changes"]), "remote"];
     this.trackPanel(space, root);
-    const panelButton = (id, label, icon) => {
-      const on = panel && !panel.hidden && body?.active === id;
-      return h_flex().id(`panel-${id}`).h(26).px(8).gap(5).flex_none().items_center().rounded(6)
-        .text_size(12).bg(on ? t.selected : t.chrome).text_color(on ? t.foreground : t.muted)
-        .hover(s => s.bg(t.hover)).on_mouse_down("left", stop)
-        .on_click(() => {
-          if (on) run("layout.hide", { id: "panel" });
-          else { run("layout.select", { stack: "panel-body", child: id }); run("layout.show", { id: "panel" }); }
-        }).child(svg(icon).size(14)).child(label);
+    // Each panel is a pair: the main button opens it as a tab (or goes to the one already open
+    // in this space), the sidebar button toggles it in the side panel.
+    const modTab = mod => shown.find(c => panes().some(p => p.tab === c.id && p.mod === mod));
+    const panelButton = (id, label, icon, mod) => {
+      const inPanel = panel && !panel.hidden && body?.active === id;
+      const tab = modTab(mod), inTab = Boolean(tab?.active);
+      const half = (key, on) => h_flex().id(`panel-${id}-${key}`).h_full().flex_none().items_center()
+        .bg(on ? t.selected : t.chrome).text_color(on ? t.foreground : t.muted)
+        .hover(s => s.bg(t.hover).text_color(t.foreground)).on_mouse_down("left", stop);
+      return h_flex().h(26).flex_none().items_center().rounded(6).overflow_hidden().border(1).border_color(t.border)
+        .child(half("tab", inTab).px(6)
+          .on_click(() => tab ? run("tab.select", { id: tab.id }) : run("tab.new", { name: label, mod }))
+          .child(svg(icon).size(14)))
+        .child(div().w(1).h_full().bg(t.border))
+        .child(half("side", inPanel).px(6)
+          .on_click(() => {
+            if (inPanel) run("layout.hide", { id: "panel" });
+            else { run("layout.select", { stack: "panel-body", child: id }); run("layout.show", { id: "panel" }); }
+          }).child(svg("mods/my-tabs/panel-right.svg").size(14)));
     };
-    return h_flex().size_full().min_w(0).pr(10).pl(lightsPadding).gap(3).items_center().bg(t.chrome).border_b(1).border_color(t.border)
+    return h_flex().size_full().min_w(0).pr(10).pl(lightsPadding).gap(6).items_center().bg(t.chrome).border_b(1).border_color(t.border)
       .on_mouse_up("left", () => { this.pressed = null; })
       .on_scroll_wheel(e => { if (Math.abs(e.delta.y) >= 1) run(e.delta.y > 0 ? "tab.prev" : "tab.next"); })
       .child(h_flex().id("tab-scroll").flex_1().min_w(0).h_full().items_center().overflow_x_scrollbar().children(shown.map(item)))
       .child(button("tab-new", "+", () => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 })))
-      .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/files/file.svg")))
-      .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/changes/changes.svg")))
-      .child(panelButton("remote", "Remote", "mods/remote/server.svg"))
+      .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/files/file.svg", "my-files")))
+      .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/changes/changes.svg", "my-changes")))
+      .child(panelButton("remote", "Remote", "mods/remote/server.svg", "remote"))
       .when(false && w?.buttons, el => el.child(button("minimize", w.platform === "windows" ? svg("mods/my-tabs/win-min.svg").size(16) : "−", () => run("window.minimize")))
         .child(button("maximize", w.platform === "windows" ? svg(`mods/my-tabs/${w.maximized ? "win-restore" : "win-max"}.svg`).size(16) : "□", () => run("window.maximize")))
         .child(button("close-window", w.platform === "windows" ? svg("mods/my-tabs/win-close.svg").size(16) : svg("mods/pane/close.svg").size(13), () => run("window.close"))));

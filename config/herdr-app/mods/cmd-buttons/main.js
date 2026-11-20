@@ -34,7 +34,16 @@ export const ICONS = [
   "git-branch", "search", "eye", "send", "star", "trash", "folder", "file-text", "settings",
 ];
 const FADE = 3000;
-const COLOR = { running: "#4f8ff7", ok: "#4f8ff7", input: "#f0883e", error: "#e5534b" };
+// Status colors come from the theme: its terminal green (blue-green pine in Rosé Pine),
+// its working color (gold) for input, and its terminal red.
+const color = (t, state) => ({ running: t.ansi2, ok: t.ansi2, input: t.working, error: t.ansi1 })[state] ?? t.muted;
+// A theme color at some opacity (0..1), whatever hex length the theme wrote.
+function alpha(c, a) {
+  let h = String(c ?? "").replace("#", "");
+  if (h.length === 3 || h.length === 4) h = [...h].map((x) => x + x).join("");
+  if (!/^[0-9a-f]{6}([0-9a-f]{2})?$/i.test(h)) return c;
+  return `#${h.slice(0, 6)}${Math.round(a * 255).toString(16).padStart(2, "0")}`;
+}
 // A last line like this, unchanged for a moment, is a question for the user.
 const PROMPT = /(\?|>|:|›|❯|\[y\/n\]|\(y\/n\)|\[y\/N\]|\[Y\/n\])$/i;
 const LABEL = { running: "Running", ok: "Done", input: "Needs input", error: "Failed" };
@@ -336,7 +345,7 @@ export default class CmdButtons extends View {
 
   barButton(b, t) {
     const s = statusOf(b, this.waiting);
-    const c = s ? COLOR[s.state] : null;
+    const c = s ? color(t, s.state) : null;
     // A finished run's color fades after a moment, unless it's long running.
     const faded = Boolean(s?.terminal && this.faded.has(s.terminal) && !b.longRunning);
     const shown = Boolean(c) && !faded;
@@ -355,7 +364,7 @@ export default class CmdButtons extends View {
         .opacity(shown ? 0 : 1).transition("opacity", 900))
       // The tint and the colored icon lie over the plain button and fade out.
       .child(div().id(`tint-${b.id}`).absolute().inset(0).rounded(8).border_1()
-        .when(Boolean(c), (el) => el.bg(`${c}2e`).border_color(`${c}80`))
+        .when(Boolean(c), (el) => el.bg(alpha(c, 0.18)).border_color(alpha(c, 0.5)))
         .opacity(shown ? 1 : 0).transition("opacity", 900))
       .child(div().relative().size(16).flex_none()
         .child(div().id(`icm-${b.id}`).absolute().inset(0).opacity(shown ? 0 : 1).transition("opacity", 900)
@@ -434,8 +443,8 @@ export default class CmdButtons extends View {
       .on_key_down((e, cx) => { if (e.key === "escape") { closeOverlay(p.overlay); cx.stop_propagation(); } })
       .size_full().min_h(0).p(18).bg(t.popover).text_color(t.foreground)
       .child(h_flex().items_center().gap(10)
-        .child(h_flex().size(30).rounded(8).items_center().justify_center().bg(`${COLOR.ok}2e`).border_1().border_color(`${COLOR.ok}80`)
-          .child(iconEl(preview, 16, COLOR.ok)))
+        .child(h_flex().size(30).rounded(8).items_center().justify_center().bg(alpha(color(t, "ok"), 0.18)).border_1().border_color(alpha(color(t, "ok"), 0.5))
+          .child(iconEl(preview, 16, color(t, "ok"))))
         .child(div().flex_1().text_size(15).font_semibold().child(this.editing ? "Edit command button" : "New command button")))
       .child(label("Command"))
       .child(input("command", this.command))
@@ -455,7 +464,7 @@ export default class CmdButtons extends View {
         .on_click((_e, cx) => { this.icon = name; cx.notify(); })
         .child(svg(`${DIR}/icons/${name}.svg`).size(15).text_color(this.icon === name ? t.foreground : t.muted)))))
       .child(div().flex_1())
-      .when(Boolean(this.error), (el) => el.child(div().pt(8).text_size(12).text_color(COLOR.error).child(this.error)))
+      .when(Boolean(this.error), (el) => el.child(div().pt(8).text_size(12).text_color(color(t, "error")).child(this.error)))
       .child(h_flex().pt(16).gap(8).justify_end()
         .child(btn(t, "ed-cancel", "Cancel", false, () => closeOverlay(p.overlay)))
         .child(btn(t, "ed-save", "Save", true, (_e, cx) => this.submitEdit(cx))));
@@ -480,7 +489,7 @@ export default class CmdButtons extends View {
     const row = (b, i) => {
       const st = statusOf(b);
       const s = faded(b, st) ? null : st;
-      const c = s ? COLOR[s.state] : t.muted;
+      const c = s ? color(t, s.state) : t.muted;
       const target = this.dragging && this.over === b.id && this.dragging !== b.id;
       return h_flex().id(`mg-${b.id}`).relative().h(46).pl(2).pr(10).gap(8).items_center().rounded(8)
         .when(!this.dragging, (el) => el.hover((st) => st.bg(t.hover)))
@@ -497,7 +506,7 @@ export default class CmdButtons extends View {
           .on_mouse_down("left", (_e, cx) => { cx.stop_propagation(); this.dragging = b.id; this.over = b.id; cx.notify(); })
           .child(svg(`${DIR}/icons/grip.svg`).size(14)))
         .child(h_flex().size(28).flex_none().rounded(7).items_center().justify_center()
-          .border_1().when(Boolean(s), (el) => el.bg(`${c}2e`).border_color(`${c}80`))
+          .border_1().when(Boolean(s), (el) => el.bg(alpha(c, 0.18)).border_color(alpha(c, 0.5)))
           .when(!s, (el) => el.border_color(t.border)).child(iconEl(b.icon, 15, c)))
         .child(v_flex().flex_1().min_w(0)
           .child(div().truncate().text_size(13).child(b.name || b.command))
@@ -505,7 +514,7 @@ export default class CmdButtons extends View {
             .child(tag(t, "folder", b.folder || "focused folder", true))
             .child(tag(t, "terminal", b.command, false))))
         .when(this.confirm === b.id, (el) => el
-          .child(div().text_size(12).text_color(COLOR.error).child("Delete?"))
+          .child(div().text_size(12).text_color(color(t, "error")).child("Delete?"))
           .child(btn(t, `mg-no-${b.id}`, "Keep", false, (_e, cx) => { this.confirm = null; cx.notify(); }).h(26).px(10))
           .child(btn(t, `mg-yes-${b.id}`, "Delete", true, (_e, cx) => {
             this.confirm = null;
@@ -581,7 +590,7 @@ export default class CmdButtons extends View {
     const s = statusOf(b);
     const mine = s?.terminal === p.terminal;
     const state = mine ? s.state : null;
-    const c = state ? COLOR[state] : t.muted;
+    const c = state ? color(t, state) : t.muted;
     const going = state === "running" || state === "input";
     return h_flex().id("cmd-title").size_full().px(10).gap(8).items_center().bg(t.chrome)
       .border_b_1().border_color(t.border).text_size(12.5)
@@ -589,7 +598,7 @@ export default class CmdButtons extends View {
       .child(div().flex_shrink(0).max_w(220).truncate().font_medium().text_color(t.foreground).child(b.name || b.command))
       .child(div().flex_1())
       .when(Boolean(state), (el) => el.child(h_flex().flex_none().gap(5).items_center().px(7).h(20).rounded(10)
-        .bg(`${c}26`).text_size(11).text_color(c)
+        .bg(alpha(c, 0.15)).text_size(11).text_color(c)
         .child(div().size(6).rounded(3).bg(c).when(going, (d) => d.loop("opacity", { from: 0.35, to: 1, period: 1100 })))
         .child(state === "error" ? `Failed (${s.code})` : LABEL[state])))
       .when(!b.longRunning, (el) => el.child(iconBtn(t, "tt-rerun", "refresh", "Run again", () => start(b, true).catch(() => {}))))

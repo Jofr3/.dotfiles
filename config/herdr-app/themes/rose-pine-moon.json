@@ -2,10 +2,24 @@
   "background": "#232136",
   "foreground": "#e0def4",
   "selection": "#44415a",
-  "cursor": "#56526e",
+  "cursor": "#e0def4",
   "ansi": [
-    "#393552", "#eb6f92", "#3e8fb0", "#f6c177", "#9ccfd8", "#c4a7e7", "#ea9a97", "#e0def4",
-    "#6e6a86", "#eb6f92", "#3e8fb0", "#f6c177", "#9ccfd8", "#c4a7e7", "#ea9a97", "#e0def4"
+    "#393552",
+    "#eb6f92",
+    "#3e8fb0",
+    "#ea9a97",
+    "#c4a7e7",
+    "#f6c177",
+    "#9ccfd8",
+    "#e0def4",
+    "#6e6a86",
+    "#eb6f92",
+    "#3e8fb0",
+    "#ea9a97",
+    "#c4a7e7",
+    "#f6c177",
+    "#9ccfd8",
+    "#56526e"
   ],
   "colors": {
     "accent": "#c4a7e7",

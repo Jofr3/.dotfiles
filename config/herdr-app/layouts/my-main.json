@@ -29,7 +29,7 @@
               "id": "agents",
               "type": "block",
               "content": {
-                "mod": "agents"
+                "mod": "my-agents"
               },
               "size": {
                 "weight": 1
@@ -71,7 +71,7 @@
             "mod": "my-tabs"
           },
           "size": {
-            "px": 42
+            "px": 32
           },
           "window_drag": true
         },
@@ -85,14 +85,6 @@
               "content": {
                 "tab": "active",
                 "pane": {
-                  "header": {
-                    "content": {
-                      "mod": "pane"
-                    },
-                    "reveal": "always",
-                    "height": 30,
-                    "position": "top"
-                  },
                   "background": "background",
                   "radius": 0,
                   "gap": 1,
@@ -120,7 +112,14 @@
                       "id": "changes",
                       "type": "block",
                       "content": {
-                        "mod": "changes"
+                        "mod": "my-changes"
+                      }
+                    },
+                    {
+                      "id": "remote",
+                      "type": "block",
+                      "content": {
+                        "mod": "remote"
                       }
                     }
                   ],
@@ -155,8 +154,8 @@
   ],
   "background": "canvas",
   "terminal_padding": [
-    14,
-    12
+    0,
+    0
   ],
   "divider": {
     "width": 1,

@@ -7,6 +7,26 @@ import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
 import { spaces, machines, panes, run, openOverlay, exec, hc, theme, shared, setShared, watchFolder, window, layout } from "herdr";
 
+// Switches space and its remembered side panel together, so the panel doesn't flash.
+// The memory ("panel.bySpace") is kept by my-tabs; this is its goToSpace.
+function findNode(node, id) {
+  if (node?.id === id) return node;
+  for (const child of node?.children ?? []) { const found = findNode(child, id); if (found) return found; }
+  return null;
+}
+function goToSpace(id) {
+  const m = shared("panel.bySpace") ?? {};
+  if (id in m) {
+    const root = layout(), panel = findNode(root, "panel");
+    const now = panel && !panel.hidden ? findNode(root, "panel-body")?.active ?? null : null;
+    if (panel && m[id] !== now) {
+      if (m[id]) { run("layout.select", { stack: "panel-body", child: m[id] }); run("layout.show", { id: "panel" }); }
+      else run("layout.hide", { id: "panel" });
+    }
+  }
+  run("space.select", { id });
+}
+
 function find(node, id) {
   if (node?.id === id) return node;
   for (const child of node?.children ?? []) {
@@ -409,7 +429,7 @@ export default class Spaces extends View {
         if (from !== null && over === w.id && from !== w.id) {
           const index = spaces().findIndex(s => s.id === w.id);
           if (index !== -1) run("space.move", { id: from, index: index + 1 });
-        } else if (from === w.id) run("space.select", { id: w.id });
+        } else if (from === w.id) goToSpace(w.id);
         cx.notify();
       })
       .on_mouse_down("right", () => this.menu(w))
@@ -433,7 +453,7 @@ export default class Spaces extends View {
       .gap(4)
       .when(w.active, (el) => el.bg(t.raised))
       .hover((s) => s.bg(t.hover))
-      .on_click(() => run("space.select", { id: w.id }))
+      .on_click(() => goToSpace(w.id))
       .child(div().text_color(w.active ? t.foreground : t.muted).child(String(i + 1)))
       .child(div().text_color(tone(t, w.status)).child(glyph(w.status)));
   }

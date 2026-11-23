@@ -1,0 +1,13 @@
+{
+  "zoom": 1,
+  "sounds": {
+    "enabled": true
+  },
+  "font": "FiraCode Nerd Font Mono",
+  "font_ligatures": false,
+  "minimum_contrast": 1,
+  "appearance": "dark",
+  "telemetry": false,
+  "font_size": 13.33,
+  "pane_scrollbars": false
+}

@@ -1,0 +1,22 @@
+{
+  "buttons": [
+    {
+      "id": "bmwoyptsw",
+      "name": "vpn lasevaweb",
+      "command": "vpn-lsw",
+      "icon": "globe",
+      "folder": "~/",
+      "longRunning": true,
+      "openOnRun": false
+    },
+    {
+      "id": "bmwozq9qx",
+      "name": "vpn ateinsa",
+      "command": "vpn-ateinsa",
+      "icon": "globe",
+      "folder": "~/",
+      "longRunning": true,
+      "openOnRun": false
+    }
+  ]
+}

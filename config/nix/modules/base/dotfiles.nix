@@ -15,6 +15,7 @@
         helix.source = "${dotfiles}/config/helix";
         yazi.source = "${dotfiles}/config/yazi";
         herdr.source = "${dotfiles}/config/herdr";
+        herdr-app.source = "${dotfiles}/config/herdr-app";
       };
 
       home.file.".claude" = {

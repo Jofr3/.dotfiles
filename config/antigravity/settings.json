@@ -1,0 +1,9 @@
+{
+  "agentMode": "accept-edits",
+  "altScreenMode": "always",
+  "model": "Gemini 4 Neon (Medium)",
+  "toolPermission": "always-proceed",
+  "trustedWorkspaces": [
+    "/home/jofre/projects/colorless"
+  ]
+}

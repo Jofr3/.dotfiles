@@ -7,8 +7,9 @@
     },
     "panel": {
       "size": {
-        "px": 510.0
-      }
+        "px": 486.0
+      },
+      "hidden": false
     },
     "panel-body": {
       "active": "services"

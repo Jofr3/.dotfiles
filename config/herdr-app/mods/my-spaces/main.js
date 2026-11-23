@@ -80,6 +80,7 @@ export default class Spaces extends View {
     this.shown = new Set(spaces().map((s) => s.id));
     this.born = {};
     this.pressed = null;
+    this.middlePressed = null;
     this.over = null;
     this.machines = [];
     this.reconnecting = JSON.parse(localStorage.getItem("machines.reconnecting") ?? "{}");
@@ -433,6 +434,12 @@ export default class Spaces extends View {
         cx.notify();
       })
       .on_mouse_down("right", () => this.menu(w))
+      .on_mouse_down("middle", (_e, cx) => { cx.stop_propagation(); this.middlePressed = w.id; })
+      .on_mouse_up("middle", (_e, cx) => {
+        cx.stop_propagation();
+        const id = this.middlePressed; this.middlePressed = null;
+        if (id === w.id) run("space.close", { id: w.id });
+      })
       .child(
         h_flex()
           .gap(9)
@@ -454,6 +461,12 @@ export default class Spaces extends View {
       .when(w.active, (el) => el.bg(t.raised))
       .hover((s) => s.bg(t.hover))
       .on_click(() => goToSpace(w.id))
+      .on_mouse_down("middle", (_e, cx) => { cx.stop_propagation(); this.middlePressed = w.id; })
+      .on_mouse_up("middle", (_e, cx) => {
+        cx.stop_propagation();
+        const id = this.middlePressed; this.middlePressed = null;
+        if (id === w.id) run("space.close", { id: w.id });
+      })
       .child(div().text_color(w.active ? t.foreground : t.muted).child(String(i + 1)))
       .child(div().text_color(tone(t, w.status)).child(glyph(w.status)));
   }
@@ -476,6 +489,7 @@ export default class Spaces extends View {
     return v_flex().size_full().min_h(0).bg(t.chrome).text_size(13)
       .child(v_flex().flex_1().min_h(0).px(8).pt(8).pb(14).overflow_y_scrollbar().mode("always")
         .on_mouse_up("left", (_e, cx) => { this.pressed = null; cx.notify(); })
+        .on_mouse_up("middle", () => { this.middlePressed = null; })
         .children(this.grouped(t, collapsed)));
   }
 }

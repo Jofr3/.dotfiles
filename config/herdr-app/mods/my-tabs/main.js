@@ -50,6 +50,7 @@ function goToAgent(step) {
 export default class Tabs extends View {
   init(_props, cx) {
     this.pressed = null;
+    this.middlePressed = null;
     // keys.json: "alt-1": "my-tabs.space-1", "ctrl-j": "my-tabs.space-next", "ctrl-k": "my-tabs.space-prev",
     // "alt-down": "my-tabs.agent-next", "alt-up": "my-tabs.agent-prev".
     cx.spawn(async () => {
@@ -115,6 +116,12 @@ export default class Tabs extends View {
           else run("tab.select", { id: c.id });
         })
         .on_mouse_down("right", (_e, cx) => { cx.stop_propagation(); openOverlay({ mod: "menu", kind: "popup", width: 200, props: { tab: "tab", target: { id: c.id, space: space.id } } }); })
+        .on_mouse_down("middle", (_e, cx) => { cx.stop_propagation(); this.middlePressed = c.id; })
+        .on_mouse_up("middle", (_e, cx) => {
+          cx.stop_propagation();
+          const id = this.middlePressed; this.middlePressed = null;
+          if (id === c.id) run("tab.close", { id: c.id });
+        })
         .when(Boolean(program?.icon), el => el.child(program.tint ? svg(program.icon).size(14).text_color(t.muted) : image(program.icon).size(14)))
         .child(div().max_w(360).truncate().child(c.zoomed ? `${name} Z` : name))
         .when(c.status === "working", el => el.child(svg("mods/my-chrome/spinner.svg").size(12).flex_none().text_color(t.working).spin(900)))
@@ -128,35 +135,28 @@ export default class Tabs extends View {
     const panel = find(root, "panel"), body = find(root, "panel-body");
     const enabled = [...(shared("workspace.panels") ?? ["files", "changes"]), "remote"];
     this.trackPanel(space, root);
-    // Each panel is a pair: the main button opens it as a tab (or goes to the one already open
-    // in this space), the sidebar button toggles it in the side panel.
-    const modTab = mod => shown.find(c => panes().some(p => p.tab === c.id && p.mod === mod));
-    const panelButton = (id, label, icon, mod) => {
+    // Each panel button toggles its panel in the side panel.
+    const panelButton = (id, icon) => {
       const inPanel = panel && !panel.hidden && body?.active === id;
-      const tab = modTab(mod), inTab = Boolean(tab?.active);
-      const half = (key, on) => h_flex().id(`panel-${id}-${key}`).h_full().flex_none().items_center()
-        .bg(on ? t.selected : t.chrome).text_color(on ? t.foreground : t.muted)
-        .hover(s => s.bg(t.hover).text_color(t.foreground)).on_mouse_down("left", stop);
-      return h_flex().h(26).flex_none().items_center().rounded(6).overflow_hidden().border(1).border_color(t.border)
-        .child(half("tab", inTab).px(6)
-          .on_click(() => tab ? run("tab.select", { id: tab.id }) : run("tab.new", { name: label, mod }))
-          .child(svg(icon).size(14)))
-        .child(div().w(1).h_full().bg(t.border))
-        .child(half("side", inPanel).px(6)
-          .on_click(() => {
-            if (inPanel) run("layout.hide", { id: "panel" });
-            else { run("layout.select", { stack: "panel-body", child: id }); run("layout.show", { id: "panel" }); }
-          }).child(svg("mods/my-tabs/panel-right.svg").size(14)));
+      return h_flex().id(`panel-${id}`).size(26).flex_none().items_center().justify_center()
+        .rounded(6)
+        .bg(inPanel ? t.selected : t.chrome).text_color(inPanel ? t.foreground : t.muted)
+        .hover(s => s.bg(t.hover).text_color(t.foreground)).on_mouse_down("left", stop)
+        .on_click(() => {
+          if (inPanel) run("layout.hide", { id: "panel" });
+          else { run("layout.select", { stack: "panel-body", child: id }); run("layout.show", { id: "panel" }); }
+        }).child(svg(icon).size(14));
     };
     return h_flex().size_full().min_w(0).pr(10).pl(lightsPadding).gap(6).items_center().bg(t.chrome).border_b(1).border_color(t.border)
       .on_mouse_up("left", () => { this.pressed = null; })
+      .on_mouse_up("middle", () => { this.middlePressed = null; })
       .on_scroll_wheel(e => { if (Math.abs(e.delta.y) >= 1) run(e.delta.y > 0 ? "tab.prev" : "tab.next"); })
       .child(h_flex().id("tab-scroll").flex_1().min_w(0).h_full().items_center().overflow_x_scrollbar().children(shown.map(item)))
       .child(button("tab-new", svg("mods/my-chrome/plus.svg").size(14), () => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 })))
-      .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/my-files/file.svg", "my-files")))
-      .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/my-changes/changes.svg", "my-changes")))
-      .child(panelButton("remote", "Remote", "mods/remote/server.svg", "remote"))
-      .child(panelButton("services", "Services", "mods/services/services.svg", "services"))
+      .when(enabled.includes("files"), el => el.child(panelButton("files", "mods/my-files/file.svg")))
+      .when(enabled.includes("changes"), el => el.child(panelButton("changes", "mods/my-changes/changes.svg")))
+      .child(panelButton("remote", "mods/remote/server.svg"))
+      .child(panelButton("services", "mods/services/services.svg"))
       .when(false && w?.buttons, el => el.child(button("minimize", w.platform === "windows" ? svg("mods/my-tabs/win-min.svg").size(16) : "−", () => run("window.minimize")))
         .child(button("maximize", w.platform === "windows" ? svg(`mods/my-tabs/${w.maximized ? "win-restore" : "win-max"}.svg`).size(16) : "□", () => run("window.maximize")))
         .child(button("close-window", w.platform === "windows" ? svg("mods/my-tabs/win-close.svg").size(16) : svg("mods/pane/close.svg").size(13), () => run("window.close"))));

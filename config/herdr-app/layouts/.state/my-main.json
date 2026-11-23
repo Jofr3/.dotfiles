@@ -10,6 +10,9 @@
         "px": 510.0
       }
     },
+    "panel-body": {
+      "active": "services"
+    },
     "sidebar": {
       "size": {
         "px": 273.0
@@ -157,6 +160,13 @@
                         "type": "block",
                         "content": {
                           "mod": "remote"
+                        }
+                      },
+                      {
+                        "id": "services",
+                        "type": "block",
+                        "content": {
+                          "mod": "services"
                         }
                       }
                     ],

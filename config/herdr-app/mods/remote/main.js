@@ -200,13 +200,14 @@ export default class Remote extends View {
       out.push(h_flex().id(`r-${path}`).h(28).flex_none().pl(8 + depth * 18).pr(8).gap(7).items_center().rounded(7).cursor_pointer().hover(s => s.bg(t.hover))
         .on_hover((on, cx) => { if (on) this.hovered = path; else if (this.hovered === path) this.hovered = null; cx.notify(); })
         .on_click((_e, cx) => folder ? this.toggle(st, entry, path, cx) : this.show(st, path, cx))
-        .child(folder ? svg(`mods/files/chevron-${open ? "down" : "right"}.svg`).size(12).flex_none().text_color(t.dim) : div().w(12).flex_none())
-        .child(svg(`mods/files/${folder ? "folder" : "file"}.svg`).size(14).flex_none().text_color(t.muted))
+        .child(folder ? svg(`mods/my-files/chevron-${open ? "down" : "right"}.svg`).size(12).flex_none().text_color(t.dim) : div().w(12).flex_none())
+        .child(svg(`mods/my-files/${folder ? "folder" : "file"}.svg`).size(14).flex_none().text_color(t.muted))
         .child(div().flex_1().min_w(0).truncate().text_color(entry.link ? t.ansi6 : t.foreground).child(entry.name))
         .when(st.pending.has(path) || busy, el => el.child(div().text_size(11).text_color(t.dim).child("…")))
-        .when(!folder && hovered && !busy, el => el.child(div().id(`dl-${path}`).px(6).h(20).flex().items_center().rounded(5).text_size(11)
+        .when(!folder && hovered && !busy, el => el.child(h_flex().id(`dl-${path}`).px(6).h(20).gap(4).items_center().rounded(5).text_size(11)
           .text_color(t.muted).bg(t.surface).hover(s => s.bg(t.selected).text_color(t.foreground))
-          .on_click((_e, cx) => { cx.stop_propagation(); this.download(st, path, false, cx); }).child("↓ Download"))));
+          .on_click((_e, cx) => { cx.stop_propagation(); this.download(st, path, false, cx); })
+          .child(svg("mods/my-chrome/download.svg").size(11)).child("Download"))));
       if (folder && open) this.rows(st, path, depth + 1, out, t);
     }
     return out;
@@ -241,16 +242,16 @@ export default class Remote extends View {
     const file = st?.file;
     return v_flex().id("remote").size_full().min_h(0).overflow_hidden().bg(t.background).border_l_1().border_color(t.border).text_color(t.foreground).text_size(13)
       .child(h_flex().h(42).flex_none().px(10).gap(4).items_center().border_b(1).border_color(t.border)
-        .when(Boolean(file), el => el.child(tool("back", "←", (_e, cx) => this.show(st, null, cx))))
+        .when(Boolean(file), el => el.child(tool("back", svg("mods/my-chrome/arrow-left.svg").size(14), (_e, cx) => this.show(st, null, cx))))
         .child(v_flex().flex_1().min_w(0).pl(4)
           .child(div().font_semibold().truncate().child(file ?? server?.name ?? "Remote"))
           .when(Boolean(server) && !file, el => el.child(div().text_size(11).text_color(t.dim).truncate()
             .child(`${server.protocol} · ${server.username}@${server.host}:${server.remotePath}`))))
-        .when(Boolean(file), el => el.child(tool("download", st.busy.has(file) ? "…" : "↓ Download", (_e, cx) => this.download(st, file, false, cx))))
+        .when(Boolean(file), el => el.child(tool("download", st.busy.has(file) ? "…" : h_flex().gap(4).items_center().child(svg("mods/my-chrome/download.svg").size(12)).child("Download"), (_e, cx) => this.download(st, file, false, cx))))
         .when(Boolean(server), el => el
-          .child(tool("reload", "⟳", (_e, cx) => file ? this.show(st, file, cx) : this.refresh(st, cx)))
-          .when(server?.protocol === "sftp", el => el.child(tool("term", ">_", (_e, cx) => this.openTerminal(st, cx)))))
-        .when(Boolean(st?.config), el => el.child(tool("edit", "Edit", (_e, cx) => this.edit(st, cx)))))
+          .child(tool("reload", svg("mods/my-chrome/refresh-cw.svg").size(13.5), (_e, cx) => file ? this.show(st, file, cx) : this.refresh(st, cx)))
+          .when(server?.protocol === "sftp", el => el.child(tool("term", svg("mods/my-chrome/terminal.svg").size(13.5), (_e, cx) => this.openTerminal(st, cx)))))
+        .when(Boolean(st?.config), el => el.child(tool("edit", svg("mods/my-chrome/pencil.svg").size(13.5), (_e, cx) => this.edit(st, cx)))))
       .child(body)
       .when(Boolean(st?.confirm), el => el.child(v_flex().flex_none().p(10).gap(8).border_t(1).border_color(t.border).bg(t.surface).text_size(12)
         .child(div().text_color(t.foreground).child(`${st.confirm.path}: ${st.confirm.message}.`))

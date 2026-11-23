@@ -97,7 +97,7 @@ export default class Tabs extends View {
     const button = (id, label, action) => div().id(id).size(26).flex_none().flex().items_center().justify_center().rounded(6).text_color(t.dim).hover(s => s.bg(t.hover).text_color(t.foreground))
       .on_mouse_down("left", stop).on_click(action).child(label);
     // Panel tabs (mod panes) get their panel's icon.
-    const MOD_ICONS = { "my-files": "mods/files/file.svg", "my-changes": "mods/changes/changes.svg", "remote": "mods/remote/server.svg" };
+    const MOD_ICONS = { "my-files": "mods/my-files/file.svg", "my-changes": "mods/my-changes/changes.svg", "remote": "mods/remote/server.svg", "services": "mods/services/services.svg" };
     const item = (c, i) => {
       const modPane = panes().find(p => p.tab === c.id && MOD_ICONS[p.mod]);
       const program = panes().find(p => p.tab === c.id && p.program?.agent)?.program
@@ -117,7 +117,7 @@ export default class Tabs extends View {
         .on_mouse_down("right", (_e, cx) => { cx.stop_propagation(); openOverlay({ mod: "menu", kind: "popup", width: 200, props: { tab: "tab", target: { id: c.id, space: space.id } } }); })
         .when(Boolean(program?.icon), el => el.child(program.tint ? svg(program.icon).size(14).text_color(t.muted) : image(program.icon).size(14)))
         .child(div().max_w(360).truncate().child(c.zoomed ? `${name} Z` : name))
-        .when(c.status === "working", el => el.child(svg("mods/workspace-chrome/spinner.svg").size(12).flex_none().text_color(t.working).spin(900)))
+        .when(c.status === "working", el => el.child(svg("mods/my-chrome/spinner.svg").size(12).flex_none().text_color(t.working).spin(900)))
         .when(c.status === "blocked" || c.status === "done", el => el.child(div().size(6).rounded(3).bg(t[c.status])));
     };
     const root = layout(), sidebar = find(root, "sidebar"), w = window();
@@ -152,10 +152,11 @@ export default class Tabs extends View {
       .on_mouse_up("left", () => { this.pressed = null; })
       .on_scroll_wheel(e => { if (Math.abs(e.delta.y) >= 1) run(e.delta.y > 0 ? "tab.prev" : "tab.next"); })
       .child(h_flex().id("tab-scroll").flex_1().min_w(0).h_full().items_center().overflow_x_scrollbar().children(shown.map(item)))
-      .child(button("tab-new", "+", () => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 })))
-      .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/files/file.svg", "my-files")))
-      .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/changes/changes.svg", "my-changes")))
+      .child(button("tab-new", svg("mods/my-chrome/plus.svg").size(14), () => openOverlay({ mod: "new-menu", kind: "popup", width: 250, height: 512 })))
+      .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/my-files/file.svg", "my-files")))
+      .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/my-changes/changes.svg", "my-changes")))
       .child(panelButton("remote", "Remote", "mods/remote/server.svg", "remote"))
+      .child(panelButton("services", "Services", "mods/services/services.svg", "services"))
       .when(false && w?.buttons, el => el.child(button("minimize", w.platform === "windows" ? svg("mods/my-tabs/win-min.svg").size(16) : "−", () => run("window.minimize")))
         .child(button("maximize", w.platform === "windows" ? svg(`mods/my-tabs/${w.maximized ? "win-restore" : "win-max"}.svg`).size(16) : "□", () => run("window.maximize")))
         .child(button("close-window", w.platform === "windows" ? svg("mods/my-tabs/win-close.svg").size(16) : svg("mods/pane/close.svg").size(13), () => run("window.close"))));

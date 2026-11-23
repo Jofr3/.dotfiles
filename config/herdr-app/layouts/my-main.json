@@ -131,6 +131,13 @@
                       "content": {
                         "mod": "remote"
                       }
+                    },
+                    {
+                      "id": "services",
+                      "type": "block",
+                      "content": {
+                        "mod": "services"
+                      }
                     }
                   ],
                   "active": "files"

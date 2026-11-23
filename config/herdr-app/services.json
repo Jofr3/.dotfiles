@@ -1,0 +1,26 @@
+{
+  "projects": {
+    "remote:/home/jofre/projects/colorless": [
+      {
+        "id": "svc_mwszo4oz",
+        "name": "dev",
+        "command": "npm run dev",
+        "nix": "auto",
+        "port": "",
+        "tsPort": "",
+        "tailscale": true
+      }
+    ],
+    "/home/jofre/lsw/ateinsa_new": [
+      {
+        "id": "svc_mwt140ox",
+        "name": "dev",
+        "command": "php artisan serve",
+        "nix": "auto",
+        "port": "",
+        "tsPort": "",
+        "tailscale": false
+      }
+    ]
+  }
+}

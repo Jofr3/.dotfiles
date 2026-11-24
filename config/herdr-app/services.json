@@ -3,8 +3,17 @@
     "remote:/home/jofre/projects/colorless": [
       {
         "id": "svc_mwszo4oz",
-        "name": "dev",
+        "name": "dev frontend",
         "command": "npm run dev",
+        "nix": "auto",
+        "port": "",
+        "tsPort": "",
+        "tailscale": true
+      },
+      {
+        "id": "svc_mwupsmsr",
+        "name": "dev api",
+        "command": "npm run api:dev",
         "nix": "auto",
         "port": "",
         "tsPort": "",

@@ -8,14 +8,15 @@
     "panel": {
       "size": {
         "px": 480.0
-      }
+      },
+      "hidden": false
     },
     "panel-body": {
       "active": "services"
     },
     "spaces": {
       "size": {
-        "px": 242.0
+        "px": 186.0
       }
     }
   },

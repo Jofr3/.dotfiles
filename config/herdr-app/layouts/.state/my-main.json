@@ -15,7 +15,7 @@
     },
     "spaces": {
       "size": {
-        "px": 90.0
+        "px": 242.0
       }
     }
   },
@@ -72,6 +72,16 @@
                 "min": 90.0
               }
             ]
+          },
+          {
+            "id": "usage",
+            "type": "block",
+            "content": {
+              "mod": "usage"
+            },
+            "size": {
+              "px": 272.0
+            }
           },
           {
             "id": "sidebar-footer",

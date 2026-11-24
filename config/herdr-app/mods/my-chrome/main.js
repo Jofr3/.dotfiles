@@ -17,6 +17,7 @@ function toggleSidebar() {
     px: collapsed ? (shared("sidebar.width") ?? 268) : window()?.platform === "macos" ? 76 : 44,
   });
   run("layout.resize", { id: "sidebar-footer", px: collapsed ? SIZE.chrome : COLLAPSED_FOOTER_PX });
+  run("layout.resize", { id: "usage", px: collapsed ? 272 : 76 });
 }
 
 export default class WorkspaceChrome extends View {

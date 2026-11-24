@@ -172,14 +172,29 @@ function effectivePort(svc, st) {
 function detectPortFromText(text) {
   if (!text) return "";
   const clean = text.replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, "");
-  // Prefer explicit localhost / loopback / 0.0.0.0 URLs (e.g. Vite, Next, Bun, Wrangler)
-  const urlRe = /https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1?\]):(\d{2,5})\b/gi;
+  // Ignore echoed shell / npm / bun command lines (e.g. "$ ... --var APP_ORIGIN:http://localhost:5175")
+  const lines = clean.split(/\r?\n/).filter((line) => !/^\s*[$>]\s/.test(line));
+  // Match loopback URLs not glued to a key/env var (rejects APP_ORIGIN:http://... or URL=http://...)
+  const urlRe = /(?:^|[\s(["'`])https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1?\]):(\d{2,5})\b/gi;
+  const cueRe = /\b(?:local|ready|listening|running|started|serving|available|server)\b|➜/i;
   let m, found = "";
-  while ((m = urlRe.exec(clean)) !== null) found = m[1];
+  for (const line of lines) {
+    if (!cueRe.test(line)) continue;
+    urlRe.lastIndex = 0;
+    while ((m = urlRe.exec(line)) !== null) found = m[1];
+  }
+  if (found) return found;
+  for (const line of lines) {
+    urlRe.lastIndex = 0;
+    while ((m = urlRe.exec(line)) !== null) found = m[1];
+  }
   if (found) return found;
   // Fallback: "listening on :3000" / "port 3000"
   const portRe = /(?:listening\s+(?:on|at)\s+(?:https?:\/\/[^\s:]+)?|on\s+port|port)\s*:?\s*(\d{2,5})\b/gi;
-  while ((m = portRe.exec(clean)) !== null) found = m[1];
+  for (const line of lines) {
+    portRe.lastIndex = 0;
+    while ((m = portRe.exec(line)) !== null) found = m[1];
+  }
   return found;
 }
 
@@ -421,7 +436,7 @@ export default class Services extends View {
     cx.spawn(async (cx) => {
       await Promise.all([loadConfig(), detectTailscaleHost(null)]);
       this.tsChecked.add("local");
-      await this.scanRunningPorts();
+      await this.scanRunningPorts(true);
       cx.notify();
     });
 
@@ -435,30 +450,39 @@ export default class Services extends View {
     });
   }
 
-  async scanRunningPorts() {
+  async scanRunningPorts(force = false) {
     const running = terminals().filter(
       (t) => t.state === "live" && t.labels?.["svc.kind"] === "app" && t.labels?.["svc.exit"] === undefined,
     );
-    if (!running.length) return;
-    const current = { ...(shared("services.detectedPorts") ?? {}) };
+    const liveAddrs = new Set(running.map((t) => t.address));
+    const prev = shared("services.detectedPorts") ?? {};
+    const current = {};
     let changed = false;
+    for (const [addr, port] of Object.entries(prev)) {
+      if (liveAddrs.has(addr)) current[addr] = port;
+      else changed = true;
+    }
+    const savedList = Object.values(config().projects ?? {}).flat();
     for (const t of running) {
-      if (current[t.address]) continue;
+      const spaceId = t.labels?.["svc.space"];
+      const svcId = t.labels?.["svc.id"];
+      const machine = termMachine(t.address);
+      const savedSvc = savedList.find((s) => s.id === svcId);
+      const wantTs = t.labels?.["svc.autoTs"] === "1" || Boolean(savedSvc?.tailscale);
+      const needsTs = wantTs && spaceId && svcId && !findTerm(spaceId, svcId, "ts") && !this.autoTsStarted.has(t.address);
+
+      if (!force && current[t.address] && !needsTs) continue;
       const r = await hc(["read", t.address]).catch(() => null);
       if (!r || r.code !== 0) continue;
       const port = detectPortFromText(r.stdout);
       if (!port) continue;
-      current[t.address] = port;
-      changed = true;
+      if (current[t.address] !== port) {
+        current[t.address] = port;
+        changed = true;
+      }
 
       // Auto-start Tailscale if configured on this service and not yet running.
-      const spaceId = t.labels?.["svc.space"];
-      const svcId = t.labels?.["svc.id"];
-      const machine = termMachine(t.address);
-      const savedList = Object.values(config().projects ?? {}).flat();
-      const savedSvc = savedList.find((s) => s.id === svcId);
-      const wantTs = t.labels?.["svc.autoTs"] === "1" || Boolean(savedSvc?.tailscale);
-      if (wantTs && spaceId && svcId && !findTerm(spaceId, svcId, "ts") && !this.autoTsStarted.has(t.address)) {
+      if (needsTs) {
         this.autoTsStarted.add(t.address);
         const cwd = t.labels?.["svc.root"] || t.cwd || home();
         const svcObj = savedSvc ?? { id: svcId, name: t.labels?.["svc.name"] || "service", tsPort: t.labels?.["svc.tsPort"] || "" };

@@ -17,7 +17,7 @@
             "mod": "cmd-buttons"
           },
           "size": {
-            "px": 40
+            "px": 36
           }
         },
         {
@@ -31,7 +31,7 @@
                 "mod": "my-spaces"
               },
               "size": {
-                "weight": 1
+                "px": 180
               },
               "min": 90
             },
@@ -58,7 +58,7 @@
             }
           },
           "size": {
-            "px": 40
+            "px": 36
           }
         }
       ],
@@ -81,78 +81,23 @@
             "mod": "my-tabs"
           },
           "size": {
-            "px": 32
+            "px": 36
           },
           "window_drag": true
         },
         {
-          "id": "work-body",
-          "type": "row",
-          "children": [
-            {
-              "id": "main",
-              "type": "block",
-              "content": {
-                "tab": "active",
-                "pane": {
-                  "background": "background",
-                  "radius": 0,
-                  "gap": 1,
-                  "lone": true
-                }
-              },
-              "background": "border"
-            },
-            {
-              "id": "panel",
-              "type": "column",
-              "children": [
-                {
-                  "id": "panel-body",
-                  "type": "stack",
-                  "children": [
-                    {
-                      "id": "files",
-                      "type": "block",
-                      "content": {
-                        "mod": "my-files"
-                      }
-                    },
-                    {
-                      "id": "changes",
-                      "type": "block",
-                      "content": {
-                        "mod": "my-changes"
-                      }
-                    },
-                    {
-                      "id": "remote",
-                      "type": "block",
-                      "content": {
-                        "mod": "remote"
-                      }
-                    },
-                    {
-                      "id": "services",
-                      "type": "block",
-                      "content": {
-                        "mod": "services"
-                      }
-                    }
-                  ],
-                  "active": "files"
-                }
-              ],
-              "size": {
-                "px": 368
-              },
-              "min": 280,
-              "max": 900,
-              "hidden": true
+          "id": "main",
+          "type": "block",
+          "content": {
+            "tab": "active",
+            "pane": {
+              "background": "background",
+              "radius": 0,
+              "gap": 1,
+              "lone": true
             }
-          ],
-          "padding": 0,
-          "gap": 0
+          },
+          "background": "border"
         },
         {
           "id": "status",
@@ -167,12 +112,59 @@
         }
       ],
       "resizable": false
+    },
+    {
+      "id": "panel",
+      "type": "column",
+      "children": [
+        {
+          "id": "panel-body",
+          "type": "stack",
+          "children": [
+            {
+              "id": "files",
+              "type": "block",
+              "content": {
+                "mod": "my-files"
+              }
+            },
+            {
+              "id": "changes",
+              "type": "block",
+              "content": {
+                "mod": "my-changes"
+              }
+            },
+            {
+              "id": "remote",
+              "type": "block",
+              "content": {
+                "mod": "remote"
+              }
+            },
+            {
+              "id": "services",
+              "type": "block",
+              "content": {
+                "mod": "services"
+              }
+            }
+          ],
+          "active": "files"
+        }
+      ],
+      "size": {
+        "px": 368
+      },
+      "min": 280,
+      "max": 900,
+      "hidden": true
     }
   ],
   "background": "canvas",
   "terminal_padding": [
-    0,
-    0
+    8,
+    12
   ],
   "divider": {
     "width": 1,

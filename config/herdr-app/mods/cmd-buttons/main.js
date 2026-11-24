@@ -17,14 +17,17 @@
 // openOnRun (default true): false runs it without opening its window (a click while
 // it runs, or Show output, opens it).
 //
-// Color: blue running or succeeded, orange waiting for input, red failed.
+// Color: cyan healthy long-running or succeeded, gold active, rose needs input or failed.
 
 import { View, div, svg, image } from "gpui-kit";
-import { v_flex, h_flex, InputState, Input } from "gpui-base";
+import { v_flex, h_flex, InputState } from "gpui-base";
 import {
   appHome, home, hc, exec, run, theme, terminals, focused, spaces, props, shared, setShared,
-  openOverlay, closeOverlay, readTextFile, writeTextFile, nextCommand,
+  openOverlay, closeOverlay, readTextFile, writeTextFile, nextCommand, layout, notify,
 } from "herdr";
+import { TYPE, RADIUS, SIZE, TRANSPARENT, monoFont, isNarrow, alpha, selectedMetaColor, statusColor, dot, button, toggle, textInput, menuFrame, menuRow, iconBtn as uiIconBtn, badge, chip, dialogFrame, floatingTitleBar } from "./ui.js";
+
+const narrow = () => isNarrow(layout());
 
 const DIR = "mods/cmd-buttons";
 const FILE = () => `${appHome()}/cmd-buttons.json`;
@@ -34,19 +37,27 @@ export const ICONS = [
   "git-branch", "search", "eye", "send", "star", "trash", "folder", "file-text", "settings",
 ];
 const FADE = 3000;
-// Status colors come from the theme: its terminal green (blue-green pine in Rosé Pine),
-// its working color (gold) for input, and its terminal red.
-const color = (t, state) => ({ running: t.ansi2, ok: t.ansi2, input: t.working, error: t.ansi1 })[state] ?? t.muted;
-// A theme color at some opacity (0..1), whatever hex length the theme wrote.
-function alpha(c, a) {
-  let h = String(c ?? "").replace("#", "");
-  if (h.length === 3 || h.length === 4) h = [...h].map((x) => x + x).join("");
-  if (!/^[0-9a-f]{6}([0-9a-f]{2})?$/i.test(h)) return c;
-  return `#${h.slice(0, 6)}${Math.round(a * 255).toString(16).padStart(2, "0")}`;
-}
+const color = (t, state, longRunning = false) => statusColor(t, longRunning && state === "running" ? "ok" : state);
 // A last line like this, unchanged for a moment, is a question for the user.
 const PROMPT = /(\?|>|:|›|❯|\[y\/n\]|\(y\/n\)|\[y\/N\]|\[Y\/n\])$/i;
 const LABEL = { running: "Running", ok: "Done", input: "Needs input", error: "Failed" };
+const stateLabelOf = (b, s) => {
+  if (!s) return null;
+  if (s.state === "error") return `Failed (${s.code})`;
+  if (b.longRunning && s.state === "running") return "Active";
+  return LABEL[s.state];
+};
+
+function shortLabel(b, list) {
+  const full = (b.name || b.command || "").trim();
+  const words = full.split(/\s+/);
+  if (words.length > 1) {
+    const first = words[0].toLowerCase();
+    const sharedPrefix = list.filter((x) => (x.name || x.command || "").trim().toLowerCase().startsWith(`${first} `)).length > 1;
+    if (sharedPrefix) return words.slice(1).join(" ");
+  }
+  return full;
+}
 
 // ---- buttons ---------------------------------------------------------------
 
@@ -116,7 +127,7 @@ export function openWindow(b, terminal) {
     layout: {
       type: "column",
       children: [
-        { type: "block", size: { px: 32 }, content: { mod: "cmd-buttons", props: { view: "title", id: b.id, terminal } } },
+        { type: "block", size: { px: SIZE.chrome }, content: { mod: "cmd-buttons", props: { view: "title", id: b.id, terminal } } },
         { type: "block", padding: [8, 12], background: "background", content: { terminal } },
       ],
     },
@@ -152,7 +163,7 @@ export async function stop(b) {
 export function press(b) {
   const s = statusOf(b);
   if (s?.live && (b.longRunning || s.state === "running" || s.state === "input")) openWindow(b, s.terminal);
-  else start(b).catch(() => {});
+  else start(b).catch((e) => notify({ title: `Couldn't start ${b.name || b.command}`, body: String(e?.message ?? e), level: "error" }));
 }
 
 // ---- drawing helpers -------------------------------------------------------
@@ -165,29 +176,18 @@ export function iconEl(icon, size, color) {
   return div().flex_none().text_size(size).line_height(1).text_color(color).child(name);
 }
 
-const btn = (t, id, text, primary, action) => h_flex().id(id).h(32).px(14).items_center().rounded(8)
-  .border_1().border_color(primary ? t.solid : t.input).bg(primary ? t.solid : t.raised)
-  .text_color(primary ? t.solid_foreground : t.foreground).text_size(12.5).font_medium().cursor_pointer()
-  .hover((s) => s.opacity(0.88)).on_click(action).child(text);
+const btn = (t, id, text, primary, action) => button(t, id, text, action, { variant: primary ? "primary" : "ghost" });
 
-const iconBtn = (t, id, icon, tip, action, color) => h_flex().id(id).size(24).flex_none().rounded(6)
-  .items_center().justify_center().cursor_pointer().hover((s) => s.bg(t.hover))
-  .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
-  .on_click((e, cx) => { cx.stop_propagation(); action(e, cx); })
-  .tooltip(tip).child(svg(`${DIR}/icons/${icon}.svg`).size(13).text_color(color ?? t.muted));
-
-// A small labeled chip: the folder keeps its width, the command shrinks first.
-const tag = (t, icon, text, fixed) => h_flex().h(19).px(6).gap(4).items_center().rounded(5)
-  .bg(t.raised).border_1().border_color(t.border).text_size(11).text_color(t.muted).font_family("JetBrains Mono")
-  .when(fixed, (el) => el.flex_none().max_w(160)).when(!fixed, (el) => el.min_w(0).flex_shrink(1))
-  .child(svg(`${DIR}/icons/${icon}.svg`).size(11).flex_none().text_color(t.dim))
-  .child(div().min_w(0).truncate().child(text));
+const iconBtn = (t, id, icon, tip, action, color) =>
+  uiIconBtn(t, id, `${DIR}/icons/${icon}.svg`, tip, action, { color });
 
 export function openEditor(id) {
-  openOverlay({ mod: "cmd-buttons", kind: "dialog", width: 460, height: 610, props: { view: "edit", id: id ?? null } });
+  openOverlay({ mod: "cmd-buttons", kind: "dialog", width: 440, height: 418, props: { view: "edit", id: id ?? null } });
 }
 export function openManager() {
-  openOverlay({ mod: "cmd-buttons", kind: "dialog", width: 560, height: 480, props: { view: "manage" } });
+  const count = buttons().length;
+  const height = Math.min(480, Math.max(210, 126 + count * 52));
+  openOverlay({ mod: "cmd-buttons", kind: "dialog", width: 440, height, props: { view: "manage" } });
 }
 
 // ---- the mod ---------------------------------------------------------------
@@ -201,7 +201,8 @@ export default class CmdButtons extends View {
     this.handle = cx.focus_handle();
     if (this.view === "bar") this.initBar(cx);
     else if (this.view === "edit") this.initEdit(cx);
-    else if (this.view === "manage" || this.view === "menu") { this.at = 0; this.confirm = null; this.handle.focus(); }
+    else if (this.view === "manage") { this.at = 0; this.hovered = null; this.confirm = null; this.handle.focus(); }
+    else if (this.view === "menu") { this.at = 0; this.confirm = null; this.handle.focus(); }
     if (this.view !== "bar" && !shared("cmdbuttons.list")) cx.spawn(async (cx) => { await load().catch(() => {}); cx.notify(); });
   }
 
@@ -337,49 +338,77 @@ export default class CmdButtons extends View {
   renderBar() {
     const t = theme();
     const list = buttons();
-    return h_flex().id("root").size_full().bg(t.chrome).px(10).gap(6).items_center()
+    const collapsed = narrow();
+    if (collapsed) {
+      const states = list.map((b) => ({ b, s: statusOf(b, this.waiting) })).filter((x) => x.s);
+      const active = states.find((x) => x.s.state === "error")
+        ?? states.find((x) => x.s.state === "input")
+        ?? states.find((x) => x.s.state === "running");
+      const dotKind = active ? (active.b.longRunning && active.s.state === "running" ? "ok" : active.s.state) : null;
+      const activeCount = states.filter((x) => x.s.state === "running" || x.s.state === "input").length;
+      const collapsedTip = activeCount > 0 ? `Command buttons (${list.length} · ${activeCount} active)` : `Command buttons (${list.length})`;
+      return h_flex().id("root").size_full().bg(t.chrome).border_b_1().border_color(t.border)
+        .items_center().justify_center()
+        .child(h_flex().id("cmd-collapsed").relative().size(SIZE.btn).rounded(RADIUS.sm)
+          .items_center().justify_center().cursor_pointer()
+          .text_color(t.muted)
+          .hover((st) => st.bg(t.hover).text_color(t.foreground))
+          .tooltip(collapsedTip)
+          .on_click(() => openManager())
+          .child(svg(`${DIR}/icons/square-terminal.svg`).size(SIZE.icon))
+          .when(Boolean(dotKind), (el) => el.child(
+            div().absolute().top(1).right(1).child(dot(t, dotKind, {
+              pulse: active.s.state === "input",
+              size: 5,
+            })),
+          )));
+    }
+    return h_flex().id("root").size_full().bg(t.chrome).border_b_1().border_color(t.border)
+      .pl(8).pr(8).gap(2).items_center()
       .on_mouse_down("right", () => {})
-      .child(h_flex().id("cmd-row").flex_1().min_w(0).h_full().gap(5).items_center().overflow_x_scroll()
-        .children(list.map((b) => this.barButton(b, t))));
+      .child(h_flex().id("cmd-row").flex_1().min_w(0).h_full().gap(2).items_center().overflow_x_scroll()
+        .children(list.map((b, i) => this.barButton(b, i, list, t))))
+      .when(list.length > 0, (el) => el.child(iconBtn(t, "cmd-manage-btn", "sliders", "Manage command buttons", () => openManager())))
+      .when(list.length === 0, (el) => el.child(iconBtn(t, "cmd-add", "plus", "Add command button", () => openEditor(null))));
   }
 
-  barButton(b, t) {
+  barButton(b, _i, list, t) {
     const s = statusOf(b, this.waiting);
-    const c = s ? color(t, s.state) : null;
-    // A finished run's color fades after a moment, unless it's long running.
-    const faded = Boolean(s?.terminal && this.faded.has(s.terminal) && !b.longRunning);
-    const shown = Boolean(c) && !faded;
-    const tip = `${b.name || b.command}${s ? ` · ${s.state === "error" ? `failed (${s.code})` : LABEL[s.state].toLowerCase()}` : ""}`;
-    return h_flex().id(`cmd-${b.id}`).relative().size(30).flex_none().rounded(8).items_center().justify_center()
-      .cursor_pointer()
-      .when(!shown, (el) => el.hover((st) => st.bg(t.hover)))
+    const c = s ? color(t, s.state, b.longRunning) : null;
+    const isFaded = Boolean(s?.terminal && this.faded.has(s.terminal) && !b.longRunning);
+    const shown = Boolean(c) && !isFaded;
+    const going = shown && (s?.state === "running" || s?.state === "input");
+    const dotKind = s ? (b.longRunning && s.state === "running" ? "ok" : s.state) : null;
+    const healthyDaemon = shown && b.longRunning && s?.state === "running";
+    const tinted = shown && !healthyDaemon;
+    const tipState = stateLabelOf(b, s);
+    const tip = `${b.name || b.command}${tipState ? ` · ${tipState.toLowerCase()}` : ""} · right-click for menu`;
+    const label = shortLabel(b, list);
+
+    return h_flex().id(`cmd-${b.id}`).h(SIZE.btn).px(7).gap(5).flex_none().rounded(RADIUS.sm)
+      .items_center().cursor_pointer()
+      .bg(tinted ? alpha(c, 0.14) : TRANSPARENT)
+      .hover((st) => st.bg(tinted ? alpha(c, 0.22) : t.hover))
       .tooltip(tip)
       .on_click(() => press(b))
       .on_mouse_down("right", (_e, cx) => {
         cx.stop_propagation();
         openOverlay({ mod: "cmd-buttons", kind: "popup", width: 190, height: 220, props: { view: "menu", id: b.id } });
       })
-      // Inactive: a thin border, crossfading with the colored tint below.
-      .child(div().id(`edge-${b.id}`).absolute().inset(0).rounded(8).border_1().border_color(t.border)
-        .opacity(shown ? 0 : 1).transition("opacity", 900))
-      // The tint and the colored icon lie over the plain button and fade out.
-      .child(div().id(`tint-${b.id}`).absolute().inset(0).rounded(8).border_1()
-        .when(Boolean(c), (el) => el.bg(alpha(c, 0.18)).border_color(alpha(c, 0.5)))
-        .opacity(shown ? 1 : 0).transition("opacity", 900))
-      .child(div().relative().size(16).flex_none()
-        .child(div().id(`icm-${b.id}`).absolute().inset(0).opacity(shown ? 0 : 1).transition("opacity", 900)
-          .child(iconEl(b.icon, 16, t.muted)))
-        .when(Boolean(c), (el) => el.child(div().id(`ic-${b.id}`).absolute().inset(0)
-          .opacity(shown ? 1 : 0).transition("opacity", 900)
-          .child(iconEl(b.icon, 16, c)))));
+      .child(iconEl(b.icon, SIZE.icon, tinted ? c : t.muted))
+      .child(div().max_w(88).truncate().text_size(TYPE.sub).text_color(shown ? t.foreground : t.muted)
+        .when(shown, (el) => el.font_medium())
+        .child(label))
+      .when(shown && (going || s?.state === "error"), (el) => el.child(dot(t, dotKind, { pulse: s.state === "input" })));
   }
 
   // ---- edit ----
 
-  initEdit(cx) {
+  initEdit() {
     const b = buttons().find((x) => x.id === props()?.id) ?? {};
     this.editing = b.id ?? null;
     this.icon = b.icon || "terminal";
+    this.pickingIcon = false;
     this.long = Boolean(b.longRunning);
     this.open = b.openOnRun !== false;
     this.error = "";
@@ -391,23 +420,14 @@ export default class CmdButtons extends View {
       s.on("change", (_e, cx) => cx.notify());
       return s;
     };
-    this.name = field("name", b.name, "Optional: the command's first word");
-    this.command = field("command", b.command, "npm run dev");
-    this.folder = field("folder", b.folder, "Empty: the focused terminal's folder");
+    this.name = field("name", b.name, "Optional (defaults to command)");
+    this.command = field("command", b.command, "e.g. npm run dev");
+    this.folder = field("folder", b.folder, "Optional (defaults to active folder)");
     this.command.focus();
-    cx.timer.after(400, () => this.command.focus());
   }
 
   toggle(t, id, key, title, hint) {
-    const on = this[key];
-    return h_flex().id(id).pt(12).gap(10).items_center().cursor_pointer()
-      .on_click((_e, cx) => { this[key] = !this[key]; cx.notify(); })
-      .child(h_flex().w(30).h(18).flex_none().rounded(9).p(2).bg(on ? t.accent : t.input)
-        .when(on, (el) => el.justify_end())
-        .child(div().size(14).rounded(7).bg("#ffffff")))
-      .child(v_flex().flex_1().min_w(0)
-        .child(div().text_size(12.5).child(title))
-        .child(div().text_size(11.5).text_color(t.dim).child(hint)));
+    return toggle(t, id, this[key], title, hint, (_e, cx) => { this[key] = !this[key]; cx.notify(); });
   }
 
   submitEdit(cx) {
@@ -432,42 +452,61 @@ export default class CmdButtons extends View {
     });
   }
 
-  renderEdit(cx) {
+  renderEdit() {
     const t = theme();
     const p = props() ?? {};
-    const label = (text) => div().pt(14).pb(6).text_size(11.5).text_color(t.dim).child(text);
-    const input = (key, state) => Input.new(state).h(34).px(10).rounded(8).border_1()
-      .border_color(this.focus === key ? t.accent : t.input).bg(t.background).text_size(12.8).text_color(t.foreground);
-    const preview = this.icon;
-    return v_flex().id("cmd-edit").track_focus(this.handle)
-      .on_key_down((e, cx) => { if (e.key === "escape") { closeOverlay(p.overlay); cx.stop_propagation(); } })
-      .size_full().min_h(0).p(18).bg(t.popover).text_color(t.foreground)
-      .child(h_flex().items_center().gap(10)
-        .child(h_flex().size(30).rounded(8).items_center().justify_center().bg(alpha(color(t, "ok"), 0.18)).border_1().border_color(alpha(color(t, "ok"), 0.5))
-          .child(iconEl(preview, 16, color(t, "ok"))))
-        .child(div().flex_1().text_size(15).font_semibold().child(this.editing ? "Edit command button" : "New command button")))
-      .child(label("Command"))
-      .child(input("command", this.command))
+    const label = (text, { err = "", first = false } = {}) => h_flex().flex_none().pt(first ? 0 : 10).pb(4).items_center().justify_between()
+      .child(div().text_size(TYPE.meta).font_medium().text_color(t.muted).child(text))
+      .when(Boolean(err), (el) => el.child(div().text_size(TYPE.meta).font_medium().text_color(color(t, "error")).child(err)));
+    const input = (key, state, opts = {}) => textInput(t, state, this.focus === key, opts);
+    const iconCell = (name) => h_flex().id(`ic-${name}`).size(28).flex_none().rounded(RADIUS.sm)
+      .items_center().justify_center().cursor_pointer()
+      .when(this.icon === name, (el) => el.bg(alpha(t.accent, 0.18)))
+      .hover((s) => s.bg(this.icon === name ? alpha(t.accent, 0.24) : t.hover))
+      .tooltip(name)
+      .on_click((_e, cx) => { this.icon = name; this.pickingIcon = false; cx.notify(); })
+      .child(svg(`${DIR}/icons/${name}.svg`).size(SIZE.icon).text_color(this.icon === name ? t.accent : t.muted));
+
+    const canSave = Boolean(this.command.value().trim());
+    const body = v_flex().id("cmd-edit-body").flex_1().min_h(0).overflow_y_scrollbar()
+      .child(label("Command", { err: this.error === "A command is needed." ? this.error : "", first: true }))
+      .child(input("command", this.command, { mono: true }))
       .child(label("Name"))
-      .child(input("name", this.name))
+      .child(h_flex().gap(8).items_center()
+        .child(h_flex().id("ed-icon-trigger").w(52).h(34).px(8).gap(4).flex_none().rounded(RADIUS.sm).items_center().justify_center()
+          .bg(this.pickingIcon ? alpha(t.accent, 0.16) : t.background)
+          .border_1().border_color(this.pickingIcon ? t.accent : TRANSPARENT)
+          .cursor_pointer().hover((s) => s.bg(this.pickingIcon ? alpha(t.accent, 0.22) : t.hover))
+          .tooltip(`Icon: ${this.icon} (click to change)`)
+          .on_click((_e, cx) => { this.pickingIcon = !this.pickingIcon; cx.notify(); })
+          .child(iconEl(this.icon, SIZE.icon, this.pickingIcon ? t.accent : t.foreground))
+          .child(svg("mods/my-chrome/chevron-down.svg").size(SIZE.iconSm).flex_none().text_color(t.dim)))
+        .child(input("name", this.name).flex_1().min_w(0)))
+      .when(this.pickingIcon, (el) => el.child(
+        v_flex().flex_none().mt(8).p(8).gap(4).rounded(RADIUS.sm).bg(t.background)
+          .child(h_flex().w_full().justify_between().children(ICONS.slice(0, 13).map(iconCell)))
+          .child(h_flex().w_full().justify_between().children(ICONS.slice(13).map(iconCell))),
+      ))
       .child(label("Folder"))
-      .child(input("folder", this.folder))
-      .child(this.toggle(t, "ed-long", "long", "Long running", "A server or a tunnel: no Run again, so it isn't restarted by accident."))
-      .child(this.toggle(t, "ed-open", "open", "Open on run", "Show its window when it starts. Off: it runs in the background; click it to look."))
-      .child(label("Icon"))
-      .child(h_flex().flex_wrap().gap(4).children(ICONS.map((name) => h_flex().id(`ic-${name}`).size(30).rounded(7)
-        .items_center().justify_center().cursor_pointer().border_1()
-        .border_color(this.icon === name ? t.accent : "#00000000")
-        .when(this.icon === name, (el) => el.bg(t.selected))
-        .hover((s) => s.bg(t.hover))
-        .tooltip(name)
-        .on_click((_e, cx) => { this.icon = name; cx.notify(); })
-        .child(svg(`${DIR}/icons/${name}.svg`).size(15).text_color(this.icon === name ? t.foreground : t.muted)))))
-      .child(div().flex_1())
-      .when(Boolean(this.error), (el) => el.child(div().pt(8).text_size(12).text_color(color(t, "error")).child(this.error)))
-      .child(h_flex().pt(16).gap(8).justify_end()
-        .child(btn(t, "ed-cancel", "Cancel", false, () => closeOverlay(p.overlay)))
-        .child(btn(t, "ed-save", "Save", true, (_e, cx) => this.submitEdit(cx))));
+      .child(input("folder", this.folder, { mono: Boolean(this.folder.value()) }))
+      .child(this.toggle(t, "ed-long", "long", "Long running", "Keeps running in the background"))
+      .child(this.toggle(t, "ed-open", "open", "Open on run", "Opens output window on start"));
+
+    const footer = h_flex().gap(8).items_center()
+      .when(Boolean(this.error) && this.error !== "A command is needed.", (el) => el.child(div().flex_1().min_w(0).truncate().text_size(TYPE.meta).text_color(color(t, "error")).child(this.error)))
+      .when(!this.error || this.error === "A command is needed.", (el) => el.child(div().flex_1()))
+      .child(btn(t, "ed-cancel", "Cancel", false, () => closeOverlay(p.overlay)))
+      .child(button(t, "ed-save", "Save", (_e, cx) => this.submitEdit(cx), { variant: "primary", disabled: !canSave, tip: canSave ? "Save command button" : "Enter a command to save" }));
+
+    return dialogFrame(t, {
+      id: "cmd-edit",
+      handle: this.handle,
+      onKeyDown: (e, cx) => { if (e.key === "escape") { closeOverlay(p.overlay); cx.stop_propagation(); } },
+      title: this.editing ? "Edit command button" : "New command button",
+      onClose: () => closeOverlay(p.overlay),
+      body,
+      footer,
+    });
   }
 
   // ---- manage ----
@@ -476,7 +515,7 @@ export default class CmdButtons extends View {
     const t = theme();
     const p = props() ?? {};
     const list = buttons();
-    // Drag by the grip; drop on another row puts it there.
+    if (list.length && this.at >= list.length) this.at = list.length - 1;
     const drop = (to) => {
       const from = list.findIndex((x) => x.id === this.dragging);
       if (from < 0 || from === to) return;
@@ -489,58 +528,102 @@ export default class CmdButtons extends View {
     const row = (b, i) => {
       const st = statusOf(b);
       const s = faded(b, st) ? null : st;
-      const c = s ? color(t, s.state) : t.muted;
+      const c = s ? color(t, s.state, b.longRunning) : t.muted;
+      const going = Boolean(s?.live && (s.state === "running" || s.state === "input"));
+      const dotKind = s ? (b.longRunning && s.state === "running" ? "ok" : s.state) : null;
       const target = this.dragging && this.over === b.id && this.dragging !== b.id;
-      return h_flex().id(`mg-${b.id}`).relative().h(46).pl(2).pr(10).gap(8).items_center().rounded(8)
-        .when(!this.dragging, (el) => el.hover((st) => st.bg(t.hover)))
+      const kbdSel = this.at === i && list.length > 0;
+      const isHovered = this.hovered === b.id || this.dragging === b.id;
+      const stateLabel = stateLabelOf(b, s);
+      const metaCmd = b.folder && b.folder !== "~/" ? `${b.command} · ${b.folder}` : b.command;
+      const canDrag = list.length > 1;
+      return h_flex().id(`mg-${b.id}`).relative().h(48).pl(10).pr(6).gap(10).items_center().rounded(RADIUS.sm)
+        .when(kbdSel && !this.dragging, (el) => el.bg(t.selected))
+        .when(!this.dragging && !kbdSel, (el) => el.hover((st) => st.bg(t.hover)))
         .when(this.dragging === b.id, (el) => el.opacity(0.45))
         .when(target, (el) => el.child(div().absolute().left(0).right(0).h(2).bg(t.accent)
           .when(fromIndex < i, (l) => l.bottom(0)).when(fromIndex > i, (l) => l.top(0))))
+        .on_hover((on, cx) => {
+          if (on) this.hovered = b.id;
+          else if (this.hovered === b.id) this.hovered = null;
+          cx.notify();
+        })
+        .on_click((_e, cx) => { this.at = i; cx.notify(); })
         .on_mouse_move((_e, cx) => { if (this.dragging && this.over !== b.id) { this.over = b.id; cx.notify(); } })
         .on_mouse_up("left", (_e, cx) => {
           if (this.dragging) { drop(i); this.dragging = null; this.over = null; cx.notify(); }
         })
-        .child(h_flex().id(`mg-grip-${b.id}`).w(16).h(28).flex_none().items_center().justify_center().rounded(5)
-          .cursor_grab().text_color(t.dim).hover((st) => st.text_color(t.foreground))
-          .tooltip("Drag to reorder")
-          .on_mouse_down("left", (_e, cx) => { cx.stop_propagation(); this.dragging = b.id; this.over = b.id; cx.notify(); })
-          .child(svg(`${DIR}/icons/grip.svg`).size(14)))
-        .child(h_flex().size(28).flex_none().rounded(7).items_center().justify_center()
-          .border_1().when(Boolean(s), (el) => el.bg(alpha(c, 0.18)).border_color(alpha(c, 0.5)))
-          .when(!s, (el) => el.border_color(t.border)).child(iconEl(b.icon, 15, c)))
+        .child(h_flex().id(`mg-grip-${b.id}`).size(20).flex_none().items_center().justify_center().rounded(RADIUS.xs)
+          .when(isHovered && canDrag, (el) => el.cursor_grab().text_color(t.muted).hover((st) => st.text_color(t.foreground))
+            .tooltip("Drag to reorder")
+            .on_mouse_down("left", (_e, cx) => { cx.stop_propagation(); this.dragging = b.id; this.over = b.id; cx.notify(); })
+            .child(svg(`${DIR}/icons/grip.svg`).size(SIZE.icon)))
+          .when(!isHovered || !canDrag, (el) => el.child(iconEl(b.icon, 16, s && !(b.longRunning && s.state === "running") ? c : t.muted))))
         .child(v_flex().flex_1().min_w(0)
-          .child(div().truncate().text_size(13).child(b.name || b.command))
-          .child(h_flex().pt(3).gap(5).min_w(0).items_center()
-            .child(tag(t, "folder", b.folder || "focused folder", true))
-            .child(tag(t, "terminal", b.command, false))))
+          .child(h_flex().gap(6).items_center().min_w(0)
+            .child(div().min_w(0).truncate().text_size(TYPE.body).font_medium().child(b.name || b.command))
+            .when(Boolean(stateLabel && dotKind), (el) => el.child(h_flex().gap(4).flex_none().items_center()
+              .child(dot(t, dotKind, { size: 5 }))
+              .child(div().text_size(TYPE.meta).font_medium().text_color(c).child(stateLabel)))))
+          .child(div().pt(1).min_w(0).truncate().text_size(TYPE.meta).text_color(kbdSel && !this.dragging ? selectedMetaColor(t) : t.dim).font_family(monoFont()).child(metaCmd)))
         .when(this.confirm === b.id, (el) => el
-          .child(div().text_size(12).text_color(color(t, "error")).child("Delete?"))
-          .child(btn(t, `mg-no-${b.id}`, "Keep", false, (_e, cx) => { this.confirm = null; cx.notify(); }).h(26).px(10))
-          .child(btn(t, `mg-yes-${b.id}`, "Delete", true, (_e, cx) => {
+          .child(div().text_size(TYPE.sub).text_color(color(t, "error")).child("Delete?"))
+          .child(button(t, `mg-no-${b.id}`, "Keep", (_e, cx) => { this.confirm = null; cx.notify(); }, { variant: "ghost", height: 24 }))
+          .child(button(t, `mg-yes-${b.id}`, "Delete", (_e, cx) => {
             this.confirm = null;
             stop(b).catch(() => {});
             setRun(b.id, null);
             save(list.filter((x) => x.id !== b.id)).catch(() => {});
             cx.notify();
-          }).h(26).px(10)))
-        .when(this.confirm !== b.id, (el) => el
-          .child(iconBtn(t, `mg-run-${b.id}`, "play", "Run", () => { closeOverlay(p.overlay); press(b); }))
-          .child(iconBtn(t, `mg-ed-${b.id}`, "pencil", "Edit", () => openEditor(b.id)))
-          .child(iconBtn(t, `mg-rm-${b.id}`, "trash", "Delete", (_e, cx) => { this.confirm = b.id; cx.notify(); })));
+          }, { variant: "danger", height: 24 })))
+        .when(this.confirm !== b.id, (el) => el.child(
+          h_flex().gap(2).flex_none().items_center()
+            .when(going, (x) => x
+              .when(isHovered, (h) => h.child(iconBtn(t, `mg-show-${b.id}`, "terminal", "Show output", () => { closeOverlay(p.overlay); press(b); })))
+              .child(uiIconBtn(t, `mg-stop-${b.id}`, "mods/my-chrome/square.svg", "Stop process", () => { stop(b).catch(() => {}); }, { hoverColor: color(t, "error") })))
+            .when(!going, (x) => x.child(iconBtn(t, `mg-run-${b.id}`, "play", "Run", () => { closeOverlay(p.overlay); press(b); })))
+            .when(isHovered, (x) => x
+              .child(iconBtn(t, `mg-ed-${b.id}`, "pencil", "Edit", () => openEditor(b.id)))
+              .child(uiIconBtn(t, `mg-rm-${b.id}`, `${DIR}/icons/trash.svg`, "Delete", (_e, cx) => { this.confirm = b.id; cx.notify(); }, { hoverColor: color(t, "error") }))),
+        ));
     };
-    return v_flex().id("cmd-manage").track_focus(this.handle)
-      .when(Boolean(this.dragging), (el) => el.cursor_grabbing())
+
+    const body = v_flex().id("mg-list").flex_1().min_h(0).gap(2).overflow_y_scrollbar()
       .on_mouse_up("left", (_e, cx) => { if (this.dragging) { this.dragging = null; this.over = null; cx.notify(); } })
-      .on_key_down((e, cx) => { if (e.key === "escape") { closeOverlay(p.overlay); cx.stop_propagation(); } })
-      .size_full().min_h(0).p(18).gap(4).bg(t.popover).text_color(t.foreground)
-      .child(div().pb(12).text_size(15).font_semibold().child("Command buttons"))
-      .child(v_flex().id("mg-list").flex_1().min_h(0).overflow_y_scrollbar()
-        .on_mouse_up("left", (_e, cx) => { if (this.dragging) { this.dragging = null; this.over = null; cx.notify(); } })
-        .when(!list.length, (el) => el.child(div().py(24).text_color(t.dim).text_size(12.5).child("No buttons yet.")))
-        .children(list.map(row)))
-      .child(h_flex().pt(12).gap(8).justify_end()
-        .child(btn(t, "mg-close", "Close", false, () => closeOverlay(p.overlay)))
-        .child(btn(t, "mg-add", "Add button", true, () => openEditor(null))));
+      .when(!list.length, (el) => el.child(h_flex().flex_1().items_center().justify_center().py(24).text_color(t.muted).text_size(TYPE.sub).child("No buttons yet.")))
+      .children(list.map(row));
+
+    const selBtn = list[this.at];
+    const selStatus = selBtn ? statusOf(selBtn) : null;
+    const selActive = Boolean(selBtn && selStatus?.live && (selStatus.state === "running" || selStatus.state === "input"));
+    const footerHint = selActive ? "↑↓ select · Enter show · s stop · e edit · d delete" : "↑↓ select · Enter run · e edit · d delete";
+    const footer = h_flex().gap(8).items_center()
+      .child(div().flex_1().min_w(0).truncate().text_size(TYPE.meta).text_color(t.dim).child(footerHint))
+      .child(btn(t, "mg-add", "Add button", true, () => openEditor(null)));
+
+    return dialogFrame(t, {
+      id: "cmd-manage",
+      handle: this.handle,
+      onKeyDown: (e, cx) => {
+        if (e.key === "escape") {
+          if (this.confirm) { this.confirm = null; cx.notify(); }
+          else closeOverlay(p.overlay);
+          cx.stop_propagation();
+        }
+        else if ((e.key === "down" || e.key === "j") && list.length) { this.at = Math.min(list.length - 1, this.at + 1); cx.notify(); cx.stop_propagation(); }
+        else if ((e.key === "up" || e.key === "k") && list.length) { this.at = Math.max(0, this.at - 1); cx.notify(); cx.stop_propagation(); }
+        else if (e.key === "enter" && list[this.at]) { closeOverlay(p.overlay); press(list[this.at]); cx.stop_propagation(); }
+        else if (e.key === "s" && selBtn && selActive) { stop(selBtn).catch(() => {}); cx.stop_propagation(); }
+        else if (e.key === "e" && list[this.at]) { openEditor(list[this.at].id); cx.stop_propagation(); }
+        else if ((e.key === "d" || e.key === "backspace") && list[this.at]) { this.confirm = list[this.at].id; cx.notify(); cx.stop_propagation(); }
+      },
+      title: "Command buttons",
+      onClose: () => closeOverlay(p.overlay),
+      body,
+      footer,
+    })
+      .when(Boolean(this.dragging), (el) => el.cursor_grabbing())
+      .on_mouse_up("left", (_e, cx) => { if (this.dragging) { this.dragging = null; this.over = null; cx.notify(); } });
   }
 
   // ---- menu ----
@@ -550,10 +633,10 @@ export default class CmdButtons extends View {
     const going = s?.live && (s.state === "running" || s.state === "input");
     return [
       // Long running ones show theirs with a click instead.
-      ...(!b.longRunning && s?.live ? [["Show output", "eye", () => openWindow(b, s.terminal)]] : []),
+      ...(!b.longRunning && s?.live ? [["Show output", "terminal", () => openWindow(b, s.terminal)]] : []),
       // Long running: no Run again, only Run once it isn't going anymore.
       ...(b.longRunning && s?.live ? [] : [[s && !b.longRunning ? "Run again" : "Run", "play", () => start(b).catch(() => {})]]),
-      ...(going ? [["Stop", "stop", () => stop(b).catch(() => {})]] : []),
+      ...(going ? [["Stop", "mods/my-chrome/square.svg", () => stop(b).catch(() => {})]] : []),
       ["Edit…", "pencil", () => openEditor(b.id)],
       ["All buttons…", "settings", () => openManager()],
     ];
@@ -565,49 +648,53 @@ export default class CmdButtons extends View {
     const b = buttons().find((x) => x.id === p.id);
     const list = b ? this.menuItems(b) : [];
     const choose = (i) => { const it = list[i]; if (!it) return; closeOverlay(p.overlay); it[2](); };
-    return v_flex().id("cmd-menu").track_focus(this.handle).w_full().min_h(0).p(5).bg(t.popover).text_size(12.8)
+    return menuFrame(t, "cmd-menu").track_focus(this.handle).min_h(0).text_size(TYPE.body)
       .on_key_down((e, cx) => {
-        if (e.key === "down") this.at = (this.at + 1) % list.length;
-        else if (e.key === "up") this.at = (this.at + list.length - 1) % list.length;
+        if (e.key === "down" || e.key === "j") this.at = (this.at + 1) % list.length;
+        else if (e.key === "up" || e.key === "k") this.at = (this.at + list.length - 1) % list.length;
         else if (e.key === "enter") choose(this.at);
         else if (e.key === "escape") closeOverlay(p.overlay);
         else return;
         cx.notify();
       })
-      .children(list.map((it, i) => h_flex().id(`cm-${i}`).h(30).px(8).gap(9).rounded(7).items_center()
-        .text_color(t.foreground).when(i === this.at, (el) => el.bg(t.selected)).hover((s) => s.bg(t.hover))
-        .on_click(() => choose(i))
-        .child(svg(`${DIR}/icons/${it[1]}.svg`).size(14).flex_none().text_color(t.muted))
-        .child(div().flex_1().child(it[0]))));
+      .children(list.map((it, i) => menuRow(t, `cm-${i}`, {
+        icon: it[1].includes("/") ? it[1] : `${DIR}/icons/${it[1]}.svg`,
+        label: it[0],
+        selected: i === this.at,
+        onClick: () => choose(i),
+      })));
   }
 
   // ---- title (the floating window's bar; presses it doesn't stop drag the window) ----
 
-  renderTitle(cx) {
+  renderTitle() {
     const t = theme();
     const p = props() ?? {};
     const b = buttons().find((x) => x.id === p.id) ?? { id: p.id, name: "Command", command: "" };
     const s = statusOf(b);
     const mine = s?.terminal === p.terminal;
     const state = mine ? s.state : null;
-    const c = state ? color(t, state) : t.muted;
+    const c = state ? color(t, state, b.longRunning) : t.muted;
     const going = state === "running" || state === "input";
-    return h_flex().id("cmd-title").size_full().px(10).gap(8).items_center().bg(t.chrome)
-      .border_b_1().border_color(t.border).text_size(12.5)
-      .child(iconEl(b.icon, 14, c))
-      .child(div().flex_shrink(0).max_w(220).truncate().font_medium().text_color(t.foreground).child(b.name || b.command))
-      .child(div().flex_1())
-      .when(Boolean(state), (el) => el.child(h_flex().flex_none().gap(5).items_center().px(7).h(20).rounded(10)
-        .bg(alpha(c, 0.15)).text_size(11).text_color(c)
-        .child(div().size(6).rounded(3).bg(c).when(going, (d) => d.loop("opacity", { from: 0.35, to: 1, period: 1100 })))
-        .child(state === "error" ? `Failed (${s.code})` : LABEL[state])))
-      .when(!b.longRunning, (el) => el.child(iconBtn(t, "tt-rerun", "refresh", "Run again", () => start(b, true).catch(() => {}))))
-      .child(iconBtn(t, "tt-hide", "minus", "Hide (keeps running)", () => closeOverlay(p.overlay)))
-      .child(iconBtn(t, "tt-close", "x", "Stop and close", () => {
-        // Still going: it's stopped. Already ended: its color stays.
+    return floatingTitleBar(t, {
+      id: "cmd-title",
+      iconEl: iconEl(b.icon, SIZE.icon, c),
+      title: b.name || b.command,
+      subtitle: b.command && b.name && b.name !== b.command ? b.command : null,
+      badges: state ? [
+        badge(t, stateLabelOf(b, s), {
+          fg: c,
+          bg: alpha(c, 0.16),
+        }),
+      ] : [],
+      actions: !b.longRunning ? [iconBtn(t, "tt-rerun", "refresh", "Run again", () => start(b, true).catch(() => {}))] : [],
+      onStop: going || s?.live ? () => {
         if (going) stop(b).catch(() => {});
         else if (s?.live) hc(["kill", s.terminal]).catch(() => {});
         closeOverlay(p.overlay);
-      }));
+      } : null,
+      stopTip: "Stop process and close",
+      onHide: () => closeOverlay(p.overlay),
+    });
   }
 }

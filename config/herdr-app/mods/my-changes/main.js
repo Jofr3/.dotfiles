@@ -1,6 +1,7 @@
 import { View, div } from "gpui-kit";
-import { v_flex, h_flex, InputState, Input, Scrollbar, v_virtual_list } from "gpui-base";
-import { spaces, panes, focused, exec, readTextFile, watchFolder, theme, settings, appHome, home, notify } from "herdr";
+import { v_flex, h_flex, InputState, Scrollbar, v_virtual_list } from "gpui-base";
+import { spaces, panes, focused, exec, readTextFile, watchFolder, theme, appHome, home, notify, nextCommand, layout } from "herdr";
+import { TYPE, RADIUS, SIZE, monoFont, findNode, alpha, selectedMetaColor, statusColor, countBadge, chip, button, textInput, panelHeader, emptyState } from "./ui.js";
 
 // Upload: a changed file goes to the project's server, as its .vscode/sftp.json says, through
 // the remote mod's helper (mods/remote/remote.py). Two clicks: the first asks, the second sends.
@@ -32,24 +33,41 @@ const key = () => JSON.stringify(location());
 const READ = ["--no-optional-locks", "-c", "core.fsmonitor=false", "-c", "diff.autoRefreshIndex=false"];
 const countLines = (text) => text ? text.split("\n").length - Number(text.endsWith("\n")) : 0;
 
-// Numbers each diff line once, so a frame only draws the rows on screen.
+// Numbers each diff line with both old and new line numbers so a frame only draws rows on screen.
 function diffRows(lines) {
   let old = 0, next = 0;
   return lines.map((line) => {
-    const match = /^@@ -(\d+)(?:,\d+)? \+(\d+)/.exec(line);
-    if (match) { old = +match[1]; next = +match[2]; return { kind: "@", text: line }; }
+    const match = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@\s*(.*)$/.exec(line);
+    if (match) { old = +match[1]; next = +match[2]; return { kind: "@", lineNum: next || old, context: match[3]?.trim() || "", text: line }; }
     const kind = line[0];
-    if (kind === "-") return { kind, number: old++, text: line.slice(1) || " " };
-    if (kind === "+") return { kind, number: next++, text: line.slice(1) || " " };
-    if (kind === " ") { old++; return { kind, number: next++, text: line.slice(1) || " " }; }
-    return { kind: "", text: line };
+    if (kind === "-") return { kind, oldNum: old++, newNum: null, text: line.slice(1) || " " };
+    if (kind === "+") return { kind, oldNum: null, newNum: next++, text: line.slice(1) || " " };
+    if (kind === " ") return { kind, oldNum: old++, newNum: next++, text: line.slice(1) || " " };
+    return { kind: "", oldNum: null, newNum: null, text: line };
   });
+}
+
+function commonDirPrefix(files) {
+  if (files.length < 2) return "";
+  const dirs = files.map((f) => {
+    const parts = f.path.split("/");
+    parts.pop();
+    return parts;
+  });
+  let common = dirs[0];
+  for (let i = 1; i < dirs.length; i++) {
+    let j = 0;
+    while (j < common.length && j < dirs[i].length && common[j] === dirs[i][j]) j++;
+    common = common.slice(0, j);
+    if (!common.length) return "";
+  }
+  return common.length ? common.join("/") + "/" : "";
 }
 
 export default class Changes extends View {
   init(_props, cx) {
     this.uploading = new Set(); this.asking = null; this.hovered = null; this.sftp = null;
-    this.files = []; this.rows = []; this.diffWidth = 0; this.message = ""; this.handle = cx.focus_handle();
+    this.files = []; this.rows = []; this.diffWidth = 0; this.message = ""; this.cursor = -1; this.handle = cx.focus_handle();
     this.input = InputState.new({ placeholder: "Commit message" });
     this.input.on("change", (_e, cx) => {
       const hadMessage = Boolean(this.message.trim());
@@ -61,6 +79,12 @@ export default class Changes extends View {
     this.input.on("blur", (_e, cx) => { this.typing = false; cx.notify(); });
     this.refresh(cx);
     cx.timer.every(10000, (cx) => this.refresh(cx));
+    cx.spawn(async () => {
+      for (;;) {
+        const cmd = await nextCommand();
+        if (cmd === "focus") this.handle.focus();
+      }
+    });
   }
 
   watch(root, cx) {
@@ -80,7 +104,7 @@ export default class Changes extends View {
     if (this.loading || this.busy) return;
     const { cwd, on } = location(), context = key();
     if (context !== this.context) {
-      this.context = context; this.root = null; this.files = []; this.open = null;
+      this.context = context; this.root = null; this.files = []; this.open = null; this.cursor = -1; this.asking = null; this.hovered = null;
       this.setLines([]); this.message = ""; this.input.set_value(""); this.error = null; this.note = null; this.watched = null; this.closed = false; this.limited = false;
     }
     if (!cwd) return;
@@ -94,6 +118,8 @@ export default class Changes extends View {
         const status = await git(["status", "--porcelain=v1", "-z", "--no-renames", "--untracked-files=all"]);
         if (status.code !== 0) throw new Error(status.stderr);
         const head = await git(["rev-parse", "--verify", "HEAD"]);
+        const br = head.code === 0 ? await git(["rev-parse", "--abbrev-ref", "HEAD"]) : null;
+        const branch = br?.code === 0 ? br.stdout.trim() : null;
         const stats = {};
         const results = head.code === 0 ? [await git(["diff", "HEAD", "--numstat", "-z", "--no-renames"])] : [await git(["diff", "--cached", "--numstat", "-z", "--no-renames"]), await git(["diff", "--numstat", "-z", "--no-renames"])];
         for (const result of results) {
@@ -110,18 +136,16 @@ export default class Changes extends View {
         for (const entry of entries.slice(0, 1000)) {
           const xy = entry.slice(0, 2), path = entry.slice(3), fresh = xy === "??";
           const conflict = xy.includes("U") || xy === "AA" || xy === "DD";
-          const s = conflict ? "U" : xy.includes("D") ? "D" : fresh || xy.includes("A") ? "A" : "M";
+          const s = conflict ? "U" : xy.includes("D") ? "D" : fresh ? "?" : xy.includes("A") ? "A" : "M";
           const stat = stats[path] ?? { add: 0, del: 0 };
           files.push({ path, status: s, fresh, ...stat });
         }
         if (key() !== context) return;
         if (this.root !== root || this.on !== on) this.sftp = on ? null : await sftpConfig(root);
         if (key() !== context) return;
-        this.root = root; this.on = on; this.hasHead = head.code === 0; this.files = files; this.limited = entries.length > 1000; this.error = null;
+        this.root = root; this.on = on; this.branch = branch; this.hasHead = head.code === 0; this.files = files; this.limited = entries.length > 1000; this.error = null;
         this.watch(root, cx);
         if (this.open && !files.some((f) => f.path === this.open)) { this.open = null; this.setLines([]); }
-        // The first file's diff shows until you pick another.
-        if (!this.open && !this.closed && files.length) this.open = files[0].path;
         if (this.open) {
           try { await this.load(this.open, context); }
           catch { if (key() === context) this.setLines(["Cannot preview this diff (too large or unreadable)"]); }
@@ -154,12 +178,14 @@ export default class Changes extends View {
 
   setLines(lines) {
     this.rows = diffRows(lines);
-    this.diffWidth = Math.max(300, ...lines.map(line => line.length * 7 + 50));
+    const maxNum = this.rows.reduce((m, r) => Math.max(m, r.oldNum ?? 0, r.newNum ?? 0), 0);
+    const digits = Math.max(3, String(maxNum).length);
+    this.gutterW = Math.ceil(digits * 8 + 10);
+    this.diffWidth = Math.max(0, ...lines.map((line) => Math.ceil(line.length * 7.4) + this.gutterW + 40));
   }
 
   pick(path, cx) {
-    this.open = this.open === path ? null : path; this.setLines([]); this.note = null;
-    this.closed = !this.open;
+    this.open = path; this.setLines([]); this.note = null;
     const context = this.context;
     if (this.open) cx.spawn(async (cx) => {
       try { await this.load(path, context); }
@@ -186,11 +212,28 @@ export default class Changes extends View {
     cx.notify();
   }
 
-  diffRow({ kind, number, text }, t) {
-    if (kind === "@") return div().w_full().px(12).h(20).flex_none().truncate().bg(t.raised).text_color(t.dim).child(text);
-    return h_flex().w_full().h(20).flex_none().gap(10).when(kind === "+", (e) => e.bg(t.ansi2 + "18")).when(kind === "-", (e) => e.bg(t.ansi1 + "18"))
-      .child(div().w(30).flex_none().text_right().text_color(t.dim).child(number === undefined ? "" : String(number)))
-      .child(div().flex_1().min_w(0).truncate().child(text));
+  diffRow({ kind, oldNum, newNum, lineNum, context, text }, t) {
+    if (kind === "@") {
+      const label = context ? `Line ${lineNum} · ${context}` : `Line ${lineNum}`;
+      return h_flex().w_full().min_w(this.diffWidth).px(12).h(20).flex_none().items_center()
+        .bg(t.surface).text_size(TYPE.meta).text_color(t.dim)
+        .child(div().flex_1().min_w(0).truncate().tooltip(text).child(label));
+    }
+    const added = kind === "+";
+    const deleted = kind === "-";
+    const tint = added ? alpha(statusColor(t, "added"), 0.16) : deleted ? alpha(statusColor(t, "deleted"), 0.13) : null;
+    const markerColor = added ? statusColor(t, "added") : deleted ? statusColor(t, "deleted") : t.dim;
+    const marker = added ? "+" : deleted ? "−" : " ";
+    const num = newNum ?? oldNum;
+    const gw = this.gutterW ?? 34;
+    return h_flex().w_full().min_w(this.diffWidth).h(20).flex_none().items_center()
+      .bg(t.background)
+      .child(div().w(gw).h_full().pr(8).flex_none().flex().items_center().justify_end().bg(t.background).whitespace_nowrap().overflow_hidden().text_color(t.dim).child(num == null ? "" : String(num)))
+      .child(
+        h_flex().flex_1().h_full().items_center().when(Boolean(tint), (e) => e.bg(tint))
+          .child(div().w(16).flex_none().text_center().font_medium().text_color(markerColor).child(marker))
+          .child(div().flex_1().pr(16).whitespace_nowrap().text_color(added || deleted ? t.foreground : t.muted).child(text)),
+      );
   }
 
   upload(path, cx) {
@@ -211,41 +254,115 @@ export default class Changes extends View {
   render(cx) {
     if (key() !== this.context) this.refresh(cx);
     const t = theme(), add = this.files.reduce((n, f) => n + f.add, 0), del = this.files.reduce((n, f) => n + f.del, 0);
+    const hasChanges = this.files.length > 0;
     const enabled = Boolean(this.message.trim() && this.root && !this.busy && !this.loading);
-    return v_flex().id("changes").size_full().min_h(0).overflow_hidden().bg(t.background).border_l_1().border_color(t.border).text_color(t.foreground).text_size(13).track_focus(this.handle)
+    const prefix = commonDirPrefix(this.files);
+    const openRel = this.open ? (prefix && this.open.startsWith(prefix) ? this.open.slice(prefix.length) : this.open) : "";
+    const openParts = openRel ? openRel.split("/") : [];
+    const openName = openParts.pop() ?? "";
+    const openDir = openParts.length ? openParts.join("/") : "";
+    const openFileObj = this.open ? this.files.find((f) => f.path === this.open) : null;
+    const panelPx = findNode(layout(), "panel")?.size?.px ?? 368;
+    const nameMaxW = Math.round(panelPx * 0.62);
+    const showBranch = Boolean(this.branch) && this.branch !== "main" && this.branch !== "master";
+
+    const statSummary = (a, d) => h_flex().gap(5).flex_none().items_center().font_family(monoFont()).text_size(TYPE.meta).font_medium()
+      .tooltip(`+${a} added, −${d} deleted`)
+      .when(a > 0, (el) => el.child(div().text_color(statusColor(t, "added")).child(`+${a}`)))
+      .when(d > 0, (el) => el.child(div().text_color(statusColor(t, "deleted")).child(`−${d}`)));
+
+    const headerActions = [];
+    if (this.open) {
+      const fa = openFileObj?.add ?? 0, fd = openFileObj?.del ?? 0;
+      if (fa > 0 || fd > 0) headerActions.push(statSummary(fa, fd));
+    } else if (add > 0 || del > 0) {
+      headerActions.push(statSummary(add, del));
+    }
+
+    return v_flex().id("changes").size_full().min_h(0).overflow_hidden().bg(t.chrome).text_color(t.foreground).text_size(TYPE.body).track_focus(this.handle)
       .on_key_down((e, cx) => {
         if (e.key === "escape" && this.typing) { this.typing = false; this.handle.focus(); cx.stop_propagation(); cx.notify(); }
+        else if (this.open && !this.typing && (e.key === "escape" || e.key === "backspace")) { this.open = null; this.setLines([]); cx.stop_propagation(); cx.notify(); }
+        else if (e.key === "enter" && (e.modifiers?.control || e.modifiers?.platform) && enabled) { this.commit(cx); cx.stop_propagation(); }
+        else if (!this.open && !this.typing && hasChanges && (e.key === "down" || e.key === "j" || e.key === "up" || e.key === "k")) {
+          this.cursor = (e.key === "down" || e.key === "j")
+            ? Math.min(this.files.length - 1, this.cursor + 1)
+            : Math.max(0, this.cursor - 1);
+          cx.notify(); cx.stop_propagation();
+        } else if (!this.open && !this.typing && e.key === "enter" && this.files[this.cursor]) {
+          this.pick(this.files[this.cursor].path, cx); cx.stop_propagation();
+        }
       })
-      .child(h_flex().h(42).flex_none().px(14).gap(8).items_center().border_b(1).border_color(t.border)
-        .child(div().font_semibold().child("Changes"))
-        .child(div().px(5).py(1).rounded(4).border_1().border_color(t.border).text_size(10).text_color(t.muted).child(`${this.files.length} files`))
-        .child(div().flex_1()).child(div().text_size(11).text_color(t.ansi2).child(`+${add}`)).child(div().text_size(11).text_color(t.ansi1).child(`−${del}`)))
-      .child(v_flex().id("changes-list").flex_none().h(Math.min(200, Math.max(44, this.files.length * 28 + 12))).overflow_y_scrollbar().p(6).border_b(1).border_color(t.border).children(this.files.map((f) => {
-        const parts = f.path.split("/"), name = parts.pop();
-        return h_flex().id(`change-${f.path}`).h(28).flex_none().px(8).gap(8).items_center().rounded(7).cursor_pointer().when(this.open === f.path, (e) => e.bg(t.selected)).hover((s) => s.bg(t.hover)).on_click((_e, cx) => this.pick(f.path, cx))
-          .on_hover((on, cx) => { if (on) this.hovered = f.path; else if (this.hovered === f.path) { this.hovered = null; if (this.asking === f.path) this.asking = null; } cx.notify(); })
-          .child(div().w(14).text_size(11).text_color(f.status === "A" ? t.ansi2 : f.status === "D" ? t.ansi1 : f.status === "U" ? t.ansi1 : t.blocked).child(f.status))
-          .child(h_flex().flex_1().min_w(0).child(div().text_color(t.dim).truncate().child(parts.length ? parts.join("/") + "/" : "")).child(div().max_w(260).min_w(0).truncate().child(name)))
-          .when(f.add > 0, (e) => e.child(div().text_size(11).text_color(t.ansi2).child(`+${f.add}`))).when(f.del > 0, (e) => e.child(div().text_size(11).text_color(t.ansi1).child(`−${f.del}`)))
-          .when(Boolean(this.sftp) && f.status !== "D" && (this.hovered === f.path || this.uploading.has(f.path) || this.asking === f.path), (e) => {
-            const asking = this.asking === f.path, sending = this.uploading.has(f.path);
-            return e.child(div().id(`up-${f.path}`).px(6).h(20).flex().flex_none().items_center().rounded(5).text_size(11)
-              .bg(asking ? t.blocked : t.surface).text_color(asking ? t.background : t.muted)
-              .when(!asking, (b) => b.hover((s) => s.bg(t.selected).text_color(t.foreground)))
-              .on_click((_e, cx) => { cx.stop_propagation(); if (!sending) this.upload(f.path, cx); })
-              .child(sending ? "Uploading…" : asking ? "Upload to server?" : "↑ Upload"));
-          });
-      })).when(!this.files.length, (e) => e.child(div().p(8).text_color(t.dim).child(this.error || (this.loading ? "Loading changes…" : this.root ? "No uncommitted changes" : "No folder")))))
-      .when(this.limited, el => el.child(div().px(12).py(4).text_size(11).text_color(t.dim).child("Showing the first 1,000 changed files")))
-      .child(div().flex_1().min_h(0).relative().font_family(settings().font_family ?? "JetBrains Mono").text_size(11)
-        .child(div().id("changes-diff-x").size_full().overflow_x_scrollbar()
-          .child(div().w_full().min_w(this.diffWidth).h_full().child(v_virtual_list("changes-diff", this.rows.length, 20, (i) => String(i),
-            (range) => this.rows.slice(range.start, range.end).map((row) => this.diffRow(row, t))).size_full())))
-        .child(Scrollbar.vertical("changes-diff").viewport_from_layout().absolute().inset_0())
-        .when(!this.open && this.files.length > 0, (e) => e.child(div().absolute().top(6).px(12).text_color(t.dim).child("Select a file to view its changes"))))
-      .when(Boolean(this.note), (e) => e.child(div().px(10).pb(8).text_size(11).text_color(t.ansi1).child(this.note)))
-      .child(h_flex().flex_none().p(10).gap(8).border_t(1).border_color(t.border)
-        .child(div().id("commit-message").flex_1().min_w(0).h(32).px(10).flex().items_center().rounded(8).border_1().border_color(this.typing ? t.accent : t.border).cursor_text().on_mouse_down("left", (_e, cx) => cx.stop_propagation()).child(Input.new(this.input).h_full().text_size(12).text_color(t.foreground)))
-        .child(div().id("commit").h(32).px(14).flex().items_center().rounded(8).bg(enabled ? t.solid : t.raised).text_color(enabled ? t.solid_foreground : t.dim).text_size(12).when(enabled, (e) => e.cursor_pointer()).on_click((_e, cx) => this.commit(cx)).child(this.busy ? "Committing…" : "Commit")));
+      .child(panelHeader(t, this.open ? {
+        title: openName,
+        meta: openDir || null,
+        back: { id: "changes-back", tip: "Back to changes (Esc)", action: (_e, cx) => { this.open = null; this.setLines([]); cx.notify(); } },
+        actions: headerActions,
+      } : {
+        title: "Changes",
+        badgeEl: hasChanges ? countBadge(t, this.files.length) : null,
+        meta: showBranch ? this.branch : null,
+        actions: headerActions,
+      }))
+      .when(!hasChanges, (el) => el.child(
+        !this.error && !this.loading && Boolean(this.root)
+          ? emptyState(t, {
+              icon: "mods/my-chrome/circle-check.svg",
+              iconColor: statusColor(t, "ok"),
+              title: "Working tree clean",
+              subtitle: this.branch ? `On branch ${this.branch}` : null,
+            })
+          : emptyState(t, {
+              icon: !this.error && this.loading ? "mods/my-changes/changes.svg" : null,
+              title: this.error || (this.loading ? "Loading changes…" : "No folder"),
+              loading: !this.error && this.loading,
+            }),
+      ))
+      .when(hasChanges && !this.open, (el) => el
+        .child(v_flex().id("changes-list").flex_1().min_h(0).overflow_y_scrollbar().when(this.files.length > 20, (s) => s.mode("always")).py(6).px(6).children(this.files.map((f, idx) => {
+          const rel = prefix && f.path.startsWith(prefix) ? f.path.slice(prefix.length) : f.path;
+          const parts = rel.split("/"), name = parts.pop();
+          const folder = parts.length ? parts.join("/") : "";
+          const selected = this.cursor === idx;
+          const stColor = f.status === "?" ? (selected ? selectedMetaColor(t) : t.dim) : f.status === "A" ? statusColor(t, "added") : f.status === "D" || f.status === "U" ? statusColor(t, "deleted") : statusColor(t, "modified");
+          return h_flex().id(`change-${f.path}`).relative().h(SIZE.row).flex_none().px(8).gap(6).items_center().rounded(RADIUS.sm).cursor_pointer()
+            .when(selected, (e) => e.bg(t.selected))
+            .when(!selected, (e) => e.hover((s) => s.bg(t.hover)))
+            .on_click((_e, cx) => { this.cursor = idx; this.handle.focus(); this.pick(f.path, cx); })
+            .on_hover((on, cx) => { if (on) this.hovered = f.path; else if (this.hovered === f.path) { this.hovered = null; if (this.asking === f.path) this.asking = null; } cx.notify(); })
+            .child(div().w(14).flex_none().text_size(TYPE.meta).font_semibold().text_color(stColor).child(f.status))
+            .child(h_flex().flex_1().min_w(0).gap(6).items_center()
+              .child(div().flex_shrink(0).max_w(nameMaxW).truncate().text_color(selected ? t.foreground : alpha(t.foreground, 0.88)).when(selected, (x) => x.font_medium()).child(name))
+              .when(Boolean(folder), (x) => x.child(div().flex_1().min_w(0).truncate().text_size(TYPE.meta).text_color(selected ? selectedMetaColor(t) : t.dim).child(folder))))
+            .when(add > 0, (e) => e.child(div().w(38).flex_none().text_right().font_family(monoFont()).text_size(TYPE.meta).text_color(f.add > 0 ? statusColor(t, "added") : t.dim).child(f.add > 0 ? `+${f.add}` : "")))
+            .when(del > 0, (e) => e.child(div().w(38).flex_none().text_right().font_family(monoFont()).text_size(TYPE.meta).text_color(f.del > 0 ? statusColor(t, "deleted") : t.dim).child(f.del > 0 ? `−${f.del}` : "")))
+            .when(Boolean(this.sftp) && f.status !== "D" && (this.hovered === f.path || this.uploading.has(f.path) || this.asking === f.path), (e) => {
+              const asking = this.asking === f.path, sending = this.uploading.has(f.path);
+              return e.child(chip(t, `up-${f.path}`, sending ? "Uploading…" : asking ? "Upload to server?" : "↑ Upload",
+                sending ? null : (_e, cx) => this.upload(f.path, cx), {
+                  bg: asking ? t.blocked : t.surface,
+                  fg: asking ? t.solid_foreground : t.muted,
+                  hoverBg: asking ? t.blocked : t.hover,
+                }));
+            });
+        })))
+        .when(this.limited, (x) => x.child(div().px(14).py(4).text_size(TYPE.meta).text_color(t.dim).child("Showing the first 1,000 changed files")))
+        .when(Boolean(this.note), (e) => e.child(div().px(14).py(6).text_size(TYPE.meta).text_color(statusColor(t, "error")).child(this.note)))
+        .child(h_flex().flex_none().px(14).py(10).gap(8).border_t_1().border_color(t.border).bg(t.chrome)
+          .child(textInput(t, this.input, this.typing, { height: 30, textSize: TYPE.sub }).flex_1().min_w(0))
+          .child(button(t, "commit", this.busy ? "Committing…" : "Commit", (_e, cx) => this.commit(cx), {
+            variant: "primary",
+            disabled: !enabled,
+            height: 30,
+            tip: !enabled && !this.busy ? "Write a commit message to commit" : `Stage & commit all ${this.files.length} changed files (Enter)`,
+          }))))
+      .when(hasChanges && Boolean(this.open), (el) => el
+        .child(div().flex_1().min_h(0).relative().bg(t.background).font_family(monoFont()).text_size(TYPE.sub)
+          .child(div().id("changes-diff-x").size_full().overflow_x_scrollbar()
+            .child(div().w_full().min_w(this.diffWidth).h_full().pb(10).child(v_virtual_list("changes-diff", this.rows.length, 20, (i) => String(i),
+              (range) => this.rows.slice(range.start, range.end).map((row) => this.diffRow(row, t))).size_full())))
+          .child(Scrollbar.vertical("changes-diff").viewport_from_layout().absolute().inset_0())
+          .child(Scrollbar.horizontal("changes-diff-x").when(this.diffWidth > panelPx - 12, (sb) => sb.mode("always")).viewport_from_layout().absolute().inset_0()))
+        .when(Boolean(this.note), (e) => e.child(div().px(14).py(6).text_size(TYPE.meta).text_color(statusColor(t, "error")).child(this.note))));
   }
 }

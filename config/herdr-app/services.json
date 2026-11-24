@@ -21,6 +21,17 @@
         "tsPort": "",
         "tailscale": false
       }
+    ],
+    "remote:/home/jofre/projects/drop": [
+      {
+        "id": "svc_mwucu6ks",
+        "name": "dashboard",
+        "command": "cd tools/dashboard && bun run dev",
+        "nix": "auto",
+        "port": "",
+        "tsPort": "",
+        "tailscale": true
+      }
     ]
   }
 }

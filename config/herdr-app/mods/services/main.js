@@ -11,11 +11,12 @@
 //   title   title bar for a service's floating log window
 
 import { View, div, svg } from "gpui-kit";
-import { v_flex, h_flex, InputState, Input } from "gpui-base";
+import { v_flex, h_flex, InputState } from "gpui-base";
 import {
   appHome, home, hc, exec, run, theme, spaces, panes, terminals, focused, machines,
-  props, shared, setShared, openOverlay, closeOverlay, readTextFile, writeTextFile, notify,
+  props, shared, setShared, openOverlay, closeOverlay, readTextFile, writeTextFile, notify, nextCommand,
 } from "herdr";
+import { TYPE, RADIUS, SIZE, TRANSPARENT, monoFont, alpha, selectedMetaColor, statusColor, dot, button, toggle, textInput, iconBtn as uiIconBtn, badge as uiBadge, chip, sectionHeader, dialogFrame, floatingTitleBar, panelHeader, emptyState } from "./ui.js";
 
 const FILE = () => `${appHome()}/services.json`;
 const DIR = "mods/services";
@@ -49,13 +50,6 @@ const TS_SCRIPT = [
   'printf "\\033[2m$ tailscale serve --https=%s %s\\033[0m\\n" "$ts_port" "$local_port"',
   'exec tailscale serve --https="$ts_port" "$local_port"',
 ].join("\n");
-
-function alpha(c, a) {
-  let h = String(c ?? "").replace("#", "");
-  if (h.length === 3 || h.length === 4) h = [...h].map((x) => x + x).join("");
-  if (!/^[0-9a-f]{6}([0-9a-f]{2})?$/i.test(h)) return c;
-  return `#${h.slice(0, 6)}${Math.round(a * 255).toString(16).padStart(2, "0")}`;
-}
 
 function location() {
   const space = spaces().find((s) => s.active);
@@ -289,7 +283,7 @@ function openLogs(spaceId, machine, root, svc, terminal) {
       children: [
         {
           type: "block",
-          size: { px: 36 },
+          size: { px: SIZE.chrome },
           content: {
             mod: "services",
             props: { view: "title", spaceId, machine, root, svc, terminal },
@@ -311,7 +305,7 @@ function openEditor(machine, root, svc, hasFlake) {
     mod: "services",
     kind: "dialog",
     width: 460,
-    height: 520,
+    height: 496,
     props: { view: "edit", machine: machine ?? null, root, svc: svc ?? null, hasFlake: Boolean(hasFlake) },
   });
 }
@@ -367,26 +361,10 @@ async function detectTailscaleHost(machine) {
 
 // ---- shared UI helpers -----------------------------------------------------
 
-const actionBtn = (t, id, label, tip, action, fg) => h_flex().id(id).h(24).px(7).flex_none()
-  .items_center().justify_center().rounded(6).text_size(11.5).cursor_pointer()
-  .text_color(fg ?? t.muted).hover((s) => s.bg(t.hover).text_color(fg ?? t.foreground))
-  .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
-  .on_click((e, cx) => { cx.stop_propagation(); action(e, cx); })
-  .when(Boolean(tip), (el) => el.tooltip(tip))
-  .child(label);
+const iconBtn = (t, id, icon, tip, action, fg, hoverColor, opts = {}) =>
+  uiIconBtn(t, id, icon.includes("/") ? icon : `${DIR}/icons/${icon}.svg`, tip, action, { color: fg, hoverColor, ...opts });
 
-const iconBtn = (t, id, icon, tip, action, fg) => h_flex().id(id).size(24).flex_none()
-  .items_center().justify_center().rounded(6).cursor_pointer()
-  .hover((s) => s.bg(t.hover))
-  .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
-  .on_click((e, cx) => { cx.stop_propagation(); action(e, cx); })
-  .when(Boolean(tip), (el) => el.tooltip(tip))
-  .child(svg(icon.includes("/") ? icon : `${DIR}/icons/${icon}.svg`).size(13.5).text_color(fg ?? t.muted));
-
-const badge = (t, text, fg, bg) => h_flex().h(18).px(6).flex_none().items_center().rounded(4)
-  .bg(bg ?? t.raised).border_1().border_color(alpha(fg ?? t.border, bg ? 0.35 : 0.8))
-  .text_size(10.5).text_color(fg ?? t.muted).font_family("JetBrains Mono")
-  .child(text);
+const badge = (t, text, fg, bg) => uiBadge(t, text, { fg, bg, mono: true });
 
 // ---- the mod ---------------------------------------------------------------
 
@@ -418,7 +396,11 @@ export default class Services extends View {
     this.autoTsStarted = new Set();
     this.killing = new Set();
     this.scanning = false;
+    this.showSaved = true;
     this.showPkg = true;
+    this.hovered = null;
+    this.confirmStopAll = false;
+    this.cursor = -1;
     this.lastSpaceSig = "";
 
     const tick = (cx) => {
@@ -445,6 +427,12 @@ export default class Services extends View {
 
     // Gentle background timer: reaps services of closed spaces, detects ports, picks up hand edits.
     cx.timer.every(1500, (cx) => tick(cx));
+    cx.spawn(async () => {
+      for (;;) {
+        const cmd = await nextCommand();
+        if (cmd === "focus") this.handle.focus();
+      }
+    });
   }
 
   async scanRunningPorts() {
@@ -482,6 +470,7 @@ export default class Services extends View {
 
   locate(cx, force = false) {
     const loc = location();
+    if (loc.cwd !== this.cwd || loc.machine !== this.machine || loc.space !== this.space) this.cursor = -1;
     this.cwd = loc.cwd;
     this.machine = loc.machine;
     this.space = loc.space;
@@ -561,98 +550,175 @@ export default class Services extends View {
       ? terminals().filter((x) => x.state === "live" && x.labels?.["svc.space"] === loc.space && x.labels?.["svc.kind"] === "app").length
       : 0;
 
-    const message = (text, extra) => v_flex().p(14).gap(10).text_size(12).text_color(t.dim)
-      .child(text).when(Boolean(extra), (el) => el.child(extra));
+    const visibleItems = [
+      ...(this.showSaved ? saved.map((svc) => ({ svc, isPkg: false })) : []),
+      ...(this.showPkg ? pkgScripts.map((svc) => ({ svc, isPkg: true })) : []),
+    ];
+
+    const onKey = (e, cx) => {
+      if (!visibleItems.length) return;
+      if (e.key === "down" || e.key === "j") { this.cursor = Math.min(visibleItems.length - 1, this.cursor + 1); cx.notify(); cx.stop_propagation(); }
+      else if (e.key === "up" || e.key === "k") { this.cursor = Math.max(0, this.cursor - 1); cx.notify(); cx.stop_propagation(); }
+      else if (e.key === "enter") {
+        const cur = visibleItems[this.cursor];
+        if (!cur || !root) return;
+        const st = appStatus(loc.space, cur.svc.id);
+        if (st?.terminal) openLogs(loc.space, loc.machine, root, cur.svc, st.terminal);
+        else startService(loc.space, loc.machine, root, cur.svc, false).catch((err) => {
+          notify({ title: `Couldn't start ${cur.svc.name}`, body: String(err?.message ?? err), level: "error" });
+        });
+        cx.stop_propagation();
+      }
+    };
 
     let body;
     if (!loc.cwd || !loc.space) {
-      body = message("No active project folder.");
+      body = emptyState(t, { icon: `${DIR}/layers.svg`, title: "No active project folder" });
     } else if (!info) {
-      body = message(loc.machine ? `Inspecting project on ${loc.machine}…` : "Inspecting project…");
+      body = emptyState(t, { icon: `${DIR}/layers.svg`, title: loc.machine ? `Inspecting project on ${loc.machine}…` : "Inspecting project…", loading: true });
+    } else if (saved.length === 0 && pkgScripts.length === 0) {
+      body = emptyState(t, {
+        icon: `${DIR}/layers.svg`,
+        title: "No services yet",
+        subtitle: "Run dev servers and background tasks for this space.",
+        action: button(t, "svc-empty-add", "Add service", () => openEditor(loc.machine, root, null, info.hasFlake), { variant: "secondary" }),
+      });
     } else {
-      body = v_flex().id("svc-scroll").flex_1().min_h(0).overflow_y_scrollbar().p(10).gap(8)
-        .when(saved.length === 0 && pkgScripts.length === 0, (el) => el.child(
-          message(`No services configured for ${displayPath(root, loc.machine)}.`,
-            h_flex().child(
-              div().id("svc-empty-add").px(10).py(6).rounded(6).bg(t.solid).text_color(t.solid_foreground)
-                .text_size(12).font_medium().cursor_pointer()
-                .on_click(() => openEditor(loc.machine, root, null, info.hasFlake))
-                .child("+ Add service"),
+      body = v_flex().id("svc-scroll").flex_1().min_h(0).overflow_y_scrollbar().pt(6).px(6).pb(16).gap(0)
+        .when(saved.length > 0, (el) => el.child(
+          v_flex().gap(0)
+            .child(sectionHeader(t, {
+              id: "saved-toggle",
+              open: this.showSaved,
+              label: "services.json",
+              count: saved.length,
+              pr: 6,
+              onToggle: (_e, cx) => { this.showSaved = !this.showSaved; cx.notify(); },
+            }))
+            .when(this.showSaved, (col) => col.children(
+              saved.map((svc, idx) => this.renderCard(t, loc.space, loc.machine, root, svc, info.hasFlake, false, idx, cx)),
             )),
         ))
-        .children(saved.map((svc) => this.renderCard(t, loc.space, loc.machine, root, svc, info.hasFlake, false, cx)))
         .when(pkgScripts.length > 0, (el) => el.child(
-          v_flex().pt(saved.length ? 8 : 0).gap(6)
-            .child(h_flex().id("pkg-toggle").px(4).py(2).items_center().gap(5).cursor_pointer()
-              .on_click((_e, cx) => { this.showPkg = !this.showPkg; cx.notify(); })
-              .child(svg(`mods/my-files/chevron-${this.showPkg ? "down" : "right"}.svg`).size(12).flex_none().text_color(t.dim))
-              .child(div().text_size(11).font_semibold().text_color(t.dim)
-                .child(`package.json (${pkgScripts.length})`)))
+          v_flex().pt(saved.length ? 8 : 0).gap(0)
+            .child(sectionHeader(t, {
+              id: "pkg-toggle",
+              open: this.showPkg,
+              label: "package.json",
+              count: pkgScripts.length,
+              pr: 6,
+              onToggle: (_e, cx) => { this.showPkg = !this.showPkg; cx.notify(); },
+            }))
             .when(this.showPkg, (col) => col.children(
-              pkgScripts.map((svc) => this.renderCard(t, loc.space, loc.machine, root, svc, info.hasFlake, true, cx)),
+              pkgScripts.map((svc, idx) => this.renderCard(t, loc.space, loc.machine, root, svc, info.hasFlake, true, (this.showSaved ? saved.length : 0) + idx, cx)),
             )),
         ));
     }
 
-    return v_flex().id("services-panel").size_full().min_h(0).overflow_hidden()
-      .bg(t.background).border_l_1().border_color(t.border).text_color(t.foreground).text_size(13)
-      // Header
-      .child(h_flex().h(42).flex_none().px(10).gap(6).items_center().border_b_1().border_color(t.border)
-        .child(svg(`${DIR}/services.svg`).size(14).flex_none().text_color(runningInSpace ? t.ansi2 : t.muted))
-        .child(h_flex().flex_1().min_w(0).gap(6).items_center()
-          .child(div().font_semibold().truncate().child("Services"))
-          .when(Boolean(loc.machine), (el) => el.child(badge(t, loc.machine, t.ansi4, alpha(t.ansi4, 0.14)))))
-        .when(runningInSpace > 0, (el) => el.child(
-          h_flex().id("svc-stop-all").h(24).px(6).gap(4).flex_none().items_center().rounded(6).cursor_pointer()
-            .text_size(11.5).text_color(t.ansi1).hover((s) => s.bg(t.hover))
-            .tooltip("Stop all services in this space")
-            .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
-            .on_click((e, cx) => { cx.stop_propagation(); stopAllInSpace(loc.space); })
-            .child(svg(`${DIR}/icons/square.svg`).size(12).text_color(t.ansi1))
-            .child(String(runningInSpace)),
-        ))
-        .when(Boolean(root), (el) => el.child(
-          iconBtn(t, "svc-refresh", "refresh-cw", "Refresh project", (_e, cx) => {
-            this.cache.delete(`${this.machine ?? ""}:${this.cwd}`);
-            this.locate(cx, true);
+    const headerActions = [];
+    if (runningInSpace > 0) {
+      if (this.confirmStopAll) {
+        headerActions.push(
+          chip(t, "svc-stop-all", "Stop all?", (_e, cx) => {
+            this.confirmStopAll = false;
+            stopAllInSpace(loc.space);
+            cx.notify();
+          }, {
+            fg: t.solid_foreground,
+            bg: statusColor(t, "error"),
+            hoverBg: statusColor(t, "error"),
+            hoverFg: t.solid_foreground,
+            height: SIZE.btn,
+            tip: "Click again to stop all active services in this space",
+          }).on_hover((on, cx) => {
+            if (!on && this.confirmStopAll) { this.confirmStopAll = false; cx.notify(); }
           }),
-        ))
-        .when(Boolean(root), (el) => el.child(
-          iconBtn(t, "svc-add", "plus", "Add a service for this project",
-            () => openEditor(loc.machine, root, null, info?.hasFlake)),
-        )))
+        );
+      } else {
+        headerActions.push(
+          iconBtn(t, "svc-stop-all", "stop-circle", `Stop all (${runningInSpace} active)`, (_e, cx) => {
+            this.confirmStopAll = true;
+            cx.notify();
+          }, t.muted, statusColor(t, "error")),
+        );
+      }
+    } else if (this.confirmStopAll) {
+      this.confirmStopAll = false;
+    }
+    const totalServices = saved.length + pkgScripts.length;
+    if (root && totalServices > 0) {
+      headerActions.push(
+        iconBtn(t, "svc-add", "plus", "Add a service for this project",
+          () => openEditor(loc.machine, root, null, info?.hasFlake)),
+      );
+    }
+
+    const headerBadges = h_flex().gap(6).items_center()
+      .when(Boolean(loc.machine), (el) => el.child(badge(t, loc.machine, t.accent, alpha(t.accent, 0.14))))
+      .when(Boolean(info?.hasFlake), (el) => el.child(badge(t, "nix", t.muted, t.raised)));
+
+    return v_flex().id("services-panel").track_focus(this.handle).on_key_down(onKey)
+      .size_full().min_h(0).overflow_hidden()
+      .bg(t.chrome).text_color(t.foreground).text_size(TYPE.body)
+      .child(panelHeader(t, {
+        title: "Services",
+        badgeEl: (loc.machine || info?.hasFlake) ? headerBadges : null,
+        meta: runningInSpace > 0 ? `${runningInSpace} active` : null,
+        actions: headerActions,
+      }))
       .child(body);
   }
 
-  renderCard(t, spaceId, machine, root, svc, hasFlake, isPkg, cx) {
+  renderCard(t, spaceId, machine, root, svc, hasFlake, isPkg, idx, cx) {
     const st = appStatus(spaceId, svc.id);
     const ts = tsInfo(spaceId, svc.id, machine);
     const running = st?.state === "running";
     const failed = st?.state === "error";
-    const dotColor = running ? t.ansi2 : failed ? t.ansi1 : st?.state === "ok" ? t.ansi4 : t.dim;
-    const usesNix = svc.nix === "on" || (svc.nix !== "off" && hasFlake);
+    const hovered = this.hovered === svc.id;
+    const kbdSelected = this.cursor === idx;
     const port = effectivePort(svc, st);
     const openUrl = accessUrl(machine, svc, st, ts);
+    const canOpen = Boolean(openUrl) && (running || Boolean(ts?.url));
 
-    return v_flex().id(`svc-${svc.id}`).px(9).py(7).gap(4).rounded(8)
-      .bg(running ? alpha(t.ansi2, 0.07) : t.surface)
-      .border_1().border_color(running ? alpha(t.ansi2, 0.35) : failed ? alpha(t.ansi1, 0.4) : t.border)
-      .when(Boolean(st?.terminal), (el) => el.cursor_pointer().tooltip("Click to view logs").on_click(() => openLogs(spaceId, machine, root, svc, st.terminal)))
-      // Single compact row: status dot + name + controls (open, tailscale, edit, stop/start)
-      .child(h_flex().gap(5).items_center()
-        .child(div().size(8).flex_none().rounded(4).bg(dotColor))
-        .child(div().flex_1().min_w(0).font_medium().truncate().tooltip(svc.command).child(svc.name))
-        .when(usesNix, (el) => el.child(
-          h_flex().size(24).flex_none().items_center().justify_center().tooltip("Runs inside nix develop")
-            .child(svg("icons/nix.svg").size(13.5).text_color(t.ansi6)),
+    return v_flex().id(`svc-${svc.id}`).relative().pl(8).pr(6).py(0).rounded(RADIUS.sm)
+      .when(failed, (el) => el.bg(alpha(statusColor(t, "error"), 0.1)))
+      .when(kbdSelected && !failed, (el) => el.bg(t.selected))
+      .when(!kbdSelected || failed, (el) => el.hover((s) => s.bg(failed ? alpha(statusColor(t, "error"), 0.16) : t.hover)))
+      .on_hover((on, cx) => {
+        if (on) this.hovered = svc.id;
+        else if (this.hovered === svc.id) this.hovered = null;
+        cx.notify();
+      })
+      .when(Boolean(st?.terminal), (el) => el.cursor_pointer().tooltip("Click to view logs").on_click(() => { this.cursor = idx; this.handle.focus(); openLogs(spaceId, machine, root, svc, st.terminal); }))
+      .when(!st?.terminal, (el) => el.on_click((_e, cx) => { this.cursor = idx; this.handle.focus(); cx.notify(); }))
+      .child(h_flex().h(SIZE.row).gap(8).items_center()
+        .child(running || failed || st?.state === "ok"
+          ? dot(t, running ? "ok" : failed ? "error" : "ok")
+          : div().size(6).flex_none())
+        .child(div().flex_shrink(0).max_w(130).truncate()
+          .text_color(running || failed || kbdSelected ? t.foreground : alpha(t.foreground, 0.88))
+          .when(running || kbdSelected, (el) => el.font_medium())
+          .tooltip(svc.rawCmd || svc.command)
+          .child(svc.name))
+        .when(Boolean(port) && canOpen, (el) => el.child(
+          h_flex().id(`port-${svc.id}`).h(20).px(6).gap(4).items_center().rounded(RADIUS.xs)
+            .bg(alpha(t.accent, 0.14))
+            .text_size(TYPE.meta).font_family(monoFont()).text_color(t.accent).cursor_pointer()
+            .hover((s) => s.bg(alpha(t.accent, 0.24)))
+            .tooltip(`Open ${openUrl} in browser`)
+            .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
+            .on_click((_e, cx) => { cx.stop_propagation(); cx.open_url(openUrl); })
+            .child(`:${port}`)
+            .child(svg(`${DIR}/icons/external-link.svg`).size(SIZE.iconSm).flex_none()),
         ))
-        // 1. Open access URL in local browser
-        .when(Boolean(openUrl) && (running || Boolean(ts?.url)), (el) => el.child(
-          iconBtn(t, `open-${svc.id}`, "external-link", `Open ${openUrl} in browser`,
-            (_e, cx) => cx.open_url(openUrl)),
+        .when(!(Boolean(port) && canOpen), (el) => el.child(
+          div().flex_1().min_w(0).truncate().text_size(TYPE.meta).text_color(kbdSelected && !failed ? selectedMetaColor(t) : t.dim)
+            .when(Boolean(port), (x) => x.font_family(monoFont()))
+            .child(port ? `:${port}` : (svc.rawCmd || svc.command || "")),
         ))
-        // 2. Tailscale icon toggle (for saved services)
-        .when(!isPkg, (el) => el.child(
+        .when(Boolean(port) && canOpen, (el) => el.child(div().flex_1()))
+        // Active Tailscale exposure is always visible at rest; inactive toggle reveals on hover.
+        .when((Boolean(ts) || hovered) && !isPkg, (el) => el.child(
           iconBtn(
             t,
             `ts-${svc.id}`,
@@ -665,26 +731,26 @@ export default class Services extends View {
                 notify({ title: "Tailscale serve failed", body: String(e?.message ?? e), level: "error" });
               });
             },
-            ts ? t.ansi4 : t.muted,
+            ts ? t.accent : t.muted,
+            ts ? t.accent : t.foreground,
+            { active: Boolean(ts) },
           ),
         ))
-        // 3. Edit saved OR Save from package.json
-        .child(isPkg
+        .when(hovered, (el) => el.child(isPkg
           ? iconBtn(t, `save-${svc.id}`, "plus", "Save to project services", () => {
               openEditor(machine, root, { ...svc, id: null }, hasFlake);
             })
-          : iconBtn(t, `edit-${svc.id}`, "pencil", "Edit service", () => openEditor(machine, root, svc, hasFlake)))
-        // 4. Stop / Start button
+          : iconBtn(t, `edit-${svc.id}`, "pencil", "Edit service", () => openEditor(machine, root, svc, hasFlake))))
+        // Primary action always visible (muted at rest, semantic color on hover)
         .child(running
-          ? iconBtn(t, `stop-${svc.id}`, "square", "Stop service", () => stopService(spaceId, svc.id), t.ansi1)
+          ? uiIconBtn(t, `stop-${svc.id}`, "mods/my-chrome/square.svg", "Stop service", () => stopService(spaceId, svc.id), { color: t.muted, hoverColor: statusColor(t, "error") })
           : iconBtn(t, `start-${svc.id}`, "play", "Start service", () => {
               startService(spaceId, machine, root, svc, false).catch((e) => {
                 notify({ title: `Couldn't start ${svc.name}`, body: String(e?.message ?? e), level: "error" });
               });
-            }, t.ansi2)))
-      // Exit error if failed
+            }, t.muted, statusColor(t, "ok"))))
       .when(failed, (el) => el.child(
-        div().pl(14).text_size(11).text_color(t.ansi1)
+        div().pl(14).pb(4).text_size(TYPE.meta).text_color(statusColor(t, "error"))
           .child(`Exited with code ${st.code} · click to view logs`),
       ));
   }
@@ -701,6 +767,7 @@ export default class Services extends View {
     this.editingId = svc.id ?? null;
     this.nix = svc.nix || "auto";
     this.tailscale = Boolean(svc.tailscale);
+    this.confirmDelete = false;
     this.error = "";
     this.focus = "command";
 
@@ -712,12 +779,11 @@ export default class Services extends View {
       return s;
     };
 
-    this.name = field("name", svc.name, "dev");
-    this.command = field("command", svc.command, "npm run dev");
-    this.port = field("port", svc.port, "3000 (optional, for Tailscale)");
-    this.tsPort = field("tsPort", svc.tsPort, "Same as local port");
+    this.name = field("name", svc.name, "e.g. dev");
+    this.command = field("command", svc.command, "e.g. npm run dev");
+    this.port = field("port", svc.port, "e.g. 3000 (optional)");
+    this.tsPort = field("tsPort", svc.tsPort, "Optional (same as local)");
     this.command.focus();
-    cx.timer.after(200, () => this.command.focus());
   }
 
   submitEdit(cx) {
@@ -770,61 +836,70 @@ export default class Services extends View {
     });
   }
 
-  renderEdit(cx) {
+  renderEdit() {
     const t = theme();
     const p = props() ?? {};
-    const label = (text) => div().pt(12).pb(5).text_size(11.5).text_color(t.dim).child(text);
-    const input = (key, state) => Input.new(state).h(34).px(10).rounded(8).border_1()
-      .border_color(this.focus === key ? t.accent : t.input).bg(t.background)
-      .text_size(12.8).text_color(t.foreground);
-    const seg = (val, text) => h_flex().id(`nix-${val}`).flex_1().h(30).items_center().justify_center()
-      .rounded(6).cursor_pointer().text_size(12)
-      .bg(this.nix === val ? t.selected : t.raised)
-      .border_1().border_color(this.nix === val ? t.accent : t.border)
+    const label = (text, { err = "", first = false } = {}) => h_flex().flex_none().pt(first ? 0 : 10).pb(4).items_center().justify_between()
+      .child(div().text_size(TYPE.meta).font_medium().text_color(t.muted).child(text))
+      .when(Boolean(err), (el) => el.child(div().text_size(TYPE.meta).font_medium().text_color(statusColor(t, "error")).child(err)));
+    const input = (key, state, opts = {}) => textInput(t, state, this.focus === key, opts);
+    const seg = (val, text) => h_flex().id(`nix-${val}`).flex_1().h(26).items_center().justify_center()
+      .rounded(RADIUS.xs).cursor_pointer().text_size(TYPE.sub)
+      .bg(this.nix === val ? t.raised : TRANSPARENT)
       .text_color(this.nix === val ? t.foreground : t.muted)
+      .when(this.nix === val, (el) => el.font_medium())
+      .when(this.nix !== val, (el) => el.hover((s) => s.text_color(t.foreground)))
       .on_click((_e, cx) => { this.nix = val; cx.notify(); })
       .child(text);
-    const btn = (id, text, primary, danger, action) => h_flex().id(id).h(32).px(14).items_center().rounded(8)
-      .border_1().border_color(primary ? t.solid : danger ? alpha(t.ansi1, 0.5) : t.input)
-      .bg(primary ? t.solid : danger ? alpha(t.ansi1, 0.14) : t.raised)
-      .text_color(primary ? t.solid_foreground : danger ? t.ansi1 : t.foreground)
-      .text_size(12.5).font_medium().cursor_pointer().hover((s) => s.opacity(0.88))
-      .on_click(action).child(text);
 
-    return v_flex().id("svc-edit").track_focus(this.handle)
-      .on_key_down((e, cx) => { if (e.key === "escape") { closeOverlay(p.overlay); cx.stop_propagation(); } })
-      .size_full().min_h(0).p(18).bg(t.popover).text_color(t.foreground)
-      .child(div().text_size(15).font_semibold().child(this.editingId ? "Edit service" : "New service"))
-      .child(div().pt(2).text_size(11.5).text_color(t.dim).truncate()
-        .child(`${this.machine ? `${this.machine}: ` : ""}${displayPath(this.root, this.machine)}`))
-      .child(label("Command"))
-      .child(input("command", this.command))
+    const canSave = Boolean(this.command.value().trim());
+    const body = v_flex().id("svc-edit-body").flex_1().min_h(0).overflow_y_scrollbar()
+      .child(label("Command", { err: this.error === "Command is required." ? this.error : "", first: true }))
+      .child(input("command", this.command, { mono: true }))
       .child(label("Name"))
       .child(input("name", this.name))
       .child(label(`Nix environment${this.hasFlake ? " (flake.nix detected)" : ""}`))
-      .child(h_flex().gap(6)
+      .child(h_flex().flex_none().p(3).gap(3).rounded(RADIUS.sm).bg(t.background)
         .child(seg("auto", "Auto"))
         .child(seg("on", "Always nix develop"))
         .child(seg("off", "Off")))
-      .child(h_flex().gap(10)
-        .child(v_flex().flex_1().child(label("Local port")).child(input("port", this.port)))
-        .child(v_flex().flex_1().child(label("Tailscale HTTPS port")).child(input("tsPort", this.tsPort))))
-      // Auto-Tailscale toggle
-      .child(h_flex().id("ed-ts").pt(14).gap(10).items_center().cursor_pointer()
-        .on_click((_e, cx) => { this.tailscale = !this.tailscale; cx.notify(); })
-        .child(h_flex().w(30).h(18).flex_none().rounded(9).p(2).bg(this.tailscale ? t.accent : t.input)
-          .when(this.tailscale, (el) => el.justify_end())
-          .child(div().size(14).rounded(7).bg("#ffffff")))
-        .child(v_flex().flex_1().min_w(0)
-          .child(div().text_size(12.5).child("Auto-expose with Tailscale"))
-          .child(div().text_size(11).text_color(t.dim).child("Starts foreground tailscale serve with this service; cleans up on stop/close."))))
-      .when(Boolean(this.error), (el) => el.child(div().pt(10).text_size(12).text_color(t.ansi1).child(this.error)))
-      .child(div().flex_1())
-      .child(h_flex().pt(12).gap(8).items_center()
-        .when(Boolean(this.editingId), (el) => el.child(btn("ed-del", "Delete", false, true, (_e, cx) => this.deleteEdit(cx))))
-        .child(div().flex_1())
-        .child(btn("ed-cancel", "Cancel", false, false, () => closeOverlay(p.overlay)))
-        .child(btn("ed-save", "Save", true, false, (_e, cx) => this.submitEdit(cx))));
+      .child(h_flex().flex_none().gap(10)
+        .child(v_flex().flex_1().min_w(0).child(label("Local port", { err: this.error.includes("Local port") ? this.error : "" })).child(input("port", this.port, { mono: Boolean(this.port.value()) })))
+        .child(v_flex().flex_1().min_w(0).child(label("Tailscale HTTPS port", { err: this.error.includes("Tailscale port") ? this.error : "" })).child(input("tsPort", this.tsPort, { mono: Boolean(this.tsPort.value()) }))))
+      .child(toggle(t, "ed-ts", this.tailscale, "Auto-expose with Tailscale",
+        "Starts tailscale serve with this service; cleans up on stop",
+        (_e, cx) => { this.tailscale = !this.tailscale; cx.notify(); }));
+
+    const fieldErr = this.error === "Command is required." || this.error.includes("Local port") || this.error.includes("Tailscale port");
+    const generalErr = Boolean(this.error) && !fieldErr ? this.error : "";
+    const footer = h_flex().gap(8).items_center()
+      .when(Boolean(this.editingId) && !this.confirmDelete, (el) => el.child(
+        button(t, "ed-del", "Delete", (_e, cx) => { this.confirmDelete = true; cx.notify(); }, { variant: "danger" }),
+      ))
+      .when(Boolean(this.editingId) && this.confirmDelete, (el) => el
+        .child(button(t, "ed-del-yes", "Confirm delete?", (_e, cx) => this.deleteEdit(cx), { variant: "danger" }))
+        .child(button(t, "ed-del-no", "Keep", (_e, cx) => { this.confirmDelete = false; cx.notify(); }, { variant: "ghost" })))
+      .when(Boolean(generalErr), (el) => el.child(div().flex_1().min_w(0).truncate().text_size(TYPE.meta).text_color(statusColor(t, "error")).child(generalErr)))
+      .when(!generalErr, (el) => el.child(div().flex_1()))
+      .child(button(t, "ed-cancel", "Cancel", () => closeOverlay(p.overlay), { variant: "ghost" }))
+      .child(button(t, "ed-save", "Save", (_e, cx) => this.submitEdit(cx), { variant: "primary", disabled: !canSave, tip: canSave ? "Save service" : "Enter a command to save" }));
+
+    return dialogFrame(t, {
+      id: "svc-edit",
+      handle: this.handle,
+      onKeyDown: (e, cx) => {
+        if (e.key === "escape") {
+          if (this.confirmDelete) { this.confirmDelete = false; cx.notify(); }
+          else closeOverlay(p.overlay);
+          cx.stop_propagation();
+        }
+      },
+      title: this.editingId ? "Edit service" : "New service",
+      subtitle: `${this.machine ? `${this.machine}: ` : ""}${displayPath(this.root, this.machine)}`,
+      onClose: () => closeOverlay(p.overlay),
+      body,
+      footer,
+    });
   }
 
   // ---- floating terminal title bar -----------------------------------------
@@ -836,43 +911,50 @@ export default class Services extends View {
     const st = appStatus(p.spaceId, svc.id);
     const ts = tsInfo(p.spaceId, svc.id, p.machine);
     const running = st?.state === "running";
+    const url = accessUrl(p.machine, svc, st, ts);
 
-    return h_flex().id("svc-title").size_full().px(12).gap(8).items_center()
-      .bg(t.chrome).border_b_1().border_color(t.border).text_color(t.foreground).text_size(12.5)
-      .child(div().size(8).flex_none().rounded(4).bg(running ? t.ansi2 : st?.state === "error" ? t.ansi1 : t.dim))
-      .child(div().font_semibold().truncate().child(svc.name || "Service"))
-      .child(div().flex_1().min_w(0).text_size(11.5).text_color(t.dim).font_family("JetBrains Mono").truncate()
-        .child(svc.command || ""))
-      .when(Boolean(ts?.url), (el) => el.child(
-        h_flex().id("title-ts").px(8).h(22).items_center().rounded(5)
-          .bg(alpha(t.ansi4, 0.16)).text_size(11).text_color(t.ansi4).font_family("JetBrains Mono").cursor_pointer()
-          .tooltip("Click to copy Tailscale URL")
-          .on_click((_e, cx) => {
-            cx.write_to_clipboard(ts.url);
-            notify({ title: "Copied Tailscale URL", body: ts.url, level: "success", timeout: 2500 });
-          })
-          .child(ts.url),
-      ))
-      .when(Boolean(accessUrl(p.machine, svc, st, ts)) && (running || Boolean(ts?.url)), (el) => {
-        const url = accessUrl(p.machine, svc, st, ts);
-        return el.child(iconBtn(t, "title-open", "external-link", `Open ${url} in browser`, (_e, cx) => cx.open_url(url)));
-      })
-      .child(iconBtn(t, "title-restart", "refresh-cw", "Restart service", () => {
+    const badges = [];
+    if (ts?.url) {
+      badges.push(chip(t, "title-ts", ts.url, (_e, cx) => {
+        cx.write_to_clipboard(ts.url);
+        notify({ title: "Copied Tailscale URL", body: ts.url, level: "success", timeout: 2500 });
+      }, {
+        fg: t.accent,
+        bg: alpha(t.accent, 0.16),
+        hoverBg: alpha(t.accent, 0.24),
+        tip: "Click to copy Tailscale URL",
+        mono: true,
+      }));
+    }
+
+    const actions = [];
+    if (url && (running || Boolean(ts?.url))) {
+      actions.push(iconBtn(t, "title-open", "external-link", `Open ${url} in browser`, (_e, cx) => cx.open_url(url)));
+    }
+    actions.push(iconBtn(t, "title-restart", "refresh-cw", "Restart service", () => {
+      closeOverlay(p.overlay);
+      startService(p.spaceId, p.machine, p.root, svc, true).catch((e) => {
+        notify({ title: `Couldn't restart ${svc.name}`, body: String(e?.message ?? e), level: "error" });
+      });
+    }));
+    actions.push(chip(t, "title-tab", "Dock tab", () => {
+      run("terminal.keep", { terminal: p.terminal, place: "tab" });
+      closeOverlay(p.overlay);
+    }, { height: SIZE.btn, tip: "Dock this terminal as a tab" }));
+
+    return floatingTitleBar(t, {
+      id: "svc-title",
+      iconEl: dot(t, running ? "ok" : st?.state === "error" ? "error" : st?.state === "ok" ? "ok" : "idle", { outlined: !running && st?.state !== "error" && st?.state !== "ok" }),
+      title: svc.name || "Service",
+      subtitle: svc.command || "",
+      badges,
+      actions,
+      onStop: running ? () => {
+        stopService(p.spaceId, svc.id);
         closeOverlay(p.overlay);
-        startService(p.spaceId, p.machine, p.root, svc, true).catch((e) => {
-          notify({ title: `Couldn't restart ${svc.name}`, body: String(e?.message ?? e), level: "error" });
-        });
-      }))
-      .when(running, (el) => el.child(
-        iconBtn(t, "title-stop", "square", "Stop service", () => {
-          stopService(p.spaceId, svc.id);
-          closeOverlay(p.overlay);
-        }, t.ansi1),
-      ))
-      .child(actionBtn(t, "title-tab", "Tab", "Dock this terminal as a tab", () => {
-        run("terminal.keep", { terminal: p.terminal, place: "tab" });
-        closeOverlay(p.overlay);
-      }))
-      .child(iconBtn(t, "title-close", "x", "Hide window (keeps running)", () => closeOverlay(p.overlay)));
+      } : null,
+      stopTip: "Stop service and close",
+      onHide: () => closeOverlay(p.overlay),
+    });
   }
 }

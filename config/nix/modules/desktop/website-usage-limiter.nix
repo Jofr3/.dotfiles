@@ -7,7 +7,11 @@
       ...
     }:
     let
-      # Daily minutes per domain, e.g. { "youtube.com": 45 }. Kept encrypted in
+      # Minutes per domain: a number for a daily budget, or an object with
+      # "daily" and/or "hourly" budgets, e.g.
+      #   { "reddit.com": 45, "youtube.com": { "daily": 120, "hourly": 10 } }
+      # Hourly use also counts towards the daily budget; once the hourly budget
+      # is spent the site stays blocked until the next clock hour. Kept encrypted in
       # secrets/WEBSITE_LIMITS.age (edit with `secret-edit WEBSITE_LIMITS`) and
       # decrypted by base/secrets.nix, so it is read at runtime, never by Nix.
       limitsSecret = ../../secrets/WEBSITE_LIMITS.age;
@@ -58,26 +62,51 @@
         })"""
 
 
+        PERIODS = ("daily", "hourly")
+
+
         def load_limits():
             try:
-                minutes = json.loads(LIMITS_FILE.read_text())
+                config = json.loads(LIMITS_FILE.read_text())
             except (OSError, ValueError) as error:
                 sys.exit(f"Cannot read website limits from {LIMITS_FILE}: {error}")
-            if not isinstance(minutes, dict):
+            if not isinstance(config, dict):
                 sys.exit("Website limits must be a JSON object of domain: minutes")
-            for domain, value in minutes.items():
+            limits = {}
+            for domain, value in config.items():
                 if not re.fullmatch(r"[a-z0-9-]+(\.[a-z0-9-]+)*", domain):
                     sys.exit(f"Website limits must use lowercase hostnames, not URLs or wildcards: {domain!r}")
-                if type(value) is not int or value < 0:
-                    sys.exit(f"Website limits must be non-negative whole minutes (0 blocks immediately): {domain!r}")
-            return {domain: value * 60 for domain, value in minutes.items()}
+                if type(value) is int:
+                    value = {"daily": value}
+                if not isinstance(value, dict) or not value or not set(value) <= set(PERIODS):
+                    sys.exit(f"Website limits must be minutes or an object with \"daily\" and/or \"hourly\" minutes: {domain!r}")
+                for minutes in value.values():
+                    if type(minutes) is not int or minutes < 0:
+                        sys.exit(f"Website limits must be non-negative whole minutes (0 blocks immediately): {domain!r}")
+                limits[domain] = {period: minutes * 60 for period, minutes in value.items()}
+            return limits
 
 
         LIMITS = load_limits()
 
 
-        def today():
-            return datetime.date.today().isoformat()
+        def current_period():
+            # One clock reading for both, so day and hour can never disagree.
+            now = datetime.datetime.now()
+            return now.date().isoformat(), now.strftime("%Y-%m-%dT%H")
+
+
+        def empty_state(day, hour):
+            return {"date": day, "seconds": {}, "hour": hour, "hourSeconds": {}}
+
+
+        def valid_totals(totals):
+            return isinstance(totals, dict) and all(
+                isinstance(key, str)
+                and type(value) in (int, float)
+                and math.isfinite(value) and value >= 0
+                for key, value in totals.items()
+            )
 
 
         def domain_for(url):
@@ -92,19 +121,18 @@
 
 
         def load_state(path):
-            empty = {"date": today(), "seconds": {}}
+            day, hour = current_period()
+            empty = empty_state(day, hour)
             try:
                 state = json.loads(path.read_text())
-                if state["date"] != today():
+                if state["date"] != day:
                     return empty
-                seconds = state["seconds"]
-                if not isinstance(seconds, dict) or not all(
-                    isinstance(key, str)
-                    and type(value) in (int, float)
-                    and math.isfinite(value) and value >= 0
-                    for key, value in seconds.items()
-                ):
+                if not valid_totals(state["seconds"]):
                     raise ValueError("invalid usage totals")
+                # State written before hourly limits existed has no hour bucket.
+                if state.get("hour") != hour or not valid_totals(state.get("hourSeconds")):
+                    state["hour"] = hour
+                    state["hourSeconds"] = {}
                 return state
             except FileNotFoundError:
                 return empty
@@ -134,29 +162,36 @@
                 self.previous = set()
                 self.last_tick = None
 
-            def update(self, focused, now, day):
+            def update(self, focused, now, day, hour):
                 changed = False
                 if self.state["date"] != day:
-                    self.state = {"date": day, "seconds": {}}
+                    self.state = empty_state(day, hour)
                     self.previous = set()
+                    changed = True
+                elif self.state["hour"] != hour:
+                    self.state["hour"] = hour
+                    self.state["hourSeconds"] = {}
                     changed = True
                 elapsed = 0 if self.last_tick is None else now - self.last_tick
                 # Require consecutive focused samples. Skip gaps (suspend,
                 # slow/unresponsive pages); never charge time while offline.
                 if 0 < elapsed <= 2 * INTERVAL:
                     for domain in self.previous & focused:
-                        used = self.state["seconds"].get(domain, 0)
-                        self.state["seconds"][domain] = used + elapsed
+                        for key in ("seconds", "hourSeconds"):
+                            used = self.state[key].get(domain, 0)
+                            self.state[key][domain] = used + elapsed
                         changed = True
                 self.previous = focused
                 self.last_tick = now
                 return changed
 
             def exhausted(self, domain):
-                return (
-                    domain in LIMITS
-                    and self.state["seconds"].get(domain, 0) >= LIMITS[domain]
-                )
+                """Return the period whose budget is spent ("daily"/"hourly"), or None."""
+                limit = LIMITS.get(domain, {})
+                for period, key in (("daily", "seconds"), ("hourly", "hourSeconds")):
+                    if period in limit and self.state[key].get(domain, 0) >= limit[period]:
+                        return period
+                return None
 
 
         def request(path):
@@ -228,7 +263,7 @@
                     logging.debug("Could not inspect tab", exc_info=True)
             # BOOTTIME includes suspend, allowing Tracker to discard that gap.
             now = time.clock_gettime(time.CLOCK_BOOTTIME)
-            if tracker.update(focused, now, today()):
+            if tracker.update(focused, now, *current_period()):
                 save_state(STATE_FILE, tracker.state)
             for target, domain in candidates:
                 if not tracker.exhausted(domain):
@@ -237,30 +272,36 @@
                     # Do not close a tab that has navigated to an unrelated site
                     # since discovery. Only store aggregate domains, never URLs.
                     current, _ = inspect_tab(target)
-                    if tracker.exhausted(current):
+                    period = tracker.exhausted(current)
+                    if period:
                         request("/json/close/" + quote(target["id"], safe=""))
-                        logging.info("Closed tab: %s (daily limit reached)", current)
+                        logging.info("Closed tab: %s (%s limit reached)", current, period)
                 except TAB_ERRORS:
                     logging.debug("Could not close tab", exc_info=True)
 
 
         def main():
-            parser = argparse.ArgumentParser(description="Daily focused-tab budgets")
+            parser = argparse.ArgumentParser(description="Daily and hourly focused-tab budgets")
             parser.add_argument("--status", action="store_true",
-                                help="show today's usage without connecting to Chrome")
+                                help="show today's and this hour's usage without connecting to Chrome")
             args = parser.parse_args()
             logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
             if args.status:
                 state = load_state(STATE_FILE)
+                sites = {}
+                for domain, limit in LIMITS.items():
+                    site = sites[domain] = {
+                        "usedMinutes": round(state["seconds"].get(domain, 0) / 60, 2),
+                        "usedThisHourMinutes": round(state["hourSeconds"].get(domain, 0) / 60, 2),
+                    }
+                    if "daily" in limit:
+                        site["dailyLimitMinutes"] = limit["daily"] / 60
+                    if "hourly" in limit:
+                        site["hourlyLimitMinutes"] = limit["hourly"] / 60
                 print(json.dumps({
                     "date": state["date"],
-                    "sites": {
-                        domain: {
-                            "usedMinutes": round(state["seconds"].get(domain, 0) / 60, 2),
-                            "limitMinutes": limit / 60,
-                        }
-                        for domain, limit in LIMITS.items()
-                    },
+                    "hour": state["hour"],
+                    "sites": sites,
                 }, indent=2))
                 return
             if not LIMITS:
@@ -304,7 +345,7 @@
       home.packages = [ monitor ];
       systemd.user.services.website-usage-limiter = {
         Unit = {
-          Description = "Daily website usage limits for chrome-jofre";
+          Description = "Daily and hourly website usage limits for chrome-jofre";
           ConditionPathExists = limitsFile;
           # The decrypted file is rewritten on activation; restart when it changes.
           X-Restart-Triggers = [ "${limitsSecret}" ];

@@ -108,15 +108,13 @@ export default class Spaces extends View {
 
   visibleMachines(rows) {
     const remote = [...new Set([...rows.map((r) => r.w.machine).filter(Boolean), ...this.machines.map((m) => m.name), ...Object.keys(this.reconnecting)])].sort();
-    const candidates = [null, ...remote];
-    const shown = candidates.filter((m) => {
-      const mine = rows.filter((r) => (r.w.machine ?? null) === m);
-      if (mine.length > 0) return true;
-      const repair = this.reconnecting[m];
-      const machine = this.machines.find((k) => k.name === m) ?? repair?.machine;
-      return Boolean(this.rebuilt(machine) || repair);
-    });
-    return shown;
+    return remote.length ? [null, ...remote] : [null];
+  }
+
+  isLoading(m) {
+    const ml = machines().find((k) => k.name === m)?.layout;
+    return ml === "loading" || (!ml && this.machines.some((k) => k.name === m && k.state === "connected"))
+      || spaces().some((s) => (s.machine ?? null) === m && !this.shown.has(s.id));
   }
 
   computeHeight(collapsed) {
@@ -124,7 +122,8 @@ export default class Spaces extends View {
     const shown = this.visibleMachines(rows);
     const useGroups = shown.length > 1 || (shown.length === 1 && shown[0] !== null);
     if (collapsed) {
-      const seps = useGroups ? Math.max(0, shown.length - 1) * 9 : 0;
+      const nonEmpty = shown.filter((m) => rows.some((r) => (r.w.machine ?? null) === m)).length;
+      const seps = useGroups ? Math.max(0, nonEmpty - 1) * 9 : 0;
       return Math.max(52, Math.min(420, 12 + Math.max(1, rows.length) * SIZE.row + seps + 2));
     }
     let h = SIZE.header + 16; // header + padding
@@ -137,9 +136,11 @@ export default class Spaces extends View {
         const mine = rows.filter((r) => (r.w.machine ?? null) === m);
         const repair = this.reconnecting[m];
         const machine = this.machines.find((k) => k.name === m) ?? repair?.machine;
+        const connected = !m || machine?.state === "connected";
         const rebuilt = this.rebuilt(machine) || !!repair;
-        if (rebuilt) return;
-        if (!this.folded.has(m)) h += Math.max(1, mine.length) * SIZE.row;
+        if (rebuilt || this.folded.has(m)) return;
+        const count = mine.length || (this.isLoading(m) || connected ? 1 : 0);
+        h += count * SIZE.row;
       });
     }
     return Math.max(90, Math.min(420, h + 2));
@@ -390,23 +391,21 @@ export default class Spaces extends View {
       return parts.length >= 2 ? parts[parts.length - 2] : "";
     };
     const draw = (r) => (collapsed ? this.compact(r, t, hintFor(r.w)) : this.row(r, t, hintFor(r.w)));
-    const loading = (m) => {
-      const layout = machines().find((k) => k.name === m)?.layout;
-      return layout === "loading" || (!layout && this.machines.some((k) => k.name === m && k.state === "connected"))
-        || spaces().some((s) => (s.machine ?? null) === m && !this.shown.has(s.id));
-    };
+    const loading = (m) => this.isLoading(m);
     const loadingRow = (m) => div().id(`machine-loading-${m ?? "local"}`).h(SIZE.row).flex_none().px(8).text_size(TYPE.sub).text_color(t.muted).child(collapsed ? "…" : "Loading…");
     const machineNames = this.visibleMachines(rows);
     const useGroups = machineNames.length > 1 || (machineNames.length === 1 && machineNames[0] !== null);
     if (collapsed) {
       if (loading(null) && !rows.length) return [loadingRow(null)];
       if (!useGroups) return rows.map(draw);
-      return machineNames.flatMap((m, idx) => {
+      let first = true;
+      return machineNames.flatMap((m) => {
         const mine = rows.filter((r) => (r.w.machine ?? null) === m);
         if (!mine.length) return [];
-        const sep = idx > 0
+        const sep = !first
           ? [h_flex().h(9).flex_none().items_center().justify_center().child(div().h(1).w(16).bg(alpha(t.foreground, 0.14)))]
           : [];
+        first = false;
         return [...sep, ...mine.map(draw)];
       });
     }
@@ -438,7 +437,7 @@ export default class Spaces extends View {
         id: `machine-${mKey}`,
         open: !folded,
         label: m ?? "This computer",
-        statusDot: !connected && !rebuilt ? dot(t, "error", { size: 5 }) : null,
+        statusDot: !rebuilt ? (connected ? (m ? dot(t, "ok", { size: 5 }) : null) : dot(t, "error", { size: 5 })) : null,
         right: (!connected || rebuilt || hovered) ? rightEl : null,
         onToggle: (_e, cx) => {
           this.folded.has(m) ? this.folded.delete(m) : this.folded.add(m);
@@ -454,7 +453,13 @@ export default class Spaces extends View {
           cx.notify();
         });
       if (rebuilt) return [head];
-      return [head, ...(folded ? [] : mine.length ? mine.map(draw) : [loadingRow(m)])];
+      const empty = h_flex().id(`machine-new-${mKey}`).h(SIZE.row).flex_none().px(8).gap(8).items_center().rounded(RADIUS.sm)
+        .cursor_pointer().text_size(TYPE.sub).text_color(t.dim).hover((s) => s.bg(t.hover).text_color(t.foreground))
+        .on_click(() => run("space.new", { machine: m ?? "" }))
+        .child(svg("mods/my-chrome/plus.svg").size(SIZE.iconSm))
+        .child("New space");
+      const body = mine.length ? mine.map(draw) : (loading(m) ? [loadingRow(m)] : (connected ? [empty] : []));
+      return [head, ...(folded ? [] : body)];
     });
   }
 

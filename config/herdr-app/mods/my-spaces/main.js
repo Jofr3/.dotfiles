@@ -696,13 +696,16 @@ export default class Spaces extends View {
   agentRows({ w, tree }, t, collapsed) {
     const list = this.agentsBySpace?.get(w.id) ?? [];
     const indent = tree ? 46 : 26;
-    return list.flatMap((a) => {
+    const rows = list.flatMap((a) => {
       const subs = collapsed ? [] : this.tree(this.allTerminals, a.address);
       return [
         collapsed ? this.agentCompact(a, t) : this.agentRow(a, t, indent),
         ...subs.map((s) => this.subRow(s, t, indent)),
       ];
     });
+    // A little air between a space's last agent and the next space.
+    if (rows.length) rows[rows.length - 1] = rows[rows.length - 1].mb(6);
+    return rows;
   }
 
   agentRow(a, t, indent) {
@@ -737,7 +740,7 @@ export default class Spaces extends View {
       .cursor_pointer()
       .tooltip([a.space_name, label].filter(Boolean).join(" · "))
       .when(blocked && !on, (el) => el.bg(alpha(t.blocked, 0.1)))
-      .when(on, (el) => el.bg(alpha(t.selected, 0.7)))
+      .when(on, (el) => el.bg(alpha(t.selected, 0.45)))
       .when(!on, (el) => el.hover((s) => s.bg(blocked ? alpha(t.blocked, 0.16) : t.hover)))
       .on_hover((h, cx) => {
         if (h) this.hoveredAgent = a.address;
@@ -801,7 +804,7 @@ export default class Spaces extends View {
       .rounded(RADIUS.sm)
       .cursor_pointer()
       .tooltip([a.space_name, this.agentLabel(a)].filter(Boolean).join(" · "))
-      .when(a.focused, (el) => el.bg(alpha(t.selected, 0.7)))
+      .when(a.focused, (el) => el.bg(alpha(t.selected, 0.45)))
       .when(!a.focused, (el) => el.hover((s) => s.bg(t.hover)))
       .on_click(() => goToAgent(a))
       .child(pic ?? div().size(6).rounded(RADIUS.full).bg(t.dim))

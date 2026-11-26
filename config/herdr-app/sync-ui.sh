@@ -2,11 +2,11 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 SRC="mods/my-files/ui.js"
-TARGETS=(cmd-buttons my-spaces my-agents my-chrome my-tabs my-changes remote services usage)
+TARGETS=(cmd-buttons my-spaces my-chrome my-tabs my-changes remote services usage)
 for m in "${TARGETS[@]}"; do
   cp "$SRC" "mods/$m/ui.js"
 done
-UNIQUE=$(md5sum "$SRC" mods/{cmd-buttons,my-spaces,my-agents,my-chrome,my-tabs,my-changes,remote,services,usage}/ui.js | awk '{print $1}' | sort -u | wc -l)
+UNIQUE=$(md5sum "$SRC" mods/{cmd-buttons,my-spaces,my-chrome,my-tabs,my-changes,remote,services,usage}/ui.js | awk '{print $1}' | sort -u | wc -l)
 if [ "$UNIQUE" -ne 1 ]; then
   echo "ERROR: ui.js copies diverged!" >&2
   exit 1

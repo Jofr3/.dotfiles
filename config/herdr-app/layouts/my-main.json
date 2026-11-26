@@ -31,17 +31,6 @@
                 "mod": "my-spaces"
               },
               "size": {
-                "px": 180
-              },
-              "min": 90
-            },
-            {
-              "id": "agents",
-              "type": "block",
-              "content": {
-                "mod": "my-agents"
-              },
-              "size": {
                 "weight": 1
               },
               "min": 90

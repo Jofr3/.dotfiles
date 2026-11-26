@@ -41,6 +41,17 @@
         "tsPort": "",
         "tailscale": true
       }
+    ],
+    "/home/jofre/lsw/compartium_app": [
+      {
+        "id": "svc_mww01o9k",
+        "name": "android",
+        "command": "npm run android",
+        "nix": "auto",
+        "port": "",
+        "tsPort": "",
+        "tailscale": false
+      }
     ]
   }
 }

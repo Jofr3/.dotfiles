@@ -1,23 +1,12 @@
 {
   "nodes": {
-    "agents": {
-      "size": {
-        "weight": 0.4687578
-      }
-    },
     "panel": {
       "size": {
         "px": 480.0
-      },
-      "hidden": false
+      }
     },
     "panel-body": {
       "active": "services"
-    },
-    "spaces": {
-      "size": {
-        "px": 186.0
-      }
     }
   },
   "theme": {
@@ -55,17 +44,6 @@
                 "type": "block",
                 "content": {
                   "mod": "my-spaces"
-                },
-                "size": {
-                  "px": 180.0
-                },
-                "min": 90.0
-              },
-              {
-                "id": "agents",
-                "type": "block",
-                "content": {
-                  "mod": "my-agents"
                 },
                 "size": {
                   "weight": 1.0
